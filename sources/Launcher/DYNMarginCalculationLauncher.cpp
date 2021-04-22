@@ -1,0 +1,565 @@
+//
+// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// See AUTHORS.txt
+// All rights reserved.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, you can obtain one at http://mozilla.org/MPL/2.0/.
+// SPDX-License-Identifier: MPL-2.0
+//
+// This file is part of Dynawo, an hybrid C++/Modelica open source suite
+// of simulation tools for power systems.
+//
+
+/**
+ * @file  MarginCalculationLauncher.cpp
+ *
+ * @brief Margin Calculation launcher: implementation of the algorithm and interaction with dynamo core
+ *
+ */
+
+#include <iostream>
+#include <cmath>
+#include <queue>
+#include <ctime>
+#include <iomanip>
+
+#ifdef WITH_OPENMP
+#include <omp.h>
+#endif
+
+#include <libzip/ZipFile.h>
+#include <libzip/ZipFileFactory.h>
+#include <libzip/ZipEntry.h>
+#include <libzip/ZipInputStream.h>
+#include <libzip/ZipOutputStream.h>
+
+#include <DYNFileSystemUtils.h>
+#include <DYNExecUtils.h>
+#include <DYNSimulation.h>
+#include <DYNSubModel.h>
+#include <DYNTrace.h>
+#include <DYNModel.h>
+#include <DYNParameter.h>
+#include <DYNModelMulti.h>
+#include <JOBXmlImporter.h>
+#include <JOBIterators.h>
+#include <JOBJobsCollection.h>
+#include <JOBJobEntry.h>
+#include <config.h>
+#include <gitversion.h>
+
+#include "../config_algorithms.h"
+#include "../gitversion_algorithms.h"
+#include "DYNMarginCalculationLauncher.h"
+#include "DYNMultipleJobs.h"
+#include "DYNMarginCalculation.h"
+#include "DYNScenario.h"
+#include "MacrosMessage.h"
+#include "DYNScenarios.h"
+#include "DYNAggrResXmlExporter.h"
+
+using multipleJobs::MultipleJobs;
+using DYN::Trace;
+
+namespace DYNAlgorithms {
+
+const char* logTag = "DYN-ALGO";
+
+MarginCalculationLauncher::~MarginCalculationLauncher() {
+}
+
+void
+MarginCalculationLauncher::initLog() {
+  std::vector<Trace::TraceAppender> appenders;
+  Trace::TraceAppender appender;
+  std::string outputPath(createAbsolutePath("dynawo.log", workingDirectory_));
+
+  appender.setFilePath(outputPath);
+#if _DEBUG_
+  appender.setLvlFilter(DYN::DEBUG);
+#else
+  appender.setLvlFilter(DYN::INFO);
+#endif
+  appender.setTag(logTag);
+  appender.setShowLevelTag(true);
+  appender.setSeparator(" | ");
+  appender.setShowTimeStamp(true);
+  appender.setTimeStampFormat("%Y-%m-%d %H:%M:%S");
+  appender.setPersistant(true);
+
+  appenders.push_back(appender);
+
+  Trace::addAppenders(appenders);
+}
+
+void
+MarginCalculationLauncher::createScenarioWorkingDir(const std::string& scenarioId, double variation) const {
+  std::stringstream subDir;
+  subDir << "step-" << variation << "/" << scenarioId;
+  std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
+  if (!exists(workingDir))
+    create_directory(workingDir);
+  else if (!is_directory(workingDir))
+    throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
+}
+
+void
+MarginCalculationLauncher::launch() {
+  assert(multipleJobs_);
+  results_.clear();
+  boost::shared_ptr<MarginCalculation> marginCalculation = multipleJobs_->getMarginCalculation();
+  if (!marginCalculation) {
+    throw DYNAlgorithmsError(MarginCalculationTaskNotFound);
+  }
+  initLog();
+  const boost::shared_ptr<LoadIncrease>& loadIncrease = marginCalculation->getLoadIncrease();
+  const boost::shared_ptr<Scenarios>& scenarios = marginCalculation->getScenarios();
+  const std::string& baseJobsFile = scenarios->getJobsFile();
+  const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
+#ifdef WITH_OPENMP
+  omp_set_num_threads(nbThreads_);
+#endif
+  Trace::info(logTag) << " ============================================================ " << Trace::endline;
+  Trace::info(logTag) << "             Version: " + std::string(DYNAWO_ALGORITHMS_VERSION_STRING) << Trace::endline;
+  Trace::info(logTag) << "            Revision: " + std::string(DYNAWO_ALGORITHMS_GIT_BRANCH) << Trace::endline;
+  Trace::info(logTag) << "      Dynawo Version: " + std::string(DYNAWO_VERSION_STRING) << Trace::endline;
+  Trace::info(logTag) << "     Dynawo Revision: " + std::string(DYNAWO_GIT_BRANCH) << Trace::endline;
+  Trace::info(logTag) << " ============================================================ " << Trace::endline;
+
+  results_.push_back(LoadIncreaseResult());
+  size_t idx = results_.size() - 1;
+  results_[idx].resize(events.size());
+  results_[idx].setLoadLevel(100.);
+  // step one : launch the loadIncrease and then all events with 100% of the load increase
+  // if there is no crash => no need to go further
+  // We start with 100% as it is the most common result of margin calculations on real large cases
+  SimulationResult result100;
+  findOrLaunchLoadIncrease(loadIncrease, 100, marginCalculation->getAccuracy(), result100);
+  results_[idx].setStatus(result100.getStatus());
+  std::vector<double > maximumVariationPassing(events.size(), 0.);
+  if (result100.getSuccess()) {
+    for (unsigned int i=0; i < events.size(); i++) {
+      createScenarioWorkingDir(events[i]->getId(), 100);
+    }
+#pragma omp parallel for schedule(dynamic, 1)
+    for (unsigned int i=0; i < events.size(); i++)
+      launchScenario(events[i], baseJobsFile, 100, results_[idx].getResult(i));
+
+    // analyze results
+    unsigned int nbSuccess = 0;
+    size_t id = 0;
+    for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
+        itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
+      Trace::info(logTag) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+      if (it->getStatus() == CONVERGENCE_STATUS) {  // event OK
+        nbSuccess++;
+        maximumVariationPassing[id] = 100;
+      }
+    }
+    if (nbSuccess == events.size()) {  // all events succeed
+      Trace::info(logTag) << "============================================================ " << Trace::endline;
+      Trace::info(logTag) << DYNAlgorithmsLog(GlobalMarginValue, 100.) << Trace::endline;
+      Trace::info(logTag) << "============================================================ " << Trace::endline;
+      return;
+    }
+  }  // if the loadIncrease failed, nothing to do, the next algorithm will try to find the right load level
+  Trace::info(logTag) << Trace::endline;
+
+  results_.push_back(LoadIncreaseResult());
+  idx = results_.size() - 1;
+  results_[idx].resize(events.size());
+  results_[idx].setLoadLevel(0.);
+  // step two : launch the loadIncrease and then all events with 0% of the load increase
+  // if one event crash => no need to go further
+  SimulationResult result0;
+  findOrLaunchLoadIncrease(loadIncrease, 0, marginCalculation->getAccuracy(), result0);
+  results_[idx].setStatus(result0.getStatus());
+  if (result0.getSuccess()) {
+    for (unsigned int i=0; i < events.size(); i++) {
+      createScenarioWorkingDir(events[i]->getId(), 0);
+    }
+#pragma omp parallel for schedule(dynamic, 1)
+    for (unsigned int i=0; i < events.size(); i++)
+      launchScenario(events[i], baseJobsFile, 0, results_[idx].getResult(i));
+  } else {
+    Trace::info(logTag) << "============================================================ " << Trace::endline;
+    Trace::info(logTag) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, 0.) << Trace::endline;
+    Trace::info(logTag) << "============================================================ " << Trace::endline;
+    return;  // unable to launch the initial simulation with 0% of load increase
+  }
+
+  // analyze results
+  for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
+      itEnd = results_[idx].end(); it != itEnd; ++it) {
+    Trace::info(logTag) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+    if (it->getStatus() != CONVERGENCE_STATUS) {  // one event crashes
+      Trace::info(logTag) << "============================================================ " << Trace::endline;
+      Trace::info(logTag) << DYNAlgorithmsLog(LocalMarginValueScenario, it->getUniqueScenarioId(), 0.) << Trace::endline;
+      Trace::info(logTag) << "============================================================ " << Trace::endline;
+      return;
+    }
+  }
+  Trace::info(logTag) << Trace::endline;
+
+  if (marginCalculation->getCalculationType() == MarginCalculation::GLOBAL_MARGIN) {
+    double value = computeGlobalMargin(loadIncrease, baseJobsFile, events, maximumVariationPassing, marginCalculation->getAccuracy());
+    Trace::info(logTag) << "============================================================ " << Trace::endline;
+    Trace::info(logTag) << DYNAlgorithmsLog(GlobalMarginValue, value) << Trace::endline;
+    Trace::info(logTag) << "============================================================ " << Trace::endline;
+  } else {
+    assert(marginCalculation->getCalculationType() == MarginCalculation::LOCAL_MARGIN);
+    std::vector<double> results(events.size(), 0);
+    double value = computeLocalMargin(loadIncrease, baseJobsFile, events, marginCalculation->getAccuracy(), results);
+    if (result100.getSuccess()) {
+      value = 100;
+    }
+    Trace::info(logTag) << "============================================================ " << Trace::endline;
+    Trace::info(logTag) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, value) << Trace::endline;
+    for (size_t i = 0, iEnd = results.size(); i < iEnd; ++i) {
+      Trace::info(logTag) << DYNAlgorithmsLog(LocalMarginValueScenario, events[i]->getId(), results[i]) << Trace::endline;
+    }
+    Trace::info(logTag) << "============================================================ " << Trace::endline;
+  }
+}
+
+double
+MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
+    const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events,
+    std::vector<double >& maximumVariationPassing, double tolerance) {
+  double minVariation = 0;
+  double maxVariation = 100;
+
+  while ( maxVariation - minVariation > tolerance ) {
+    double newVariation = round((minVariation + maxVariation)/2);
+    results_.push_back(LoadIncreaseResult());
+    size_t idx = results_.size() - 1;
+    results_[idx].resize(events.size());
+    results_[idx].setLoadLevel(newVariation);
+    SimulationResult result;
+    std::stringstream variationString;
+    variationString << newVariation;
+    findOrLaunchLoadIncrease(loadIncrease, newVariation, tolerance, result);
+    results_[idx].setStatus(result.getStatus());
+    if (result.getSuccess()) {
+      for (unsigned int i=0; i < events.size(); i++) {
+        createScenarioWorkingDir(events[i]->getId(), newVariation);
+      }
+#pragma omp parallel for schedule(dynamic, 1)
+      for (unsigned int i=0; i < events.size(); i++) {
+        if (newVariation > maximumVariationPassing[i]) {
+          launchScenario(events[i], baseJobsFile, newVariation, results_[idx].getResult(i));
+        } else {
+          results_[idx].getResult(i).setScenarioId(events[i]->getId());
+          results_[idx].getResult(i).setVariation(variationString.str());
+          results_[idx].getResult(i).setSuccess(true);
+          results_[idx].getResult(i).setStatus(CONVERGENCE_STATUS);
+        }
+      }
+
+      // analyze results
+      unsigned int nbSuccess = 0;
+      size_t id = 0;
+      for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
+          itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
+        if (newVariation <= maximumVariationPassing[id])
+          Trace::info(logTag) << DYNAlgorithmsLog(ScenarioNotSimulated, it->getUniqueScenarioId()) << Trace::endline;
+        else
+          Trace::info(logTag) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+        if (it->getStatus() == CONVERGENCE_STATUS || newVariation <= maximumVariationPassing[id]) {  // event OK
+          nbSuccess++;
+          if (newVariation > maximumVariationPassing[id])
+            maximumVariationPassing[id] = newVariation;
+        }
+      }
+      if (nbSuccess == events.size() )  // all events succeed
+        minVariation = newVariation;
+      else
+        maxVariation = newVariation;  // at least, one crash
+    } else {
+      maxVariation = newVariation;  // load increase crashed
+    }
+    Trace::info(logTag) << Trace::endline;
+  }
+  return minVariation;
+}
+
+struct task_t{
+  double minVariation_;
+  double maxVariation_;
+  std::vector<size_t> ids_;
+
+  task_t(double minVariation, double maxVariation, const std::vector<size_t>& ids) {
+    minVariation_ = minVariation;
+    maxVariation_ = maxVariation;
+    ids_ = ids;
+  }
+
+  task_t(double minVariation, double maxVariation) {
+    minVariation_ = minVariation;
+    maxVariation_ = maxVariation;
+  }
+};
+
+double
+MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
+    const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events, double tolerance,
+    std::vector<double>& results) {
+  double maxLoadVarForLoadIncrease = 0.;
+  std::queue< task_t > toRun;
+  std::vector<size_t> all;
+  for (size_t i=0, iEnd = events.size(); i < iEnd ; i++)
+    all.push_back(i);
+  toRun.push(task_t(0, 100, all));
+
+  while (!toRun.empty()) {
+    task_t task = toRun.front();
+    toRun.pop();
+    const std::vector<size_t>& eventsId = task.ids_;
+    double newVariation = round((task.minVariation_ + task.maxVariation_)/2);
+    results_.push_back(LoadIncreaseResult());
+    size_t idx = results_.size() - 1;
+    results_[idx].resize(eventsId.size());
+    results_[idx].setLoadLevel(newVariation);
+    SimulationResult result;
+    findOrLaunchLoadIncrease(loadIncrease, newVariation, tolerance, result);
+    results_[idx].setStatus(result.getStatus());
+    if (result.getSuccess()) {
+      if (maxLoadVarForLoadIncrease < newVariation)
+        maxLoadVarForLoadIncrease = newVariation;
+      for (unsigned int i=0; i < events.size(); i++) {
+        createScenarioWorkingDir(events[eventsId[i]]->getId(), newVariation);
+      }
+#pragma omp parallel for schedule(dynamic, 1)
+      for (unsigned int i=0; i < eventsId.size(); i++)
+        launchScenario(events[eventsId[i]], baseJobsFile, newVariation, results_[idx].getResult(i));
+
+      // analyze results
+      size_t id = 0;
+      task_t below(task.minVariation_, newVariation);
+      task_t above(newVariation, task.maxVariation_);
+      for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
+          itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
+        Trace::info(logTag) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+        if (it->getStatus() == CONVERGENCE_STATUS) {  // event OK
+          if (results[eventsId[id]] < newVariation)
+            results[eventsId[id]] = newVariation;
+          if ( task.maxVariation_ - newVariation > tolerance ) {
+            above.ids_.push_back(eventsId[id]);
+          }
+        } else {
+          if ( newVariation - task.minVariation_ > tolerance )
+            below.ids_.push_back(eventsId[id]);
+        }
+      }
+      if (!below.ids_.empty())
+        toRun.push(below);
+      if (!above.ids_.empty())
+        toRun.push(above);
+    } else if ( newVariation - task.minVariation_ > tolerance ) {
+      task_t below(task.minVariation_, newVariation);
+      size_t id = 0;
+      for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
+          itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
+        below.ids_.push_back(eventsId[id]);
+      }
+      if (!below.ids_.empty())
+        toRun.push(below);
+    }
+    Trace::info(logTag) << Trace::endline;
+  }
+  return maxLoadVarForLoadIncrease;
+}
+void
+MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile,
+    const double variation, SimulationResult& result) {
+  if (nbThreads_ == 1)
+    std::cout << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
+  std::stringstream subDir;
+  subDir << "step-" << variation << "/" << scenario->getId();
+  std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
+  job::XmlImporter importer;
+  // implicit rule : one job per file
+  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + baseJobsFile);
+  if (jobsCollection->begin() == jobsCollection->end())
+    return;
+  job::job_iterator itJobEntry = jobsCollection->begin();
+  boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
+  addDydFileToJob(job, scenario->getDydFile());
+
+  SimulationParameters params;
+  std::stringstream dumpFile;
+  dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".dmp";
+  //  force simulation to load previous dump and to use final values
+  params.InitialStateFile_ = dumpFile.str();
+  std::stringstream iidmFile;
+  iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".iidm";
+  params.iidmFile_ = iidmFile.str();
+  std::stringstream scenarioId;
+  scenarioId << variation;
+  result.setScenarioId(scenario->getId());
+  result.setVariation(scenarioId.str());
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result);
+
+  if (simulation)
+    simulate(simulation, result);
+  if (nbThreads_ == 1)
+    std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
+}
+
+void
+MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
+    const double variation, const double tolerance, SimulationResult& result) {
+  Trace::info(logTag) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
+  if (nbThreads_ == 1) {
+    launchLoadIncrease(loadIncrease, variation, result);
+    return;
+  }
+
+  std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator it = loadIncreaseCache_.find(variation);
+  if (it != loadIncreaseCache_.end()) {
+    Trace::info(logTag) << DYNAlgorithmsLog(LoadIncreaseResultsFound, variation) << Trace::endline;
+    result = it->second;
+    return;
+  }
+  std::vector<double> variationsToLaunch;
+  if (loadIncreaseCache_.empty()) {
+    // First time we call this, we know we have at least 2 threads.
+    variationsToLaunch.push_back(0.);
+    variationsToLaunch.push_back(100.);
+  }
+  if (static_cast<int>(variationsToLaunch.size()) < nbThreads_) {
+    std::queue< std::pair<double, double> > levels;
+    double closestVariationBelow = 0.;
+    double closestVariationAbove = 100.;
+    for (std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator it = loadIncreaseCache_.begin(),
+        itEnd = loadIncreaseCache_.end(); it != itEnd; ++it) {
+      if (closestVariationBelow < it->first && it->first < variation)
+        closestVariationBelow = it->first;
+      if (it->first < closestVariationAbove &&  variation < it->first)
+        closestVariationAbove = it->first;
+    }
+    levels.push(std::make_pair(closestVariationBelow, closestVariationAbove));
+    while (!levels.empty() && static_cast<int>(variationsToLaunch.size()) < nbThreads_) {
+      std::pair<double, double> currentLevel = levels.front();
+      levels.pop();
+      double nextVariation = round((currentLevel.first + currentLevel.second)/2);
+      variationsToLaunch.push_back(nextVariation);
+      if (currentLevel.second - nextVariation > tolerance)
+        levels.push(std::make_pair(nextVariation, currentLevel.second));
+      if (nextVariation != 50. && nextVariation - currentLevel.first > tolerance)
+        levels.push(std::make_pair(currentLevel.first, nextVariation));
+    }
+  }
+  for (unsigned int i=0; i < variationsToLaunch.size(); i++) {
+    loadIncreaseCache_[variationsToLaunch[i]] = SimulationResult();  // Reserve memory
+    createScenarioWorkingDir(loadIncrease->getId(), variationsToLaunch[i]);
+  }
+#pragma omp parallel for schedule(dynamic, 1)
+  for (unsigned int i=0; i < variationsToLaunch.size(); i++) {
+    launchLoadIncrease(loadIncrease, variationsToLaunch[i], loadIncreaseCache_[variationsToLaunch[i]]);
+  }
+  assert(loadIncreaseCache_.find(variation) != loadIncreaseCache_.end());
+  result = loadIncreaseCache_[variation];
+}
+
+void
+MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
+    const double variation, SimulationResult& result) {
+  if (nbThreads_ == 1)
+    std::cout << "Launch loadIncrease of " << variation << "%" <<std::endl;
+  std::stringstream subDir;
+  subDir << "step-" << variation << "/" << loadIncrease->getId();
+  std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
+
+  job::XmlImporter importer;
+  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + loadIncrease->getJobsFile());
+  job::job_iterator itJobEntry = jobsCollection->begin();  // implicit : only one job in loadIncrease job files
+
+  SimulationParameters params;
+  //  force simulation to dump final values (would be used as input to launch each events)
+  params.activateDumpFinalState_ = true;
+  params.activateExportIIDM_ = true;
+  std::stringstream iidmFile;
+  iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".iidm";
+  params.exportIIDMFile_ = iidmFile.str();
+  std::stringstream dumpFile;
+  dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".dmp";
+  params.dumpFinalStateFile_ = dumpFile.str();
+
+  std::string DDBDir = getMandatoryEnvVar("DYNAWO_DDB_DIR");
+  std::stringstream scenarioId;
+  scenarioId << "loadIncrease-" << variation;
+  result.setScenarioId(scenarioId.str());
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, *itJobEntry, params, result);
+
+  if (simulation) {
+    boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
+    std::vector<boost::shared_ptr<DYN::SubModel> > subModels = modelMulti->findSubModelByLib(DDBDir + "/DYNModelVariationArea" + DYN::sharedLibraryExtension());
+    for (unsigned int i=0; i < subModels.size(); i++) {
+      double startTime = subModels[i]->findParameterDynamic("startTime").getValue<double>();
+      double stopTime = subModels[i]->findParameterDynamic("stopTime").getValue<double>();
+      int nbLoads = subModels[i]->findParameterDynamic("nbLoads").getValue<int>();
+      for (int k = 0; k < nbLoads; ++k) {
+        std::stringstream deltaPName;
+        deltaPName << "deltaP_load_" << k;
+        double deltaP = subModels[i]->findParameterDynamic(deltaPName.str()).getValue<double>();
+        subModels[i]->setParameterValue(deltaPName.str(), DYN::PAR, deltaP*variation/100., false);
+
+        std::stringstream deltaQName;
+        deltaQName << "deltaQ_load_" << k;
+        double deltaQ = subModels[i]->findParameterDynamic(deltaQName.str()).getValue<double>();
+        subModels[i]->setParameterValue(deltaQName.str(), DYN::PAR, deltaQ*variation/100., false);
+      }
+      // change of the stop time to keep the same ramp of variation.
+      double originalDuration = stopTime - startTime;
+      double newStopTime = startTime + originalDuration * variation / 100.;
+      subModels[i]->setParameterValue("stopTime", DYN::PAR, newStopTime, false);
+      subModels[i]->setSubModelParameters();  // update values stored in subModel
+      Trace::info(logTag) << DYNAlgorithmsLog(LoadIncreaseModelParameter, subModels[i]->name(), newStopTime, variation/100) << Trace::endline;
+    }
+    simulate(simulation, result);
+
+    simulation->printTimeline(result.getTimelineStream());
+    simulation->printConstraints(result.getConstraintsStream());
+  }
+  Trace::info(logTag) << DYNAlgorithmsLog(LoadIncreaseEnd, getStatusAsString(result.getStatus())) << Trace::endline;
+}
+
+void
+MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const {
+  Trace::resetCustomAppenders();  // to force flush
+  Trace::resetPersistantCustomAppenders();  // to force flush
+  aggregatedResults::XmlExporter exporter;
+  if (zipIt) {
+    std::stringstream aggregatedResults;
+    exporter.exportLoadIncreaseResultsToStream(results_, aggregatedResults);
+    mapData["aggregatedResults.xml"] = aggregatedResults.str();
+    std::ifstream inFile(createAbsolutePath("dynawo.log", workingDirectory_).c_str());
+    if (inFile.is_open()) {
+      std::string line;
+      std::stringstream strStream;
+      while (getline(inFile, line)) {
+        strStream << line << "\n";
+      }
+      mapData["dynawo.log"] = strStream.str();
+      inFile.close();
+    }
+  } else {
+    exporter.exportLoadIncreaseResultsToFile(results_, outputFileFullPath_);
+  }
+
+  for (size_t i=0, iEnd = results_.size(); i < iEnd; i++) {
+    for (std::vector<SimulationResult>::const_iterator it = results_[i].begin(),
+        itEnd = results_[i].end(); it != itEnd; ++it) {
+      if (zipIt) {
+        storeOutputs(*it, mapData);
+      } else {
+        writeOutputs(*it);
+      }
+    }
+  }
+}
+
+
+}  // namespace DYNAlgorithms

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<aggregatedResults xmlns="http://www.rte-france.com/dynawo" status="CRITERIA_NON_RESPECTED">
+  <scenarioResults id="MyFirstScenario" status="CONVERGENCE"/>
+  <scenarioResults id="MySecondScenario" status="CRITERIA_NON_RESPECTED">
+    <criterionNonRespected id="MyCriteria" time="10.000000"/>
+  </scenarioResults>
+  <scenarioResults id="MyThirdScenario" status="DIVERGENCE"/>
+</aggregatedResults>

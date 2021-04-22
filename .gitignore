@@ -1,0 +1,57 @@
+build
+build-code
+install
+distributions/*
+nbproject/*
+sources/gitversion_interface.h*
+sources/config_interface.h
+sources/Common/*_keys.cpp
+sources/Common/*_keys.h
+documentation/*.aux
+documentation/*.log
+documentation/*.nlo
+documentation/*.out
+documentation/*.pdf
+nrt/data/*/*/outputs*/
+nrt/data/*/*/step-*
+nrt/data/IEEE14/SA*/IEEE14*
+nrt/data/IEEE14/SA*/*.dyd
+nrt/data/IEEE14/SA*/*.par
+nrt/data/IEEE14/SA*/*.xml
+nrt/data/IEEE14/SA*/constraints
+nrt/data/IEEE14/SA*/timeLine
+nrt/data/IEEE14/SA*/timeline
+nrt/data/IEEE14/SA*/result.zip
+nrt/data/IEEE14/MC*/IEEE14*
+nrt/data/IEEE14/MC*/*.dmp
+nrt/data/IEEE14/MC*/*.iidm
+nrt/data/IEEE14/MC*/*.xml
+nrt/data/IEEE14/MC*/dynawo.log
+nrt/data/IEEE14/MC*/*.par
+nrt/data/IEEE14/MC*/timeLine
+nrt/data/IEEE14/MC*/timeline
+nrt/data/IEEE14/MC*/constraints
+nrt/data/IEEE14/MC*/result.zip
+nrt/data/IEEE14/MC*/*.dyd
+nrt/data/*/*/*/outputs*/
+nrt/output
+*.pyc
+platforms/DBCreation/DBCreation.log
+distributions/
+.gitignore_local
+
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+*.code-workspace
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode

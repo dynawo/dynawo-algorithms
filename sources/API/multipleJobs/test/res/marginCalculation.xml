@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<multipleJobs xmlns="http://www.rte-france.com/dynawo">
+  <marginCalculation calculationType="LOCAL_MARGIN" accuracy="50">
+    <scenarios jobsFile="myScenarios.jobs">
+      <scenario id="MyScenario" dydFile="MyScenario.dyd"/>
+      <scenario id="MyScenario2" dydFile="MyScenario.dyd"/>
+    </scenarios>
+    <loadIncrease id="MyLoadIncrease" jobsFile="MyLoadIncrease.jobs"/>
+  </marginCalculation>
+</multipleJobs>

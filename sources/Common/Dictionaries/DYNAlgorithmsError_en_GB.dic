@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// See AUTHORS.txt
+// All rights reserved.
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, you can obtain one at http://mozilla.org/MPL/2.0/.
+// SPDX-License-Identifier: MPL-2.0
+//
+// This file is part of Dynawo, an hybrid C++/Modelica open source suite
+// of simulation tools for power systems.
+//
+
+FileDoesNotExist                 = file : %1% does not exist
+MarginCalculationTaskNotFound    = marginCalculation task not found in input files
+DirectoryDoesNotExist            = directory : %1% does not exist
+XmlParsingError                  = error while parsing file %1% : %2%
+IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)
+InputFileFormatNotSupported      = input file should be either a zip or a xml file (found %1%)

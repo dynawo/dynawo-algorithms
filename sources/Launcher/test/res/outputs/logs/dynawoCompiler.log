@@ -1,0 +1,25 @@
+2020-03-10 15:57:48 | DEBUG |  ============================================================ 
+2020-03-10 15:57:48 | DEBUG | DYNAWO VERSION  :     1.0.1
+2020-03-10 15:57:48 | DEBUG | DYNAWO REVISION :    master-9c98df27
+2020-03-10 15:57:48 | DEBUG |  ============================================================ 
+2020-03-10 15:57:48 | INFO | ====================================================================================================
+2020-03-10 15:57:48 | INFO | |                                                                                                  |
+2020-03-10 15:57:48 | INFO | |                               Mapping Modelica Model SolverTestAlpha                             |
+2020-03-10 15:57:48 | INFO | |                                                                                                  |
+2020-03-10 15:57:48 | INFO | ====================================================================================================
+2020-03-10 15:57:48 | INFO | modelica model's Model Description: SolverTestAlpha is a reference model description to be compiled.
+2020-03-10 15:57:48 | INFO | compiled model ID: SolverTestAlpha
+2020-03-10 15:57:48 | DEBUG | 
+2020-03-10 15:57:48 | INFO | compilation files (and packages)
+2020-03-10 15:57:48 | DEBUG | /home/rosiereflo/Projects/dynamo-interface/dynamo-interface/util/./../sources/Launcher/test/res/./DYNSolverTest.mo
+2020-03-10 15:57:48 | DEBUG | 
+2020-03-10 15:57:48 | DEBUG | External variable files
+2020-03-10 15:57:48 | DEBUG | 
+2020-03-10 15:57:48 | INFO | ====================================================================================================
+2020-03-10 15:57:48 | INFO | |                                                                                                  |
+2020-03-10 15:57:48 | INFO | |                                     compiling SolverTestAlpha                                    |
+2020-03-10 15:57:48 | INFO | |                                                                                                  |
+2020-03-10 15:57:48 | INFO | ====================================================================================================
+2020-03-10 15:57:48 | INFO | model DYNSolverTestAlpha has no external variable file declared.
+2020-03-10 15:57:48 | INFO | generating modelica concatenation file /home/rosiereflo/Projects/dynamo-interface/dynamo-interface/util/./../sources/Launcher/test/res/outputs/compilation/SolverTestAlpha.mo. For model : SolverTestAlpha. For ModelDescription : SolverTestAlpha
+2020-03-10 15:57:48 | INFO | DYNSolverTestAlpha solverTestAlpha() ;
