@@ -147,7 +147,12 @@ if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
           iostreams
           )
 else()
-  find_package(Boost 1.64 REQUIRED
+  if(CXX11_ENABLED)
+    set(Boost_RequiredVersion  "1.70")
+  else()
+    set(Boost_RequiredVersion  "1.64")
+  endif()
+  find_package(Boost "${Boost_RequiredVersion}" REQUIRED
           COMPONENTS
           filesystem
           program_options
@@ -179,7 +184,8 @@ FIND_PACKAGE(libXML 0.2.4 REQUIRED)
 #libIIDM
 if(CXX11_ENABLED)
   find_package(LibXml2 "2.9" REQUIRED)
-  find_package(LibIIDM "1.2.1" REQUIRED)
+  find_package(LibIIDM "1.3.2" REQUIRED)
+  find_package(LibIIDM-RTE "1.3.0" REQUIRED)
 else()
 FIND_PACKAGE(libIIDM 0.2.8 REQUIRED
              COMPONENTS
