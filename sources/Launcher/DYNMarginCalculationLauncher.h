@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <queue>
 #include <boost/shared_ptr.hpp>
 #include <DYNCommon.h>
 #include "DYNRobustnessAnalysisLauncher.h"
@@ -57,6 +58,42 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
 
  private:
+  /**
+   * @brief Description of a set of scenarios to run
+   */
+  struct task_t{
+    double minVariation_;  ///< minimal variation that passes
+    double maxVariation_;  ///< maximal variation that fails
+    std::vector<size_t> ids_;  ///< indexes of the scenarios to run
+
+    /**
+     * @brief constructor
+     *
+     * @param minVariation minimal variation that passes
+     * @param maxVariation maximal variation that fails
+     * @param ids indexes of the scenarios to run
+     *
+     */
+    task_t(double minVariation, double maxVariation, const std::vector<size_t>& ids) {
+      minVariation_ = minVariation;
+      maxVariation_ = maxVariation;
+      ids_ = ids;
+    }
+
+
+    /**
+     * @brief constructor
+     *
+     * @param minVariation minimal variation that passes
+     * @param maxVariation maximal variation that fails
+     *
+     */
+    task_t(double minVariation, double maxVariation) {
+      minVariation_ = minVariation;
+      maxVariation_ = maxVariation;
+    }
+  };
+
   /**
    * @brief Research of the maximum variation value for which all the scenarios pass
    * try to find the maximum load increase between 0 and 100%. Only simulate events that crashes at 100% of load increase
@@ -117,6 +154,34 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   void launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease, const double variation, SimulationResult& result);
 
   /**
+   * @brief Find if the scenarios associated to this variation were already done
+   * otherwise, launch as many load scenarios as possible in multi-threading, including the variation one
+   *
+   * @param baseJobsFile base jobs file
+   * @param events complete list of scenarios
+   * @param toRun scenarios that needs to be run
+   * @param result result of the load increase
+   *
+   */
+  void findOrLaunchScenarios(const std::string& baseJobsFile,
+      const std::vector<boost::shared_ptr<Scenario> >& events,
+      std::queue< task_t >& toRun,
+      LoadIncreaseResult& result);
+
+
+  /**
+   * @brief Fill the vector with as many levels of variation you can run based on the number of available threads
+   *
+   * @param requestedTask the level of reference
+   * @param toRun scenarios that needs to be run
+   * @param events2Run will be filled with the scenario index and the level that can be run
+   *
+   */
+  void prepareEvents2Run(const task_t& requestedTask,
+      std::queue< task_t >& toRun,
+      std::vector<std::pair<size_t, double> >& events2Run);
+
+  /**
    * @brief launch the calculation of one scenario
    * Warning: must remain thread-safe!
    *
@@ -127,6 +192,19 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    *
    */
   void launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile, const double variation, SimulationResult& result);
+
+  /**
+   * @brief fill the queue with the possible levels that could be run with the number of threads available
+   *
+   * @param minVariation minimal variation that passes
+   * @param maxVariation maximal variation that fails
+   * @param tolerance maximum difference between the real value of the maximum variation and the value returned
+   * @param eventIdxs events that should be run
+   * @param toRun queue that will be filled with the task to run after this method
+   *
+   */
+  void findAllLevelsBetween(const double minVariation, const double maxVariation, const double tolerance,
+      const std::vector<size_t>& eventIdxs, std::queue< task_t >& toRun);
 
   /**
    * @brief Create the working directory of a scenario
@@ -158,6 +236,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
 
   std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
   std::map<double, SimulationResult, dynawoDoubleLess> loadIncreaseCache_;  ///< contains available load increase simulation results
+  std::map<double, LoadIncreaseResult, dynawoDoubleLess> scenariosCache_;  ///< contains available scenarios simulation results
 };
 }  // namespace DYNAlgorithms
 

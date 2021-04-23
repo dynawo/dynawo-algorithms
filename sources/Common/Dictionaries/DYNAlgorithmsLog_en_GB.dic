@@ -20,3 +20,4 @@ LocalMarginValueLoadIncrease   = maximal variation for load increase is %1%%%
 LocalMarginValueScenario       = maximal variation for scenario %1% is %2%%%
 LoadIncreaseModelParameter     = model %1%: stop time:%2% current variation:%3%
 LoadIncreaseResultsFound       = using existing results for variation %1%%%
+ScenarioResultsFound           = using existing results for scenarios with variation %1%%%
