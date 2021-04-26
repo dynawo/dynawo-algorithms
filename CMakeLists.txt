@@ -135,8 +135,13 @@ endif()
 # Tell BOOST to disable auto linking
 add_definitions(-DBOOST_ALL_NO_LIB)
 
+if(CXX11_ENABLED)
+  set(Boost_RequiredVersion  "1.70")
+else()
+  set(Boost_RequiredVersion  "1.64")
+endif()
 if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
-  find_package(Boost 1.64 REQUIRED
+  find_package(Boost "${Boost_RequiredVersion}" REQUIRED
           COMPONENTS
           filesystem
           program_options
@@ -147,11 +152,6 @@ if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
           iostreams
           )
 else()
-  if(CXX11_ENABLED)
-    set(Boost_RequiredVersion  "1.70")
-  else()
-    set(Boost_RequiredVersion  "1.64")
-  endif()
   find_package(Boost "${Boost_RequiredVersion}" REQUIRED
           COMPONENTS
           filesystem
@@ -264,10 +264,11 @@ if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
   add_library(dynawo_algorithms_Test INTERFACE)
   target_link_libraries(dynawo_algorithms_Test INTERFACE
           Dynawo::dynawo_Common
-          dynawo_algorithms_Test_tools
+          dynawo_algorithms_Test_utils
           GTest::gmock_main
           GTest::gtest_main
-          Boost::iostreams)
+          Boost::iostreams
+          Boost::filesystem)
 endif()
 
 SET(CMAKE_SKIP_RPATH TRUE)
