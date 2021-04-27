@@ -3,8 +3,6 @@ build-code
 install
 distributions/*
 nbproject/*
-sources/gitversion_interface.h*
-sources/config_interface.h
 sources/Common/*_keys.cpp
 sources/Common/*_keys.h
 documentation/*.aux
