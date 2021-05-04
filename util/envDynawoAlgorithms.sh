@@ -217,7 +217,7 @@ set_environnement() {
 
   export_var_env_force DYNAWO_IIDM_EXTENSION=$DYNAWO_LIBIIDM_INSTALL_DIR/lib/libdynawo_DataInterfaceIIDMExtension.so
   export_var_env_force DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
-  
+
   # For Modelica models compilation
   export_var_env_force DYNAWO_ADEPT_INSTALL_DIR=$DYNAWO_ADEPT_HOME
   export_var_env_force DYNAWO_SUITESPARSE_INSTALL_DIR=$DYNAWO_SUITESPARSE_HOME
@@ -255,6 +255,8 @@ set_environnement() {
 
   # Export library path, path and other standard environment variables
   set_standardEnvironmentVariables
+
+  set_commit_hook
 }
 
 set_standardEnvironmentVariables() {
@@ -275,6 +277,53 @@ set_compiler() {
   fi
   export_var_env_force DYNAWO_C_COMPILER=$(which $DYNAWO_COMPILER_NAME)
   export_var_env_force DYNAWO_CXX_COMPILER=$(which ${DYNAWO_COMPILER_NAME%cc}++) # Trick to remove cc from gcc and leave clang alone, because we want fo find g++ and clang++
+}
+
+set_commit_hook() {
+  hook_file_msg='#!'"/bin/bash
+$DYNAWO_ALGORITHMS_HOME/util/hooks/commit_hook.sh"' $1'
+  if [ -f "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg" ]; then
+    current_file=$(cat $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg)
+    if [ "$hook_file_msg" != "$current_file" ]; then
+      echo "$hook_file_msg" > $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg
+    fi
+    if [ ! -x "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg" ]; then
+      chmod +x $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg
+    fi
+  else
+    if [ -d ".git" ]; then
+      echo "$hook_file_msg" > $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg
+      chmod +x $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg
+    fi
+  fi
+
+  hook_file_master='#!'"/bin/bash
+# Avoid committing in master
+branch=\"\$(git rev-parse --abbrev-ref HEAD)\"
+if [ \"\$branch\" = \"master\" ]; then
+  echo \"You can't commit directly to master branch.\"
+  exit 1
+fi"
+  if [ -f "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit" ]; then
+    current_file=$(cat $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit)
+    if [ "$hook_file_master" != "$current_file" ]; then
+      echo "$hook_file_master" > $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit
+    fi
+    if [ ! -x "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit" ]; then
+      chmod +x $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit
+    fi
+  else
+    if [ -d "$DYNAWO_ALGORITHMS_HOME/.git" ]; then
+      echo "$hook_file_master" > $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit
+      chmod +x $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit
+    fi
+  fi
+
+  if [ -e "$DYNAWO_ALGORITHMS_HOME/.git" ]; then
+    if [ -z "$(git --git-dir $DYNAWO_HOME/.git config --get core.commentchar 2> /dev/null)" ] || [ $(git --git-dir $DYNAWO_HOME/.git config --get core.commentchar 2> /dev/null) = "#" ]; then
+      git config core.commentchar % || error_exit "You need to change git config commentchar from # to %."
+    fi
+  fi
 }
 
 display_environmentVariables() {
@@ -523,7 +572,7 @@ deploy_dynawo-algorithms() {
 
   mkdir -p $DYNAWO_ALGORITHMS_DEPLOY_DIR
   pushd $DYNAWO_ALGORITHMS_DEPLOY_DIR > /dev/null
-  
+
   export_var_env_to_file "dynawoAlgorithmsEnv.txt"
 
   mkdir -p bin
@@ -541,7 +590,7 @@ deploy_dynawo-algorithms() {
     echo "deploying doxygen"
     cp -r $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/html doxygen/.
   fi
-  
+
   popd > /dev/null
 }
 
