@@ -19,7 +19,7 @@ set(API_AGGREGATEDRES_SOURCES
   DYNAggrResXmlExporter.cpp
   )
 
-add_library(dynawo_algorithms_API_AggregatedResults ${LIBRARY_TYPE} ${API_AGGREGATEDRES_SOURCES})
+add_library(dynawo_algorithms_API_AggregatedResults SHARED ${API_AGGREGATEDRES_SOURCES})
 
 target_include_directories(dynawo_algorithms_API_AggregatedResults
   INTERFACE

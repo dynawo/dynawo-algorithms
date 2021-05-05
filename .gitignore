@@ -37,6 +37,7 @@ nrt/output
 platforms/DBCreation/DBCreation.log
 distributions/
 .gitignore_local
+*.orig
 
 sources/config_algorithms.h
 gitversion_algorithms.h*
