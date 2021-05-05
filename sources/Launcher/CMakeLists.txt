@@ -16,7 +16,16 @@ set(DYN_ALGO_LAUNCHER_SOURCES
     DYNRobustnessAnalysisLauncher.cpp
   )
 
+set(DYN_ALGO_LAUNCHER_HEADERS
+    DYNComputeLoadVariationLauncher.h
+    DYNSystematicAnalysisLauncher.h
+    DYNMarginCalculationLauncher.h
+    DYNRobustnessAnalysisLauncher.h
+  )
+
 add_library(dynawo_algorithms_Launcher ${LIBRARY_TYPE} ${DYN_ALGO_LAUNCHER_SOURCES})
+
+install(FILES ${DYN_ALGO_LAUNCHER_HEADERS} DESTINATION ${includedir})
 
 target_include_directories(dynawo_algorithms_Launcher
   INTERFACE
