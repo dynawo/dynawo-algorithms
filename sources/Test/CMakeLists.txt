@@ -10,8 +10,8 @@
 # of simulation tools for power systems.
 
 set(DYN_ALGO_TEST_UTILS_SOURCES
-    initXml.cpp
-    )
+  initXml.cpp
+  )
 
 add_library(dynawo_algorithms_Test_utils SHARED ${DYN_ALGO_TEST_UTILS_SOURCES})
 
@@ -26,5 +26,5 @@ if(CXX11_ENABLED)
   )
 endif()
 
-install(TARGETS dynawo_algorithms_Test_utils EXPORT dynawo-targets DESTINATION ${libdir})
+install(TARGETS dynawo_algorithms_Test_utils EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
 

@@ -25,14 +25,14 @@ add_library(dynawo_algorithms_API_MultipleJobs ${LIBRARY_TYPE} ${API_MULTIPLEJOB
 
 target_include_directories(dynawo_algorithms_API_MultipleJobs
   INTERFACE
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-      $<INSTALL_INTERFACE:${INCLUDEDIR_NAME}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${INCLUDEDIR_NAME}>
   )
 
 target_link_libraries(dynawo_algorithms_API_MultipleJobs
-   dynawo_algorithms_Common
-   XMLSAXFormatter${LibXML_LINK_SUFFIX}
-   XMLSAXParser${LibXML_LINK_SUFFIX}
+  dynawo_algorithms_Common
+  XMLSAXFormatter${LibXML_LINK_SUFFIX}
+  XMLSAXParser${LibXML_LINK_SUFFIX}
   )
 
-install(TARGETS dynawo_algorithms_API_MultipleJobs EXPORT dynawo-targets DESTINATION ${libdir})
+install(TARGETS dynawo_algorithms_API_MultipleJobs EXPORT dynawo_algorithms-targets DESTINATION ${libdir})

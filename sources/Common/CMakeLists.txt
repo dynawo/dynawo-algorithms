@@ -18,8 +18,9 @@ set(DICTIONARIES
   )
 
 # custom target to test and generate files associated to dictionnaries
-add_custom_target( create_keys_files ALL
-                  DEPENDS ${DICTIONARIES})
+add_custom_target(create_keys_files ALL
+  DEPENDS ${DICTIONARIES}
+  )
 
 add_custom_command(TARGET create_keys_files
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -64,13 +65,13 @@ target_include_directories(dynawo_algorithms_Common
   PUBLIC
     $<TARGET_PROPERTY:Boost::boost,INTERFACE_INCLUDE_DIRECTORIES>
   INTERFACE
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-      $<INSTALL_INTERFACE:${INCLUDEDIR_NAME}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${INCLUDEDIR_NAME}>
   )
   
 target_link_libraries(dynawo_algorithms_Common
-   Dynawo::dynawo_Common
+  Dynawo::dynawo_Common
   )
 
-install(TARGETS dynawo_algorithms_Common EXPORT dynawo-targets DESTINATION ${libdir})
+install(TARGETS dynawo_algorithms_Common EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
 install(FILES ${DICTIONARIES} ${DICTIONARIES_RTE} DESTINATION ${sharedir})
