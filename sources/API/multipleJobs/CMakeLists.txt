@@ -26,8 +26,9 @@ set(API_MULTIPLEJOBS_HEADERS
   DYNMultipleJobsFactory.h
   DYNMultipleJobsXmlHandler.h
   )
+  
+add_library(dynawo_algorithms_API_MultipleJobs SHARED ${API_MULTIPLEJOBS_SOURCES})
 
-add_library(dynawo_algorithms_API_MultipleJobs ${LIBRARY_TYPE} ${API_MULTIPLEJOBS_SOURCES})
 
 target_include_directories(dynawo_algorithms_API_MultipleJobs
   INTERFACE

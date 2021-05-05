@@ -23,7 +23,7 @@ set(DYN_ALGO_LAUNCHER_HEADERS
   DYNRobustnessAnalysisLauncher.h
   )
 
-add_library(dynawo_algorithms_Launcher ${LIBRARY_TYPE} ${DYN_ALGO_LAUNCHER_SOURCES})
+add_library(dynawo_algorithms_Launcher SHARED ${DYN_ALGO_LAUNCHER_SOURCES})
 
 install(FILES ${DYN_ALGO_LAUNCHER_HEADERS} DESTINATION ${includedir})
 

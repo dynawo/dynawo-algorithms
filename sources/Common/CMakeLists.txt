@@ -43,7 +43,7 @@ set(INCLUDE_KEYS
   DYNAlgorithmsError_keys.h
   DYNAlgorithmsLog_keys.h
   )
-  
+
 set(DYN_ALGO_COMMON_SOURCES
   DYNMarginCalculation.cpp
   DYNScenarios.cpp
@@ -53,7 +53,7 @@ set(DYN_ALGO_COMMON_SOURCES
   DYNLoadIncreaseResult.cpp
   ${CPP_KEYS}
   )
-  
+
 set(DYN_ALGO_COMMON_HEADERS
   DYNResultCommon.h
   DYNScenario.h
@@ -63,7 +63,7 @@ set(DYN_ALGO_COMMON_HEADERS
   ${INCLUDE_KEYS}
   )
 
-add_library(dynawo_algorithms_Common ${LIBRARY_TYPE} ${DYN_ALGO_COMMON_SOURCES})
+add_library(dynawo_algorithms_Common SHARED ${DYN_ALGO_COMMON_SOURCES})
 add_dependencies(dynawo_algorithms_Common create_keys_files)
 install(FILES ${DYN_ALGO_COMMON_HEADERS} DESTINATION ${includedir})
 
@@ -74,7 +74,7 @@ target_include_directories(dynawo_algorithms_Common
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${INCLUDEDIR_NAME}>
   )
-  
+
 target_link_libraries(dynawo_algorithms_Common
   Dynawo::dynawo_Common
   )

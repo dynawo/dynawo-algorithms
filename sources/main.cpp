@@ -120,9 +120,9 @@ int main(int argc, char** argv) {
       DYN::InitLibXml2 libxml2;
 #endif
 
-      boost::shared_ptr<DYN::IoDicos> dicos = DYN::IoDicos::getInstance();
-      dicos->addPath(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
-      dicos->addDicos(getMandatoryEnvVar("DYNAWO_DICTIONARIES"),
+      DYN::IoDicos& dicos = DYN::IoDicos::instance();
+      dicos.addPath(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
+      dicos.addDicos(getMandatoryEnvVar("DYNAWO_DICTIONARIES"),
                       getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
 
       boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();

@@ -15,7 +15,6 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 # Add custom cmake modules to the path
 set(DYNAWO_ALGORITHMS_CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DYNAWO_ALGORITHMS_CMAKE_MODULE_PATH})
-set(LIBRARY_TYPE SHARED CACHE STRING "Choose either STATIC or SHARED.")
 
 option(BUILD_TESTS "Choose to build unit tests")
 option(BUILD_TESTS_COVERAGE "Choose to build tests coverage")
