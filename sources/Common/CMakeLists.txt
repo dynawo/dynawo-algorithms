@@ -50,6 +50,9 @@ set(DYN_ALGO_COMMON_SOURCES
   )
   
 set(DYN_ALGO_COMMON_HEADERS
+  DYNResultCommon.h
+  DYNSimulationResult.h
+  DYNLoadIncreaseResult.h
   ${INCLUDE_KEYS}
   )
 

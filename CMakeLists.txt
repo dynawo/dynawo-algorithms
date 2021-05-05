@@ -273,6 +273,24 @@ endif()
 
 SET(CMAKE_SKIP_RPATH TRUE)
 
+install(EXPORT dynawo-targets
+        NAMESPACE DynawoAlgorithms::
+        FILE dynawoalgorithms-config.cmake
+        DESTINATION ${SHAREDIR_NAME}
+        )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/dynawoalgorithms-config-version.cmake
+        VERSION ${DYNAWO_ALGORITHMS_VERSION_STRING}
+        COMPATIBILITY AnyNewerVersion
+)
+
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/dynawoalgorithms-config-version.cmake
+        DESTINATION ${SHAREDIR_NAME}
+        )
+
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/sources/config_algorithms.h.in ${CMAKE_CURRENT_SOURCE_DIR}/sources/config_algorithms.h @ONLY)
 
 INCLUDE(cpplint/cpplint.cmake)
