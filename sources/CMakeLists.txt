@@ -10,25 +10,25 @@
 # of simulation tools for power systems.
 
 set(DYN_ALGO_SOURCES
-    main.cpp
-    )
+  main.cpp
+  )
 
 set(DYN_ALGO_INCLUDE_HEADERS
   config_algorithms.h
   gitversion_algorithms.h
-)
+  )
 
 install(FILES ${DYN_ALGO_INCLUDE_HEADERS} DESTINATION ${includedir})
 
 add_executable(dynawoAlgorithms ${DYN_ALGO_SOURCES})
 target_link_libraries(dynawoAlgorithms
-                      dynawo_algorithms_Launcher
-                      )
+  dynawo_algorithms_Launcher
+  )
 
 if(CXX11_ENABLED)
   target_link_libraries(dynawoAlgorithms
     LibXml2::LibXml2
-  )
+    )
 endif()
 
 install(PROGRAMS execDynawoAlgorithms.sh DESTINATION ${bindir})
@@ -44,10 +44,12 @@ add_dependencies(dynawoAlgorithms revisiontag)
 add_custom_target(revisiontag ALL)
 
 # creates gitversion_algorithms.h using cmake script
-add_custom_command(TARGET revisiontag COMMAND ${CMAKE_COMMAND}
-   -DOUTPUT_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-   -DGIT_SOURCE_DIR=${DYNAWO_ALGORITHMS_HOME}
-   -P ${DYNAWO_ALGORITHMS_CMAKE_MODULE_PATH}/getgitheadrevision.cmake)
+add_custom_command(TARGET revisiontag
+  COMMAND ${CMAKE_COMMAND}
+    -DOUTPUT_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+    -DGIT_SOURCE_DIR=${DYNAWO_ALGORITHMS_HOME}
+    -P ${DYNAWO_ALGORITHMS_CMAKE_MODULE_PATH}/getgitheadrevision.cmake
+  )
 
 add_subdirectory(API)
 add_subdirectory(Common)

@@ -10,7 +10,8 @@
 # of simulation tools for power systems.
 
 set(API_AGGREGATEDRES_SHARED
-    xsd/aggregatedResults.xsd)
+  xsd/aggregatedResults.xsd
+  )
 
 install(FILES ${API_AGGREGATEDRES_SHARED} DESTINATION ${sharedir}/xsd/)
 
@@ -22,15 +23,15 @@ add_library(dynawo_algorithms_API_AggregatedResults ${LIBRARY_TYPE} ${API_AGGREG
 
 target_include_directories(dynawo_algorithms_API_AggregatedResults
   INTERFACE
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-      $<INSTALL_INTERFACE:${INCLUDEDIR_NAME}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${INCLUDEDIR_NAME}>
   )
 
 target_link_libraries(dynawo_algorithms_API_AggregatedResults
-   dynawo_algorithms_Common
-   Dynawo::dynawo_Common
-   XMLSAXFormatter${LibXML_LINK_SUFFIX}
-   XMLSAXParser${LibXML_LINK_SUFFIX}
+  dynawo_algorithms_Common
+  Dynawo::dynawo_Common
+  XMLSAXFormatter${LibXML_LINK_SUFFIX}
+  XMLSAXParser${LibXML_LINK_SUFFIX}
   )
 
-install(TARGETS dynawo_algorithms_API_AggregatedResults EXPORT dynawo-targets DESTINATION ${libdir})
+install(TARGETS dynawo_algorithms_API_AggregatedResults EXPORT dynawo_algorithms-targets DESTINATION ${libdir})

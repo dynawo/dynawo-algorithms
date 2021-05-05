@@ -12,15 +12,16 @@
 set(MODULE_NAME dynawo_algorithms_API_AggregatedResults_unittest)
 
 set(MODULE_SOURCES
-    TestAggregatedResults.cpp
-)
+  TestAggregatedResults.cpp
+  )
 
 add_executable(${MODULE_NAME} ${MODULE_SOURCES})
 
 target_link_libraries(${MODULE_NAME}
-        dynawo_algorithms_API_AggregatedResults
-        dynawo_algorithms_Common
-        dynawo_algorithms_Test)
+  dynawo_algorithms_API_AggregatedResults
+  dynawo_algorithms_Common
+  dynawo_algorithms_Test
+  )
 
 add_custom_target(${MODULE_NAME}-pre-tests
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
@@ -32,7 +33,8 @@ add_custom_target(${MODULE_NAME}-tests
   DEPENDS
     ${MODULE_NAME}-pre-tests
     ${MODULE_NAME}
-  COMMENT "Running ${MODULE_NAME}...")
+  COMMENT "Running ${MODULE_NAME}..."
+  )
 
 if(BUILD_TESTS_COVERAGE)
   set(EXTRACT_PATTERNS "'*/sources/API/aggregatedResults/DYN*'")

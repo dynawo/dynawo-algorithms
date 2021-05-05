@@ -12,19 +12,20 @@
 set(MODULE_NAME dynawo_algorithms_Launcher_unittest)
 
 set(MODULE_SOURCES
-    TestRobustnessAnalysisLauncher.cpp
-)
+  TestRobustnessAnalysisLauncher.cpp
+  )
 
 add_executable(${MODULE_NAME} ${MODULE_SOURCES})
 
 target_include_directories(${MODULE_NAME}
-        PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
-        )
+  PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+  )
 
 target_link_libraries(${MODULE_NAME}
-        dynawo_algorithms_Launcher
-        dynawo_algorithms_Test)
+  dynawo_algorithms_Launcher
+  dynawo_algorithms_Test
+  )
 
 if(CXX11_ENABLED)
   target_link_libraries(${MODULE_NAME}
