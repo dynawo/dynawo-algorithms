@@ -17,6 +17,10 @@ set(DICTIONARIES
   Dictionaries/DYNAlgorithmsLog_en_GB.dic
   )
 
+set(DICTIONARIES_MAPPING
+  Dictionaries/dictionaries_mapping.dic
+  )
+
 # custom target to test and generate files associated to dictionnaries
 add_custom_target(create_keys_files ALL
   DEPENDS ${DICTIONARIES}
@@ -74,4 +78,4 @@ target_link_libraries(dynawo_algorithms_Common
   )
 
 install(TARGETS dynawo_algorithms_Common EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
-install(FILES ${DICTIONARIES} ${DICTIONARIES_RTE} DESTINATION ${sharedir})
+install(FILES ${DICTIONARIES} ${DICTIONARIES_MAPPING} DESTINATION ${sharedir})

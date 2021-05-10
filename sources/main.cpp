@@ -18,7 +18,6 @@
  *
  */
 #include <iostream>
-#include <limits>
 #include <boost/program_options.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
 
@@ -123,13 +122,8 @@ int main(int argc, char** argv) {
 
       boost::shared_ptr<DYN::IoDicos> dicos = DYN::IoDicos::getInstance();
       dicos->addPath(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
-      std::string locale = getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE");
-      dicos->addDico("CONSTRAINT", "DYNConstraint", locale);
-      dicos->addDico("ERROR", "DYNError", locale);
-      dicos->addDico("LOG", "DYNLog", locale);
-      dicos->addDico("TIMELINE", "DYNTimeline", locale);
-      dicos->addDico("AlgorithmsERROR", "DYNAlgorithmsError", locale);
-      dicos->addDico("AlgorithmsLOG", "DYNAlgorithmsLog", locale);
+      dicos->addDicos(getMandatoryEnvVar("DYNAWO_DICTIONARIES"),
+                      getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
 
       boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
       if (simulationType == "MC" && variation < 0) {

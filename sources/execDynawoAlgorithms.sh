@@ -67,6 +67,7 @@ setEnv() {
   export_var_env DYNAWO_USE_XSD_VALIDATION=false
   export_var_env DYNAWO_DDB_DIR=$DYNAWO_INSTALL_DIR/ddb
   export_var_env DYNAWO_RESOURCES_DIR=$DYNAWO_INSTALL_DIR/share:$DYNAWO_INSTALL_DIR/share/xsd
+  export_var_env DYNAWO_DICTIONARIES=dictionaries_mapping
 
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
 
