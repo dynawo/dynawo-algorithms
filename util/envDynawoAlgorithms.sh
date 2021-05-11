@@ -320,7 +320,7 @@ fi"
   fi
 
   if [ -e "$DYNAWO_ALGORITHMS_HOME/.git" ]; then
-    if [ -z "$(git --git-dir $DYNAWO_HOME/.git config --get core.commentchar 2> /dev/null)" ] || [ $(git --git-dir $DYNAWO_HOME/.git config --get core.commentchar 2> /dev/null) = "#" ]; then
+    if [ -z "$(git --git-dir $DYNAWO_ALGORITHMS_HOME/.git config --get core.commentchar 2> /dev/null)" ] || [ $(git --git-dir $DYNAWO_ALGORITHMS_HOME/.git config --get core.commentchar 2> /dev/null) = "#" ]; then
       git config core.commentchar % || error_exit "You need to change git config commentchar from # to %."
     fi
   fi
