@@ -62,6 +62,11 @@ RobustnessAnalysisLauncher::setInputFile(const std::string& inputFile) {
 }
 
 void
+RobustnessAnalysisLauncher::setMultipleJobs(boost::shared_ptr<multipleJobs::MultipleJobs>& multipleJobs) {
+  multipleJobs_ = multipleJobs;
+}
+
+void
 RobustnessAnalysisLauncher::setOutputFile(const std::string& outputFile) {
   outputFile_ = outputFile;
 }
@@ -92,17 +97,24 @@ RobustnessAnalysisLauncher::init() {
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
   workingDirectory_ += '/';  // to be sure to have an '/' at the end of the path
 
+  // build the name of the outputFile
+  outputFileFullPath_ = createAbsolutePath(outputFile_, workingDirectory_);
+
+  // If we already have received a definition for multipleJobs we have finished
+  if (multipleJobs_) {
+    return;
+  }
+
+  // Build a definition of multipleJobs from input file
   std::string inputFileFullPath;
   if (!isAbsolutePath(inputFile_))
     inputFileFullPath = createAbsolutePath(inputFile_, workingDirectory_);
   else
     inputFileFullPath = inputFile_;
 
-  if (!exists(inputFileFullPath))
+  if (!exists(inputFileFullPath)) {
     throw DYNAlgorithmsError(FileDoesNotExist, inputFileFullPath);
-
-  // build the name of the outputFile
-  outputFileFullPath_ = createAbsolutePath(outputFile_, workingDirectory_);
+  }
 
   std::string fileName = "";
   if (extensionEquals(inputFileFullPath, ".zip")) {

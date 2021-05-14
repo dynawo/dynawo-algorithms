@@ -57,6 +57,12 @@ class RobustnessAnalysisLauncher {
   void setInputFile(const std::string& inputFile);
 
   /**
+   * @brief set the multiple jobs definition of the analysis
+   * @param multipleJobs multiple jobs to use
+   */
+  void setMultipleJobs(boost::shared_ptr<multipleJobs::MultipleJobs>& multipleJobs);
+
+  /**
    * @brief set the outputFile of the analysis
    * @param outputFile outputFile to fill
    */
