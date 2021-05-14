@@ -21,6 +21,12 @@ set(API_MULTIPLEJOBS_SOURCES
   DYNMultipleJobsXmlHandler.cpp
   )
 
+set(API_MULTIPLEJOBS_HEADERS
+  DYNMultipleJobs.h
+  DYNMultipleJobsFactory.h
+  DYNMultipleJobsXmlHandler.h
+  )
+
 add_library(dynawo_algorithms_API_MultipleJobs ${LIBRARY_TYPE} ${API_MULTIPLEJOBS_SOURCES})
 
 target_include_directories(dynawo_algorithms_API_MultipleJobs
@@ -36,3 +42,4 @@ target_link_libraries(dynawo_algorithms_API_MultipleJobs
   )
 
 install(TARGETS dynawo_algorithms_API_MultipleJobs EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
+install(FILES ${API_MULTIPLEJOBS_HEADERS} DESTINATION ${includedir})
