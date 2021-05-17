@@ -181,6 +181,14 @@ class RobustnessAnalysisLauncher {
    * @return the multiple jobs instance create thanks to input data
    */
   boost::shared_ptr<multipleJobs::MultipleJobs> readInputData(const std::string& fileName);
+
+  /**
+   * unzip input file in working directory and obtain name of multiple jobs definition file
+   * @param inputFileFullPath full path of the zip input file
+   *
+   * @return the full path of the unzipped file containing the multiple jobs definition
+   */
+  std::string unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath);
 };
 
 }  // namespace DYNAlgorithms

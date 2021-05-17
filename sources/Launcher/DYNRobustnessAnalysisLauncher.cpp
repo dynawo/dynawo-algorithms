@@ -118,18 +118,7 @@ RobustnessAnalysisLauncher::init() {
 
   std::string fileName = "";
   if (extensionEquals(inputFileFullPath, ".zip")) {
-    // read zip input file
-    boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
-    for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();
-        itE != archive->getEntries().end(); ++itE) {
-      std::string nom = itE->first;
-      std::string data(itE->second->getData());
-      std::fstream file;
-      file.open((workingDirectory_ + nom).c_str(), std::ios::out);
-      file << data;
-      file.close();
-    }
-    fileName = createAbsolutePath("fic_MULTIPLE.xml", parentDirectory(inputFileFullPath));
+    fileName = unzipAndGetMultipleJobsFileName(inputFileFullPath);
   } else if (extensionEquals(inputFileFullPath, ".xml")) {
     fileName = inputFileFullPath;
   } else {
@@ -138,6 +127,23 @@ RobustnessAnalysisLauncher::init() {
   if (!exists(fileName))
     throw DYNAlgorithmsError(FileDoesNotExist, fileName);
   multipleJobs_ = readInputData(fileName);
+}
+
+std::string
+RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) {
+  // Unzip the input file in the working directory
+  boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
+  for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();
+      itE != archive->getEntries().end(); ++itE) {
+    std::string nom = itE->first;
+    std::string data(itE->second->getData());
+    std::fstream file;
+    file.open((workingDirectory_ + nom).c_str(), std::ios::out);
+    file << data;
+    file.close();
+  }
+  // When input is given as a zip file we are assuming the multiple jobs definition is always in a file named fic_MULTIPLE.xml
+  return createAbsolutePath("fic_MULTIPLE.xml", parentDirectory(inputFileFullPath));
 }
 
 boost::shared_ptr<MultipleJobs>
