@@ -130,7 +130,7 @@ RobustnessAnalysisLauncher::init() {
 }
 
 std::string
-RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) {
+RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) const {
   // Unzip the input file in the working directory
   boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
   for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();

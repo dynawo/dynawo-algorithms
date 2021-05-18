@@ -188,7 +188,7 @@ class RobustnessAnalysisLauncher {
    *
    * @return the full path of the unzipped file containing the multiple jobs definition
    */
-  std::string unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath);
+  std::string unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) const;
 };
 
 }  // namespace DYNAlgorithms
