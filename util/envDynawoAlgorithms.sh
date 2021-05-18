@@ -439,11 +439,7 @@ build_tests_coverage() {
 }
 
 unittest_gdb() {
-  if [ "`uname`" = "Darwin" ]; then
-    list_of_tests=($(find $DYNAWO_ALGORITHMS_BUILD_DIR/sources -perm +111 -type f -exec basename {} \; | grep test))
-  else
-    list_of_tests=($(find $DYNAWO_ALGORITHMS_BUILD_DIR/sources -executable -type f -exec basename {} \; | grep test))
-  fi
+  list_of_tests=($(find $DYNAWO_ALGORITHMS_BUILD_DIR/sources -executable -type f -exec basename {} \; | grep test))
   if [[ ${#list_of_tests[@]} == 0 ]]; then
     echo "The list of tests is empty. This should not happen."
     exit 1
@@ -469,11 +465,7 @@ unittest_gdb() {
     error_exit "$(dirname $unittest_exe) does not exist."
   fi
   cd $(dirname $unittest_exe)
-  if [ "`uname`" = "Darwin" ]; then
-    lldb -- $unittest_exe
-  else
-    gdb -q --args $unittest_exe
-  fi
+  gdb -q --args $unittest_exe
 }
 
 #clean dynawo-algorithms
