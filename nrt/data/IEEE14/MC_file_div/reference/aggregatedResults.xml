@@ -3,6 +3,6 @@
   <loadIncreaseResults loadLevel="100" status="DIVERGENCE"/>
   <loadIncreaseResults loadLevel="0" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="DIVERGENCE"/>
-    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
   </loadIncreaseResults>
 </aggregatedResults>
