@@ -422,7 +422,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   for (unsigned int i=0; i < events2Run.size(); i++) {
     double variation = events2Run[i].second;
     size_t eventIdx = events2Run[i].first;
-    boost::shared_ptr<DYN::DataInterface> dataInterface = dataInterfaces_.at(variation);
+    boost::shared_ptr<DYN::DataInterface> dataInterface = dataInterfaces_.at(variation).data;
     if (dataInterface && dataInterface->canUseVariant()) {
 #ifdef LANG_CXX11
       std::string name = std::to_string(i);
@@ -467,7 +467,7 @@ MarginCalculationLauncher::initDataInterfaces(const std::vector<std::pair<size_t
     const double variation = it->second;
     if (dataInterfaces_.count(variation) == 0) {
       // Init with NULL pointer to be able to update it without need of a mutex
-      dataInterfaces_.insert_or_assign(variation, boost::shared_ptr<DYN::DataInterface>());
+      dataInterfaces_[variation].data = boost::shared_ptr<DYN::DataInterface>();
     }
   }
 }
@@ -495,7 +495,16 @@ MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& sce
   scenarioId << variation;
   result.setScenarioId(scenario->getId());
   result.setVariation(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, dataInterfaces_.at(variation));
+
+  DataInterfaceContainer& dataInterfaceContainer = dataInterfaces_.at(variation);
+#ifdef LANG_CXX11
+  // Lock in case of c++11 in case multiple scenarios from multiple threads use the same data interface (same variation)
+  std::unique_lock<std::mutex> lock(dataInterfaceContainer.mutex);
+#endif
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, dataInterfaceContainer.data);
+#ifdef LANG_CXX11
+  lock.unlock();
+#endif
 
   if (simulation)
     simulate(simulation, result);

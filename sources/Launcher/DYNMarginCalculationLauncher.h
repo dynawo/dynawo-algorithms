@@ -29,6 +29,10 @@
 #include "DYNRobustnessAnalysisLauncher.h"
 #include "DYNLoadIncreaseResult.h"
 
+#ifdef LANG_CXX11
+#include <mutex>
+#endif
+
 namespace DYNAlgorithms {
 class LoadIncrease;
 class Scenario;
@@ -241,10 +245,20 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
     }
   };
 
+  /**
+   * @brief Container containing a data interface and its mutex for update
+   */
+  struct DataInterfaceContainer {
+    boost::shared_ptr<DYN::DataInterface> data;  ///< data interface
+#ifdef LANG_CXX11
+    mutable std::mutex mutex;  ///< mutex to use
+#endif
+  };
+
   std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
   std::map<double, SimulationResult, dynawoDoubleLess> loadIncreaseCache_;  ///< contains available load increase simulation results
   std::map<double, LoadIncreaseResult, dynawoDoubleLess> scenariosCache_;  ///< contains available scenarios simulation results
-  boost::unordered_map<double, boost::shared_ptr<DYN::DataInterface> > dataInterfaces_;  ///< data interfaces by variation
+  boost::unordered_map<double, DataInterfaceContainer> dataInterfaces_;  ///< data interfaces by variation
 };
 }  // namespace DYNAlgorithms
 
