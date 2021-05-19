@@ -76,7 +76,7 @@ SystematicAnalysisLauncher::launch() {
       throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
   }
 
-  updateAnalysisContext(baseJobsFile);
+  updateAnalysisContext(baseJobsFile, events.size());
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < events.size(); i++)

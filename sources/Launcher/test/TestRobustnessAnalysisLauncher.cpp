@@ -43,7 +43,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
       return;
     job::job_iterator itJobEntry = jobsCollection->begin();
     boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
-    updateAnalysisContext("MyJobs.jobs");
+    updateAnalysisContext("MyJobs.jobs", 1);
     addDydFileToJob(job, "MyDydFile.dyd");
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries().size(), 2);
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries()[1]->getDydFile(), "MyDydFile.dyd");

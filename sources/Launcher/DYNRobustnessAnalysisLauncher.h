@@ -164,7 +164,13 @@ class RobustnessAnalysisLauncher {
    */
   void writeOutputs(const SimulationResult& result) const;
 
-  void updateAnalysisContext(const std::string& jobFile);
+  /**
+   * @brief Update analysis context for scenarios simulation
+   * 
+   * @param jobFile the filepath of the job file to use
+   * @param nbEvents the number of events / scenarios that will be launched
+   */
+  void updateAnalysisContext(const std::string& jobFile, unsigned int nbEvents);
 
  protected:
   std::string inputFile_;  ///< input data for the analysis
@@ -175,7 +181,7 @@ class RobustnessAnalysisLauncher {
   int nbThreads_;  ///< number of threads to use
   boost::shared_ptr<multipleJobs::MultipleJobs> multipleJobs_;  ///< multipleJobs description tu use for the systematic analysis
 
-  AnalysisContext context_;
+  AnalysisContext context_;  ///< Analysis context, containing state data relative to all scenarios
 
  private:
   /**
