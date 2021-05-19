@@ -30,6 +30,7 @@
 #include <fstream>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #include <libzip/ZipFile.h>
 #include <libzip/ZipFileFactory.h>
@@ -83,23 +84,19 @@ SystematicAnalysisLauncher::launch() {
     if (context_.dataInterface->canUseVariant()) {
       context_.dataInterface->useVariant(std::to_string(i));
     }
-    results_[i] = launchScenario(events[i], baseJobsFile);
+    results_[i] = launchScenario(events[i]);
   }
 }
 
 SimulationResult
-SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile) {
+SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario) {
   std::stringstream ss;
   ss << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
   std::cout << ss.str();
   ss = std::stringstream();
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
-  job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + baseJobsFile);
-  //  implicit : only one job per file
-  job::job_iterator itJobEntry = jobsCollection->begin();
-  boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
+  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry);
   addDydFileToJob(job, scenario->getDydFile());
   SimulationParameters params;
   SimulationResult result;

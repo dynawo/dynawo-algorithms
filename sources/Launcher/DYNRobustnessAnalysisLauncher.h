@@ -93,6 +93,7 @@ class RobustnessAnalysisLauncher {
  protected:
   struct AnalysisContext {
     boost::shared_ptr<DYN::DataInterface> dataInterface;
+    boost::shared_ptr<job::JobEntry> jobEntry;
   };
 
  protected:
@@ -166,7 +167,7 @@ class RobustnessAnalysisLauncher {
 
   /**
    * @brief Update analysis context for scenarios simulation
-   * 
+   *
    * @param jobFile the filepath of the job file to use
    * @param nbEvents the number of events / scenarios that will be launched
    */

@@ -321,11 +321,12 @@ RobustnessAnalysisLauncher::updateAnalysisContext(const std::string& jobFile, un
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFile);
   //  implicit : only one job per file
   job::job_iterator itJobEntry = jobsCollection->begin();
+  context_.jobEntry = *itJobEntry;
 
   // data interface
-  if ((*itJobEntry)->getModelerEntry()->getNetworkEntry()) {
+  if (context_.jobEntry->getModelerEntry()->getNetworkEntry()) {
     // Create data interface and give it to simulation constructor
-    std::string iidmFile = createAbsolutePath((*itJobEntry)->getModelerEntry()->getNetworkEntry()->getIidmFile(), workingDirectory_);
+    std::string iidmFile = createAbsolutePath(context_.jobEntry->getModelerEntry()->getNetworkEntry()->getIidmFile(), workingDirectory_);
     context_.dataInterface = DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, nbEvents);
   }
 }
