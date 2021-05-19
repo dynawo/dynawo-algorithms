@@ -179,6 +179,8 @@ class RobustnessAnalysisLauncher {
    */
   void updateAnalysisContext(const std::string& jobFile, unsigned int nbEvents);
 
+  void clearAnalysisContext();
+
  protected:
   std::string inputFile_;  ///< input data for the analysis
   std::string outputFile_;  ///< output results of the analysis

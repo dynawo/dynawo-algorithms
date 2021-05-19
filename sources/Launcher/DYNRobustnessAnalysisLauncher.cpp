@@ -341,4 +341,10 @@ RobustnessAnalysisLauncher::updateAnalysisContext(const std::string& jobFile, un
   }
 }
 
+void
+RobustnessAnalysisLauncher::clearAnalysisContext() {
+  context_.jobEntry.reset();
+  context_.dataInterface.reset();
+}
+
 }  // namespace DYNAlgorithms

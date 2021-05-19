@@ -151,7 +151,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param result result of the load increase
    *
    */
-  void launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease, const double variation, SimulationResult& result);
+  void launchLoadIncrease(const double variation, SimulationResult& result, const std::string& workingDir);
 
   /**
    * @brief Find if the scenarios associated to this variation were already done
