@@ -45,6 +45,7 @@
 #include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <JOBJobEntry.h>
+#include <DYNDataInterfaceFactory.h>
 #include <config.h>
 #include <gitversion.h>
 
@@ -385,8 +386,11 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   const std::vector<size_t>& eventsId = task.ids_;
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2);
   if (nbThreads_ == 1) {
+    updateAnalysisContext(baseJobsFile, 1);
+    context_.dataInterface.reset();  // Clear data interface as we'll have multiple data interfaces for this run
+    initDataInterfaces(std::vector<std::pair<size_t, double> >(1, std::make_pair(eventsId.front(), newVariation)));  // Only variation is relevant for init
     for (unsigned int i=0; i < eventsId.size(); i++)
-      launchScenario(events[eventsId[i]], baseJobsFile, newVariation, result.getResult(eventsId[i]));
+      launchScenario(events[eventsId[i]], newVariation, result.getResult(eventsId[i]));
     return;
   }
   std::map<double, LoadIncreaseResult, dynawoDoubleLess>::iterator it = scenariosCache_.find(newVariation);
@@ -407,13 +411,29 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     }
     createScenarioWorkingDir(events[eventIdx]->getId(), variation);
   }
+
+  updateAnalysisContext(baseJobsFile, events2Run.size());
+  context_.dataInterface.reset();  // Clear data interface as we'll have multiple data interfaces for this run
+  initDataInterfaces(events2Run);
+
 #ifdef WITH_OPENMP
 #pragma omp parallel for schedule(dynamic, 1)
 #endif
   for (unsigned int i=0; i < events2Run.size(); i++) {
     double variation = events2Run[i].second;
     size_t eventIdx = events2Run[i].first;
-    launchScenario(events[eventIdx], baseJobsFile, variation, scenariosCache_[variation].getResult(eventIdx));
+    boost::shared_ptr<DYN::DataInterface> dataInterface = dataInterfaces_.at(variation);
+    if (dataInterface && dataInterface->canUseVariant()) {
+#ifdef LANG_CXX11
+      std::string name = std::to_string(i);
+#else
+      std::stringstream ss;
+      ss << i;
+      std::string name = ss.str();
+#endif
+      dataInterface->useVariant(name);
+    }
+    launchScenario(events[eventIdx], variation, scenariosCache_[variation].getResult(eventIdx));
   }
   assert(scenariosCache_.find(newVariation) != scenariosCache_.end());
   for (unsigned int i=0; i < eventsId.size(); i++)
@@ -442,20 +462,25 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
 }
 
 void
-MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile,
+MarginCalculationLauncher::initDataInterfaces(const std::vector<std::pair<size_t, double> >& events2Run) {
+  for (std::vector<std::pair<size_t, double> >::const_iterator it = events2Run.begin(); it != events2Run.end(); ++it) {
+    const double variation = it->second;
+    if (dataInterfaces_.count(variation) == 0) {
+      // Init with NULL pointer to be able to update it without need of a mutex
+      dataInterfaces_.insert_or_assign(variation, boost::shared_ptr<DYN::DataInterface>());
+    }
+  }
+}
+
+void
+MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario,
     const double variation, SimulationResult& result) {
   if (nbThreads_ == 1)
     std::cout << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
   std::stringstream subDir;
   subDir << "step-" << variation << "/" << scenario->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
-  job::XmlImporter importer;
-  // implicit rule : one job per file
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + baseJobsFile);
-  if (jobsCollection->begin() == jobsCollection->end())
-    return;
-  job::job_iterator itJobEntry = jobsCollection->begin();
-  boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
+  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry);
   addDydFileToJob(job, scenario->getDydFile());
 
   SimulationParameters params;
@@ -470,7 +495,7 @@ MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& sce
   scenarioId << variation;
   result.setScenarioId(scenario->getId());
   result.setVariation(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, dataInterfaces_.at(variation));
 
   if (simulation)
     simulate(simulation, result);
@@ -581,7 +606,7 @@ MarginCalculationLauncher::launchLoadIncrease(const double variation, Simulation
   std::stringstream scenarioId;
   scenarioId << "loadIncrease-" << variation;
   result.setScenarioId(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, context_.dataInterface);
 
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);

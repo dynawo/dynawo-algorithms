@@ -24,6 +24,7 @@
 #include <vector>
 #include <queue>
 #include <boost/shared_ptr.hpp>
+#include <boost/unordered_map.hpp>
 #include <DYNCommon.h>
 #include "DYNRobustnessAnalysisLauncher.h"
 #include "DYNLoadIncreaseResult.h"
@@ -146,8 +147,8 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @brief launch the load increase scenario
    * Warning: must remain thread-safe!
    *
-   * @param loadIncrease scenario to simulate the load increase
    * @param variation percentage of launch variation to perform
+   * @param workingDir working directory to use for current launch
    * @param result result of the load increase
    *
    */
@@ -186,12 +187,11 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * Warning: must remain thread-safe!
    *
    * @param scenario scenario to launch
-   * @param baseJobsFile base jobs file
    * @param variation percentage of launch variation
    * @param result result of the simulation
    *
    */
-  void launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile, const double variation, SimulationResult& result);
+  void launchScenario(const boost::shared_ptr<Scenario>& scenario, const double variation, SimulationResult& result);
 
   /**
    * @brief fill the queue with the possible levels that could be run with the number of threads available
@@ -218,6 +218,13 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void initLog();
 
+  /**
+   * @brief Init data interface map
+   *
+   * @param events2Run events containing variations
+   */
+  void initDataInterfaces(const std::vector<std::pair<size_t, double> >& events2Run);
+
  private:
   /**
    * @brief double comparison with tolerance
@@ -237,6 +244,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
   std::map<double, SimulationResult, dynawoDoubleLess> loadIncreaseCache_;  ///< contains available load increase simulation results
   std::map<double, LoadIncreaseResult, dynawoDoubleLess> scenariosCache_;  ///< contains available scenarios simulation results
+  boost::unordered_map<double, boost::shared_ptr<DYN::DataInterface> > dataInterfaces_;  ///< data interfaces by variation
 };
 }  // namespace DYNAlgorithms
 

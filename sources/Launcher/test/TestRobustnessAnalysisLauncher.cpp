@@ -50,7 +50,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
 
     SimulationParameters params;
     result_.setScenarioId("MyScenario");
-    boost::shared_ptr<DYN::Simulation> simu = createAndInitSimulation("res", job, params, result_);
+    boost::shared_ptr<DYN::Simulation> simu = createAndInitSimulation("res", job, params, result_, context_.dataInterface);
     ASSERT_TRUE(simu);
     status_t status = simulate(simu, result_);
     ASSERT_EQ(status, CONVERGENCE_STATUS);

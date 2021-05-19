@@ -167,7 +167,8 @@ RobustnessAnalysisLauncher::addDydFileToJob(boost::shared_ptr<job::JobEntry>& jo
 }
 boost::shared_ptr<DYN::Simulation>
 RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDir,
-    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result) {
+    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
+    boost::shared_ptr<DYN::DataInterface>& dataInterface) {
   boost::shared_ptr<DYN::SimulationContext> context = boost::shared_ptr<DYN::SimulationContext>(new DYN::SimulationContext());
   context->setResourcesDirectory(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
   context->setLocale(getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
@@ -175,7 +176,11 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   context->setWorkingDirectory(workingDir);
 
   // In case dataInterface is not initialized, the network file will be reloaded
-  boost::shared_ptr<DYN::Simulation> simulation = boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, context_.dataInterface));
+  boost::shared_ptr<DYN::Simulation> simulation = boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, dataInterface));
+
+  if (simulation->data_) {
+    dataInterface = simulation->data_;
+  }
 
   if (!params.InitialStateFile_.empty())
     simulation->setInitialStateFile(params.InitialStateFile_);

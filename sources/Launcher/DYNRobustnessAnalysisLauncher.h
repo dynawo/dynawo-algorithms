@@ -136,11 +136,13 @@ class RobustnessAnalysisLauncher {
    * @param job job to simulate
    * @param params simulation parameters
    * @param result will be filled with simulation results if the simulation initialization failed
+   * @param dataInterface the data interface to use for simulation (will be updated with output data interface)
    *
    * @return Initialized simulation or a null pointer if initialization failed
    */
   boost::shared_ptr<DYN::Simulation> createAndInitSimulation(const std::string& workingDir,
-      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result);
+      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
+      boost::shared_ptr<DYN::DataInterface>& dataInterface);
 
   /**
    * @brief create and initialize a simulation
@@ -179,6 +181,9 @@ class RobustnessAnalysisLauncher {
    */
   void updateAnalysisContext(const std::string& jobFile, unsigned int nbEvents);
 
+  /**
+   * @brief Clear analysis context
+   */
   void clearAnalysisContext();
 
  protected:

@@ -111,7 +111,7 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
   SimulationParameters params;
   SimulationResult result;
   result.setScenarioId(scenario->getId());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, context_.dataInterface);
 
   if (simulation) {
     simulate(simulation, result);
