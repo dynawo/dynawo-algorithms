@@ -22,6 +22,10 @@
 #include <limits>
 #include <fstream>
 
+#ifdef WITH_OPENMP
+#include <omp.h>
+#endif
+
 #include <xml/sax/parser/ParserFactory.h>
 #include <xml/sax/parser/ParserException.h>
 #include <xml/sax/formatter/AttributeList.h>
@@ -170,6 +174,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   context->setInputDirectory(workingDirectory_);
   context->setWorkingDirectory(workingDir);
 
+  // In case dataInterface is not initialized, the network file will be reloaded
   boost::shared_ptr<DYN::Simulation> simulation = boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, context_.dataInterface));
 
   if (!params.InitialStateFile_.empty())
@@ -323,8 +328,13 @@ RobustnessAnalysisLauncher::updateAnalysisContext(const std::string& jobFile, un
   job::job_iterator itJobEntry = jobsCollection->begin();
   context_.jobEntry = *itJobEntry;
 
-  // data interface
-  if (context_.jobEntry->getModelerEntry()->getNetworkEntry()) {
+  bool initDataInterface = (context_.jobEntry->getModelerEntry()->getNetworkEntry() != NULL);
+#ifndef LANG_CXX11
+  // in c++03 multithreading is disabled for data interface
+  // we cannot reuse the same data interface as simulation updates it
+  initDataInterface  = false;
+#endif
+  if (initDataInterface) {
     // Create data interface and give it to simulation constructor
     std::string iidmFile = createAbsolutePath(context_.jobEntry->getModelerEntry()->getNetworkEntry()->getIidmFile(), workingDirectory_);
     context_.dataInterface = DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, nbEvents);

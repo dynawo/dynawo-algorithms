@@ -79,10 +79,19 @@ SystematicAnalysisLauncher::launch() {
 
   updateAnalysisContext(baseJobsFile, events.size());
 
+#ifdef WITH_OPENMP
 #pragma omp parallel for schedule(dynamic, 1)
+#endif
   for (unsigned int i=0; i < events.size(); i++) {
-    if (context_.dataInterface->canUseVariant()) {
-      context_.dataInterface->useVariant(std::to_string(i));
+    if (context_.dataInterface && context_.dataInterface->canUseVariant()) {
+#ifdef LANG_CXX11
+      std::string name = std::to_string(i);
+#else
+      std::stringstream ss;
+      ss << i;
+      std::string name = ss.str();
+#endif
+      context_.dataInterface->useVariant(name);
     }
     results_[i] = launchScenario(events[i]);
   }
@@ -93,7 +102,8 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
   std::stringstream ss;
   ss << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
   std::cout << ss.str();
-  ss = std::stringstream();
+  ss.str("");
+  ss.clear();
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
   boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry);

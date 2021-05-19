@@ -407,7 +407,9 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     }
     createScenarioWorkingDir(events[eventIdx]->getId(), variation);
   }
+#ifdef WITH_OPENMP
 #pragma omp parallel for schedule(dynamic, 1)
+#endif
   for (unsigned int i=0; i < events2Run.size(); i++) {
     double variation = events2Run[i].second;
     size_t eventIdx = events2Run[i].first;
@@ -524,7 +526,9 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     loadIncreaseCache_[variationsToLaunch[i]] = SimulationResult();  // Reserve memory
     createScenarioWorkingDir(loadIncrease->getId(), variationsToLaunch[i]);
   }
+#ifdef WITH_OPENMP
 #pragma omp parallel for schedule(dynamic, 1)
+#endif
   for (unsigned int i=0; i < variationsToLaunch.size(); i++) {
     launchLoadIncrease(loadIncrease, variationsToLaunch[i], loadIncreaseCache_[variationsToLaunch[i]]);
   }
