@@ -192,6 +192,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   try {
     simulation->init();
   } catch (const DYN::Error& e) {
+    std::cerr << e.what() << std::endl;
     result.setSuccess(false);
     if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR) {
       result.setStatus(DIVERGENCE_STATUS);
@@ -199,7 +200,13 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
       result.setStatus(EXECUTION_PROBLEM_STATUS);
     }
     return boost::shared_ptr<DYN::Simulation>();
+  } catch (const std::exception& e) {
+    std::cerr << e.what() << std::endl;
+    result.setSuccess(false);
+    result.setStatus(EXECUTION_PROBLEM_STATUS);
+    return boost::shared_ptr<DYN::Simulation>();
   } catch (...) {
+    std::cerr << "Unknown error" << std::endl;
     result.setSuccess(false);
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();

@@ -79,8 +79,12 @@ SystematicAnalysisLauncher::launch() {
   updateAnalysisContext(baseJobsFile, events.size());
 
 #pragma omp parallel for schedule(dynamic, 1)
-  for (unsigned int i=0; i < events.size(); i++)
+  for (unsigned int i=0; i < events.size(); i++) {
+    if (context_.dataInterface->canUseVariant()) {
+      context_.dataInterface->useVariant(std::to_string(i));
+    }
     results_[i] = launchScenario(events[i], baseJobsFile);
+  }
 }
 
 SimulationResult
