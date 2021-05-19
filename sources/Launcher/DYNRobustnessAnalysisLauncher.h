@@ -91,9 +91,15 @@ class RobustnessAnalysisLauncher {
   void writeResults() const;
 
  protected:
+  /**
+   * @brief Analysis context for multithreading
+   *
+   * In some case, we can use the same data interface and/or the same job entry for multiple simulations
+   * running on different threads.
+   */
   struct AnalysisContext {
-    boost::shared_ptr<DYN::DataInterface> dataInterface;
-    boost::shared_ptr<job::JobEntry> jobEntry;
+    boost::shared_ptr<DYN::DataInterface> dataInterface;  ///< common data interface
+    boost::shared_ptr<job::JobEntry> jobEntry;            ///< common job entry
   };
 
  protected:
