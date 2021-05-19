@@ -89,8 +89,10 @@ SystematicAnalysisLauncher::launch() {
 
 SimulationResult
 SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile) {
-  if (nbThreads_ == 1)
-    std::cout << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
+  std::stringstream ss;
+  ss << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
+  std::cout << ss.str();
+  ss = std::stringstream();
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
   job::XmlImporter importer;
@@ -107,8 +109,8 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
   if (simulation) {
     simulate(simulation, result);
   }
-  if (nbThreads_ == 1)
-    std::cout << " scenario :" << scenario->getId() << " final status: " << getStatusAsString(result.getStatus()) << std::endl;
+  ss << " scenario :" << scenario->getId() << " final status: " << getStatusAsString(result.getStatus()) << std::endl;
+  std::cout << ss.str();
   return result;
 }
 
