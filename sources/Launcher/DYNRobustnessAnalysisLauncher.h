@@ -27,6 +27,7 @@
 #include "DYNSimulation.h"
 #include "JOBJobEntry.h"
 #include "DYNSimulationResult.h"
+#include <DYNDataInterface.h>
 
 namespace multipleJobs {
 class MultipleJobs;
@@ -88,6 +89,11 @@ class RobustnessAnalysisLauncher {
    * @brief write the results
    */
   void writeResults() const;
+
+ protected:
+  struct AnalysisContext {
+    boost::shared_ptr<DYN::DataInterface> dataInterface;
+  };
 
  protected:
   /**
@@ -158,6 +164,8 @@ class RobustnessAnalysisLauncher {
    */
   void writeOutputs(const SimulationResult& result) const;
 
+  void updateAnalysisContext(const std::string& jobFile);
+
  protected:
   std::string inputFile_;  ///< input data for the analysis
   std::string outputFile_;  ///< output results of the analysis
@@ -166,6 +174,8 @@ class RobustnessAnalysisLauncher {
   std::string outputFileFullPath_;  ///< absolute path of the outputFile
   int nbThreads_;  ///< number of threads to use
   boost::shared_ptr<multipleJobs::MultipleJobs> multipleJobs_;  ///< multipleJobs description tu use for the systematic analysis
+
+  AnalysisContext context_;
 
  private:
   /**
