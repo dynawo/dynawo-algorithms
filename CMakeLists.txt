@@ -183,7 +183,7 @@ find_package(libXML 0.2.4 REQUIRED)
 #libIIDM
 if(CXX11_ENABLED)
   find_package(LibXml2 "2.9" REQUIRED)
-  find_package(LibIIDM "1.3.2" REQUIRED)
+  find_package(LibIIDM "1.4.0" REQUIRED)
 else()
   find_package(libIIDM 0.2.8 REQUIRED
     COMPONENTS
