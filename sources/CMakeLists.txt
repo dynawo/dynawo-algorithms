@@ -31,7 +31,7 @@ if(CXX11_ENABLED)
     )
 endif()
 
-install(PROGRAMS execDynawoAlgorithms.sh DESTINATION ${bindir})
+install(PROGRAMS dynawo-algorithms.sh DESTINATION ${bindir})
 
 set_target_properties(dynawoAlgorithms PROPERTIES VERSION ${DYNAWO_ALGORITHMS_VERSION_STRING})
 install(TARGETS dynawoAlgorithms DESTINATION ${bindir})
