@@ -29,15 +29,17 @@
 #include "gitversion_algorithms.h"
 #include "DYNSystematicAnalysisLauncher.h"
 #include "DYNMarginCalculationLauncher.h"
-#include "DYNSimulationLauncher.h"
 #include "DYNComputeLoadVariationLauncher.h"
+#include "DYNComputeSimulationLauncher.h"
 
+using DYNAlgorithms::ComputeSimulationLauncher;
 using DYNAlgorithms::SystematicAnalysisLauncher;
 using DYNAlgorithms::MarginCalculationLauncher;
 using DYNAlgorithms::ComputeLoadVariationLauncher;
 
 namespace po = boost::program_options;
 
+static void launchSimulation(const std::string& jobFile, const std::string& outputFile);
 static void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads);
 static void launchSystematicAnalysis(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads);
 static void launchLoadVariationCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int variation);
@@ -142,7 +144,7 @@ int main(int argc, char** argv) {
         boost::posix_time::time_duration diff = t1 - t0;
         std::cout << "Systematic analysis finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
       } else if (simulationType == "CS") {
-        launchSimu(inputFile);
+        launchSimulation(inputFile, outputFile);
         boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
         boost::posix_time::time_duration diff = t1 - t0;
         std::cout << "Simulation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
@@ -165,6 +167,21 @@ int main(int argc, char** argv) {
   }
 
   return 0;
+}
+
+void launchSimulation(const std::string& jobFile, const std::string& outputFile) {
+  boost::shared_ptr<ComputeSimulationLauncher> simulationLauncher = boost::shared_ptr<ComputeSimulationLauncher>(new ComputeSimulationLauncher());
+  simulationLauncher->setInputFile(jobFile);
+  simulationLauncher->setOutputFile(outputFile);
+  simulationLauncher->setNbThreads(1);
+  try {
+    simulationLauncher->launch();
+  }
+  catch (...) {
+    simulationLauncher->writeResults();
+    throw;
+  }
+  simulationLauncher->writeResults();
 }
 
 void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads) {

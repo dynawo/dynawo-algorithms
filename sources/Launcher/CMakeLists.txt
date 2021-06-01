@@ -11,6 +11,7 @@
 
 set(DYN_ALGO_LAUNCHER_SOURCES
   DYNComputeLoadVariationLauncher.cpp
+  DYNComputeSimulationLauncher.cpp
   DYNSystematicAnalysisLauncher.cpp
   DYNMarginCalculationLauncher.cpp
   DYNRobustnessAnalysisLauncher.cpp
