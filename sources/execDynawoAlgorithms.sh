@@ -14,6 +14,8 @@
 
 ############################################################################################################################
 #
+# This script is meant to be used with a Dynawo distribution.
+# It assumes Dynawo algorithms will be installed in the same directory of Dynawo.
 # The following environnement variables can be set outside this script:
 #
 #    - DYNAWO_ALGORITHMS_LOCALE: the locale you want to use (fr_FR or en_GB)
