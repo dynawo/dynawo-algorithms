@@ -93,7 +93,7 @@ algo_MC() {
   return ${RETURN_CODE}
 }
 
-algor_SA() {
+algo_SA() {
   setEnv
 
   # launch dynamic systematic analysis
