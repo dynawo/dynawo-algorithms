@@ -13,6 +13,7 @@
 
 FileDoesNotExist                 = file : %1% does not exist
 MarginCalculationTaskNotFound    = marginCalculation task not found in input files
+SystematicAnalysisTaskNotFound   = scenarios not found in input files
 DirectoryDoesNotExist            = directory : %1% does not exist
 XmlParsingError                  = error while parsing file %1% : %2%
 IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)

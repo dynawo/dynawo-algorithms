@@ -15,7 +15,7 @@
  * @file MultipleJobsXmlHandler.cpp
  * @brief Handler for multipleJobs file : implementation file
  *
- * XmlHandler is the implementation of Dynamo handler for parsing
+ * XmlHandler is the implementation of Dynawo handler for parsing
  * multipleJobs files.
  *
  */

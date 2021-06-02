@@ -14,7 +14,7 @@
 /**
  * @file  MarginCalculationLauncher.cpp
  *
- * @brief Margin Calculation launcher: implementation of the algorithm and interaction with dynamo core
+ * @brief Margin Calculation launcher: implementation of the algorithm and interaction with dynawo core
  *
  */
 

@@ -98,7 +98,7 @@ filter_timeline() {
 algo_CS() {
   setEnv
 
-  # launch dynamo
+  # launch dynawo-algorithms
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CS $@
   RETURN_CODE=$?
   
