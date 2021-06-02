@@ -77,7 +77,6 @@ function(add_test_coverage test-target extract_patterns)
      COMMAND ${GENHTML_PATH} ${GENHTML_OPTIONS} -o ${GENHTML_OUTPUT_DIR} ${LCOV_OUTPUT_FILE}
      DEPENDS ${test-target}-launch)
    add_dependencies(tests-coverage ${test-target}-launch)
-   add_dependencies(tests-coverage-sonar ${test-target})
 endfunction()
 
 
