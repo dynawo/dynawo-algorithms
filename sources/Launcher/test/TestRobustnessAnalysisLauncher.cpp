@@ -26,8 +26,10 @@
 #include "DYNMultipleJobs.h"
 #include "DYNMarginCalculation.h"
 
-namespace DYNAlgorithms {
+testing::Environment* initXmlEnvironment();
 
+namespace DYNAlgorithms {
+testing::Environment* const env = initXmlEnvironment();
 
 class MyLauncher : public RobustnessAnalysisLauncher {
  public:
