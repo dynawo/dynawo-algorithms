@@ -24,7 +24,10 @@
 #include "DYNMultipleJobsFactory.h"
 #include "DYNMultipleJobsXmlHandler.h"
 
+testing::Environment* initXmlEnvironment();
+
 namespace multipleJobs {
+testing::Environment* const env = initXmlEnvironment();
 
 TEST(TestMultipleJobs, TestMultipleJobsClass) {
   MultipleJobs mj;
