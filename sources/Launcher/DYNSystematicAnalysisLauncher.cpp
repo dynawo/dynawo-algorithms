@@ -14,7 +14,7 @@
 /**
  * @file  SystematicAnalysis.cpp
  *
- * @brief Systematic Analysis : implementation of the algorithm and interaction with dynamo core
+ * @brief Systematic Analysis : implementation of the algorithm and interaction with dynawo core
  *
  */
 
@@ -61,6 +61,9 @@ SystematicAnalysisLauncher::~SystematicAnalysisLauncher() {
 void
 SystematicAnalysisLauncher::launch() {
   boost::shared_ptr<Scenarios> scenarios = multipleJobs_->getScenarios();
+  if (!scenarios) {
+    throw DYNAlgorithmsError(SystematicAnalysisTaskNotFound);
+  }
   const std::string& baseJobsFile = scenarios->getJobsFile();
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
 

@@ -28,6 +28,6 @@
 
 #define DYNAWO_ALGORITHMS_VERSION_PATCH "@DYNAWO_ALGORITHMS_VERSION_PATCH@" ///< patch version number
 
-#define DYNAWO_ALGORITHMS_VERSION_STRING "@DYNAWO_ALGORITHMS_VERSION_STRING@" ///< dynamo-algorithms version in string
+#define DYNAWO_ALGORITHMS_VERSION_STRING "@DYNAWO_ALGORITHMS_VERSION_STRING@" ///< dynawo-algorithms version in string
 
 #endif /* DYNAWO_ALGORITHMS_CONFIG_H_ */
