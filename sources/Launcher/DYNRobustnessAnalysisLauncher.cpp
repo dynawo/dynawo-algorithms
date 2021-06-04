@@ -19,13 +19,17 @@
  */
 #include "DYNRobustnessAnalysisLauncher.h"
 
-#include <limits>
 #include <fstream>
 
 #include <xml/sax/parser/ParserFactory.h>
 #include <xml/sax/parser/ParserException.h>
 #include <xml/sax/formatter/AttributeList.h>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/dll.hpp>
+#include <boost/foreach.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 #include <libzip/ZipFile.h>
 #include <libzip/ZipFileFactory.h>
@@ -40,16 +44,24 @@
 #include <JOBDynModelsEntryFactory.h>
 #include <JOBModelerEntry.h>
 #include <DYNMacrosMessage.h>
+#include <DYNTrace.h>
 
+#include <config.h>
+#include <gitversion.h>
+
+#include "../config_algorithms.h"
+#include "../gitversion_algorithms.h"
 #include "DYNMultipleJobsXmlHandler.h"
 #include "DYNMultipleJobs.h"
 #include "MacrosMessage.h"
 
+using DYN::Trace;
 using multipleJobs::MultipleJobs;
 
 namespace DYNAlgorithms {
 
 RobustnessAnalysisLauncher::RobustnessAnalysisLauncher() :
+logTag_("DYN-ALGO"),
 nbThreads_(1) {
 }
 
@@ -97,6 +109,8 @@ RobustnessAnalysisLauncher::init() {
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
   workingDirectory_ += '/';  // to be sure to have an '/' at the end of the path
 
+  initLog();
+
   // build the name of the outputFile
   outputFileFullPath_ = createAbsolutePath(outputFile_, workingDirectory_);
 
@@ -127,6 +141,82 @@ RobustnessAnalysisLauncher::init() {
   if (!exists(fileName))
     throw DYNAlgorithmsError(FileDoesNotExist, fileName);
   multipleJobs_ = readInputData(fileName);
+}
+
+struct Version {
+  Version() {}
+  Version(std::string n, std::string v, std::string b, std::string h) :
+    project_name(n),
+    version_string(v),
+    git_branch(b),
+    git_hash(h) {
+  }
+  std::string project_name;
+  std::string version_string;
+  std::string git_branch;
+  std::string git_hash;
+};
+
+void
+RobustnessAnalysisLauncher::initLog() {
+  std::vector<Trace::TraceAppender> appenders;
+  Trace::TraceAppender appender;
+  std::string outputPath(createAbsolutePath("dynawo.log", workingDirectory_));
+
+  appender.setFilePath(outputPath);
+#if _DEBUG_
+  appender.setLvlFilter(DYN::DEBUG);
+#else
+  appender.setLvlFilter(DYN::INFO);
+#endif
+  appender.setTag(logTag_);
+  appender.setShowLevelTag(true);
+  appender.setSeparator(" | ");
+  appender.setShowTimeStamp(true);
+  appender.setTimeStampFormat("%Y-%m-%d %H:%M:%S");
+  appender.setPersistant(true);
+
+  appenders.push_back(appender);
+
+  Trace::addAppenders(appenders);
+
+  // known projects versions
+  std::vector<Version> versions;
+  versions.push_back(Version("Dynawo", DYNAWO_VERSION_STRING, DYNAWO_GIT_BRANCH, DYNAWO_GIT_HASH));
+  versions.push_back(Version("Dynawo-algorithms", DYNAWO_ALGORITHMS_VERSION_STRING, DYNAWO_ALGORITHMS_GIT_BRANCH, DYNAWO_ALGORITHMS_GIT_HASH));
+  std::set<std::string> projects;
+  projects.insert("DYNAWO");
+  projects.insert("DYNAWO-ALGORITHMS");
+
+  // get additional projects versions in versions.ini if exists
+  std::string versions_ini = (boost::dll::program_location().parent_path() / "versions.ini").string();
+  if (exists(versions_ini)) {
+    namespace pt = boost::property_tree;
+    pt::iptree tree;
+    try {
+      pt::read_ini(versions_ini, tree);
+      BOOST_FOREACH(pt::iptree::value_type &section, tree) {
+        std::string version_string = section.second.get("VERSION_STRING", "Unknown");
+        std::string git_branch = section.second.get("GIT_BRANCH", "Unknown");
+        std::string git_hash = section.second.get("GIT_HASH", "0");
+        std::string project = boost::algorithm::to_upper_copy(section.first);
+        if (projects.count(project) == 0) {
+          versions.push_back(Version(section.first, version_string, git_branch, git_hash));
+          projects.insert(project);
+        }
+      }
+    } catch (pt::ptree_error &pe) {
+      Trace::warn(logTag_) << pe.what() << Trace::endline;
+      std::cerr << pe.what() << std::endl;
+    }
+  }
+
+  Trace::info(logTag_) << " ============================================================ " << Trace::endline;
+  BOOST_FOREACH(Version &version, versions) {
+    Trace::info(logTag_) << "  " << version.project_name << " VERSION : " << version.version_string << Trace::endline;
+    Trace::info(logTag_) << "  " << version.project_name << " REVISION: " << version.git_branch << "-"  << version.git_hash << Trace::endline;
+  }
+  Trace::info(logTag_) << " ============================================================ " << Trace::endline;
 }
 
 std::string

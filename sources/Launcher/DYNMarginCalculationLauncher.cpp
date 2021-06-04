@@ -45,11 +45,7 @@
 #include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <JOBJobEntry.h>
-#include <config.h>
-#include <gitversion.h>
 
-#include "../config_algorithms.h"
-#include "../gitversion_algorithms.h"
 #include "DYNMarginCalculationLauncher.h"
 #include "DYNMultipleJobs.h"
 #include "DYNMarginCalculation.h"
@@ -63,33 +59,7 @@ using DYN::Trace;
 
 namespace DYNAlgorithms {
 
-const char* logTag = "DYN-ALGO";
-
 MarginCalculationLauncher::~MarginCalculationLauncher() {
-}
-
-void
-MarginCalculationLauncher::initLog() {
-  std::vector<Trace::TraceAppender> appenders;
-  Trace::TraceAppender appender;
-  std::string outputPath(createAbsolutePath("dynawo.log", workingDirectory_));
-
-  appender.setFilePath(outputPath);
-#if _DEBUG_
-  appender.setLvlFilter(DYN::DEBUG);
-#else
-  appender.setLvlFilter(DYN::INFO);
-#endif
-  appender.setTag(logTag);
-  appender.setShowLevelTag(true);
-  appender.setSeparator(" | ");
-  appender.setShowTimeStamp(true);
-  appender.setTimeStampFormat("%Y-%m-%d %H:%M:%S");
-  appender.setPersistant(true);
-
-  appenders.push_back(appender);
-
-  Trace::addAppenders(appenders);
 }
 
 void
@@ -111,7 +81,6 @@ MarginCalculationLauncher::launch() {
   if (!marginCalculation) {
     throw DYNAlgorithmsError(MarginCalculationTaskNotFound);
   }
-  initLog();
   const boost::shared_ptr<LoadIncrease>& loadIncrease = marginCalculation->getLoadIncrease();
   const boost::shared_ptr<Scenarios>& scenarios = marginCalculation->getScenarios();
   const std::string& baseJobsFile = scenarios->getJobsFile();
@@ -119,12 +88,6 @@ MarginCalculationLauncher::launch() {
 #ifdef WITH_OPENMP
   omp_set_num_threads(nbThreads_);
 #endif
-  Trace::info(logTag) << " ============================================================ " << Trace::endline;
-  Trace::info(logTag) << "             Version: " + std::string(DYNAWO_ALGORITHMS_VERSION_STRING) << Trace::endline;
-  Trace::info(logTag) << "            Revision: " + std::string(DYNAWO_ALGORITHMS_GIT_BRANCH) << Trace::endline;
-  Trace::info(logTag) << "      Dynawo Version: " + std::string(DYNAWO_VERSION_STRING) << Trace::endline;
-  Trace::info(logTag) << "     Dynawo Revision: " + std::string(DYNAWO_GIT_BRANCH) << Trace::endline;
-  Trace::info(logTag) << " ============================================================ " << Trace::endline;
 
   std::queue< task_t > toRun;
   std::vector<size_t> allEvents;
@@ -152,20 +115,20 @@ MarginCalculationLauncher::launch() {
     size_t id = 0;
     for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
         itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
-      Trace::info(logTag) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+      Trace::info(logTag_) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
       if (it->getStatus() == CONVERGENCE_STATUS) {  // event OK
         nbSuccess++;
         maximumVariationPassing[id] = 100;
       }
     }
     if (nbSuccess == events.size()) {  // all events succeed
-      Trace::info(logTag) << "============================================================ " << Trace::endline;
-      Trace::info(logTag) << DYNAlgorithmsLog(GlobalMarginValue, 100.) << Trace::endline;
-      Trace::info(logTag) << "============================================================ " << Trace::endline;
+      Trace::info(logTag_) << "============================================================ " << Trace::endline;
+      Trace::info(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, 100.) << Trace::endline;
+      Trace::info(logTag_) << "============================================================ " << Trace::endline;
       return;
     }
   }  // if the loadIncrease failed, nothing to do, the next algorithm will try to find the right load level
-  Trace::info(logTag) << Trace::endline;
+  Trace::info(logTag_) << Trace::endline;
 
   toRun = std::queue< task_t >();
   toRun.push(task_t(0, 0, allEvents));
@@ -182,30 +145,30 @@ MarginCalculationLauncher::launch() {
   if (result0.getSuccess()) {
     findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
   } else {
-    Trace::info(logTag) << "============================================================ " << Trace::endline;
-    Trace::info(logTag) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, 0.) << Trace::endline;
-    Trace::info(logTag) << "============================================================ " << Trace::endline;
+    Trace::info(logTag_) << "============================================================ " << Trace::endline;
+    Trace::info(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, 0.) << Trace::endline;
+    Trace::info(logTag_) << "============================================================ " << Trace::endline;
     return;  // unable to launch the initial simulation with 0% of load increase
   }
 
   // analyze results
   for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
       itEnd = results_[idx].end(); it != itEnd; ++it) {
-    Trace::info(logTag) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+    Trace::info(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
     if (it->getStatus() != CONVERGENCE_STATUS) {  // one event crashes
-      Trace::info(logTag) << "============================================================ " << Trace::endline;
-      Trace::info(logTag) << DYNAlgorithmsLog(LocalMarginValueScenario, it->getUniqueScenarioId(), 0.) << Trace::endline;
-      Trace::info(logTag) << "============================================================ " << Trace::endline;
+      Trace::info(logTag_) << "============================================================ " << Trace::endline;
+      Trace::info(logTag_) << DYNAlgorithmsLog(LocalMarginValueScenario, it->getUniqueScenarioId(), 0.) << Trace::endline;
+      Trace::info(logTag_) << "============================================================ " << Trace::endline;
       return;
     }
   }
-  Trace::info(logTag) << Trace::endline;
+  Trace::info(logTag_) << Trace::endline;
 
   if (marginCalculation->getCalculationType() == MarginCalculation::GLOBAL_MARGIN || events.size() == 1) {
     double value = computeGlobalMargin(loadIncrease, baseJobsFile, events, maximumVariationPassing, marginCalculation->getAccuracy());
-    Trace::info(logTag) << "============================================================ " << Trace::endline;
-    Trace::info(logTag) << DYNAlgorithmsLog(GlobalMarginValue, value) << Trace::endline;
-    Trace::info(logTag) << "============================================================ " << Trace::endline;
+    Trace::info(logTag_) << "============================================================ " << Trace::endline;
+    Trace::info(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, value) << Trace::endline;
+    Trace::info(logTag_) << "============================================================ " << Trace::endline;
   } else {
     assert(marginCalculation->getCalculationType() == MarginCalculation::LOCAL_MARGIN);
     std::vector<double> results(events.size(), 0);
@@ -213,12 +176,12 @@ MarginCalculationLauncher::launch() {
     if (result100.getSuccess()) {
       value = 100;
     }
-    Trace::info(logTag) << "============================================================ " << Trace::endline;
-    Trace::info(logTag) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, value) << Trace::endline;
+    Trace::info(logTag_) << "============================================================ " << Trace::endline;
+    Trace::info(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, value) << Trace::endline;
     for (size_t i = 0, iEnd = results.size(); i < iEnd; ++i) {
-      Trace::info(logTag) << DYNAlgorithmsLog(LocalMarginValueScenario, events[i]->getId(), results[i]) << Trace::endline;
+      Trace::info(logTag_) << DYNAlgorithmsLog(LocalMarginValueScenario, events[i]->getId(), results[i]) << Trace::endline;
     }
-    Trace::info(logTag) << "============================================================ " << Trace::endline;
+    Trace::info(logTag_) << "============================================================ " << Trace::endline;
   }
 }
 
@@ -262,9 +225,9 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
       for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
           itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
         if (newVariation <= maximumVariationPassing[id])
-          Trace::info(logTag) << DYNAlgorithmsLog(ScenarioNotSimulated, it->getUniqueScenarioId()) << Trace::endline;
+          Trace::info(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, it->getUniqueScenarioId()) << Trace::endline;
         else
-          Trace::info(logTag) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+          Trace::info(logTag_) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
         if (it->getStatus() == CONVERGENCE_STATUS || newVariation <= maximumVariationPassing[id]) {  // event OK
           nbSuccess++;
           if (newVariation > maximumVariationPassing[id])
@@ -278,7 +241,7 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
     } else {
       maxVariation = newVariation;  // load increase crashed
     }
-    Trace::info(logTag) << Trace::endline;
+    Trace::info(logTag_) << Trace::endline;
   }
   return minVariation;
 }
@@ -345,7 +308,7 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
       task_t above(newVariation, task.maxVariation_);
       for (size_t i = 0, iEnd = eventsId.size(); i < iEnd; ++i) {
         results_[idx].getResult(i) = liResultTmp.getResult(eventsId[i]);
-        Trace::info(logTag) << DYNAlgorithmsLog(ScenariosEnd,
+        Trace::info(logTag_) << DYNAlgorithmsLog(ScenariosEnd,
             results_[idx].getResult(i).getUniqueScenarioId(), getStatusAsString(results_[idx].getResult(i).getStatus())) << Trace::endline;
         if (results_[idx].getResult(i).getStatus() == CONVERGENCE_STATUS) {  // event OK
           if (results[eventsId[i]] < newVariation)
@@ -370,7 +333,7 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
       if (!below.ids_.empty())
         toRun.push(below);
     }
-    Trace::info(logTag) << Trace::endline;
+    Trace::info(logTag_) << Trace::endline;
   }
   return maxLoadVarForLoadIncrease;
 }
@@ -391,7 +354,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   }
   std::map<double, LoadIncreaseResult, dynawoDoubleLess>::iterator it = scenariosCache_.find(newVariation);
   if (it != scenariosCache_.end()) {
-    Trace::info(logTag) << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << Trace::endline;
+    Trace::info(logTag_) << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << Trace::endline;
     for (unsigned int i=0; i < eventsId.size(); i++)
       result.getResult(eventsId[i]) = it->second.getResult(eventsId[i]);
     return;
@@ -479,7 +442,7 @@ MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& sce
 void
 MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
     const double variation, const double tolerance, SimulationResult& result) {
-  Trace::info(logTag) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
+  Trace::info(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
   if (nbThreads_ == 1) {
     launchLoadIncrease(loadIncrease, variation, result);
     return;
@@ -487,7 +450,7 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
 
   std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator it = loadIncreaseCache_.find(variation);
   if (it != loadIncreaseCache_.end()) {
-    Trace::info(logTag) << DYNAlgorithmsLog(LoadIncreaseResultsFound, variation) << Trace::endline;
+    Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseResultsFound, variation) << Trace::endline;
     result = it->second;
     return;
   }
@@ -585,14 +548,14 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
       double newStopTime = startTime + originalDuration * variation / 100.;
       subModels[i]->setParameterValue("stopTime", DYN::PAR, newStopTime, false);
       subModels[i]->setSubModelParameters();  // update values stored in subModel
-      Trace::info(logTag) << DYNAlgorithmsLog(LoadIncreaseModelParameter, subModels[i]->name(), newStopTime, variation/100) << Trace::endline;
+      Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseModelParameter, subModels[i]->name(), newStopTime, variation/100) << Trace::endline;
     }
     simulate(simulation, result);
 
     simulation->printTimeline(result.getTimelineStream());
     simulation->printConstraints(result.getConstraintsStream());
   }
-  Trace::info(logTag) << DYNAlgorithmsLog(LoadIncreaseEnd, getStatusAsString(result.getStatus())) << Trace::endline;
+  Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseEnd, getStatusAsString(result.getStatus())) << Trace::endline;
 }
 
 void
