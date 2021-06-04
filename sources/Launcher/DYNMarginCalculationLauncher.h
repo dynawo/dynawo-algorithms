@@ -213,11 +213,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void createScenarioWorkingDir(const std::string& scenarioId, double variation) const;
 
-  /**
-   * @brief Initialize margin calculation log
-   */
-  void initLog();
-
  private:
   /**
    * @brief double comparison with tolerance

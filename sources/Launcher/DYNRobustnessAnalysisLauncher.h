@@ -165,6 +165,7 @@ class RobustnessAnalysisLauncher {
   void writeOutputs(const SimulationResult& result) const;
 
  protected:
+  const std::string logTag_;  ///< tag string in dynawo.log
   std::string inputFile_;  ///< input data for the analysis
   std::string outputFile_;  ///< output results of the analysis
   std::string directory_;  ///< working directory as input
@@ -174,6 +175,11 @@ class RobustnessAnalysisLauncher {
   boost::shared_ptr<multipleJobs::MultipleJobs> multipleJobs_;  ///< multipleJobs description tu use for the systematic analysis
 
  private:
+  /**
+   * @brief Initialize algorithm log
+   */
+  void initLog();
+
   /**
    * read the input data for launching the systematic analysis
    * @param fileName path to the input file
