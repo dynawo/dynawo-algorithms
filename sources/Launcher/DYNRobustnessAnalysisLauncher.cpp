@@ -146,15 +146,15 @@ RobustnessAnalysisLauncher::init() {
 struct Version {
   Version() {}
   Version(std::string n, std::string v, std::string b, std::string h) :
-    project_name(n),
-    version_string(v),
-    git_branch(b),
-    git_hash(h) {
+    projectName(n),
+    versionString(v),
+    gitBranch(b),
+    gitHash(h) {
   }
-  std::string project_name;
-  std::string version_string;
-  std::string git_branch;
-  std::string git_hash;
+  std::string projectName;
+  std::string versionString;
+  std::string gitBranch;
+  std::string gitHash;
 };
 
 void
@@ -196,12 +196,12 @@ RobustnessAnalysisLauncher::initLog() {
     try {
       pt::read_ini(versions_ini, tree);
       BOOST_FOREACH(pt::iptree::value_type &section, tree) {
-        std::string version_string = section.second.get("VERSION_STRING", "Unknown");
-        std::string git_branch = section.second.get("GIT_BRANCH", "Unknown");
-        std::string git_hash = section.second.get("GIT_HASH", "0");
+        std::string versionString = section.second.get("VERSION_STRING", "Unknown");
+        std::string gitBranch = section.second.get("GIT_BRANCH", "Unknown");
+        std::string gitHash = section.second.get("GIT_HASH", "0");
         std::string project = boost::algorithm::to_upper_copy(section.first);
         if (projects.count(project) == 0) {
-          versions.push_back(Version(section.first, version_string, git_branch, git_hash));
+          versions.push_back(Version(section.first, versionString, gitBranch, gitHash));
           projects.insert(project);
         }
       }
@@ -213,8 +213,8 @@ RobustnessAnalysisLauncher::initLog() {
 
   Trace::info(logTag_) << " ============================================================ " << Trace::endline;
   BOOST_FOREACH(Version &version, versions) {
-    Trace::info(logTag_) << "  " << version.project_name << " VERSION : " << version.version_string << Trace::endline;
-    Trace::info(logTag_) << "  " << version.project_name << " REVISION: " << version.git_branch << "-"  << version.git_hash << Trace::endline;
+    Trace::info(logTag_) << "  " << version.projectName << " VERSION : " << version.versionString << Trace::endline;
+    Trace::info(logTag_) << "  " << version.projectName << " REVISION: " << version.gitBranch << "-" << version.gitHash << Trace::endline;
   }
   Trace::info(logTag_) << " ============================================================ " << Trace::endline;
 }
@@ -240,8 +240,8 @@ boost::shared_ptr<MultipleJobs>
 RobustnessAnalysisLauncher::readInputData(const std::string& fileName) {
   multipleJobs::XmlHandler multipleJobsHandler;
 
-  xml::sax::parser::ParserFactory parser_factory;
-  xml::sax::parser::ParserPtr parser = parser_factory.createParser();
+  xml::sax::parser::ParserFactory parserFactory;
+  xml::sax::parser::ParserPtr parser = parserFactory.createParser();
   bool xsdValidation = false;
   if (getEnvVar("DYNAWO_USE_XSD_VALIDATION") == "true") {
     const std::string xsdPath = createAbsolutePath("multipleJobs.xsd", getMandatoryEnvVar("DYNAWO_ALGORITHMS_XSD_DIR"));
