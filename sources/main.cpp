@@ -174,7 +174,7 @@ void launchMarginCalculation(const std::string& inputFile, const std::string& ou
   marginCalculationLauncher->setDirectory(directory);
   marginCalculationLauncher->setNbThreads(nbThreads);
 
-  marginCalculationLauncher->init();
+  marginCalculationLauncher->init(true);
   try {
     marginCalculationLauncher->launch();
   }

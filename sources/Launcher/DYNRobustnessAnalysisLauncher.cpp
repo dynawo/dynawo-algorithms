@@ -94,7 +94,7 @@ RobustnessAnalysisLauncher::setNbThreads(const int nbThreads) {
 }
 
 void
-RobustnessAnalysisLauncher::init() {
+RobustnessAnalysisLauncher::init(const bool doInitLog) {
   // check if directory exists, if directory is not set, workingDirectory is the current directory
   workingDirectory_ = "";
   if ( directory_ == "" ) {
@@ -109,7 +109,8 @@ RobustnessAnalysisLauncher::init() {
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
   workingDirectory_ += '/';  // to be sure to have an '/' at the end of the path
 
-  initLog();
+  if (doInitLog)
+    initLog();
 
   // build the name of the outputFile
   outputFileFullPath_ = createAbsolutePath(outputFile_, workingDirectory_);

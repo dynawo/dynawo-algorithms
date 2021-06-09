@@ -82,8 +82,9 @@ class RobustnessAnalysisLauncher {
 
   /**
    * @brief initialize the algorithm
+   * @param doInitLog True to initialize log
    */
-  void init();
+  void init(const bool doInitLog = false);
 
   /**
    * @brief launch the systematic analysis
