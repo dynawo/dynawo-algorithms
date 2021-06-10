@@ -28,6 +28,7 @@ namespace DYNAlgorithms {
 
 void
 AnalysisContext::init(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile) {
+  nbVariants_ = nbVariants;
   // job
   job::XmlImporter importer;
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory + "/" + jobFile);
@@ -46,7 +47,7 @@ AnalysisContext::init(const std::string& workingDirectory, const std::string& jo
     // data interface
     // Create data interface and give it to simulation constructor
     boost::shared_ptr<DYN::DataInterface> dataInterface =
-        DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFilePath, nbVariants);
+        DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFilePath, nbVariants_);
     dataInterfaceContainer_ = boost::make_shared<DataInterfaceContainer>(dataInterface);
   }
 }

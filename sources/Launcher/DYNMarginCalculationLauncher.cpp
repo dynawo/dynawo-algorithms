@@ -354,7 +354,10 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2);
   if (nbThreads_ == 1) {
     std::string iidmFile = generateIDMFileNameForVariation(newVariation);
-    contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, eventsId.size(), iidmFile);
+    if (contextsByIIDM_.count(iidmFile) == 0 || contextsByIIDM_.at(iidmFile).nbVariants() < eventsId.size()) {
+      // init the context only if not already existing with enough variants defined
+      contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, eventsId.size(), iidmFile);
+    }
     for (unsigned int i=0; i < eventsId.size(); i++) {
       contextsByIIDM_.at(iidmFile).setCurrentVariant(i);
       launchScenario(contextsByIIDM_[iidmFile], events[eventsId[i]], newVariation, result.getResult(eventsId[i]));
@@ -388,11 +391,12 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   for (unsigned int i=0; i < events2Run.size(); i++) {
     double variation = events2Run[i].second;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
-    if (!contextsByIIDM_[iidmFile].dataInterfaceContainer()) {
+    if (contextsByIIDM_.count(iidmFile) == 0 || contextsByIIDM_.at(iidmFile).nbVariants() < events2Run.size()) {
 #ifdef LANG_CXX11
       std::unique_lock<std::mutex> lock(mutex);
 #endif
-      contextsByIIDM_.at(iidmFile).init(workingDirectory_, baseJobsFile, events2Run.size());
+      // init the context only if not already existing with enough variants defined
+      contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, events2Run.size(), iidmFile);
     }
     contextsByIIDM_.at(iidmFile).setCurrentVariant(i);
     size_t eventIdx = events2Run[i].first;

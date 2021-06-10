@@ -67,9 +67,18 @@ class AnalysisContext {
     return dataInterfaceContainer_;
   }
 
+  /**
+   * @brief Retrieve the number of variants of the context
+   * @returns number of variants
+   */
+  inline unsigned int nbVariants() const {
+    return nbVariants_;
+  }
+
  private:
   boost::shared_ptr<job::JobEntry> jobEntry_;                         ///< job entry to use
   boost::shared_ptr<DataInterfaceContainer> dataInterfaceContainer_;  ///< data interface container to use
+  unsigned int nbVariants_ = 1;                                       ///< Nuber of variants defined
 };
 }  // namespace DYNAlgorithms
 
