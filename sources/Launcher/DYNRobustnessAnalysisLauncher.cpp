@@ -43,7 +43,11 @@
 #include <JOBDynModelsEntry.h>
 #include <JOBDynModelsEntryFactory.h>
 #include <JOBModelerEntry.h>
+#include <JOBXmlImporter.h>
+#include <JOBIterators.h>
+#include <JOBJobsCollection.h>
 #include <DYNMacrosMessage.h>
+#include <DYNDataInterfaceFactory.h>
 #include <DYNTrace.h>
 
 #include <config.h>
@@ -274,7 +278,8 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   context->setLocale(getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
   context->setInputDirectory(workingDirectory_);
   context->setWorkingDirectory(workingDir);
-  boost::shared_ptr<DYN::Simulation> simulation = boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context));
+
+  boost::shared_ptr<DYN::Simulation> simulation = boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, context_.dataInterface));
 
   if (!params.InitialStateFile_.empty())
     simulation->setInitialStateFile(params.InitialStateFile_);
@@ -410,4 +415,21 @@ RobustnessAnalysisLauncher::writeResults() const {
     zip::ZipOutputStream::write(outputFileFullPath_, archive);
   }
 }
+
+void
+RobustnessAnalysisLauncher::updateAnalysisContext(const std::string& jobFile) {
+  // job
+  job::XmlImporter importer;
+  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFile);
+  //  implicit : only one job per file
+  job::job_iterator itJobEntry = jobsCollection->begin();
+
+  // data interface
+  if ((*itJobEntry)->getModelerEntry()->getNetworkEntry()) {
+    // Create data interface and give it to simulation constructor
+    std::string iidmFile = createAbsolutePath((*itJobEntry)->getModelerEntry()->getNetworkEntry()->getIidmFile(), workingDirectory_);
+    boost::shared_ptr<DYN::DataInterface> dataInterface = DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile);
+  }
+}
+
 }  // namespace DYNAlgorithms
