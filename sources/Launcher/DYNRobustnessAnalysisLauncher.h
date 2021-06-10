@@ -27,6 +27,9 @@
 #include "DYNSimulation.h"
 #include "JOBJobEntry.h"
 #include "DYNSimulationResult.h"
+
+#include "DYNDataInterfaceContainer.h"
+
 #include <DYNDataInterface.h>
 
 namespace multipleJobs {
@@ -99,7 +102,8 @@ class RobustnessAnalysisLauncher {
 
  protected:
   struct AnalysisContext {
-    boost::shared_ptr<DYN::DataInterface> dataInterface;
+    boost::shared_ptr<job::JobEntry> jobEntry;
+    boost::shared_ptr<DataInterfaceContainer> dataInterfaceContainer;
   };
 
  protected:
@@ -172,6 +176,8 @@ class RobustnessAnalysisLauncher {
   void writeOutputs(const SimulationResult& result) const;
 
   void updateAnalysisContext(const std::string& jobFile);
+
+  void updateCurrentRun(unsigned int i);
 
  protected:
   const std::string logTag_;  ///< tag string in dynawo.log
