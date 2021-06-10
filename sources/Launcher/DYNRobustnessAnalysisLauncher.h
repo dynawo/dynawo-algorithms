@@ -101,9 +101,12 @@ class RobustnessAnalysisLauncher {
   void writeResults() const;
 
  protected:
+  /**
+   * @brief Analysis context for data interface re-use
+   */
   struct AnalysisContext {
-    boost::shared_ptr<job::JobEntry> jobEntry;
-    boost::shared_ptr<DataInterfaceContainer> dataInterfaceContainer;
+    boost::shared_ptr<job::JobEntry> jobEntry;  ///< job entry to use
+    boost::shared_ptr<DataInterfaceContainer> dataInterfaceContainer;  ///< data interface container to use
   };
 
  protected:
@@ -140,6 +143,7 @@ class RobustnessAnalysisLauncher {
    * @param job job to simulate
    * @param params simulation parameters
    * @param result will be filled with simulation results if the simulation initialization failed
+   * @param analysisContext the analysis context to use for data interface and job
    *
    * @return Initialized simulation or a null pointer if initialization failed
    */
@@ -176,9 +180,24 @@ class RobustnessAnalysisLauncher {
    */
   void writeOutputs(const SimulationResult& result) const;
 
+  /**
+   * @brief Update analysis context
+   *
+   * @param context context to update
+   * @param jobFile the job file to use
+   * @param nbVariants the number of variants to use
+   * @param iidmFile the iidm file to use instead of the reference in the job
+   */
   void updateAnalysisContext(AnalysisContext& context, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile = "") const;
 
-  static void updateCurrentRun(const AnalysisContext& context, unsigned int i);
+  /**
+   * @brief Update variant for current run
+   *
+   * The variant name will be the string representation of the integer
+   * @param context the context to use
+   * @param variant the variant number
+   */
+  static void updateCurrentRun(const AnalysisContext& context, unsigned int variant);
 
  protected:
   const std::string logTag_;  ///< tag string in dynawo.log
@@ -190,7 +209,7 @@ class RobustnessAnalysisLauncher {
   int nbThreads_;  ///< number of threads to use
   boost::shared_ptr<multipleJobs::MultipleJobs> multipleJobs_;  ///< multipleJobs description tu use for the systematic analysis
 
-  AnalysisContext context_;
+  AnalysisContext context_;  ///< basic analysis context, common to all
 
  private:
   /**

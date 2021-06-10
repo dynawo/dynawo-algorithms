@@ -185,6 +185,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @brief launch the calculation of one scenario
    * Warning: must remain thread-safe!
    *
+   * @param context the analysis context to uyse
    * @param scenario scenario to launch
    * @param baseJobsFile base jobs file
    * @param variation percentage of launch variation
@@ -214,6 +215,11 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void createScenarioWorkingDir(const std::string& scenarioId, double variation) const;
 
+  /**
+   * @brief Compute the scenario IIDM file corresponding to a variation
+   * @param variation the variation of the scenario
+   * @returns the corresponding IIDM file path
+   */
   std::string computeScenarioIIDMFile(double variation) const;
 
  private:
@@ -235,8 +241,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
   std::map<double, SimulationResult, dynawoDoubleLess> loadIncreaseCache_;  ///< contains available load increase simulation results
   std::map<double, LoadIncreaseResult, dynawoDoubleLess> scenariosCache_;  ///< contains available scenarios simulation results
-  AnalysisContext loadIncreaseContext_;
-  boost::unordered_map<std::string, AnalysisContext> contextsByIIDM_;
+  boost::unordered_map<std::string, AnalysisContext> contextsByIIDM_;  ///< For scenarios, the contexts to use, by IIDM file
 };
 }  // namespace DYNAlgorithms
 
