@@ -7,14 +7,13 @@
 // file, you can obtain one at http://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 //
-// This file is part of Dynawo, an hybrid C++/Modelica open source suite
-// of simulation tools for power systems.
+// This file is part of Dynawo, an hybrid C++/Modelica open source suite of simulation tools for power systems.
 //
 
 /**
  * @file  DYNAnalysisContext.h
  *
- * @brief Analysis context for data interface
+ * @brief Manager for data interface and job management during analysis launch
  *
  */
 
@@ -41,7 +40,7 @@ class AnalysisContext {
    * @param nbVariants the number of variants to use
    * @param iidmFile the iidm file to use instead of the reference in the job
    */
-  void update(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile = "");
+  void init(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile = "");
 
   /**
    * @brief Update variant for current run
@@ -50,7 +49,7 @@ class AnalysisContext {
    *
    * @param variant the variant number
    */
-  void updateCurrentRun(unsigned int variant);
+  void setCurrentVariant(unsigned int variant);
 
   /**
    * @brief Retrieve the job entry

@@ -7,8 +7,7 @@
 // file, you can obtain one at http://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 //
-// This file is part of Dynawo, an hybrid C++/Modelica open source suite
-// of simulation tools for power systems.
+// This file is part of Dynawo, an hybrid C++/Modelica open source suite of simulation tools for power systems.
 //
 
 #include "DYNDataInterfaceContainer.h"
@@ -65,6 +64,9 @@ TEST(TestDataInterfaceContainer, multiThreading) {
   thread1.join();
   thread2.join();
 
+  ASSERT_TRUE(dataInterface);
+  ASSERT_TRUE(dataInterface1);
+  ASSERT_TRUE(dataInterface2);
   ASSERT_NE(dataInterface1, dataInterface);
   ASSERT_NE(dataInterface2, dataInterface);
   ASSERT_NE(dataInterface2, dataInterface1);

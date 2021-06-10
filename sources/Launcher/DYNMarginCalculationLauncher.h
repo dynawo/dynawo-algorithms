@@ -185,7 +185,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @brief launch the calculation of one scenario
    * Warning: must remain thread-safe!
    *
-   * @param context the analysis context to uyse
+   * @param context the analysis context to use
    * @param scenario scenario to launch
    * @param variation percentage of launch variation
    * @param result result of the simulation
@@ -215,11 +215,11 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   void createScenarioWorkingDir(const std::string& scenarioId, double variation) const;
 
   /**
-   * @brief Compute the scenario IIDM file corresponding to a variation
+   * @brief generates the IIDM file path for the corresponding variation
    * @param variation the variation of the scenario
    * @returns the corresponding IIDM file path
    */
-  std::string computeScenarioIIDMFile(double variation) const;
+  std::string generateIDMFileNameForVariation(double variation) const;
 
  private:
   /**

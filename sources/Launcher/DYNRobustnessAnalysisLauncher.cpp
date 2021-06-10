@@ -43,7 +43,6 @@
 #include <JOBDynModelsEntry.h>
 #include <JOBDynModelsEntryFactory.h>
 #include <JOBModelerEntry.h>
-#include <JOBXmlImporter.h>
 #include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <DYNMacrosMessage.h>

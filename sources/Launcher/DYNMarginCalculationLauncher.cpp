@@ -349,10 +349,10 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   const std::vector<size_t>& eventsId = task.ids_;
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2);
   if (nbThreads_ == 1) {
-    std::string iidmFile = computeScenarioIIDMFile(newVariation);
-    contextsByIIDM_[iidmFile].update(workingDirectory_, baseJobsFile, eventsId.size(), iidmFile);
+    std::string iidmFile = generateIDMFileNameForVariation(newVariation);
+    contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, eventsId.size(), iidmFile);
     for (unsigned int i=0; i < eventsId.size(); i++) {
-      contextsByIIDM_.at(iidmFile).updateCurrentRun(i);
+      contextsByIIDM_.at(iidmFile).setCurrentVariant(i);
       launchScenario(contextsByIIDM_[iidmFile], events[eventsId[i]], newVariation, result.getResult(eventsId[i]));
     }
     return;
@@ -376,12 +376,12 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     createScenarioWorkingDir(events[eventIdx]->getId(), variation);
   }
 
-  std::string iidmFile = computeScenarioIIDMFile(newVariation);
-  contextsByIIDM_[iidmFile].update(workingDirectory_, baseJobsFile, events2Run.size());
+  std::string iidmFile = generateIDMFileNameForVariation(newVariation);
+  contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, events2Run.size());
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < events2Run.size(); i++) {
-    contextsByIIDM_.at(iidmFile).updateCurrentRun(i);
+    contextsByIIDM_.at(iidmFile).setCurrentVariant(i);
     double variation = events2Run[i].second;
     size_t eventIdx = events2Run[i].first;
     launchScenario(contextsByIIDM_[iidmFile], events[eventIdx], variation, scenariosCache_[variation].getResult(eventIdx));
@@ -430,7 +430,7 @@ MarginCalculationLauncher::launchScenario(const AnalysisContext& context, const 
   dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".dmp";
   //  force simulation to load previous dump and to use final values
   params.InitialStateFile_ = dumpFile.str();
-  params.iidmFile_ = computeScenarioIIDMFile(variation);
+  params.iidmFile_ = generateIDMFileNameForVariation(variation);
   std::stringstream scenarioId;
   scenarioId << variation;
   result.setScenarioId(scenario->getId());
@@ -450,8 +450,8 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     const double variation, const double tolerance, SimulationResult& result) {
   Trace::info(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
   if (nbThreads_ == 1) {
-    context_.update(workingDirectory_, loadIncrease->getJobsFile(), 1);
-    context_.updateCurrentRun(0);
+    context_.init(workingDirectory_, loadIncrease->getJobsFile(), 1);
+    context_.setCurrentVariant(0);
     launchLoadIncrease(loadIncrease, variation, result);
     return;
   }
@@ -496,11 +496,11 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     createScenarioWorkingDir(loadIncrease->getId(), variationsToLaunch[i]);
   }
 
-  context_.update(workingDirectory_, loadIncrease->getJobsFile(), variationsToLaunch.size());
+  context_.init(workingDirectory_, loadIncrease->getJobsFile(), variationsToLaunch.size());
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < variationsToLaunch.size(); i++) {
-    context_.updateCurrentRun(i);
+    context_.setCurrentVariant(i);
     launchLoadIncrease(loadIncrease, variationsToLaunch[i], loadIncreaseCache_[variationsToLaunch[i]]);
   }
   assert(loadIncreaseCache_.find(variation) != loadIncreaseCache_.end());
@@ -605,7 +605,7 @@ MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& map
 }
 
 std::string
-MarginCalculationLauncher::computeScenarioIIDMFile(double variation) const {
+MarginCalculationLauncher::generateIDMFileNameForVariation(double variation) const {
   std::stringstream iidmFile;
   iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".iidm";
   return iidmFile.str();

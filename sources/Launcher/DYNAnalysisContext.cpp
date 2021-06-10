@@ -7,8 +7,7 @@
 // file, you can obtain one at http://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 //
-// This file is part of Dynawo, an hybrid C++/Modelica open source suite
-// of simulation tools for power systems.
+// This file is part of Dynawo, an hybrid C++/Modelica open source suite of simulation tools for power systems.
 //
 
 /**
@@ -28,7 +27,7 @@
 namespace DYNAlgorithms {
 
 void
-AnalysisContext::update(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile) {
+AnalysisContext::init(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile) {
   // job
   job::XmlImporter importer;
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory + "/" + jobFile);
@@ -53,7 +52,7 @@ AnalysisContext::update(const std::string& workingDirectory, const std::string& 
 }
 
 void
-AnalysisContext::updateCurrentRun(unsigned int variant) {
+AnalysisContext::setCurrentVariant(unsigned int variant) {
   if (!dataInterfaceContainer_) {
     return;
   }
@@ -69,7 +68,7 @@ AnalysisContext::updateCurrentRun(unsigned int variant) {
     ss << variant;
     std::string name = ss.str();
 #endif
-    dataInterface->useVariant(name);
+    dataInterface->selectVariant(name);
   }
 }
 
