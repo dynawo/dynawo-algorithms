@@ -187,13 +187,12 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    *
    * @param context the analysis context to uyse
    * @param scenario scenario to launch
-   * @param baseJobsFile base jobs file
    * @param variation percentage of launch variation
    * @param result result of the simulation
    *
    */
   void launchScenario(const AnalysisContext& context, const boost::shared_ptr<Scenario>& scenario,
-    const std::string& baseJobsFile, const double variation, SimulationResult& result);
+    const double variation, SimulationResult& result);
 
   /**
    * @brief fill the queue with the possible levels that could be run with the number of threads available

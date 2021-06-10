@@ -19,6 +19,7 @@
 #include <JOBModelerEntry.h>
 #include <JOBDynModelsEntry.h>
 #include <gtest_dynawo.h>
+#include <boost/make_shared.hpp>
 
 #include "DYNRobustnessAnalysisLauncher.h"
 #include "DYNResultCommon.h"
@@ -38,14 +39,8 @@ class MyLauncher : public RobustnessAnalysisLauncher {
 
  public:
   void launch() {
-    job::XmlImporter importer;
-    // implicit rule : one job per file
-    boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile("res/MyJobs.jobs");
-    if (jobsCollection->begin() == jobsCollection->end())
-      return;
-    job::job_iterator itJobEntry = jobsCollection->begin();
-    boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
     updateAnalysisContext(context_, "MyJobs.jobs", 1);
+    boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry);
     addDydFileToJob(job, "MyDydFile.dyd");
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries().size(), 2);
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries()[1]->getDydFile(), "MyDydFile.dyd");

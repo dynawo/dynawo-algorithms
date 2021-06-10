@@ -353,7 +353,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     updateAnalysisContext(contextsByIIDM_[iidmFile], baseJobsFile, eventsId.size(), iidmFile);
     for (unsigned int i=0; i < eventsId.size(); i++) {
       updateCurrentRun(contextsByIIDM_[iidmFile], i);
-      launchScenario(contextsByIIDM_[iidmFile], events[eventsId[i]], baseJobsFile, newVariation, result.getResult(eventsId[i]));
+      launchScenario(contextsByIIDM_[iidmFile], events[eventsId[i]], newVariation, result.getResult(eventsId[i]));
     }
     return;
   }
@@ -384,7 +384,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     updateCurrentRun(context_, i);
     double variation = events2Run[i].second;
     size_t eventIdx = events2Run[i].first;
-    launchScenario(contextsByIIDM_[iidmFile], events[eventIdx], baseJobsFile, variation, scenariosCache_[variation].getResult(eventIdx));
+    launchScenario(contextsByIIDM_[iidmFile], events[eventIdx], variation, scenariosCache_[variation].getResult(eventIdx));
   }
   assert(scenariosCache_.find(newVariation) != scenariosCache_.end());
   for (unsigned int i=0; i < eventsId.size(); i++)
@@ -413,7 +413,7 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
 }
 
 void
-MarginCalculationLauncher::launchScenario(const AnalysisContext& context, const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile,
+MarginCalculationLauncher::launchScenario(const AnalysisContext& context, const boost::shared_ptr<Scenario>& scenario,
     const double variation, SimulationResult& result) {
   std::stringstream ss;
   ss << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
@@ -422,13 +422,7 @@ MarginCalculationLauncher::launchScenario(const AnalysisContext& context, const 
   std::stringstream subDir;
   subDir << "step-" << variation << "/" << scenario->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
-  job::XmlImporter importer;
-  // implicit rule : one job per file
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + baseJobsFile);
-  if (jobsCollection->begin() == jobsCollection->end())
-    return;
-  job::job_iterator itJobEntry = jobsCollection->begin();
-  boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
+  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context.jobEntry);
   addDydFileToJob(job, scenario->getDydFile());
 
   SimulationParameters params;
@@ -523,10 +517,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   std::stringstream subDir;
   subDir << "step-" << variation << "/" << loadIncrease->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
-
-  job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + loadIncrease->getJobsFile());
-  job::job_iterator itJobEntry = jobsCollection->begin();  // implicit : only one job in loadIncrease job files
+  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry);
 
   SimulationParameters params;
   //  force simulation to dump final values (would be used as input to launch each events)
@@ -543,7 +534,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   std::stringstream scenarioId;
   scenarioId << "loadIncrease-" << variation;
   result.setScenarioId(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, *itJobEntry, params, result, context_);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, context_);
 
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
