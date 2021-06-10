@@ -101,9 +101,6 @@ MarginCalculationLauncher::launch() {
   results_[idx].resize(events.size());
   results_[idx].setLoadLevel(100.);
 
-  updateAnalysisContext(loadIncreaseContext_, loadIncrease->getJobsFile());
-  updateAnalysisContext(baseJobsFile);
-
   // step one : launch the loadIncrease and then all events with 100% of the load increase
   // if there is no crash => no need to go further
   // We start with 100% as it is the most common result of margin calculations on real large cases
@@ -352,8 +349,11 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   const std::vector<size_t>& eventsId = task.ids_;
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2);
   if (nbThreads_ == 1) {
-    for (unsigned int i=0; i < eventsId.size(); i++)
+    updateAnalysisContext(context_, baseJobsFile, eventsId.size());
+    for (unsigned int i=0; i < eventsId.size(); i++) {
+      updateCurrentRun(context_, i);
       launchScenario(events[eventsId[i]], baseJobsFile, newVariation, result.getResult(eventsId[i]));
+    }
     return;
   }
   std::map<double, LoadIncreaseResult, dynawoDoubleLess>::iterator it = scenariosCache_.find(newVariation);
@@ -374,8 +374,12 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     }
     createScenarioWorkingDir(events[eventIdx]->getId(), variation);
   }
+
+  updateAnalysisContext(context_, baseJobsFile, events2Run.size());
+
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < events2Run.size(); i++) {
+    updateCurrentRun(context_, i);
     double variation = events2Run[i].second;
     size_t eventIdx = events2Run[i].first;
     launchScenario(events[eventIdx], baseJobsFile, variation, scenariosCache_[variation].getResult(eventIdx));
@@ -437,7 +441,7 @@ MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& sce
   scenarioId << variation;
   result.setScenarioId(scenario->getId());
   result.setVariation(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, context_);
 
   if (simulation)
     simulate(simulation, result);
@@ -452,6 +456,8 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     const double variation, const double tolerance, SimulationResult& result) {
   Trace::info(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
   if (nbThreads_ == 1) {
+    updateAnalysisContext(loadIncreaseContext_, loadIncrease->getJobsFile(), 1);
+    updateCurrentRun(loadIncreaseContext_, 0);
     launchLoadIncrease(loadIncrease, variation, result);
     return;
   }
@@ -495,8 +501,12 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     loadIncreaseCache_[variationsToLaunch[i]] = SimulationResult();  // Reserve memory
     createScenarioWorkingDir(loadIncrease->getId(), variationsToLaunch[i]);
   }
+
+  updateAnalysisContext(loadIncreaseContext_, loadIncrease->getJobsFile(), variationsToLaunch.size());
+
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < variationsToLaunch.size(); i++) {
+    updateCurrentRun(loadIncreaseContext_, i);
     launchLoadIncrease(loadIncrease, variationsToLaunch[i], loadIncreaseCache_[variationsToLaunch[i]]);
   }
   assert(loadIncreaseCache_.find(variation) != loadIncreaseCache_.end());

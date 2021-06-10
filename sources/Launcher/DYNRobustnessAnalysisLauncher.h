@@ -134,9 +134,6 @@ class RobustnessAnalysisLauncher {
       activateDumpFinalState_(false) {}
   };
 
-  boost::shared_ptr<DYN::Simulation> createAndInitSimulation(const std::string& workingDir,
-      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result);
-
   /**
    * @brief create and initialize a simulation
    * @param workingDir working directory
@@ -179,10 +176,9 @@ class RobustnessAnalysisLauncher {
    */
   void writeOutputs(const SimulationResult& result) const;
 
-  void updateAnalysisContext(AnalysisContext& context, const std::string& jobFile) const;
-  void updateAnalysisContext(const std::string& jobFile);
+  void updateAnalysisContext(AnalysisContext& context, const std::string& jobFile, unsigned int nbVariants) const;
 
-  void updateCurrentRun(unsigned int i);
+  static void updateCurrentRun(const AnalysisContext& context, unsigned int i);
 
  protected:
   const std::string logTag_;  ///< tag string in dynawo.log
