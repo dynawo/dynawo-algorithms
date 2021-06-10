@@ -284,7 +284,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
 
   boost::shared_ptr<DYN::DataInterface> dataInterface = analysisContext.dataInterfaceContainer()
     ? analysisContext.dataInterfaceContainer()->getDataInterface()
-    : NULL;
+    : boost::shared_ptr<DYN::DataInterface>();
   boost::shared_ptr<DYN::Simulation> simulation =
     boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, dataInterface));
 

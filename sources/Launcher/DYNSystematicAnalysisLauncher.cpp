@@ -93,7 +93,7 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
   std::cout << ss.str();
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
-  auto job = boost::make_shared<job::JobEntry>(*context_.jobEntry());
+  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry());
   addDydFileToJob(job, scenario->getDydFile());
   SimulationParameters params;
   SimulationResult result;

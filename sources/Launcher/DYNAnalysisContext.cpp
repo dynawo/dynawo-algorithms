@@ -66,7 +66,7 @@ AnalysisContext::updateCurrentRun(unsigned int variant) {
     std::string name = std::to_string(variant);
 #else
     std::stringstream ss;
-    ss << i;
+    ss << variant;
     std::string name = ss.str();
 #endif
     dataInterface->useVariant(name);
