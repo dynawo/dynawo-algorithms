@@ -427,9 +427,11 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
 void
 MarginCalculationLauncher::launchScenario(const AnalysisContext& context, const boost::shared_ptr<Scenario>& scenario,
     const double variation, SimulationResult& result) {
-  std::stringstream ss;
-  ss << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
-  std::cout << ss.str();
+  if (nbThreads_ == 1) {
+    std::stringstream ss;
+    ss << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
+    std::cout << ss.str();
+  }
 
   std::stringstream subDir;
   subDir << "step-" << variation << "/" << scenario->getId();
@@ -452,9 +454,11 @@ MarginCalculationLauncher::launchScenario(const AnalysisContext& context, const 
   if (simulation)
     simulate(simulation, result);
 
-  ss.str("");
-  ss << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
-  std::cout << ss.str();
+  if (nbThreads_ == 1) {
+    std::stringstream ss;
+    ss << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
+    std::cout << ss.str();
+  }
 }
 
 void
@@ -522,9 +526,11 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
 void
 MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
     const double variation, SimulationResult& result) {
-  std::stringstream ss;
-  ss << "Launch loadIncrease of " << variation << "%" <<std::endl;
-  std::cout << ss.str();
+  if (nbThreads_ == 1) {
+    std::stringstream ss;
+    ss << "Launch loadIncrease of " << variation << "%" <<std::endl;
+    std::cout << ss.str();
+  }
 
   std::stringstream subDir;
   subDir << "step-" << variation << "/" << loadIncrease->getId();
