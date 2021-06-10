@@ -309,6 +309,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     simulation->init();
   } catch (const DYN::Error& e) {
     result.setSuccess(false);
+    std::cerr << e.what() << std::endl;
     if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR) {
       result.setStatus(DIVERGENCE_STATUS);
     } else {
@@ -332,6 +333,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       result.setSuccess(true);
       result.setStatus(CONVERGENCE_STATUS);
     } catch (const DYN::Error& e) {
+      std::cerr << e.what() << std::endl;
       // Needed as otherwise terminate might crash due to badly formed model
       simulation->activateExportIIDM(false);
       simulation->terminate();
