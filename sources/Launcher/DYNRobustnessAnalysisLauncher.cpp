@@ -282,8 +282,8 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   context->setInputDirectory(workingDirectory_);
   context->setWorkingDirectory(workingDir);
 
-  boost::shared_ptr<DYN::DataInterface> dataInterface = analysisContext.dataInterfaceContainer
-    ? analysisContext.dataInterfaceContainer->getDataInterface()
+  boost::shared_ptr<DYN::DataInterface> dataInterface = analysisContext.dataInterfaceContainer()
+    ? analysisContext.dataInterfaceContainer()->getDataInterface()
     : NULL;
   boost::shared_ptr<DYN::Simulation> simulation =
     boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, dataInterface));
@@ -420,53 +420,6 @@ RobustnessAnalysisLauncher::writeResults() const {
     }
 
     zip::ZipOutputStream::write(outputFileFullPath_, archive);
-  }
-}
-
-void
-RobustnessAnalysisLauncher::updateAnalysisContext(AnalysisContext& context, const std::string& jobFile,
-  unsigned int nbVariants, const std::string& iidmFile) const {
-  // job
-  job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFile);
-  //  implicit : only one job per file
-  context.jobEntry = *jobsCollection->begin();
-
-  std::string iidmFilePath;
-  if (!iidmFile.empty()) {
-    if (context.jobEntry->getModelerEntry()->getNetworkEntry()) {
-      context.jobEntry->getModelerEntry()->getNetworkEntry()->setIidmFile(iidmFile);
-    }
-    iidmFilePath = createAbsolutePath(iidmFile, workingDirectory_);
-  }
-
-  if (!iidmFilePath.empty()) {
-    // data interface
-    // Create data interface and give it to simulation constructor
-    boost::shared_ptr<DYN::DataInterface> dataInterface =
-      DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFilePath, nbVariants);
-    context.dataInterfaceContainer = boost::make_shared<DataInterfaceContainer>(dataInterface);
-  }
-}
-
-void
-RobustnessAnalysisLauncher::updateCurrentRun(const AnalysisContext& context, unsigned int i) {
-  if (!context.dataInterfaceContainer) {
-    return;
-  }
-
-  context.dataInterfaceContainer->initDataInterface();
-  boost::shared_ptr<DYN::DataInterface> dataInterface = context.dataInterfaceContainer->getDataInterface();
-
-  if (dataInterface->canUseVariant()) {
-#ifdef LANG_CXX11
-    std::string name = std::to_string(i);
-#else
-    std::stringstream ss;
-    ss << i;
-    std::string name = ss.str();
-#endif
-    dataInterface->useVariant(name);
   }
 }
 

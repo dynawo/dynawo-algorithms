@@ -52,8 +52,8 @@ ComputeLoadVariationLauncher::launch() {
   else if (!is_directory(workingDir))
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
 
-  updateAnalysisContext(context_, loadIncrease->getJobsFile(), 1);
-  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry);
+  context_.update(workingDirectory_, loadIncrease->getJobsFile(), 1);
+  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry());
 
   SimulationParameters params;
   //  force simulation to dump final values (would be used as input to launch each events)

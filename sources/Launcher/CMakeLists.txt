@@ -15,6 +15,7 @@ set(DYN_ALGO_LAUNCHER_SOURCES
   DYNMarginCalculationLauncher.cpp
   DYNRobustnessAnalysisLauncher.cpp
   DYNDataInterfaceContainer.cpp
+  DYNAnalysisContext.cpp
   )
 
 set(DYN_ALGO_LAUNCHER_HEADERS
@@ -23,6 +24,7 @@ set(DYN_ALGO_LAUNCHER_HEADERS
   DYNMarginCalculationLauncher.h
   DYNRobustnessAnalysisLauncher.h
   DYNDataInterfaceContainer.h
+  DYNAnalysisContext.h
   )
 
 add_library(dynawo_algorithms_Launcher SHARED ${DYN_ALGO_LAUNCHER_SOURCES})

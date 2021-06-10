@@ -77,11 +77,11 @@ SystematicAnalysisLauncher::launch() {
       throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
   }
 
-  updateAnalysisContext(context_, baseJobsFile, events.size());
+  context_.update(workingDirectory_, baseJobsFile, events.size());
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < events.size(); i++) {
-    updateCurrentRun(context_, i);
+    context_.updateCurrentRun(i);
     results_[i] = launchScenario(events[i]);
   }
 }
@@ -93,7 +93,7 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
   std::cout << ss.str();
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
-  auto job = boost::make_shared<job::JobEntry>(*context_.jobEntry);
+  auto job = boost::make_shared<job::JobEntry>(*context_.jobEntry());
   addDydFileToJob(job, scenario->getDydFile());
   SimulationParameters params;
   SimulationResult result;
