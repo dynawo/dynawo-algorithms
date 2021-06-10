@@ -54,6 +54,10 @@
 #include "DYNScenarios.h"
 #include "DYNAggrResXmlExporter.h"
 
+#ifdef LANG_CXX11
+#include <mutex>
+#endif
+
 using multipleJobs::MultipleJobs;
 using DYN::Trace;
 
@@ -376,15 +380,23 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     createScenarioWorkingDir(events[eventIdx]->getId(), variation);
   }
 
-  std::string iidmFile = generateIDMFileNameForVariation(newVariation);
-  contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, events2Run.size());
+#ifdef LANG_CXX11
+  std::mutex mutex;
+#endif
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < events2Run.size(); i++) {
-    contextsByIIDM_.at(iidmFile).setCurrentVariant(i);
     double variation = events2Run[i].second;
+    std::string iidmFile = generateIDMFileNameForVariation(variation);
+    if (!contextsByIIDM_[iidmFile].dataInterfaceContainer()) {
+#ifdef LANG_CXX11
+      std::unique_lock<std::mutex> lock(mutex);
+#endif
+      contextsByIIDM_.at(iidmFile).init(workingDirectory_, baseJobsFile, events2Run.size());
+    }
+    contextsByIIDM_.at(iidmFile).setCurrentVariant(i);
     size_t eventIdx = events2Run[i].first;
-    launchScenario(contextsByIIDM_[iidmFile], events[eventIdx], variation, scenariosCache_[variation].getResult(eventIdx));
+    launchScenario(contextsByIIDM_.at(iidmFile), events[eventIdx], variation, scenariosCache_[variation].getResult(eventIdx));
   }
   assert(scenariosCache_.find(newVariation) != scenariosCache_.end());
   for (unsigned int i=0; i < eventsId.size(); i++)
