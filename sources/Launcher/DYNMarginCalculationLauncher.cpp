@@ -349,10 +349,11 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   const std::vector<size_t>& eventsId = task.ids_;
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2);
   if (nbThreads_ == 1) {
-    updateAnalysisContext(context_, baseJobsFile, eventsId.size());
+    std::string iidmFile = computeScenarioIIDMFile(newVariation);
+    updateAnalysisContext(contextsByIIDM_[iidmFile], baseJobsFile, eventsId.size(), iidmFile);
     for (unsigned int i=0; i < eventsId.size(); i++) {
-      updateCurrentRun(context_, i);
-      launchScenario(events[eventsId[i]], baseJobsFile, newVariation, result.getResult(eventsId[i]));
+      updateCurrentRun(contextsByIIDM_[iidmFile], i);
+      launchScenario(contextsByIIDM_[iidmFile], events[eventsId[i]], baseJobsFile, newVariation, result.getResult(eventsId[i]));
     }
     return;
   }
@@ -375,14 +376,15 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     createScenarioWorkingDir(events[eventIdx]->getId(), variation);
   }
 
-  updateAnalysisContext(context_, baseJobsFile, events2Run.size());
+  std::string iidmFile = computeScenarioIIDMFile(newVariation);
+  updateAnalysisContext(contextsByIIDM_[iidmFile], baseJobsFile, events2Run.size());
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < events2Run.size(); i++) {
     updateCurrentRun(context_, i);
     double variation = events2Run[i].second;
     size_t eventIdx = events2Run[i].first;
-    launchScenario(events[eventIdx], baseJobsFile, variation, scenariosCache_[variation].getResult(eventIdx));
+    launchScenario(contextsByIIDM_[iidmFile], events[eventIdx], baseJobsFile, variation, scenariosCache_[variation].getResult(eventIdx));
   }
   assert(scenariosCache_.find(newVariation) != scenariosCache_.end());
   for (unsigned int i=0; i < eventsId.size(); i++)
@@ -411,7 +413,7 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
 }
 
 void
-MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile,
+MarginCalculationLauncher::launchScenario(const AnalysisContext& context, const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile,
     const double variation, SimulationResult& result) {
   std::stringstream ss;
   ss << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
@@ -434,14 +436,12 @@ MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& sce
   dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".dmp";
   //  force simulation to load previous dump and to use final values
   params.InitialStateFile_ = dumpFile.str();
-  std::stringstream iidmFile;
-  iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".iidm";
-  params.iidmFile_ = iidmFile.str();
+  params.iidmFile_ = computeScenarioIIDMFile(variation);
   std::stringstream scenarioId;
   scenarioId << variation;
   result.setScenarioId(scenario->getId());
   result.setVariation(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, context_);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, context);
 
   if (simulation)
     simulate(simulation, result);
@@ -611,6 +611,13 @@ MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& map
       }
     }
   }
+}
+
+std::string
+MarginCalculationLauncher::computeScenarioIIDMFile(double variation) const {
+  std::stringstream iidmFile;
+  iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".iidm";
+  return iidmFile.str();
 }
 
 

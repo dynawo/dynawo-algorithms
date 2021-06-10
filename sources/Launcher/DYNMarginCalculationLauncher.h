@@ -191,7 +191,8 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param result result of the simulation
    *
    */
-  void launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile, const double variation, SimulationResult& result);
+  void launchScenario(const AnalysisContext& context, const boost::shared_ptr<Scenario>& scenario,
+    const std::string& baseJobsFile, const double variation, SimulationResult& result);
 
   /**
    * @brief fill the queue with the possible levels that could be run with the number of threads available
@@ -213,6 +214,8 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void createScenarioWorkingDir(const std::string& scenarioId, double variation) const;
 
+  std::string computeScenarioIIDMFile(double variation) const;
+
  private:
   /**
    * @brief double comparison with tolerance
@@ -233,6 +236,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   std::map<double, SimulationResult, dynawoDoubleLess> loadIncreaseCache_;  ///< contains available load increase simulation results
   std::map<double, LoadIncreaseResult, dynawoDoubleLess> scenariosCache_;  ///< contains available scenarios simulation results
   AnalysisContext loadIncreaseContext_;
+  boost::unordered_map<std::string, AnalysisContext> contextsByIIDM_;
 };
 }  // namespace DYNAlgorithms
 

@@ -422,7 +422,8 @@ RobustnessAnalysisLauncher::writeResults() const {
 }
 
 void
-RobustnessAnalysisLauncher::updateAnalysisContext(AnalysisContext& context, const std::string& jobFile, unsigned int nbVariants) const {
+RobustnessAnalysisLauncher::updateAnalysisContext(AnalysisContext& context, const std::string& jobFile,
+  unsigned int nbVariants, const std::string& iidmFile) const {
   // job
   job::XmlImporter importer;
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFile);
@@ -431,9 +432,13 @@ RobustnessAnalysisLauncher::updateAnalysisContext(AnalysisContext& context, cons
 
   // data interface
   if (context.jobEntry->getModelerEntry()->getNetworkEntry()) {
+    if (!iidmFile.empty()) {
+      context.jobEntry->getModelerEntry()->getNetworkEntry()->setIidmFile(iidmFile);
+    }
     // Create data interface and give it to simulation constructor
-    std::string iidmFile = createAbsolutePath(context.jobEntry->getModelerEntry()->getNetworkEntry()->getIidmFile(), workingDirectory_);
-    boost::shared_ptr<DYN::DataInterface> dataInterface = DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, nbVariants);
+    std::string iidmFilePath = createAbsolutePath(context.jobEntry->getModelerEntry()->getNetworkEntry()->getIidmFile(), workingDirectory_);
+    boost::shared_ptr<DYN::DataInterface> dataInterface =
+      DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFilePath, nbVariants);
     context.dataInterfaceContainer = boost::make_shared<DataInterfaceContainer>(dataInterface);
   }
 }

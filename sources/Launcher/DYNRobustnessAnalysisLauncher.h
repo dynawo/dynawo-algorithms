@@ -176,7 +176,7 @@ class RobustnessAnalysisLauncher {
    */
   void writeOutputs(const SimulationResult& result) const;
 
-  void updateAnalysisContext(AnalysisContext& context, const std::string& jobFile, unsigned int nbVariants) const;
+  void updateAnalysisContext(AnalysisContext& context, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile = "") const;
 
   static void updateCurrentRun(const AnalysisContext& context, unsigned int i);
 
