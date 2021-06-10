@@ -272,9 +272,16 @@ RobustnessAnalysisLauncher::addDydFileToJob(boost::shared_ptr<job::JobEntry>& jo
     job->getModelerEntry()->addDynModelsEntry(dynModels);
   }
 }
+
 boost::shared_ptr<DYN::Simulation>
 RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDir,
-    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result) {
+      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result) {
+  return createAndInitSimulation(workingDir, job, params, result, context_);
+}
+
+boost::shared_ptr<DYN::Simulation>
+RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDir,
+    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const AnalysisContext& analysisContext) {
   boost::shared_ptr<DYN::SimulationContext> context = boost::shared_ptr<DYN::SimulationContext>(new DYN::SimulationContext());
   context->setResourcesDirectory(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
   context->setLocale(getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
@@ -282,7 +289,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   context->setWorkingDirectory(workingDir);
 
   boost::shared_ptr<DYN::Simulation> simulation =
-    boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, context_.dataInterfaceContainer->getDataInterface()));
+    boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, analysisContext.dataInterfaceContainer->getDataInterface()));
 
   if (!params.InitialStateFile_.empty())
     simulation->setInitialStateFile(params.InitialStateFile_);
@@ -421,18 +428,23 @@ RobustnessAnalysisLauncher::writeResults() const {
 
 void
 RobustnessAnalysisLauncher::updateAnalysisContext(const std::string& jobFile) {
+  updateAnalysisContext(context_, jobFile);
+}
+
+void
+RobustnessAnalysisLauncher::updateAnalysisContext(AnalysisContext& context, const std::string& jobFile) const {
   // job
   job::XmlImporter importer;
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFile);
   //  implicit : only one job per file
-  context_.jobEntry = *jobsCollection->begin();
+  context.jobEntry = *jobsCollection->begin();
 
   // data interface
-  if (context_.jobEntry->getModelerEntry()->getNetworkEntry()) {
+  if (context.jobEntry->getModelerEntry()->getNetworkEntry()) {
     // Create data interface and give it to simulation constructor
-    std::string iidmFile = createAbsolutePath(context_.jobEntry->getModelerEntry()->getNetworkEntry()->getIidmFile(), workingDirectory_);
+    std::string iidmFile = createAbsolutePath(context.jobEntry->getModelerEntry()->getNetworkEntry()->getIidmFile(), workingDirectory_);
     boost::shared_ptr<DYN::DataInterface> dataInterface = DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile);
-    context_.dataInterfaceContainer = boost::make_shared<DataInterfaceContainer>(dataInterface);
+    context.dataInterfaceContainer = boost::make_shared<DataInterfaceContainer>(dataInterface);
   }
 }
 

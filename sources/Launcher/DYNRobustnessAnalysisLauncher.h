@@ -134,6 +134,9 @@ class RobustnessAnalysisLauncher {
       activateDumpFinalState_(false) {}
   };
 
+  boost::shared_ptr<DYN::Simulation> createAndInitSimulation(const std::string& workingDir,
+      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result);
+
   /**
    * @brief create and initialize a simulation
    * @param workingDir working directory
@@ -144,7 +147,8 @@ class RobustnessAnalysisLauncher {
    * @return Initialized simulation or a null pointer if initialization failed
    */
   boost::shared_ptr<DYN::Simulation> createAndInitSimulation(const std::string& workingDir,
-      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result);
+      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
+      const AnalysisContext& analysisContext);
 
   /**
    * @brief create and initialize a simulation
@@ -175,6 +179,7 @@ class RobustnessAnalysisLauncher {
    */
   void writeOutputs(const SimulationResult& result) const;
 
+  void updateAnalysisContext(AnalysisContext& context, const std::string& jobFile) const;
   void updateAnalysisContext(const std::string& jobFile);
 
   void updateCurrentRun(unsigned int i);

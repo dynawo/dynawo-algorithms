@@ -52,6 +52,8 @@ ComputeLoadVariationLauncher::launch() {
   else if (!is_directory(workingDir))
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
 
+  updateAnalysisContext(loadIncrease->getJobsFile());
+
   job::XmlImporter importer;
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + loadIncrease->getJobsFile());
   job::job_iterator itJobEntry = jobsCollection->begin();  // implicit : only one job in loadIncrease job files

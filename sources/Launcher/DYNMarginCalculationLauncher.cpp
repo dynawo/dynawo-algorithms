@@ -100,6 +100,10 @@ MarginCalculationLauncher::launch() {
   size_t idx = results_.size() - 1;
   results_[idx].resize(events.size());
   results_[idx].setLoadLevel(100.);
+
+  updateAnalysisContext(loadIncreaseContext_, loadIncrease->getJobsFile());
+  updateAnalysisContext(baseJobsFile);
+
   // step one : launch the loadIncrease and then all events with 100% of the load increase
   // if there is no crash => no need to go further
   // We start with 100% as it is the most common result of margin calculations on real large cases
@@ -405,8 +409,10 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
 void
 MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile,
     const double variation, SimulationResult& result) {
-  if (nbThreads_ == 1)
-    std::cout << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
+  std::stringstream ss;
+  ss << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
+  std::cout << ss.str();
+
   std::stringstream subDir;
   subDir << "step-" << variation << "/" << scenario->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
@@ -435,8 +441,10 @@ MarginCalculationLauncher::launchScenario(const boost::shared_ptr<Scenario>& sce
 
   if (simulation)
     simulate(simulation, result);
-  if (nbThreads_ == 1)
-    std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
+
+  ss.str("");
+  ss << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
+  std::cout << ss.str();
 }
 
 void
@@ -498,8 +506,10 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
 void
 MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
     const double variation, SimulationResult& result) {
-  if (nbThreads_ == 1)
-    std::cout << "Launch loadIncrease of " << variation << "%" <<std::endl;
+  std::stringstream ss;
+  ss << "Launch loadIncrease of " << variation << "%" <<std::endl;
+  std::cout << ss.str();
+
   std::stringstream subDir;
   subDir << "step-" << variation << "/" << loadIncrease->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
@@ -523,7 +533,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   std::stringstream scenarioId;
   scenarioId << "loadIncrease-" << variation;
   result.setScenarioId(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, *itJobEntry, params, result);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, *itJobEntry, params, result, loadIncreaseContext_);
 
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
