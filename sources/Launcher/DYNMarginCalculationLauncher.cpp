@@ -383,23 +383,20 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     createScenarioWorkingDir(events[eventIdx]->getId(), variation);
   }
 
-#ifdef LANG_CXX11
-  std::mutex mutex;
-#endif
+  for (const auto& pair : events2Run) {
+    double variation = pair.second;
+    std::string iidmFile = generateIDMFileNameForVariation(variation);
+    if (contextsByIIDM_.count(iidmFile) == 0) {
+      contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, eventsId.size(), iidmFile);
+    }
+  }
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < events2Run.size(); i++) {
     double variation = events2Run[i].second;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
-    if (contextsByIIDM_.count(iidmFile) == 0 || contextsByIIDM_.at(iidmFile).nbVariants() < events2Run.size()) {
-#ifdef LANG_CXX11
-      std::unique_lock<std::mutex> lock(mutex);
-#endif
-      // init the context only if not already existing with enough variants defined
-      contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, events2Run.size(), iidmFile);
-    }
-    contextsByIIDM_.at(iidmFile).setCurrentVariant(i);
     size_t eventIdx = events2Run[i].first;
+    contextsByIIDM_.at(iidmFile).setCurrentVariant(eventIdx);
     launchScenario(contextsByIIDM_.at(iidmFile), events[eventIdx], variation, scenariosCache_[variation].getResult(eventIdx));
   }
   assert(scenariosCache_.find(newVariation) != scenariosCache_.end());

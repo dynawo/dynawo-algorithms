@@ -42,8 +42,12 @@ class DataInterfaceContainer {
   /// @brief Destructor
   ~DataInterfaceContainer();
 
-  /// @brief Init data interface for current thread
-  void initDataInterface();
+  /**
+   * @brief Init data interface for current thread
+   *
+   * @param variant variant number to use
+   */
+  void initDataInterface(unsigned int variant);
 
   /**
    * @brief retrieve data interface

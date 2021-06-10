@@ -41,6 +41,11 @@ AnalysisContext::init(const std::string& workingDirectory, const std::string& jo
       jobEntry_->getModelerEntry()->getNetworkEntry()->setIidmFile(iidmFile);
     }
     iidmFilePath = createAbsolutePath(iidmFile, workingDirectory);
+  } else {
+    iidmFilePath = jobEntry_->getModelerEntry()->getNetworkEntry()->getIidmFile();
+    if (!iidmFilePath.empty()) {
+      iidmFilePath = createAbsolutePath(iidmFilePath, workingDirectory);
+    }
   }
 
   if (!iidmFilePath.empty()) {
@@ -58,19 +63,8 @@ AnalysisContext::setCurrentVariant(unsigned int variant) {
     return;
   }
 
-  dataInterfaceContainer_->initDataInterface();
+  dataInterfaceContainer_->initDataInterface(variant);
   boost::shared_ptr<DYN::DataInterface> dataInterface = dataInterfaceContainer_->getDataInterface();
-
-  if (dataInterface->canUseVariant()) {
-#ifdef LANG_CXX11
-    std::string name = std::to_string(variant);
-#else
-    std::stringstream ss;
-    ss << variant;
-    std::string name = ss.str();
-#endif
-    dataInterface->selectVariant(name);
-  }
 }
 
 }  // namespace DYNAlgorithms

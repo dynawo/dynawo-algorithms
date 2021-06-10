@@ -34,15 +34,19 @@ class DataInterfaceContainer::DataInterfaceContainerImpl {
  public:
   explicit DataInterfaceContainerImpl(const boost::shared_ptr<DYN::DataInterface>& data) : referenceDataInterface(data) {}
 
-  void initDataInterface() {
-    auto thread_id = std::this_thread::get_id();
+  void initDataInterface(unsigned int variant) {
     std::unique_lock<std::mutex> lock(mutex_);
+    if (referenceDataInterface->canUseVariant()) {
+      referenceDataInterface->selectVariant(std::to_string(variant));
+    }
+    auto thread_id = std::this_thread::get_id();
+    auto clone = referenceDataInterface->clone();
     if (dataInterfaces.count(thread_id) > 0) {
       // replace current element in case was used
-      dataInterfaces.at(thread_id) = referenceDataInterface->clone();
+      dataInterfaces.at(thread_id) = clone;
       return;
     }
-    dataInterfaces.insert({thread_id, referenceDataInterface->clone()});
+    dataInterfaces.insert({thread_id, clone});
   }
 
   boost::shared_ptr<DYN::DataInterface> getDataInterface() const {
@@ -54,7 +58,7 @@ class DataInterfaceContainer::DataInterfaceContainerImpl {
 
  private:
   std::unordered_map<std::thread::id, boost::shared_ptr<DYN::DataInterface> > dataInterfaces;
-  boost::shared_ptr<DYN::DataInterface> referenceDataInterface;
+  const boost::shared_ptr<DYN::DataInterface> referenceDataInterface;
   mutable std::mutex mutex_;
 };
 #else
@@ -63,7 +67,12 @@ class DataInterfaceContainer::DataInterfaceContainerImpl {
  public:
   explicit DataInterfaceContainerImpl(const boost::shared_ptr<DYN::DataInterface>& data) : referenceDataInterface(data) {}
 
-  void initDataInterface() {
+  void initDataInterface(unsigned int variant) {
+    if (referenceDataInterface->canUseVariant()) {
+      std::stringstream ss;
+      ss << variant;
+      referenceDataInterface->selectVariant(ss.str());
+    }
     dataInterface = referenceDataInterface->clone();
   }
 
@@ -83,8 +92,8 @@ DataInterfaceContainer::DataInterfaceContainer(const boost::shared_ptr<DYN::Data
 DataInterfaceContainer::~DataInterfaceContainer() {}
 
 void
-DataInterfaceContainer::initDataInterface() {
-  impl_->initDataInterface();
+DataInterfaceContainer::initDataInterface(unsigned int variant) {
+  impl_->initDataInterface(variant);
 }
 
 boost::shared_ptr<DYN::DataInterface>

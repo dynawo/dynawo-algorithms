@@ -34,7 +34,7 @@ TEST(TestDataInterfaceContainer, base) {
 
   ASSERT_FALSE(container.getDataInterface());
 
-  container.initDataInterface();
+  container.initDataInterface(0);
   // Clone is done : the retrieved data interface is supposed to be different
   boost::shared_ptr<DYN::DataInterface> dataInterface2 = container.getDataInterface();
   ASSERT_NE(dataInterface2, dataInterface);
@@ -52,12 +52,12 @@ TEST(TestDataInterfaceContainer, multiThreading) {
   boost::shared_ptr<DYN::DataInterface> dataInterface2;
 
   std::thread thread1([&container, &dataInterface1](){
-      container.initDataInterface();
+      container.initDataInterface(0);
       dataInterface1 = container.getDataInterface();
   });
 
   std::thread thread2([&container, &dataInterface2](){
-      container.initDataInterface();
+      container.initDataInterface(1);
       dataInterface2 = container.getDataInterface();
   });
 
