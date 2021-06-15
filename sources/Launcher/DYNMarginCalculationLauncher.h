@@ -27,7 +27,7 @@
 #include <DYNCommon.h>
 #include "DYNRobustnessAnalysisLauncher.h"
 #include "DYNLoadIncreaseResult.h"
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
 
 namespace DYNAlgorithms {
 class LoadIncrease;
@@ -241,7 +241,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
   std::map<double, SimulationResult, dynawoDoubleLess> loadIncreaseCache_;  ///< contains available load increase simulation results
   std::map<double, LoadIncreaseResult, dynawoDoubleLess> scenariosCache_;  ///< contains available scenarios simulation results
-  std::unordered_map<std::string, AnalysisContext> contextsByIIDM_;  ///< For scenarios, the contexts to use, by IIDM file
+  boost::unordered_map<std::string, AnalysisContext> contextsByIIDM_;  ///< For scenarios, the contexts to use, by IIDM file
 };
 }  // namespace DYNAlgorithms
 
