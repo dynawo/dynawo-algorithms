@@ -387,7 +387,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     double variation = pair.second;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     if (contextsByIIDM_.count(iidmFile) == 0) {
-      contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, eventsId.size(), iidmFile);
+      contextsByIIDM_[iidmFile].init(workingDirectory_, baseJobsFile, events.size(), iidmFile);
     }
   }
 
