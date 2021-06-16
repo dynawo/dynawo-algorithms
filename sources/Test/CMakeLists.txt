@@ -18,13 +18,8 @@ add_library(dynawo_algorithms_Test_utils SHARED ${DYN_ALGO_TEST_UTILS_SOURCES})
 target_link_libraries(dynawo_algorithms_Test_utils
   PRIVATE
     XMLSAXParser${LibXML_LINK_SUFFIX}
+    $<$<NOT:$<BOOL:${USE_LEGACY_IIDM}>>:LibXml2::LibXml2>
 )
-if(CXX11_ENABLED)
-  target_link_libraries(dynawo_algorithms_Test_utils
-    PRIVATE
-      LibXml2::LibXml2
-  )
-endif()
 
 install(TARGETS dynawo_algorithms_Test_utils EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
 
