@@ -19,6 +19,7 @@ set(DYN_ALGO_LAUNCHER_SOURCES
 
 set(DYN_ALGO_LAUNCHER_HEADERS
   DYNComputeLoadVariationLauncher.h
+  DYNComputeSimulationLauncher.h
   DYNSystematicAnalysisLauncher.h
   DYNMarginCalculationLauncher.h
   DYNRobustnessAnalysisLauncher.h
