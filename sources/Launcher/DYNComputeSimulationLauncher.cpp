@@ -61,7 +61,7 @@ ComputeSimulationLauncher::launch() {
 }
 
 void
-ComputeSimulationLauncher::createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const {
+ComputeSimulationLauncher::createOutputs(std::map<std::string, std::string>& /*mapData*/, bool /*zipIt*/) const {
 }
 
 }  // namespace DYNAlgorithms
