@@ -60,7 +60,6 @@
 
 #include <boost/make_shared.hpp>
 using DYN::Trace;
-
 using multipleJobs::MultipleJobs;
 
 namespace DYNAlgorithms {
@@ -274,7 +273,7 @@ RobustnessAnalysisLauncher::addDydFileToJob(boost::shared_ptr<job::JobEntry>& jo
 
 boost::shared_ptr<DYN::Simulation>
 RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDir,
-    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const AnalysisContext& analysisContext) {
+    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const MultiVariantInputs& analysisContext) {
   boost::shared_ptr<DYN::SimulationContext> context = boost::shared_ptr<DYN::SimulationContext>(new DYN::SimulationContext());
   context->setResourcesDirectory(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
   context->setLocale(getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
@@ -308,7 +307,6 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     simulation->init();
   } catch (const DYN::Error& e) {
     result.setSuccess(false);
-    std::cerr << e.what() << std::endl;
     if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR) {
       result.setStatus(DIVERGENCE_STATUS);
     } else {

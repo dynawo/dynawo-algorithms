@@ -27,8 +27,7 @@
 #include "DYNSimulation.h"
 #include "JOBJobEntry.h"
 #include "DYNSimulationResult.h"
-#include "DYNAnalysisContext.h"
-
+#include "DYNMultiVariantInputs.h"
 #include "DYNDataInterfaceContainer.h"
 
 #include <DYNDataInterface.h>
@@ -141,7 +140,7 @@ class RobustnessAnalysisLauncher {
    */
   boost::shared_ptr<DYN::Simulation> createAndInitSimulation(const std::string& workingDir,
       boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
-      const AnalysisContext& analysisContext);
+      const MultiVariantInputs& analysisContext);
 
   /**
    * @brief create and initialize a simulation
@@ -182,7 +181,7 @@ class RobustnessAnalysisLauncher {
   int nbThreads_;  ///< number of threads to use
   boost::shared_ptr<multipleJobs::MultipleJobs> multipleJobs_;  ///< multipleJobs description tu use for the systematic analysis
 
-  AnalysisContext context_;  ///< basic analysis context, common to all
+  MultiVariantInputs inputs_;  ///< basic analysis context, common to all
 
  private:
   /**

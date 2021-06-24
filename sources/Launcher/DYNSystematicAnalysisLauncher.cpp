@@ -77,40 +77,34 @@ SystematicAnalysisLauncher::launch() {
       throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
   }
 
-  context_.init(workingDirectory_, baseJobsFile, events.size());
+  inputs_.readInputs(workingDirectory_, baseJobsFile, events.size());
 
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < events.size(); i++) {
-    context_.setCurrentVariant(i);
+    inputs_.setCurrentVariant(i);
     results_[i] = launchScenario(events[i]);
   }
 }
 
 SimulationResult
 SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario) {
-  if (nbThreads_ == 1) {
-    std::stringstream ss;
-    ss << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
-    std::cout << ss.str();
-  }
+  if (nbThreads_ == 1)
+    std::cout << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
-  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry());
+  boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   addDydFileToJob(job, scenario->getDydFile());
   SimulationParameters params;
   SimulationResult result;
   result.setScenarioId(scenario->getId());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, context_);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
 
   if (simulation) {
     simulate(simulation, result);
   }
 
-  if (nbThreads_ == 1) {
-    std::stringstream ss;
-    ss << " scenario :" << scenario->getId() << " final status: " << getStatusAsString(result.getStatus()) << std::endl;
-    std::cout << ss.str();
-  }
+  if (nbThreads_ == 1)
+    std::cout << " scenario :" << scenario->getId() << " final status: " << getStatusAsString(result.getStatus()) << std::endl;
 
   return result;
 }

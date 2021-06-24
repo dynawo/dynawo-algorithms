@@ -11,14 +11,14 @@
 //
 
 /**
- * @file  DYNAnalysisContext.h
+ * @file  DYNMultiVariantInputs.h
  *
- * @brief Manager for data interface and job management during analysis launch
+ * @brief Manager for multi variant inputs
  *
  */
 
-#ifndef LAUNCHER_DYNANALYSISCONTEXT_H_
-#define LAUNCHER_DYNANALYSISCONTEXT_H_
+#ifndef LAUNCHER_DYNMULTIVARIANTINPUTS_H_
+#define LAUNCHER_DYNMULTIVARIANTINPUTS_H_
 
 #include "DYNDataInterfaceContainer.h"
 
@@ -28,19 +28,22 @@
 namespace DYNAlgorithms {
 
 /**
- * @brief Analysis context for data interface re-use
+ * @brief Multi variant inputs
+ *
+ * This class aims to manage the data that are factorized in case of multivariant use in data interface in order to use
+ * during multithreading simulations
  */
-class AnalysisContext {
+class MultiVariantInputs {
  public:
   /**
-   * @brief Update analysis context
+   * @brief Read inputs files to initialize the inputs
    *
    * @param workingDirectory working directory of current run
    * @param jobFile the job file to use
    * @param nbVariants the number of variants to use
    * @param iidmFile the iidm file to use instead of the reference in the job
    */
-  void init(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile = "");
+  void readInputs(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile = "");
 
   /**
    * @brief Update variant for current run
@@ -52,12 +55,10 @@ class AnalysisContext {
   void setCurrentVariant(unsigned int variant);
 
   /**
-   * @brief Retrieve the job entry
-   * @returns the job entry for the context
+   * @brief Retrieve a copy of the job entry
+   * @returns job entry copy or null pointer if empty
    */
-  inline const boost::shared_ptr<job::JobEntry>& jobEntry() const {
-    return jobEntry_;
-  }
+  boost::shared_ptr<job::JobEntry> cloneJobEntry() const;
 
   /**
    * @brief Retrieve the data interface container
@@ -73,4 +74,4 @@ class AnalysisContext {
 };
 }  // namespace DYNAlgorithms
 
-#endif  // LAUNCHER_DYNANALYSISCONTEXT_H_
+#endif  // LAUNCHER_DYNMULTIVARIANTINPUTS_H_

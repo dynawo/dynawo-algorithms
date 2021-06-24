@@ -39,16 +39,15 @@ class MyLauncher : public RobustnessAnalysisLauncher {
 
  public:
   void launch() {
-    context_.init(workingDirectory_, "MyJobs.jobs", 1);
-    boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry());
+    inputs_.readInputs(workingDirectory_, "MyJobs.jobs", 1);
+    boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
     addDydFileToJob(job, "MyDydFile.dyd");
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries().size(), 2);
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries()[1]->getDydFile(), "MyDydFile.dyd");
 
     SimulationParameters params;
     result_.setScenarioId("MyScenario");
-    context_.setCurrentVariant(0);
-    boost::shared_ptr<DYN::Simulation> simu = createAndInitSimulation("res", job, params, result_, context_);
+    boost::shared_ptr<DYN::Simulation> simu = createAndInitSimulation("res", job, params, result_, inputs_);
     ASSERT_TRUE(simu);
     status_t status = simulate(simu, result_);
     ASSERT_EQ(status, CONVERGENCE_STATUS);
