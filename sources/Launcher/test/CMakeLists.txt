@@ -14,6 +14,7 @@ set(MODULE_NAME dynawo_algorithms_Launcher_unittest)
 set(MODULE_SOURCES
   TestRobustnessAnalysisLauncher.cpp
   TestDataInterfaceContainer.cpp
+  TestMultiVariantInputs.cpp
   )
 
 add_executable(${MODULE_NAME} ${MODULE_SOURCES})

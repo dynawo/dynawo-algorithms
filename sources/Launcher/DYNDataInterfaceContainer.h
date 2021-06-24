@@ -52,6 +52,8 @@ class DataInterfaceContainer {
   /**
    * @brief retrieve data interface
    *
+   * The data interface retrieves depends on the current running thread when multi threading is supported
+   *
    * @returns data interface
    */
   boost::shared_ptr<DYN::DataInterface> getDataInterface() const;
