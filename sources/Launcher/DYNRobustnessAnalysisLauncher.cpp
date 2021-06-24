@@ -313,12 +313,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
       result.setStatus(EXECUTION_PROBLEM_STATUS);
     }
     return boost::shared_ptr<DYN::Simulation>();
-  } catch (const std::exception& e) {
-    std::cerr << e.what() << std::endl;
-    result.setStatus(EXECUTION_PROBLEM_STATUS);
-    return boost::shared_ptr<DYN::Simulation>();
   } catch (...) {
-    std::cerr << "Unknown error during init" << std::endl;
     result.setSuccess(false);
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();
@@ -335,7 +330,6 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       result.setSuccess(true);
       result.setStatus(CONVERGENCE_STATUS);
     } catch (const DYN::Error& e) {
-      std::cerr << e.what() << std::endl;
       // Needed as otherwise terminate might crash due to badly formed model
       simulation->activateExportIIDM(false);
       simulation->terminate();
@@ -350,11 +344,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       } else {
         result.setStatus(EXECUTION_PROBLEM_STATUS);
       }
-    } catch (const std::exception& e) {
-      std::cerr << e.what() << std::endl;
-      result.setStatus(EXECUTION_PROBLEM_STATUS);
     } catch (...) {
-      std::cerr << "Unknown error during simulate" << std::endl;
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
