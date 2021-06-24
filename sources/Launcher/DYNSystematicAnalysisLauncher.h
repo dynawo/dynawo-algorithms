@@ -58,10 +58,9 @@ class SystematicAnalysisLauncher : public RobustnessAnalysisLauncher {
   /**
    * launch the calculation of one scenario
    * @param scenario scenario to launch
-   * @param baseJobsFile base jobs file
    * @return result of the scenario
    */
-  SimulationResult launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile);
+  SimulationResult launchScenario(const boost::shared_ptr<Scenario>& scenario);
 
  private:
   std::vector<SimulationResult> results_;  ///< results of the systematic analysis

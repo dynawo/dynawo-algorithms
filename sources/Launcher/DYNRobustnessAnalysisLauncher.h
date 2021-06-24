@@ -27,6 +27,11 @@
 #include "DYNSimulation.h"
 #include "JOBJobEntry.h"
 #include "DYNSimulationResult.h"
+#include "DYNAnalysisContext.h"
+
+#include "DYNDataInterfaceContainer.h"
+
+#include <DYNDataInterface.h>
 
 namespace multipleJobs {
 class MultipleJobs;
@@ -130,11 +135,13 @@ class RobustnessAnalysisLauncher {
    * @param job job to simulate
    * @param params simulation parameters
    * @param result will be filled with simulation results if the simulation initialization failed
+   * @param analysisContext the analysis context to use for data interface and job
    *
    * @return Initialized simulation or a null pointer if initialization failed
    */
   boost::shared_ptr<DYN::Simulation> createAndInitSimulation(const std::string& workingDir,
-      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result);
+      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
+      const AnalysisContext& analysisContext);
 
   /**
    * @brief create and initialize a simulation
@@ -174,6 +181,8 @@ class RobustnessAnalysisLauncher {
   std::string outputFileFullPath_;  ///< absolute path of the outputFile
   int nbThreads_;  ///< number of threads to use
   boost::shared_ptr<multipleJobs::MultipleJobs> multipleJobs_;  ///< multipleJobs description tu use for the systematic analysis
+
+  AnalysisContext context_;  ///< basic analysis context, common to all
 
  private:
   /**

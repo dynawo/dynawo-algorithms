@@ -43,7 +43,10 @@
 #include <JOBDynModelsEntry.h>
 #include <JOBDynModelsEntryFactory.h>
 #include <JOBModelerEntry.h>
+#include <JOBIterators.h>
+#include <JOBJobsCollection.h>
 #include <DYNMacrosMessage.h>
+#include <DYNDataInterfaceFactory.h>
 #include <DYNTrace.h>
 
 #include <config.h>
@@ -55,7 +58,9 @@
 #include "DYNMultipleJobs.h"
 #include "MacrosMessage.h"
 
+#include <boost/make_shared.hpp>
 using DYN::Trace;
+
 using multipleJobs::MultipleJobs;
 
 namespace DYNAlgorithms {
@@ -266,15 +271,21 @@ RobustnessAnalysisLauncher::addDydFileToJob(boost::shared_ptr<job::JobEntry>& jo
     job->getModelerEntry()->addDynModelsEntry(dynModels);
   }
 }
+
 boost::shared_ptr<DYN::Simulation>
 RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDir,
-    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result) {
+    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const AnalysisContext& analysisContext) {
   boost::shared_ptr<DYN::SimulationContext> context = boost::shared_ptr<DYN::SimulationContext>(new DYN::SimulationContext());
   context->setResourcesDirectory(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
   context->setLocale(getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
   context->setInputDirectory(workingDirectory_);
   context->setWorkingDirectory(workingDir);
-  boost::shared_ptr<DYN::Simulation> simulation = boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context));
+
+  boost::shared_ptr<DYN::DataInterface> dataInterface = analysisContext.dataInterfaceContainer()
+    ? analysisContext.dataInterfaceContainer()->getDataInterface()
+    : boost::shared_ptr<DYN::DataInterface>();
+  boost::shared_ptr<DYN::Simulation> simulation =
+    boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, dataInterface));
 
   if (!params.InitialStateFile_.empty())
     simulation->setInitialStateFile(params.InitialStateFile_);
@@ -297,13 +308,19 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     simulation->init();
   } catch (const DYN::Error& e) {
     result.setSuccess(false);
+    std::cerr << e.what() << std::endl;
     if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR) {
       result.setStatus(DIVERGENCE_STATUS);
     } else {
       result.setStatus(EXECUTION_PROBLEM_STATUS);
     }
     return boost::shared_ptr<DYN::Simulation>();
+  } catch (const std::exception& e) {
+    std::cerr << e.what() << std::endl;
+    result.setStatus(EXECUTION_PROBLEM_STATUS);
+    return boost::shared_ptr<DYN::Simulation>();
   } catch (...) {
+    std::cerr << "Unknown error during init" << std::endl;
     result.setSuccess(false);
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();
@@ -320,6 +337,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       result.setSuccess(true);
       result.setStatus(CONVERGENCE_STATUS);
     } catch (const DYN::Error& e) {
+      std::cerr << e.what() << std::endl;
       // Needed as otherwise terminate might crash due to badly formed model
       simulation->activateExportIIDM(false);
       simulation->terminate();
@@ -334,7 +352,11 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       } else {
         result.setStatus(EXECUTION_PROBLEM_STATUS);
       }
+    } catch (const std::exception& e) {
+      std::cerr << e.what() << std::endl;
+      result.setStatus(EXECUTION_PROBLEM_STATUS);
     } catch (...) {
+      std::cerr << "Unknown error during simulate" << std::endl;
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
@@ -410,4 +432,5 @@ RobustnessAnalysisLauncher::writeResults() const {
     zip::ZipOutputStream::write(outputFileFullPath_, archive);
   }
 }
+
 }  // namespace DYNAlgorithms

@@ -52,9 +52,8 @@ ComputeLoadVariationLauncher::launch() {
   else if (!is_directory(workingDir))
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
 
-  job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + loadIncrease->getJobsFile());
-  job::job_iterator itJobEntry = jobsCollection->begin();  // implicit : only one job in loadIncrease job files
+  context_.init(workingDirectory_, loadIncrease->getJobsFile(), 1);
+  boost::shared_ptr<job::JobEntry> job = boost::make_shared<job::JobEntry>(*context_.jobEntry());
 
   SimulationParameters params;
   //  force simulation to dump final values (would be used as input to launch each events)
@@ -72,7 +71,7 @@ ComputeLoadVariationLauncher::launch() {
   scenarioId << "loadIncrease-" << variation_;
   SimulationResult result;
   result.setScenarioId(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, *itJobEntry, params, result);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, context_);
 
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
