@@ -27,6 +27,7 @@
 #include <DYNCommon.h>
 #include "DYNRobustnessAnalysisLauncher.h"
 #include "DYNLoadIncreaseResult.h"
+#include <boost/unordered_map.hpp>
 
 namespace DYNAlgorithms {
 class LoadIncrease;
@@ -185,13 +186,14 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @brief launch the calculation of one scenario
    * Warning: must remain thread-safe!
    *
+   * @param context the analysis context to use
    * @param scenario scenario to launch
-   * @param baseJobsFile base jobs file
    * @param variation percentage of launch variation
    * @param result result of the simulation
    *
    */
-  void launchScenario(const boost::shared_ptr<Scenario>& scenario, const std::string& baseJobsFile, const double variation, SimulationResult& result);
+  void launchScenario(const AnalysisContext& context, const boost::shared_ptr<Scenario>& scenario,
+    const double variation, SimulationResult& result);
 
   /**
    * @brief fill the queue with the possible levels that could be run with the number of threads available
@@ -213,6 +215,13 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void createScenarioWorkingDir(const std::string& scenarioId, double variation) const;
 
+  /**
+   * @brief generates the IIDM file path for the corresponding variation
+   * @param variation the variation of the scenario
+   * @returns the corresponding IIDM file path
+   */
+  std::string generateIDMFileNameForVariation(double variation) const;
+
  private:
   /**
    * @brief double comparison with tolerance
@@ -232,6 +241,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
   std::map<double, SimulationResult, dynawoDoubleLess> loadIncreaseCache_;  ///< contains available load increase simulation results
   std::map<double, LoadIncreaseResult, dynawoDoubleLess> scenariosCache_;  ///< contains available scenarios simulation results
+  boost::unordered_map<std::string, AnalysisContext> contextsByIIDM_;  ///< For scenarios, the contexts to use, by IIDM file
 };
 }  // namespace DYNAlgorithms
 
