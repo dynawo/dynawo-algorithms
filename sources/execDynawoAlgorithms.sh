@@ -77,12 +77,43 @@ setEnv() {
   export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
 }
 
+find_and_call_timeline() {
+  if [ ! -d "$1" ]; then
+    return 1
+  fi
+find $1 -name $2 | while read filename; do
+    echo "Processing file '$filename'"
+    python $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/timelineFilter.py --timelineFile $filename
+    RESULT_FILE=`dirname $filename`
+    RESULT_FILE=$RESULT_FILE/$3
+    mv $RESULT_FILE $filename
+  done
+}
+
+filter_timeline() {
+  find_and_call_timeline $1 "timeline.log" "filtered_timeline.log"
+  find_and_call_timeline $1 "timeline.xml" "filtered_timeline.xml"
+}
+
 algo_CS() {
   setEnv
 
   # launch dynamo
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CS $@
   RETURN_CODE=$?
+  
+  while (($#)); do
+  case $1 in
+    --input)
+      if [ ! -z "$2" ]; then
+  	    if [ -f "$2" ]; then
+          filter_timeline `dirname $2`
+        fi
+      fi
+      break
+    esac
+  done
+  
   return ${RETURN_CODE}
 }
 
@@ -92,6 +123,24 @@ algo_MC() {
   # launch margin calculation
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=MC $@
   RETURN_CODE=$?
+
+  while (($#)); do
+  case $1 in
+    --directory)
+      if [ ! -z "$2" ]; then
+  	    if [ -d "$2" ]; then
+          filter_timeline $2
+        fi
+      fi
+      break
+      ;;
+    *)
+      shift
+      break
+      ;;
+    esac
+  done
+
   return ${RETURN_CODE}
 }
 
@@ -101,6 +150,24 @@ algo_SA() {
   # launch dynamic systematic analysis
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=SA $@
   RETURN_CODE=$?
+
+  while (($#)); do
+  case $1 in
+    --directory)
+      if [ ! -z "$2" ]; then
+  	    if [ -d "$2" ]; then
+          filter_timeline $2
+        fi
+      fi
+      break
+      ;;
+    *)
+      shift
+      break
+      ;;
+    esac
+  done
+
   return ${RETURN_CODE}
 }
 
