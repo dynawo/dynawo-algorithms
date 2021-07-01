@@ -599,6 +599,7 @@ create_distrib() {
   cp ../bin/* bin/
   cp ../lib/* lib/.
   cp -r ../share/* share/
+  cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py bin/.
   zip -r -y ../$ZIP_FILE bin/ lib/ share/ ddb/ 3rdParty/ extraLibs/
   cd $DYNAWO_ALGORITHMS_INSTALL_DIR
 
