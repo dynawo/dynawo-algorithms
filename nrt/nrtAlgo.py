@@ -287,8 +287,7 @@ def main():
             if (not case.ok_):
                 case.diff_ = nrtDiff.UNABLE_TO_CHECK
             else:
-                case_dir = os.path.dirname (case.jobs_file_)
-                (status, messages) = nrtDiff.DirectoryDiffReferenceDataJob (case_dir)
+                (status, messages) = nrtDiff.DirectoryDiffReferenceDataJob (case.jobs_file_)
                 case.diff_ = status
                 case.diff_messages_ = messages
 
