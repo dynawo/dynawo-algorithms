@@ -45,12 +45,12 @@ ComputeSimulationLauncher::launch() {
   for (job::job_iterator itJobEntry = jobsCollection->begin();
       itJobEntry != jobsCollection->end();
       ++itJobEntry) {
-    boost::shared_ptr<job::JobEntry>& job = *itJobEntry;;
+    boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
     std::cout << DYNLog(LaunchingJob, (*itJobEntry)->getName()) << std::endl;
     SimulationResult result;
     SimulationParameters params;
     result.setScenarioId(job->getName());
-    boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result);
+    boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
     if (simulation) {
       simulate(simulation, result);
     }
