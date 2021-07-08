@@ -383,8 +383,8 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     createScenarioWorkingDir(events[eventIdx]->getId(), variation);
   }
 
-  for (const auto& pair : events2Run) {
-    double variation = pair.second;
+  for (std::vector<std::pair<size_t, double> >::const_iterator it = events2Run.begin(); it != events2Run.end(); ++it) {
+    double variation = it->second;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     if (inputsByIIDM_.count(iidmFile) == 0) {
       inputsByIIDM_[iidmFile].readInputs(workingDirectory_, baseJobsFile, events.size(), iidmFile);
