@@ -32,7 +32,7 @@ TEST(MultiVariant, base) {
   std::string workingDir = "res";
   std::string iidmFile = "IEEE14.iidm";
   std::string jobFile = "MyJobs.jobs";
-  constexpr unsigned int nbVariants = 2;
+  unsigned int nbVariants = 2;
 
   inputs.readInputs(workingDir, jobFile, nbVariants);
   ASSERT_FALSE(inputs.dataInterfaceContainer());

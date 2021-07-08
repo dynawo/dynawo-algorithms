@@ -78,7 +78,7 @@ class DataInterfaceContainer::DataInterfaceContainerImpl {
  public:
   explicit DataInterfaceContainerImpl(const boost::shared_ptr<DYN::DataInterface>& data) : referenceDataInterface_(data) {}
 
-  void initDataInterface(unsigned int variant) {
+  void initDataInterface(unsigned int) {
     dataInterface_ = referenceDataInterface_->clone();
   }
 
