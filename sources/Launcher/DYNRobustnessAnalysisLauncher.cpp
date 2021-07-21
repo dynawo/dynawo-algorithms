@@ -306,6 +306,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   try {
     simulation->init();
   } catch (const DYN::Error& e) {
+    std::cerr << e.what() << std::endl;
     result.setSuccess(false);
     if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR) {
       result.setStatus(DIVERGENCE_STATUS);
@@ -313,7 +314,18 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
       result.setStatus(EXECUTION_PROBLEM_STATUS);
     }
     return boost::shared_ptr<DYN::Simulation>();
+  } catch (const DYN::MessageError& m) {
+    std::cerr << m.what() << std::endl;
+    result.setSuccess(false);
+    result.setStatus(EXECUTION_PROBLEM_STATUS);
+    return boost::shared_ptr<DYN::Simulation>();
+  } catch (const std::exception& e) {
+    std::cerr << e.what() << std::endl;
+    result.setSuccess(false);
+    result.setStatus(EXECUTION_PROBLEM_STATUS);
+    return boost::shared_ptr<DYN::Simulation>();
   } catch (...) {
+    std::cerr << "Init simulation unknown error" << std::endl;
     result.setSuccess(false);
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();
@@ -330,6 +342,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       result.setSuccess(true);
       result.setStatus(CONVERGENCE_STATUS);
     } catch (const DYN::Error& e) {
+      std::cerr << e.what() << std::endl;
       // Needed as otherwise terminate might crash due to badly formed model
       simulation->activateExportIIDM(false);
       simulation->terminate();
@@ -344,7 +357,18 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       } else {
         result.setStatus(EXECUTION_PROBLEM_STATUS);
       }
+    } catch (const DYN::MessageError& m) {
+      std::cerr << m.what() << std::endl;
+      simulation->terminate();
+      result.setSuccess(false);
+      result.setStatus(EXECUTION_PROBLEM_STATUS);
+    } catch (const std::exception& e) {
+      std::cerr << e.what() << std::endl;
+      simulation->terminate();
+      result.setSuccess(false);
+      result.setStatus(EXECUTION_PROBLEM_STATUS);
     } catch (...) {
+      std::cerr << "Run simulation unknown error" << std::endl;
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
