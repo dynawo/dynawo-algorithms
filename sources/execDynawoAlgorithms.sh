@@ -111,6 +111,11 @@ algo_CS() {
         fi
       fi
       break
+      ;;
+    *)
+      shift
+      break
+      ;;
     esac
   done
   
