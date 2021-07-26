@@ -307,6 +307,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     simulation->init();
   } catch (const DYN::Error& e) {
     std::cerr << e.what() << std::endl;
+    Trace::error() << e.what() << Trace::endline;
     result.setSuccess(false);
     if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR) {
       result.setStatus(DIVERGENCE_STATUS);
@@ -316,16 +317,19 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     return boost::shared_ptr<DYN::Simulation>();
   } catch (const DYN::MessageError& m) {
     std::cerr << m.what() << std::endl;
+    Trace::error() << m.what() << Trace::endline;
     result.setSuccess(false);
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();
   } catch (const std::exception& e) {
     std::cerr << e.what() << std::endl;
+    Trace::error() << e.what() << Trace::endline;
     result.setSuccess(false);
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();
   } catch (...) {
     std::cerr << "Init simulation unknown error" << std::endl;
+    Trace::error() << "Init simulation unknown error" << Trace::endline;
     result.setSuccess(false);
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();
@@ -343,6 +347,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       result.setStatus(CONVERGENCE_STATUS);
     } catch (const DYN::Error& e) {
       std::cerr << e.what() << std::endl;
+      Trace::error() << e.what() << Trace::endline;
       // Needed as otherwise terminate might crash due to badly formed model
       simulation->activateExportIIDM(false);
       simulation->terminate();
@@ -359,16 +364,19 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       }
     } catch (const DYN::MessageError& m) {
       std::cerr << m.what() << std::endl;
+      Trace::error() << m.what() << Trace::endline;
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
     } catch (const std::exception& e) {
       std::cerr << e.what() << std::endl;
+      Trace::error() << e.what() << Trace::endline;
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
     } catch (...) {
       std::cerr << "Run simulation unknown error" << std::endl;
+      Trace::error() << "Run simulation unknown error" << Trace::endline;
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
