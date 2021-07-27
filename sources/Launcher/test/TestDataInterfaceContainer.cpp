@@ -12,12 +12,11 @@
 
 #include "DYNDataInterfaceContainer.h"
 
-#include <DYNDataInterfaceFactory.h>
 #include <gtest_dynawo.h>
 #include <string>
 
-#ifdef USE_POWSYBL
-#include <thread>
+#ifdef WITH_OPENMP
+#include <omp.h>
 #endif
 
 namespace DYNAlgorithms {
@@ -41,32 +40,25 @@ TEST(TestDataInterfaceContainer, base) {
   ASSERT_NE(dataInterface2, dataInterface);
 }
 
-#ifdef USE_POWSYBL
+#ifdef WITH_OPENMP
 
 TEST(TestDataInterfaceContainer, multiThreading) {
   DataInterfaceContainer container("res/IEEE14.iidm", 2);
 
   ASSERT_FALSE(container.getDataInterface());
 
-  boost::shared_ptr<DYN::DataInterface> dataInterface1;
-  boost::shared_ptr<DYN::DataInterface> dataInterface2;
+  const unsigned int nbThreads = 2;
+  omp_set_num_threads(nbThreads);
+  std::vector<boost::shared_ptr<DYN::DataInterface> > dataInterfaces(nbThreads);
+#pragma omp parallel for schedule(dynamic, 1)
+  for (unsigned int i = 0; i < nbThreads; i++) {
+    container.initDataInterface(i);
+    dataInterfaces[i] = container.getDataInterface();
+  }
 
-  std::thread thread1([&container, &dataInterface1]() {
-    container.initDataInterface(0);
-    dataInterface1 = container.getDataInterface();
-  });
-
-  std::thread thread2([&container, &dataInterface2]() {
-    container.initDataInterface(1);
-    dataInterface2 = container.getDataInterface();
-  });
-
-  thread1.join();
-  thread2.join();
-
-  ASSERT_TRUE(dataInterface1);
-  ASSERT_TRUE(dataInterface2);
-  ASSERT_NE(dataInterface2, dataInterface1);
+  ASSERT_TRUE(dataInterfaces.at(0));
+  ASSERT_TRUE(dataInterfaces.at(1));
+  ASSERT_NE(dataInterfaces.at(0), dataInterfaces.at(1));
 }
 
 #endif
