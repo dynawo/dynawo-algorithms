@@ -15,7 +15,7 @@
 #include <boost/filesystem.hpp>
 #include <gtest_dynawo.h>
 
-#ifdef LANG_CXX11
+#ifdef USE_POWSYBL
 #include <powsybl/PowsyblException.hpp>
 #include <thread>
 #endif
@@ -44,7 +44,7 @@ TEST(MultiVariant, base) {
   ASSERT_TRUE(inputs.dataInterfaceContainer()->getDataInterface());
   inputs.setCurrentVariant(1);
   ASSERT_TRUE(inputs.dataInterfaceContainer()->getDataInterface());
-#ifdef LANG_CXX11
+#ifdef USE_POWSYBL
   // variant not existing
   ASSERT_THROW(inputs.setCurrentVariant(2), powsybl::PowsyblException);
 #endif
@@ -66,7 +66,7 @@ TEST(MultiVariant, base) {
   ASSERT_EQ(job->getName(), "My Jobs");
 }
 
-#ifdef LANG_CXX11
+#ifdef USE_POWSYBL
 TEST(MultiVariant, multi) {
   MultiVariantInputs inputs;
   constexpr unsigned int nbVariants = 2;
