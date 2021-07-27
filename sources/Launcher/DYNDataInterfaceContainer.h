@@ -35,9 +35,10 @@ class DataInterfaceContainer {
  public:
   /**
    * @brief Constructor
-   * @param data the reference data interface for all data interfaces to retrieve in the future
+   * @param iidmFile the iidm file to use for data interface reference
+   * @param nbVariants the number of variants to use for the data interface
    */
-  explicit DataInterfaceContainer(const boost::shared_ptr<DYN::DataInterface>& data);
+  explicit DataInterfaceContainer(const std::string& iidmFile, unsigned int nbVariants);
 
   /// @brief Destructor
   ~DataInterfaceContainer();

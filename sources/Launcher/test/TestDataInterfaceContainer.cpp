@@ -22,20 +22,21 @@
 
 namespace DYNAlgorithms {
 
-static boost::shared_ptr<DYN::DataInterface>
-getDataInterface() {
-  std::string iidmFile = "res/IEEE14.iidm";
-  return DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, 1);
-}
-
 TEST(TestDataInterfaceContainer, base) {
-  boost::shared_ptr<DYN::DataInterface> dataInterface = getDataInterface();
-  DataInterfaceContainer container(dataInterface);
+  DataInterfaceContainer container("res/IEEE14.iidm", 1);
 
-  ASSERT_FALSE(container.getDataInterface());
+  boost::shared_ptr<DYN::DataInterface> dataInterface = container.getDataInterface();
+#ifdef USE_POWSYBL
+  ASSERT_FALSE(dataInterface);
+#else
+  ASSERT_TRUE(dataInterface);
+#endif
 
   container.initDataInterface(0);
-  // Clone is done : the retrieved data interface is supposed to be different
+
+  // case powsybl: Clone is done
+  // case legacy: IIDM file is read
+  // the retrieved data interface is supposed to be different
   boost::shared_ptr<DYN::DataInterface> dataInterface2 = container.getDataInterface();
   ASSERT_NE(dataInterface2, dataInterface);
 }
@@ -43,32 +44,28 @@ TEST(TestDataInterfaceContainer, base) {
 #ifdef USE_POWSYBL
 
 TEST(TestDataInterfaceContainer, multiThreading) {
-  boost::shared_ptr<DYN::DataInterface> dataInterface = getDataInterface();
-  DataInterfaceContainer container(dataInterface);
+  DataInterfaceContainer container("res/IEEE14.iidm", 2);
 
   ASSERT_FALSE(container.getDataInterface());
 
   boost::shared_ptr<DYN::DataInterface> dataInterface1;
   boost::shared_ptr<DYN::DataInterface> dataInterface2;
 
-  std::thread thread1([&container, &dataInterface1](){
-      container.initDataInterface(0);
-      dataInterface1 = container.getDataInterface();
+  std::thread thread1([&container, &dataInterface1]() {
+    container.initDataInterface(0);
+    dataInterface1 = container.getDataInterface();
   });
 
-  std::thread thread2([&container, &dataInterface2](){
-      container.initDataInterface(1);
-      dataInterface2 = container.getDataInterface();
+  std::thread thread2([&container, &dataInterface2]() {
+    container.initDataInterface(1);
+    dataInterface2 = container.getDataInterface();
   });
 
   thread1.join();
   thread2.join();
 
-  ASSERT_TRUE(dataInterface);
   ASSERT_TRUE(dataInterface1);
   ASSERT_TRUE(dataInterface2);
-  ASSERT_NE(dataInterface1, dataInterface);
-  ASSERT_NE(dataInterface2, dataInterface);
   ASSERT_NE(dataInterface2, dataInterface1);
 }
 

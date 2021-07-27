@@ -55,11 +55,7 @@ MultiVariantInputs::readInputs(const std::string& workingDirectory, const std::s
   }
 
   if (!iidmFilePath.empty()) {
-    // data interface
-    // Create data interface and give it to simulation constructor
-    boost::shared_ptr<DYN::DataInterface> dataInterface =
-        DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFilePath, nbVariants);
-    dataInterfaceContainer_ = boost::make_shared<DataInterfaceContainer>(dataInterface);
+    dataInterfaceContainer_ = boost::make_shared<DataInterfaceContainer>(iidmFilePath, nbVariants);
   }
 }
 
