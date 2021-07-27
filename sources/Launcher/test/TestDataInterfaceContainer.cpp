@@ -16,7 +16,7 @@
 #include <gtest_dynawo.h>
 #include <string>
 
-#ifdef LANG_CXX11
+#ifdef USE_POWSYBL
 #include <thread>
 #endif
 
@@ -40,7 +40,7 @@ TEST(TestDataInterfaceContainer, base) {
   ASSERT_NE(dataInterface2, dataInterface);
 }
 
-#ifdef LANG_CXX11
+#ifdef USE_POWSYBL
 
 TEST(TestDataInterfaceContainer, multiThreading) {
   boost::shared_ptr<DYN::DataInterface> dataInterface = getDataInterface();

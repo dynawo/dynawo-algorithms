@@ -54,7 +54,7 @@
 #include "DYNScenarios.h"
 #include "DYNAggrResXmlExporter.h"
 
-#ifdef LANG_CXX11
+#ifdef USE_POWSYBL
 #include <mutex>
 #endif
 

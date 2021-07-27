@@ -21,7 +21,7 @@
 
 #include <boost/make_shared.hpp>
 
-#ifdef LANG_CXX11
+#ifdef USE_POWSYBL
 #include <mutex>
 #include <thread>
 #include <unordered_map>
@@ -29,7 +29,7 @@
 
 namespace DYNAlgorithms {
 
-#ifdef LANG_CXX11
+#ifdef USE_POWSYBL
 class DataInterfaceContainer::DataInterfaceContainerImpl {
  public:
   explicit DataInterfaceContainerImpl(const boost::shared_ptr<DYN::DataInterface>& data) : referenceDataInterface_(data) {}
