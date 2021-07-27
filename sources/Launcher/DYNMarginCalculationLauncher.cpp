@@ -54,10 +54,6 @@
 #include "DYNScenarios.h"
 #include "DYNAggrResXmlExporter.h"
 
-#ifdef USE_POWSYBL
-#include <mutex>
-#endif
-
 using multipleJobs::MultipleJobs;
 using DYN::Trace;
 
