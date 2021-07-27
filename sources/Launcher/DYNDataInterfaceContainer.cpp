@@ -24,6 +24,7 @@
 #include <string>
 
 #ifdef USE_POWSYBL
+#include <atomic>
 #include <mutex>
 #include <thread>
 #include <unordered_map>
@@ -35,13 +36,7 @@ namespace DYNAlgorithms {
 class DataInterfaceContainer::DataInterfaceContainerImpl {
  public:
   explicit DataInterfaceContainerImpl(const std::string& iidmFile, unsigned int nbVariants) :
-      referenceDataInterface_(DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, nbVariants)) {
-    if (referenceDataInterface_->canUseVariant()) {
-      // Must be done before cloning as clone function will perform "get" actions on the network that
-      // require the variant number
-      referenceDataInterface_->selectVariant(std::to_string(0));
-    }
-  }
+      referenceDataInterface_(DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, nbVariants)) {}
 
   /**
    * @brief Initialize data interface for current thread
@@ -52,6 +47,8 @@ class DataInterfaceContainer::DataInterfaceContainerImpl {
    * @param variant the variant number to select
    */
   void initDataInterface(unsigned int variant) {
+    setReferenceVariant(variant);
+
     auto thread_id = std::this_thread::get_id();
     auto clone = referenceDataInterface_->clone();
 
@@ -73,6 +70,17 @@ class DataInterfaceContainer::DataInterfaceContainerImpl {
     std::unique_lock<std::mutex> lock(mutex_);
     auto found = dataInterfaces_.find(thread_id);
     return (found == dataInterfaces_.end()) ? nullptr : found->second;
+  }
+
+ private:
+  void setReferenceVariant(unsigned int variant) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (referenceDataInterface_->canUseVariant()) {
+      // Must be done before cloning as clone function will perform "get" actions on the network that
+      // require the variant number
+      // variant number selected is not relevant here
+      referenceDataInterface_->selectVariant(std::to_string(variant));
+    }
   }
 
  private:
