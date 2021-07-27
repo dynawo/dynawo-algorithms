@@ -62,13 +62,6 @@ else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
 endif()
 
-if(NOT CXX11_ENABLED)
-  set(USE_LEGACY_IIDM ON CACHE BOOL "Force use of legacy IIDM library" FORCE)
-endif()
-
-if(NOT USE_LEGACY_IIDM)
-  add_definitions(-DUSE_POWSYBL)
-endif()
 
 # Add specific options for compiler
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -201,6 +194,7 @@ else()
 endif()
 
 if(NOT USE_LEGACY_IIDM)
+  add_definitions(-DUSE_POWSYBL)
   find_package(LibXml2 "2.9" REQUIRED)
   find_package(LibIIDM "1.4.0" REQUIRED)
 else()
