@@ -12,6 +12,7 @@ documentation/*.out
 documentation/*.pdf
 nrt/data/*/*/outputs*/
 nrt/data/*/*/step-*
+nrt/data/IEEE14/IEEE14*/*.xml
 nrt/data/IEEE14/SA*/IEEE14*
 nrt/data/IEEE14/SA*/*.dyd
 nrt/data/IEEE14/SA*/*.par

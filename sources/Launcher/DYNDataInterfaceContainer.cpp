@@ -19,7 +19,9 @@
 
 #include "DYNDataInterfaceContainer.h"
 
+#include <DYNDataInterfaceFactory.h>
 #include <boost/make_shared.hpp>
+#include <string>
 
 #ifdef USE_POWSYBL
 #include <mutex>
@@ -32,7 +34,8 @@ namespace DYNAlgorithms {
 #ifdef USE_POWSYBL
 class DataInterfaceContainer::DataInterfaceContainerImpl {
  public:
-  explicit DataInterfaceContainerImpl(const boost::shared_ptr<DYN::DataInterface>& data) : referenceDataInterface_(data) {}
+  explicit DataInterfaceContainerImpl(const std::string& iidmFile, unsigned int nbVariants) :
+      referenceDataInterface_(DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, nbVariants)) {}
 
   /**
    * @brief Initialize data interface for current thread
@@ -76,24 +79,24 @@ class DataInterfaceContainer::DataInterfaceContainerImpl {
 
 class DataInterfaceContainer::DataInterfaceContainerImpl {
  public:
-  explicit DataInterfaceContainerImpl(const boost::shared_ptr<DYN::DataInterface>& data) : referenceDataInterface_(data) {}
+  explicit DataInterfaceContainerImpl(const std::string& iidmFile, unsigned int) : iidmFile_(iidmFile) {}
 
   void initDataInterface(unsigned int) {
-    dataInterface_ = referenceDataInterface_->clone();
+    // do nothing
   }
 
   boost::shared_ptr<DYN::DataInterface> getDataInterface() const {
-    return dataInterface_;
+    // re-read the IIDM file every time
+    return DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile_);
   }
 
  private:
-  boost::shared_ptr<DYN::DataInterface> dataInterface_;
-  const boost::shared_ptr<DYN::DataInterface> referenceDataInterface_;
+  std::string iidmFile_;
 };
 #endif
 
-DataInterfaceContainer::DataInterfaceContainer(const boost::shared_ptr<DYN::DataInterface>& data) :
-    impl_(boost::make_shared<DataInterfaceContainerImpl>(data)) {}
+DataInterfaceContainer::DataInterfaceContainer(const std::string& iidmFile, unsigned int nbVariants) :
+    impl_(boost::make_shared<DataInterfaceContainerImpl>(iidmFile, nbVariants)) {}
 
 DataInterfaceContainer::~DataInterfaceContainer() {}
 
