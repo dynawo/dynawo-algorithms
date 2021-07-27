@@ -35,7 +35,13 @@ namespace DYNAlgorithms {
 class DataInterfaceContainer::DataInterfaceContainerImpl {
  public:
   explicit DataInterfaceContainerImpl(const std::string& iidmFile, unsigned int nbVariants) :
-      referenceDataInterface_(DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, nbVariants)) {}
+      referenceDataInterface_(DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, iidmFile, nbVariants)) {
+    if (referenceDataInterface_->canUseVariant()) {
+      // Must be done before cloning as clone function will perform "get" actions on the network that
+      // require the variant number
+      referenceDataInterface_->selectVariant(std::to_string(0));
+    }
+  }
 
   /**
    * @brief Initialize data interface for current thread
@@ -46,15 +52,14 @@ class DataInterfaceContainer::DataInterfaceContainerImpl {
    * @param variant the variant number to select
    */
   void initDataInterface(unsigned int variant) {
-    std::unique_lock<std::mutex> lock(mutex_);
-    if (referenceDataInterface_->canUseVariant()) {
-      // Must be done before cloning as clone function will perform "get" actions on the network that
-      // require the variant number
-      referenceDataInterface_->selectVariant(std::to_string(variant));
-    }
     auto thread_id = std::this_thread::get_id();
     auto clone = referenceDataInterface_->clone();
 
+    if (clone->canUseVariant()) {
+      clone->selectVariant(std::to_string(variant));
+    }
+
+    std::unique_lock<std::mutex> lock(mutex_);
     if (dataInterfaces_.count(thread_id) > 0) {
       // replace current element in case was already used
       dataInterfaces_.at(thread_id) = clone;

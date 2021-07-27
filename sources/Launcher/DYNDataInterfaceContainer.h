@@ -55,6 +55,9 @@ class DataInterfaceContainer {
    *
    * The data interface retrieves depends on the current running thread when multi threading is supported
    *
+   * WARNING: it is not guaranteed that two consecutive return the same data interface
+   * WARNING: calling this function before calling initDataInterface is undefined behaviour
+   *
    * @returns data interface
    */
   boost::shared_ptr<DYN::DataInterface> getDataInterface() const;
