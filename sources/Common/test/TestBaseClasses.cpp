@@ -28,10 +28,13 @@ TEST(TestBaseClasses, testScenario) {
   Scenario t;
   ASSERT_EQ(t.getId(), "");
   ASSERT_EQ(t.getDydFile(), "");
+  ASSERT_EQ(t.getCriteriaFile(), "");
   t.setId("MyId");
   t.setDydFile("MyDydFile");
+  t.setCriteriaFile("MyCrtFile");
   ASSERT_EQ(t.getId(), "MyId");
   ASSERT_EQ(t.getDydFile(), "MyDydFile");
+  ASSERT_EQ(t.getCriteriaFile(), "MyCrtFile");
 }
 
 TEST(TestBaseClasses, testScenarios) {
@@ -40,18 +43,22 @@ TEST(TestBaseClasses, testScenarios) {
   ASSERT_TRUE(s.getJobsFile().empty());
   boost::shared_ptr<Scenario> t1(new Scenario());
   t1->setId("MyId1");
-  t1->setDydFile("MyFile1");
+  t1->setDydFile("MyDydFile1");
+  t1->setCriteriaFile("MyCrtFile1");
   boost::shared_ptr<Scenario> t2(new Scenario());
   t2->setId("MyId2");
-  t2->setDydFile("MyFile2");
+  t2->setDydFile("MyDydFile2");
+  t2->setCriteriaFile("MyCrtFile2");
   s.addScenario(t1);
   s.addScenario(t2);
   s.setJobsFile("myJobsFile");
   ASSERT_EQ(s.getScenarios().size(), 2);
   ASSERT_EQ(s.getScenarios()[0]->getId(), "MyId1");
-  ASSERT_EQ(s.getScenarios()[0]->getDydFile(), "MyFile1");
+  ASSERT_EQ(s.getScenarios()[0]->getDydFile(), "MyDydFile1");
+  ASSERT_EQ(s.getScenarios()[0]->getCriteriaFile(), "MyCrtFile1");
   ASSERT_EQ(s.getScenarios()[1]->getId(), "MyId2");
-  ASSERT_EQ(s.getScenarios()[1]->getDydFile(), "MyFile2");
+  ASSERT_EQ(s.getScenarios()[1]->getDydFile(), "MyDydFile2");
+  ASSERT_EQ(s.getScenarios()[1]->getCriteriaFile(), "MyCrtFile2");
   ASSERT_EQ(s.getJobsFile(), "myJobsFile");
 }
 
@@ -63,13 +70,15 @@ TEST(TestBaseClasses, testMarginCalculation) {
   ASSERT_EQ(mc.getCalculationType(), MarginCalculation::GLOBAL_MARGIN);
   boost::shared_ptr<LoadIncrease> t1(new LoadIncrease());
   t1->setId("MyId1");
-  t1->setJobsFile("MyFile1");
+  t1->setJobsFile("MyJobsFile1");
   boost::shared_ptr<Scenario> t2(new Scenario());
   t2->setId("MyId2");
-  t2->setDydFile("MyFile2");
+  t2->setDydFile("MyDydFile2");
+  t2->setCriteriaFile("MyCrtFile2");
   boost::shared_ptr<Scenario> t3(new Scenario());
   t3->setId("MyId3");
-  t3->setDydFile("MyFile3");
+  t3->setDydFile("MyDydFile3");
+  t3->setCriteriaFile("MyCrtFile3");
   boost::shared_ptr<Scenarios> scenarios(new Scenarios());
   mc.setLoadIncrease(t1);
   scenarios->addScenario(t2);
@@ -78,12 +87,14 @@ TEST(TestBaseClasses, testMarginCalculation) {
   mc.setAccuracy(52);
   mc.setCalculationType(MarginCalculation::LOCAL_MARGIN);
   ASSERT_EQ(mc.getLoadIncrease()->getId(), "MyId1");
-  ASSERT_EQ(mc.getLoadIncrease()->getJobsFile(), "MyFile1");
+  ASSERT_EQ(mc.getLoadIncrease()->getJobsFile(), "MyJobsFile1");
   ASSERT_EQ(mc.getScenarios()->getScenarios().size(), 2);
   ASSERT_EQ(mc.getScenarios()->getScenarios()[0]->getId(), "MyId2");
-  ASSERT_EQ(mc.getScenarios()->getScenarios()[0]->getDydFile(), "MyFile2");
+  ASSERT_EQ(mc.getScenarios()->getScenarios()[0]->getDydFile(), "MyDydFile2");
+  ASSERT_EQ(mc.getScenarios()->getScenarios()[0]->getCriteriaFile(), "MyCrtFile2");
   ASSERT_EQ(mc.getScenarios()->getScenarios()[1]->getId(), "MyId3");
-  ASSERT_EQ(mc.getScenarios()->getScenarios()[1]->getDydFile(), "MyFile3");
+  ASSERT_EQ(mc.getScenarios()->getScenarios()[1]->getDydFile(), "MyDydFile3");
+  ASSERT_EQ(mc.getScenarios()->getScenarios()[1]->getCriteriaFile(), "MyCrtFile3");
   ASSERT_EQ(mc.getAccuracy(), 52);
   ASSERT_EQ(mc.getCalculationType(), MarginCalculation::LOCAL_MARGIN);
 

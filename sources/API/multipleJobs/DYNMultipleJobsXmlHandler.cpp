@@ -159,6 +159,8 @@ ScenarioHandler::create(attributes_type const& attributes) {
   scenario_->setId(attributes["id"]);
   if (attributes.has("dydFile"))
     scenario_->setDydFile(attributes["dydFile"]);
+  if (attributes.has("criteriaFile"))
+    scenario_->setCriteriaFile(attributes["criteriaFile"]);
 }
 
 boost::shared_ptr<Scenario>

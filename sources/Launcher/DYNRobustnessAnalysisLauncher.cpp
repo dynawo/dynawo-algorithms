@@ -43,6 +43,7 @@
 #include <JOBDynModelsEntry.h>
 #include <JOBDynModelsEntryFactory.h>
 #include <JOBModelerEntry.h>
+#include <JOBSimulationEntryFactory.h>
 #include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <DYNMacrosMessage.h>
@@ -268,6 +269,14 @@ RobustnessAnalysisLauncher::addDydFileToJob(boost::shared_ptr<job::JobEntry>& jo
     boost::shared_ptr<job::DynModelsEntry> dynModels = job::DynModelsEntryFactory::newInstance();
     dynModels->setDydFile(dydFile);
     job->getModelerEntry()->addDynModelsEntry(dynModels);
+  }
+}
+
+void
+RobustnessAnalysisLauncher::setCriteriaFileForJob(boost::shared_ptr<job::JobEntry>& job,
+    const std::string& criteriaFile) {
+  if (!criteriaFile.empty()) {
+    job->getSimulationEntry()->setCriteriaFile(criteriaFile);
   }
 }
 

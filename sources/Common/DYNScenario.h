@@ -43,6 +43,12 @@ class Scenario {
   void setDydFile(const std::string& file);
 
   /**
+   * @brief set the criteria file to use for the scenario
+   * @param file criteria file to use for the scenario
+   */
+  void setCriteriaFile(const std::string& file);
+
+  /**
    * @brief get the id of the scenario
    * @return id of the scenario
    */
@@ -54,9 +60,16 @@ class Scenario {
    */
   const std::string& getDydFile() const;
 
+  /**
+   * @brief get the criteria file of the scenario
+   * @return criteria file of the scenario
+   */
+  const std::string& getCriteriaFile() const;
+
  private:
   std::string id_;  ///< id of the scenario
-  std::string dydfile_;  ///< dyd file to use for the scenario
+  std::string dydFile_;  ///< dyd file to use for the scenario
+  std::string criteriaFile_;  ///< criteria file to use for the scenario
 };
 
 }  // namespace DYNAlgorithms

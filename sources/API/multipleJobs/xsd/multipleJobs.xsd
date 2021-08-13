@@ -24,6 +24,7 @@
   <xs:complexType name="Scenario">
     <xs:attribute name="id" type="xs:string" use="required"/>
     <xs:attribute name="dydFile" type="xs:string" use="optional"/>
+    <xs:attribute name="criteriaFile" type="xs:string" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="LoadIncrease">

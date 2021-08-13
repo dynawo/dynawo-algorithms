@@ -92,11 +92,14 @@ SystematicAnalysisLauncher::launch() {
 SimulationResult
 SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario) {
   if (nbThreads_ == 1)
-    std::cout << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
+    std::cout << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile()
+              << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   addDydFileToJob(job, scenario->getDydFile());
+  setCriteriaFileForJob(job, scenario->getCriteriaFile());
+
   SimulationParameters params;
   SimulationResult result;
   result.setScenarioId(scenario->getId());

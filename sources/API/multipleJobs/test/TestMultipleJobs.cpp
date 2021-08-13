@@ -76,8 +76,10 @@ TEST(TestMultipleJobs, TestMultipleJobsXmlHandlerMarginCalculation) {
   ASSERT_EQ(mc->getScenarios()->getScenarios().size(), 2);
   ASSERT_EQ(mc->getScenarios()->getScenarios()[0]->getId(), "MyScenario");
   ASSERT_EQ(mc->getScenarios()->getScenarios()[0]->getDydFile(), "MyScenario.dyd");
+  ASSERT_EQ(mc->getScenarios()->getScenarios()[0]->getCriteriaFile(), "MyScenario.crt");
   ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getId(), "MyScenario2");
-  ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getDydFile(), "MyScenario.dyd");
+  ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getDydFile(), "MyScenario2.dyd");
+  ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getCriteriaFile(), "MyScenario2.crt");
   ASSERT_EQ(mc->getScenarios()->getJobsFile(), "myScenarios.jobs");
 }
 
@@ -97,8 +99,10 @@ TEST(TestMultipleJobs, TestMultipleJobsXmlHandlerScenarios) {
   ASSERT_EQ(scenarios->getScenarios().size(), 2);
   ASSERT_EQ(scenarios->getScenarios()[0]->getId(), "MyScenario");
   ASSERT_EQ(scenarios->getScenarios()[0]->getDydFile(), "MyScenario.dyd");
+  ASSERT_EQ(scenarios->getScenarios()[0]->getCriteriaFile(), "MyScenario.crt");
   ASSERT_EQ(scenarios->getScenarios()[1]->getId(), "MyScenario2");
-  ASSERT_EQ(scenarios->getScenarios()[1]->getDydFile(), "MyScenario.dyd");
+  ASSERT_EQ(scenarios->getScenarios()[1]->getDydFile(), "MyScenario2.dyd");
+  ASSERT_EQ(scenarios->getScenarios()[1]->getCriteriaFile(), "MyScenario2.crt");
   ASSERT_EQ(scenarios->getJobsFile(), "myScenarios.jobs");
 }
 }  // namespace multipleJobs

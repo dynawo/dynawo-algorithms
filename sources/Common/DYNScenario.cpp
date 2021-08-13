@@ -33,12 +33,22 @@ Scenario::getId() const {
 
 void
 Scenario::setDydFile(const std::string& file) {
-  dydfile_ = file;
+  dydFile_ = file;
 }
 
 const std::string&
 Scenario::getDydFile() const {
-  return dydfile_;
+  return dydFile_;
+}
+
+void
+Scenario::setCriteriaFile(const std::string& file) {
+  criteriaFile_ = file;
+}
+
+const std::string&
+Scenario::getCriteriaFile() const {
+  return criteriaFile_;
 }
 
 }  // namespace DYNAlgorithms

@@ -143,11 +143,18 @@ class RobustnessAnalysisLauncher {
       const MultiVariantInputs& analysisContext);
 
   /**
-   * @brief create and initialize a simulation
+   * @brief add a dyd file to the job
    * @param job job to simulate
    * @param dydFile dyd file to add to the job, empty if none to add
    */
   void addDydFileToJob(boost::shared_ptr<job::JobEntry>& job, const std::string& dydFile);
+
+  /**
+   * @brief replace the criteria file for the job
+   * @param job job to simulate
+   * @param criteriaFile criteria file to set for the job, empty if none to set
+   */
+  void setCriteriaFileForJob(boost::shared_ptr<job::JobEntry>& job, const std::string& criteriaFile);
 
   /**
    * @brief launch a simulation and collect results
