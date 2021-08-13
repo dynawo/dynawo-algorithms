@@ -21,7 +21,9 @@
         <dyn:directory path="." recursive="false"/>
       </dyn:modelicaModels>
     </dyn:modeler>
-    <dyn:simulation startTime="0" stopTime="10"/>
+    <dyn:simulation startTime="0" stopTime="10">
+      <dyn:criteria criteriaFile="EmptyCrtFile.crt"/>
+    </dyn:simulation>
     <dyn:outputs directory="outputs">
       <dyn:timeline exportMode="TXT"/>
       <dyn:logs>

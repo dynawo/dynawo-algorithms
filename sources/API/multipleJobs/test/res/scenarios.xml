@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <multipleJobs xmlns="http://www.rte-france.com/dynawo">
   <scenarios jobsFile="myScenarios.jobs">
-    <scenario id="MyScenario" dydFile="MyScenario.dyd"/>
-    <scenario id="MyScenario2" dydFile="MyScenario.dyd"/>
+    <scenario id="MyScenario" dydFile="MyScenario.dyd" criteriaFile="MyScenario.crt"/>
+    <scenario id="MyScenario2" dydFile="MyScenario2.dyd" criteriaFile="MyScenario2.crt"/>
   </scenarios>
 </multipleJobs>

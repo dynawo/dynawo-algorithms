@@ -47,7 +47,11 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
     addDydFileToJob(job, "MyDydFile.dyd");
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries().size(), 2);
+    ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries()[0]->getDydFile(), "EmptyDydFile.dyd");
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries()[1]->getDydFile(), "MyDydFile.dyd");
+    setCriteriaFileForJob(job, "MyCrtFile.crt");
+    ASSERT_EQ(job->getSimulationEntry()->getCriteriaFiles().size(), 1);
+    ASSERT_EQ(job->getSimulationEntry()->getCriteriaFiles()[0], "MyCrtFile.crt");
 
     SimulationParameters params;
     result_.setScenarioId("MyScenario");
@@ -109,8 +113,10 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     ASSERT_EQ(mc->getScenarios()->getScenarios().size(), 2);
     ASSERT_EQ(mc->getScenarios()->getScenarios()[0]->getId(), "MyScenario");
     ASSERT_EQ(mc->getScenarios()->getScenarios()[0]->getDydFile(), "MyScenario.dyd");
+    ASSERT_EQ(mc->getScenarios()->getScenarios()[0]->getCriteriaFile(), "MyScenario.crt");
     ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getId(), "MyScenario2");
-    ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getDydFile(), "MyScenario.dyd");
+    ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getDydFile(), "MyScenario2.dyd");
+    ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getCriteriaFile(), "MyScenario2.crt");
     ASSERT_EQ(mc->getScenarios()->getJobsFile(), "myScenarios.jobs");
   }
 

@@ -425,13 +425,15 @@ void
 MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, const boost::shared_ptr<Scenario>& scenario,
     const double variation, SimulationResult& result) {
   if (nbThreads_ == 1)
-    std::cout << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile() << std::endl;
+    std::cout << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile()
+              << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
   std::stringstream subDir;
   subDir << "step-" << variation << "/" << scenario->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
   boost::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
   addDydFileToJob(job, scenario->getDydFile());
+  setCriteriaFileForJob(job, scenario->getCriteriaFile());
 
   SimulationParameters params;
   std::stringstream dumpFile;
