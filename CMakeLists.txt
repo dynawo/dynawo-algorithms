@@ -131,6 +131,8 @@ if(BOOST_ROOT_DEFAULT STREQUAL "true")
   set(Boost_NO_SYSTEM_PATHS FALSE)
 else()
   set(Boost_NO_SYSTEM_PATHS TRUE)
+  # Use Boost_NO_BOOST_CMAKE to ensure that find_package uses MODULE mode and takes Boost_NO_SYSTEM_PATHS into account, instead of CONFIG mode
+  set(Boost_NO_BOOST_CMAKE ON)
 endif()
 # Tell BOOST to disable auto linking
 add_definitions(-DBOOST_ALL_NO_LIB)
