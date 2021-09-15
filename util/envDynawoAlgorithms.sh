@@ -599,8 +599,10 @@ create_distrib() {
   cp ../bin/* bin/
   cp ../lib/* lib/.
   cp -r ../share/* share/
+  # combines dictionaries mapping
+  cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> share/dictionaries_mapping.dic
   cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py bin/.
-  zip -r -y ../$ZIP_FILE bin/ lib/ share/ ddb/ 3rdParty/ extraLibs/
+  zip -r -y ../$ZIP_FILE bin/ lib/ share/ ddb/ dynawo.sh
   cd $DYNAWO_ALGORITHMS_INSTALL_DIR
 
   # remove temp directory
