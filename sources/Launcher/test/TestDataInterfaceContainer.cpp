@@ -45,7 +45,12 @@ TEST(TestDataInterfaceContainer, base) {
 TEST(TestDataInterfaceContainer, multiThreading) {
   DataInterfaceContainer container("res/IEEE14.iidm", 2);
 
-  ASSERT_FALSE(container.getDataInterface());
+  boost::shared_ptr<DYN::DataInterface> dataInterface = container.getDataInterface();
+#ifdef USE_POWSYBL
+  ASSERT_FALSE(dataInterface);
+#else
+  ASSERT_TRUE(dataInterface);
+#endif
 
   const unsigned int nbThreads = 2;
   omp_set_num_threads(nbThreads);
