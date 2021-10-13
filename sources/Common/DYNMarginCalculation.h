@@ -51,11 +51,6 @@ class MarginCalculation {
   MarginCalculation();
 
   /**
-   * destructor
-   */
-  virtual ~MarginCalculation() {}
-
-  /**
    * @brief set the load increase event to the margin calculation
    * @param loadIncrease load increase event
    */

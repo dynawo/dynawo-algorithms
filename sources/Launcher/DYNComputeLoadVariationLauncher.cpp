@@ -36,9 +36,6 @@
 
 namespace DYNAlgorithms {
 
-ComputeLoadVariationLauncher::~ComputeLoadVariationLauncher() {
-}
-
 void
 ComputeLoadVariationLauncher::launch() {
   std::cout << "Launch loadIncrease of " << variation_ << "%" <<std::endl;

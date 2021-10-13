@@ -36,16 +36,6 @@ namespace DYNAlgorithms {
 class Scenarios {
  public:
   /**
-   * @brief default constructor
-   */
-  Scenarios();
-
-  /**
-   * @brief default destructor
-   */
-  virtual ~Scenarios();
-
-  /**
    * @brief add a scenario to the list
    * @param scenario scenario to add
    */

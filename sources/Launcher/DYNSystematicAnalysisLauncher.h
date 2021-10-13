@@ -37,16 +37,11 @@ class SimulationResult;
 class SystematicAnalysisLauncher : public RobustnessAnalysisLauncher {
  public:
   /**
-   * @brief default destructor
-   */
-  virtual ~SystematicAnalysisLauncher();
-
-  /**
    * @copydoc RobustnessAnalysisLauncher::launch()
    */
   void launch();
 
- protected:
+ private:
   /**
    * @brief create outputs file for each job
    * @param mapData map associating a fileName and the data contained in the file
@@ -54,7 +49,6 @@ class SystematicAnalysisLauncher : public RobustnessAnalysisLauncher {
    */
   void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
 
- private:
   /**
    * launch the calculation of one scenario
    * @param scenario scenario to launch

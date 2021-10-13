@@ -55,9 +55,6 @@
 
 namespace DYNAlgorithms {
 
-SystematicAnalysisLauncher::~SystematicAnalysisLauncher() {
-}
-
 void
 SystematicAnalysisLauncher::launch() {
   boost::shared_ptr<Scenarios> scenarios = multipleJobs_->getScenarios();

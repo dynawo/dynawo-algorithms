@@ -30,10 +30,6 @@ namespace aggregatedResults {
 class XmlExporter {
  public:
   /**
-   * @brief Destructor
-   */
-  virtual ~XmlExporter() {}
-  /**
    * @brief Export Scenarios results into a file
    *
    * @param results aggregated results to export

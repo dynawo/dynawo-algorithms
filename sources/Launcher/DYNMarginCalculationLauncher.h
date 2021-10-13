@@ -41,16 +41,11 @@ class LoadIncreaseResult;
 class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
  public:
   /**
-   * @brief destructor
-   */
-  virtual ~MarginCalculationLauncher();
-
-  /**
    * @copydoc RobustnessAnalysisLauncher::launch()
    */
   void launch();
 
- protected:
+ private:
   /**
    * @brief create outputs file for each job
    * @param mapData map associating a fileName and the data contained in the file
@@ -58,7 +53,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
 
- private:
   /**
    * @brief Description of a set of scenarios to run
    */

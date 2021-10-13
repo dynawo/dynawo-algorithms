@@ -35,11 +35,6 @@ class SimulationResult;
 class ComputeLoadVariationLauncher : public RobustnessAnalysisLauncher {
  public:
   /**
-   * @brief default destructor
-   */
-  virtual ~ComputeLoadVariationLauncher();
-
-  /**
    * @copydoc RobustnessAnalysisLauncher::launch()
    */
   void launch();
@@ -52,7 +47,7 @@ class ComputeLoadVariationLauncher : public RobustnessAnalysisLauncher {
     variation_ = variation;
   }
 
- protected:
+ private:
   /**
    * @brief create outputs file for each job
    * @param mapData map associating a fileName and the data contained in the file

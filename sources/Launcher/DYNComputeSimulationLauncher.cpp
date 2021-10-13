@@ -29,9 +29,6 @@
 
 namespace DYNAlgorithms {
 
-ComputeSimulationLauncher::~ComputeSimulationLauncher() {
-}
-
 void
 ComputeSimulationLauncher::launch() {
   std::string outputFileFullPath = outputFile_;
