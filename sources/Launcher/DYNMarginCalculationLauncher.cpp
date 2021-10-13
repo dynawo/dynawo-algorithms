@@ -59,9 +59,6 @@ using DYN::Trace;
 
 namespace DYNAlgorithms {
 
-MarginCalculationLauncher::~MarginCalculationLauncher() {
-}
-
 void
 MarginCalculationLauncher::createScenarioWorkingDir(const std::string& scenarioId, double variation) const {
   std::stringstream subDir;

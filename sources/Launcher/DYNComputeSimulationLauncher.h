@@ -34,16 +34,11 @@ class SimulationResult;
 class ComputeSimulationLauncher : public RobustnessAnalysisLauncher {
  public:
   /**
-   * @brief default destructor
-   */
-  virtual ~ComputeSimulationLauncher();
-
-  /**
    * @copydoc RobustnessAnalysisLauncher::launch()
    */
   void launch();
 
- protected:
+ private:
   /**
    * @brief create outputs file for each job
    * @param mapData map associating a fileName and the data contained in the file

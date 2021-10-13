@@ -28,16 +28,6 @@ namespace DYNAlgorithms {
 class LoadIncrease {
  public:
   /**
-   * @brief default constructor
-   */
-  LoadIncrease() {}
-
-  /**
-   * @brief default destructor
-   */
-  virtual ~LoadIncrease() {}
-
-  /**
    * @brief set the id of the scenario
    * @param id id of the scenario
    */

@@ -38,10 +38,6 @@ testing::Environment* const env = initXmlEnvironment();
 
 class MyLauncher : public RobustnessAnalysisLauncher {
  public:
-  MyLauncher() {}
-  virtual ~MyLauncher() {}
-
- public:
   void launch() {
     inputs_.readInputs(workingDirectory_, "MyJobs.jobs", 1);
     boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();

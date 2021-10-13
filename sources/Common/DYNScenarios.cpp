@@ -22,12 +22,6 @@
 
 namespace DYNAlgorithms {
 
-Scenarios::Scenarios() {
-}
-
-Scenarios::~Scenarios() {
-}
-
 void
 Scenarios::addScenario(const boost::shared_ptr<Scenario>& scenario) {
   scenarios_.push_back(scenario);
