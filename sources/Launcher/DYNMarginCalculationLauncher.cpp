@@ -263,7 +263,8 @@ MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const
     double max = minMaxStack.front().second;
     minMaxStack.pop();
     double nextVar = round((min + max)/2);
-    if (loadIncreaseCache_.find(nextVar) == loadIncreaseCache_.end()) continue;
+    std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator it = loadIncreaseCache_.find(nextVar);
+    if (it == loadIncreaseCache_.end() || !it->second.getSuccess()) continue;
     toRun.push(task_t(min, max, eventIdxs));
     if (max - nextVar > tolerance)
       minMaxStack.push(std::make_pair(nextVar, max));
