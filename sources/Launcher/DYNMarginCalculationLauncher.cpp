@@ -574,7 +574,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
     simulation->printTimeline(result.getTimelineStream());
     simulation->printConstraints(result.getConstraintsStream());
   }
-  Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseEnd, getStatusAsString(result.getStatus())) << Trace::endline;
+  Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseEnd, variation, getStatusAsString(result.getStatus())) << Trace::endline;
 }
 
 void
