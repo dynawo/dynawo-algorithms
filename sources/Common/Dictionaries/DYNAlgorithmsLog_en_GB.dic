@@ -12,7 +12,7 @@
 //
 
 VariationValue                 = starting variation %1%%%
-LoadIncreaseEnd                = load increase => %1%
+LoadIncreaseEnd                = load increase for variation %1%%% => %2%
 ScenariosEnd                   = scenario %1% => %2%
 ScenarioNotSimulated           = scenario %1% => not simulated
 GlobalMarginValue              = maximal global variation is %1%%%
