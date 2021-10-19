@@ -412,6 +412,8 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
     toRun.pop();
     const std::vector<size_t>& newEventsId = newTask.ids_;
     double variation = round((newTask.minVariation_ + newTask.maxVariation_)/2);
+    std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator it = loadIncreaseCache_.find(variation);
+    if (it != loadIncreaseCache_.end() && !it->second.getSuccess()) continue;
     if (scenariosCache_.find(variation) != scenariosCache_.end()) continue;
     for (size_t i = 0, iEnd = newEventsId.size(); i < iEnd; ++i) {
       events2Run.push_back(std::make_pair(newEventsId[i], variation));
@@ -481,6 +483,9 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     double closestVariationAbove = 100.;
     for (std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator it = loadIncreaseCache_.begin(),
         itEnd = loadIncreaseCache_.end(); it != itEnd; ++it) {
+      if (!it->second.getSuccess()) {
+        continue;
+      }
       if (closestVariationBelow < it->first && it->first < variation)
         closestVariationBelow = it->first;
       if (it->first < closestVariationAbove &&  variation < it->first)
