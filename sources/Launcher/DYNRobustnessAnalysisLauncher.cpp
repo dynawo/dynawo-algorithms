@@ -282,7 +282,8 @@ RobustnessAnalysisLauncher::setCriteriaFileForJob(boost::shared_ptr<job::JobEntr
 
 boost::shared_ptr<DYN::Simulation>
 RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDir,
-    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const MultiVariantInputs& analysisContext) {
+    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
+    const MultiVariantInputs& analysisContext, bool dumpTimeTable) {
   boost::shared_ptr<DYN::SimulationContext> context = boost::shared_ptr<DYN::SimulationContext>(new DYN::SimulationContext());
   context->setResourcesDirectory(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
   context->setLocale(getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
@@ -312,6 +313,9 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
 
   if (params.activateExportIIDM_)
     simulation->activateExportIIDM(true);
+
+  simulation->setDumpTimeTable(dumpTimeTable);
+
   try {
     simulation->init();
   } catch (const DYN::Error& e) {
