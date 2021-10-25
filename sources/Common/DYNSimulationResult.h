@@ -69,7 +69,7 @@ class SimulationResult {
    * @brief set the variation of the scenario
    * @param variation variation of the scenario
    */
-  void setVariation(const std::string& variation);
+  void setVariation(const double variation);
 
   /**
    * @brief set whether the simulation succeed or not
@@ -114,6 +114,12 @@ class SimulationResult {
   std::string getScenarioId() const;
 
   /**
+   * @brief getter of the variation of the scenario
+   * @return the variation of the scenario
+   */
+  double getVariation() const;
+
+  /**
    * @brief generate a unique scenario id associating the scenario id and the variation
    * @return unique scenario id associated to the simulation
    */
@@ -147,7 +153,7 @@ class SimulationResult {
   std::stringstream timelineStream_;  ///< stream for the timeline associated to the scenario
   std::stringstream constraintsStream_;  ///< stream for the constraints associated to the scenario
   std::string scenarioId_;  ///< id of the scenario
-  std::string variation_;  ///< variation of the scenario (used when associated to a load increase)
+  double variation_;  ///< variation of the scenario (aka loadLevel when associated to a load increase)
   bool success_;  ///< @b true if the simulation reached its end, @b false otherwise
   status_t status_;  ///< detailed output status of the simulation
   std::vector<std::pair<double, std::string> > failingCriteria_;  ///< failing criteria ids

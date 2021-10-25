@@ -197,8 +197,6 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
     results_[idx].resize(events.size());
     results_[idx].setLoadLevel(newVariation);
     SimulationResult result;
-    std::stringstream variationString;
-    variationString << newVariation;
     findOrLaunchLoadIncrease(loadIncrease, newVariation, tolerance, result);
     results_[idx].setStatus(result.getStatus());
     if (result.getSuccess()) {
@@ -209,7 +207,7 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
           eventsIds.push_back(i);
         } else {
           results_[idx].getResult(i).setScenarioId(events[i]->getId());
-          results_[idx].getResult(i).setVariation(variationString.str());
+          results_[idx].getResult(i).setVariation(newVariation);
           results_[idx].getResult(i).setSuccess(true);
           results_[idx].getResult(i).setStatus(CONVERGENCE_STATUS);
         }
@@ -447,10 +445,8 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
   //  force simulation to load previous dump and to use final values
   params.InitialStateFile_ = dumpFile.str();
   params.iidmFile_ = generateIDMFileNameForVariation(variation);
-  std::stringstream scenarioId;
-  scenarioId << variation;
   result.setScenarioId(scenario->getId());
-  result.setVariation(scenarioId.str());
+  result.setVariation(variation);
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs);
 
   if (simulation)
@@ -609,14 +605,40 @@ MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& map
     exporter.exportLoadIncreaseResultsToFile(results_, outputFileFullPath_);
   }
 
-  for (size_t i=0, iEnd = results_.size(); i < iEnd; i++) {
-    for (std::vector<SimulationResult>::const_iterator it = results_[i].begin(),
-        itEnd = results_[i].end(); it != itEnd; ++it) {
-      if (zipIt) {
-        storeOutputs(*it, mapData);
+  std::map<std::string, SimulationResult> bestResults;
+  std::map<std::string, SimulationResult> worstResults;
+  for (std::vector<LoadIncreaseResult>::const_iterator itLoadIncreaseResult = results_.begin();
+       itLoadIncreaseResult != results_.end(); ++itLoadIncreaseResult) {
+    double loadLevel = itLoadIncreaseResult->getLoadLevel();
+    for (std::vector<SimulationResult>::const_iterator itSimulationResult = itLoadIncreaseResult->begin();
+         itSimulationResult != itLoadIncreaseResult->end(); ++itSimulationResult) {
+      std::string scenarioId = itSimulationResult->getScenarioId();
+      if (itSimulationResult->getSuccess()) {
+        std::map<std::string, SimulationResult>::iterator itBest = bestResults.find(scenarioId);
+        if (itBest == bestResults.end() || (loadLevel > itBest->second.getVariation()))
+          bestResults[scenarioId] = *itSimulationResult;
       } else {
-        writeOutputs(*it);
+        std::map<std::string, SimulationResult>::iterator itWorst = worstResults.find(scenarioId);
+        if (itWorst == worstResults.end() || loadLevel < itWorst->second.getVariation())
+          worstResults[scenarioId] = *itSimulationResult;
       }
+    }
+  }
+
+  for (std::map<std::string, SimulationResult>::iterator itBest = bestResults.begin();
+       itBest != bestResults.end(); ++itBest) {
+    if (zipIt) {
+      storeOutputs(itBest->second, mapData);
+    } else {
+      writeOutputs(itBest->second);
+    }
+  }
+  for (std::map<std::string, SimulationResult>::iterator itWorst = worstResults.begin();
+       itWorst != worstResults.end(); ++itWorst) {
+    if (zipIt) {
+      storeOutputs(itWorst->second, mapData);
+    } else {
+      writeOutputs(itWorst->second);
     }
   }
 }
