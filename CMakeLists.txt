@@ -34,6 +34,8 @@ set(INCLUDEDIR_NAME include)
 set(LIBDIR_NAME lib)
 set(DOCDIR_NAME doxygen)
 
+get_filename_component(DYNAWO_HOME ${DYNAWO_HOME} ABSOLUTE)
+
 # Set some install directories variables
 set(INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 set(libdir ${INSTALL_PREFIX}/${LIBDIR_NAME})

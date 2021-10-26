@@ -222,11 +222,12 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
       size_t id = 0;
       for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
           itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
-        if (newVariation <= maximumVariationPassing[id])
+        if (newVariation < maximumVariationPassing[id] || DYN::doubleEquals(newVariation, maximumVariationPassing[id]))
           Trace::info(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, it->getUniqueScenarioId()) << Trace::endline;
         else
           Trace::info(logTag_) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
-        if (it->getStatus() == CONVERGENCE_STATUS || newVariation <= maximumVariationPassing[id]) {  // event OK
+        if (it->getStatus() == CONVERGENCE_STATUS || newVariation < maximumVariationPassing[id] ||
+          DYN::doubleEquals(newVariation, maximumVariationPassing[id])) {  // event OK
           nbSuccess++;
           if (newVariation > maximumVariationPassing[id])
             maximumVariationPassing[id] = newVariation;
@@ -391,11 +392,11 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     size_t eventIdx = events2Run[i].first;
     inputsByIIDM_.at(iidmFile).setCurrentVariant(eventIdx);
-    launchScenario(inputsByIIDM_.at(iidmFile), events[eventIdx], variation, scenariosCache_[variation].getResult(eventIdx));
+    launchScenario(inputsByIIDM_.at(iidmFile), events.at(eventIdx), variation, scenariosCache_.at(variation).getResult(eventIdx));
   }
   assert(scenariosCache_.find(newVariation) != scenariosCache_.end());
   for (unsigned int i=0; i < eventsId.size(); i++)
-    result.getResult(eventsId[i]) = scenariosCache_[newVariation].getResult(eventsId[i]);
+    result.getResult(eventsId[i]) = scenariosCache_.at(newVariation).getResult(eventsId[i]);
 }
 
 void
@@ -499,12 +500,12 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
       variationsToLaunch.push_back(nextVariation);
       if (currentLevel.second - nextVariation > tolerance)
         levels.push(std::make_pair(nextVariation, currentLevel.second));
-      if (nextVariation != 50. && nextVariation - currentLevel.first > tolerance)
+      if (DYN::doubleNotEquals(nextVariation, 50.) && nextVariation - currentLevel.first > tolerance)
         levels.push(std::make_pair(currentLevel.first, nextVariation));
     }
   }
   for (unsigned int i=0; i < variationsToLaunch.size(); i++) {
-    loadIncreaseCache_[variationsToLaunch[i]] = SimulationResult();  // Reserve memory
+    loadIncreaseCache_.insert(std::make_pair(variationsToLaunch[i], SimulationResult()));  // Reserve memory
     createScenarioWorkingDir(loadIncrease->getId(), variationsToLaunch[i]);
   }
 
@@ -513,10 +514,10 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
 #pragma omp parallel for schedule(dynamic, 1)
   for (unsigned int i=0; i < variationsToLaunch.size(); i++) {
     inputs_.setCurrentVariant(i);
-    launchLoadIncrease(loadIncrease, variationsToLaunch[i], loadIncreaseCache_[variationsToLaunch[i]]);
+    launchLoadIncrease(loadIncrease, variationsToLaunch.at(i), loadIncreaseCache_.at(variationsToLaunch.at(i)));
   }
   assert(loadIncreaseCache_.find(variation) != loadIncreaseCache_.end());
-  result = loadIncreaseCache_[variation];
+  result = loadIncreaseCache_.at(variation);
 }
 
 void
