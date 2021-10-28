@@ -394,6 +394,11 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     inputsByIIDM_.at(iidmFile).setCurrentVariant(eventIdx);
     launchScenario(inputsByIIDM_.at(iidmFile), events.at(eventIdx), variation, scenariosCache_.at(variation).getResult(eventIdx));
   }
+  for (unsigned int i=0; i < events2Run.size(); i++) {
+    double variation = events2Run[i].second;
+    std::string iidmFile = generateIDMFileNameForVariation(variation);
+    inputsByIIDM_.erase(iidmFile);  // remove iidm file used for scenario to save RAM
+  }
   assert(scenariosCache_.find(newVariation) != scenariosCache_.end());
   for (unsigned int i=0; i < eventsId.size(); i++)
     result.getResult(eventsId[i]) = scenariosCache_.at(newVariation).getResult(eventsId[i]);
