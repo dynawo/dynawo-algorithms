@@ -13,7 +13,7 @@ set(API_AGGREGATEDRES_SHARED
   xsd/aggregatedResults.xsd
   )
 
-install(FILES ${API_AGGREGATEDRES_SHARED} DESTINATION ${sharedir}/xsd/)
+install(FILES ${API_AGGREGATEDRES_SHARED} DESTINATION ${SHAREDIR_NAME}/xsd/)
 
 set(API_AGGREGATEDRES_SOURCES
   DYNAggrResXmlExporter.cpp
@@ -34,4 +34,4 @@ target_link_libraries(dynawo_algorithms_API_AggregatedResults
   XMLSAXParser${LibXML_LINK_SUFFIX}
   )
 
-install(TARGETS dynawo_algorithms_API_AggregatedResults EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
+install(TARGETS dynawo_algorithms_API_AggregatedResults EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})

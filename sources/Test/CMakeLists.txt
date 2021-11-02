@@ -21,5 +21,5 @@ target_link_libraries(dynawo_algorithms_Test_utils
     $<$<NOT:$<BOOL:${USE_LEGACY_IIDM}>>:LibXml2::LibXml2>
 )
 
-install(TARGETS dynawo_algorithms_Test_utils EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
+install(TARGETS dynawo_algorithms_Test_utils EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})
 

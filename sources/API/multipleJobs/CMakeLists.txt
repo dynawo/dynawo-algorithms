@@ -13,7 +13,7 @@ set(API_MULTIPLEJOBS_SHARED
   xsd/multipleJobs.xsd
   )
 
-install(FILES ${API_MULTIPLEJOBS_SHARED} DESTINATION ${sharedir}/xsd/)
+install(FILES ${API_MULTIPLEJOBS_SHARED} DESTINATION ${SHAREDIR_NAME}/xsd/)
 
 set(API_MULTIPLEJOBS_SOURCES
   DYNMultipleJobs.cpp
@@ -42,5 +42,5 @@ target_link_libraries(dynawo_algorithms_API_MultipleJobs
   XMLSAXParser${LibXML_LINK_SUFFIX}
   )
 
-install(TARGETS dynawo_algorithms_API_MultipleJobs EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
-install(FILES ${API_MULTIPLEJOBS_HEADERS} DESTINATION ${includedir})
+install(TARGETS dynawo_algorithms_API_MultipleJobs EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})
+install(FILES ${API_MULTIPLEJOBS_HEADERS} DESTINATION ${INCLUDEDIR_NAME})

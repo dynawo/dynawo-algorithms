@@ -10,7 +10,7 @@
 # of simulation tools for power systems.
 
 set(SRC_DIR ${PROJECT_SOURCE_DIR})
-set(DOC_DIR ${docdir})
+get_filename_component(DOC_DIR ${CMAKE_INSTALL_PREFIX}/${DOCDIR_NAME} ABSOLUTE)
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen 1.8)

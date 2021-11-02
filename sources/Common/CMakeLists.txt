@@ -65,7 +65,7 @@ set(DYN_ALGO_COMMON_HEADERS
 
 add_library(dynawo_algorithms_Common SHARED ${DYN_ALGO_COMMON_SOURCES})
 add_dependencies(dynawo_algorithms_Common create_keys_files)
-install(FILES ${DYN_ALGO_COMMON_HEADERS} DESTINATION ${includedir})
+install(FILES ${DYN_ALGO_COMMON_HEADERS} DESTINATION ${INCLUDEDIR_NAME})
 
 target_include_directories(dynawo_algorithms_Common
   PUBLIC
@@ -79,5 +79,5 @@ target_link_libraries(dynawo_algorithms_Common
   Dynawo::dynawo_Common
   )
 
-install(TARGETS dynawo_algorithms_Common EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
-install(FILES ${DICTIONARIES} ${DICTIONARIES_MAPPING} DESTINATION ${sharedir})
+install(TARGETS dynawo_algorithms_Common EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})
+install(FILES ${DICTIONARIES} ${DICTIONARIES_MAPPING} DESTINATION ${SHAREDIR_NAME})
