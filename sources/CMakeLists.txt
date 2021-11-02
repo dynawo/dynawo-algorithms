@@ -18,7 +18,7 @@ set(DYN_ALGO_INCLUDE_HEADERS
   gitversion_algorithms.h
   )
 
-install(FILES ${DYN_ALGO_INCLUDE_HEADERS} DESTINATION ${includedir})
+install(FILES ${DYN_ALGO_INCLUDE_HEADERS} DESTINATION ${INCLUDEDIR_NAME})
 
 add_executable(dynawoAlgorithms ${DYN_ALGO_SOURCES})
 target_link_libraries(dynawoAlgorithms
@@ -26,10 +26,10 @@ target_link_libraries(dynawoAlgorithms
   $<$<NOT:$<BOOL:${USE_LEGACY_IIDM}>>:LibXml2::LibXml2>
   )
 
-install(PROGRAMS execDynawoAlgorithms.sh DESTINATION ${bindir})
+install(PROGRAMS execDynawoAlgorithms.sh DESTINATION ${BINDIR_NAME})
 
 set_target_properties(dynawoAlgorithms PROPERTIES VERSION ${DYNAWO_ALGORITHMS_VERSION_STRING})
-install(TARGETS dynawoAlgorithms DESTINATION ${bindir})
+install(TARGETS dynawoAlgorithms DESTINATION ${BINDIR_NAME})
 
 # explicitly say that the executable depends on custom target
 add_dependencies(dynawoAlgorithms revisiontag)

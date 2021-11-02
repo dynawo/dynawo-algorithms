@@ -31,7 +31,7 @@ set(DYN_ALGO_LAUNCHER_HEADERS
 
 add_library(dynawo_algorithms_Launcher SHARED ${DYN_ALGO_LAUNCHER_SOURCES})
 
-install(FILES ${DYN_ALGO_LAUNCHER_HEADERS} DESTINATION ${includedir})
+install(FILES ${DYN_ALGO_LAUNCHER_HEADERS} DESTINATION ${INCLUDEDIR_NAME})
 
 target_include_directories(dynawo_algorithms_Launcher
   INTERFACE
@@ -51,4 +51,4 @@ target_link_libraries(dynawo_algorithms_Launcher
   Boost::program_options
   libZIP::libZIP
   )
-install(TARGETS dynawo_algorithms_Launcher EXPORT dynawo_algorithms-targets DESTINATION ${libdir})
+install(TARGETS dynawo_algorithms_Launcher EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})

@@ -29,21 +29,11 @@ set(DYNAWO_ALGORITHMS_VERSION_STRING ${DYNAWO_ALGORITHMS_VERSION_MAJOR}.${DYNAWO
 # Set repertory name
 set(BINDIR_NAME bin)
 set(SHAREDIR_NAME share)
-set(SBINDIR_NAME sbin)
 set(INCLUDEDIR_NAME include)
 set(LIBDIR_NAME lib)
 set(DOCDIR_NAME doxygen)
 
 get_filename_component(DYNAWO_HOME ${DYNAWO_HOME} ABSOLUTE)
-
-# Set some install directories variables
-set(INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-set(libdir ${INSTALL_PREFIX}/${LIBDIR_NAME})
-set(includedir ${INSTALL_PREFIX}/${INCLUDEDIR_NAME})
-set(docdir ${INSTALL_PREFIX}/${DOCDIR_NAME})
-set(bindir ${INSTALL_PREFIX}/${BINDIR_NAME})
-set(sharedir ${INSTALL_PREFIX}/${SHAREDIR_NAME})
-set(sbindir ${INSTALL_PREFIX}/${SBINDIR_NAME})
 
 # If C++11 is enabled, check flags availability
 set(CXX11_ENABLED ${CXX11_ENABLED} CACHE BOOL "")
