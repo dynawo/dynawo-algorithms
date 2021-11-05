@@ -110,7 +110,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(sr.getStatus(), EXECUTION_PROBLEM_STATUS);
   ASSERT_TRUE(sr.getFailingCriteria().empty());
   sr.setScenarioId("MyId");
-  sr.setVariation("50");
+  sr.setVariation(50.);
   sr.setSuccess(true);
   sr.setStatus(CONVERGENCE_STATUS);
   std::vector<std::pair<double, std::string> > failingCriteria;
@@ -156,7 +156,7 @@ TEST(TestBaseClasses, testLoadIncreaseResult) {
   sr.setStatus(CONVERGENCE_STATUS);
   SimulationResult& sr2 = lir.getResult(1);
   sr2.setScenarioId("MyId2");
-  sr2.setVariation("65.2");
+  sr2.setVariation(65.2);
   sr2.setSuccess(false);
   sr2.setStatus(CRITERIA_NON_RESPECTED_STATUS);
   lir.setLoadLevel(10.);
