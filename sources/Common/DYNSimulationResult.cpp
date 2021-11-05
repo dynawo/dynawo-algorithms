@@ -49,7 +49,11 @@ SimulationResult::operator=(const SimulationResult& result) {
   variation_ = result.variation_;
   success_ = result.success_;
   status_ = result.status_;
+  timelineStream_.str("");
+  timelineStream_.clear();
   timelineStream_ << result.timelineStream_.str();
+  constraintsStream_.str("");
+  constraintsStream_.clear();
   constraintsStream_ << result.constraintsStream_.str();
   failingCriteria_ = result.failingCriteria_;
   return *this;
