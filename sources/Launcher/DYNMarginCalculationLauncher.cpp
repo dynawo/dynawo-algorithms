@@ -448,6 +448,8 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
   result.setScenarioId(scenario->getId());
   result.setVariation(variation);
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs);
+  simulation->setTimelineOutputFile("");
+  simulation->setConstraintsOutputFile("");
 
   if (simulation)
     simulate(simulation, result);
@@ -531,6 +533,8 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   subDir << "step-" << variation << "/" << loadIncrease->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+  job->getOutputsEntry()->setTimelineEntry(boost::shared_ptr<job::TimelineEntry>());
+  job->getOutputsEntry()->setConstraintsEntry(boost::shared_ptr<job::ConstraintsEntry>());
 
   SimulationParameters params;
   //  force simulation to dump final values (would be used as input to launch each events)
@@ -572,12 +576,9 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
       double newStopTime = startTime + originalDuration * variation / 100.;
       subModels[i]->setParameterValue("stopTime", DYN::PAR, newStopTime, false);
       subModels[i]->setSubModelParameters();  // update values stored in subModel
-      Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseModelParameter, subModels[i]->name(), newStopTime, variation/100) << Trace::endline;
+      Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseModelParameter, subModels[i]->name(), newStopTime, variation/100.) << Trace::endline;
     }
     simulate(simulation, result);
-
-    simulation->printTimeline(result.getTimelineStream());
-    simulation->printConstraints(result.getConstraintsStream());
   }
   Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseEnd, variation, getStatusAsString(result.getStatus())) << Trace::endline;
 }
