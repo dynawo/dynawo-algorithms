@@ -77,6 +77,25 @@ setEnv() {
   export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
 }
 
+export_preload() {
+  lib="tcmalloc"
+  lib=$lib".so"
+
+  externalTcMallocLib=$(find $DYNAWO_INSTALL_DIR/lib -iname *$lib)
+  if [ -n "$externalTcMallocLib" ]; then
+    echo "Use downloaded tcmalloc library $externalTcMallocLib"
+    export LD_PRELOAD=$externalTcMallocLib
+    return
+  fi
+
+  nativeTcMallocLib=$(ldconfig -p | grep -e $lib$ | cut -d ' ' -f4)
+  if [ -n "$nativeTcMallocLib" ]; then
+    echo "Use native tcmalloc library $nativeTcMallocLib"
+    export LD_PRELOAD=$nativeTcMallocLib
+    return
+  fi
+}
+
 find_and_call_timeline() {
   if [ ! -d "$1" ]; then
     return 1
@@ -101,7 +120,7 @@ algo_CS() {
   # launch dynawo-algorithms
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CS $@
   RETURN_CODE=$?
-  
+
   while (($#)); do
   case $1 in
     --input)
@@ -118,12 +137,13 @@ algo_CS() {
       ;;
     esac
   done
-  
+
   return ${RETURN_CODE}
 }
 
 algo_MC() {
   setEnv
+  export_preload
 
   # launch margin calculation
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=MC $@
@@ -151,6 +171,7 @@ algo_MC() {
 
 algo_SA() {
   setEnv
+  export_preload
 
   # launch dynamic systematic analysis
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=SA $@
