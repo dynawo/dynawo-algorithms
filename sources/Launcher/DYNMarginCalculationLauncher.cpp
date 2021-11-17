@@ -46,6 +46,8 @@
 #include <JOBJobsCollection.h>
 #include <JOBJobEntry.h>
 #include <JOBSimulationEntry.h>
+#include <JOBOutputsEntry.h>
+#include <JOBTimelineEntry.h>
 
 #include "DYNMarginCalculationLauncher.h"
 #include "DYNMultipleJobs.h"
@@ -108,8 +110,7 @@ MarginCalculationLauncher::launch() {
   std::vector<size_t> allEvents;
   for (size_t i=0, iEnd = events.size(); i < iEnd ; i++)
     allEvents.push_back(i);
-  toRun.push(task_t(100, 100, allEvents));
-  toRun.push(task_t(0, 0, allEvents));
+  toRun.push(task_t(100., 100., allEvents));
 
   results_.push_back(LoadIncreaseResult());
   size_t idx = results_.size() - 1;
@@ -120,10 +121,11 @@ MarginCalculationLauncher::launch() {
   // if there is no crash => no need to go further
   // We start with 100% as it is the most common result of margin calculations on real large cases
   SimulationResult result100;
-  findOrLaunchLoadIncrease(loadIncrease, 100, marginCalculation->getAccuracy(), result100);
+  findOrLaunchLoadIncrease(loadIncrease, 100., marginCalculation->getAccuracy(), result100);
   results_[idx].setStatus(result100.getStatus());
   std::vector<double > maximumVariationPassing(events.size(), 0.);
   if (result100.getSuccess()) {
+    findAllLevelsBetween(0., 100., marginCalculation->getAccuracy(), allEvents, toRun);
     findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
 
     // analyze results
@@ -134,7 +136,7 @@ MarginCalculationLauncher::launch() {
       Trace::info(logTag_) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
       if (it->getStatus() == CONVERGENCE_STATUS) {  // event OK
         nbSuccess++;
-        maximumVariationPassing[id] = 100;
+        maximumVariationPassing[id] = 100.;
       }
     }
     if (nbSuccess == events.size()) {  // all events succeed
@@ -146,42 +148,51 @@ MarginCalculationLauncher::launch() {
   }  // if the loadIncrease failed, nothing to do, the next algorithm will try to find the right load level
   Trace::info(logTag_) << Trace::endline;
 
-  toRun = std::queue< task_t >();
-  toRun.push(task_t(0, 0, allEvents));
-
-  results_.push_back(LoadIncreaseResult());
-  idx = results_.size() - 1;
-  results_[idx].resize(events.size());
-  results_[idx].setLoadLevel(0.);
-  // step two : launch the loadIncrease and then all events with 0% of the load increase
-  // if one event crash => no need to go further
-  SimulationResult result0;
-  findOrLaunchLoadIncrease(loadIncrease, 0, marginCalculation->getAccuracy(), result0);
-  results_[idx].setStatus(result0.getStatus());
-  if (result0.getSuccess()) {
-    findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
-  } else {
-    Trace::info(logTag_) << "============================================================ " << Trace::endline;
-    Trace::info(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, 0.) << Trace::endline;
-    Trace::info(logTag_) << "============================================================ " << Trace::endline;
-    return;  // unable to launch the initial simulation with 0% of load increase
-  }
-
-  // analyze results
-  for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
-      itEnd = results_[idx].end(); it != itEnd; ++it) {
-    Trace::info(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
-    if (it->getStatus() != CONVERGENCE_STATUS) {  // one event crashes
-      Trace::info(logTag_) << "============================================================ " << Trace::endline;
-      Trace::info(logTag_) << DYNAlgorithmsLog(LocalMarginValueScenario, it->getUniqueScenarioId(), 0.) << Trace::endline;
-      Trace::info(logTag_) << "============================================================ " << Trace::endline;
-      return;
-    }
-  }
-  Trace::info(logTag_) << Trace::endline;
-
   if (marginCalculation->getCalculationType() == MarginCalculation::GLOBAL_MARGIN || events.size() == 1) {
     double value = computeGlobalMargin(loadIncrease, baseJobsFile, events, maximumVariationPassing, marginCalculation->getAccuracy());
+    if (value < marginCalculation->getAccuracy()) {
+      results_.push_back(LoadIncreaseResult());
+      idx = results_.size() - 1;
+      results_[idx].resize(events.size());
+      results_[idx].setLoadLevel(0.);
+      // step two : launch the loadIncrease and then all events with 0% of the load increase
+      // if one event crash => no need to go further
+      SimulationResult result0;
+      findOrLaunchLoadIncrease(loadIncrease, 0., marginCalculation->getAccuracy(), result0);
+      results_[idx].setStatus(result0.getStatus());
+      double variation0 = 0.;
+      if (result0.getSuccess()) {
+        toRun = std::queue< task_t >();
+        std::vector<size_t> eventsIds;
+        for (size_t i = 0; i < events.size() ; ++i) {
+          if (variation0 > maximumVariationPassing[i] || DYN::doubleEquals(variation0, maximumVariationPassing[i])) {
+            eventsIds.push_back(i);
+          } else {
+            Trace::info(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, events[i]->getId()) << Trace::endline;
+            results_[idx].getResult(i).setScenarioId(events[i]->getId());
+            results_[idx].getResult(i).setVariation(0.);
+            results_[idx].getResult(i).setSuccess(true);
+            results_[idx].getResult(i).setStatus(CONVERGENCE_STATUS);
+          }
+        }
+        toRun.push(task_t(0., 0., eventsIds));
+        findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+      } else {
+        Trace::info(logTag_) << "============================================================ " << Trace::endline;
+        Trace::info(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, 0.) << Trace::endline;
+        Trace::info(logTag_) << "============================================================ " << Trace::endline;
+        return;  // unable to launch the initial simulation with 0% of load increase
+      }
+
+      // analyze results
+      for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
+             itEnd = results_[idx].end(); it != itEnd; ++it) {
+        Trace::info(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+        if (it->getStatus() != CONVERGENCE_STATUS)  // one event crashes
+          return;
+      }
+      Trace::info(logTag_) << Trace::endline;
+    }
     Trace::info(logTag_) << "============================================================ " << Trace::endline;
     Trace::info(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, value) << Trace::endline;
     Trace::info(logTag_) << "============================================================ " << Trace::endline;
@@ -190,7 +201,37 @@ MarginCalculationLauncher::launch() {
     std::vector<double> results(events.size(), 0);
     double value = computeLocalMargin(loadIncrease, baseJobsFile, events, marginCalculation->getAccuracy(), results);
     if (result100.getSuccess()) {
-      value = 100;
+      value = 100.;
+    }
+    std::vector <size_t> eventsIds;
+    for (size_t i = 0; i < results.size(); ++i) {
+      if (results[i] < marginCalculation->getAccuracy()) {
+        eventsIds.push_back(i);
+      }
+    }
+    if (!eventsIds.empty()) {
+      results_.push_back(LoadIncreaseResult());
+      idx = results_.size() - 1;
+      results_[idx].resize(eventsIds.size());
+      results_[idx].setLoadLevel(0.);
+      SimulationResult result0;
+      findOrLaunchLoadIncrease(loadIncrease, 0., marginCalculation->getAccuracy(), result0);
+      results_[idx].setStatus(result0.getStatus());
+      if (result0.getSuccess()) {
+        toRun = std::queue<task_t>();
+        toRun.push(task_t(0., 0., eventsIds));
+        LoadIncreaseResult liResultTmp;
+        liResultTmp.resize(events.size());
+        findOrLaunchScenarios(baseJobsFile, events, toRun, liResultTmp);
+        for (size_t i = 0; i < eventsIds.size(); ++i) {
+          results_[idx].getResult(i) = liResultTmp.getResult(eventsIds[i]);
+        }
+        // analyze results
+        for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
+             itEnd = results_[idx].end(); it != itEnd; ++it) {
+          Trace::info(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
+        }
+      }
     }
     Trace::info(logTag_) << "============================================================ " << Trace::endline;
     Trace::info(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, value) << Trace::endline;
@@ -454,6 +495,7 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
   subDir << "step-" << variation << "/" << scenario->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
   boost::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
+  job->getOutputsEntry()->getTimelineEntry()->setMaxPriority(1);
   addDydFileToJob(job, scenario->getDydFile());
   setCriteriaFileForJob(job, scenario->getCriteriaFile());
 
@@ -526,16 +568,15 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     return;
   }
 
-  std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator it = loadIncreaseCache_.find(variation);
-  if (it != loadIncreaseCache_.end()) {
+  std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator itVariation = loadIncreaseCache_.find(variation);
+  if (itVariation != loadIncreaseCache_.end()) {
     Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseResultsFound, variation) << Trace::endline;
-    result = it->second;
+    result = itVariation->second;
     return;
   }
   std::vector<double> variationsToLaunch;
   if (loadIncreaseCache_.empty()) {
     // First time we call this, we know we have at least 2 threads.
-    variationsToLaunch.push_back(0.);
     variationsToLaunch.push_back(100.);
   }
   if (static_cast<int>(variationsToLaunch.size()) < nbThreads_) {
@@ -549,7 +590,7 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
       }
       if (closestVariationBelow < it->first && it->first < variation)
         closestVariationBelow = it->first;
-      if (it->first < closestVariationAbove &&  variation < it->first)
+      if (it->first < closestVariationAbove && variation < it->first)
         closestVariationAbove = it->first;
     }
     levels.push(std::make_pair(closestVariationBelow, closestVariationAbove));
@@ -709,6 +750,5 @@ MarginCalculationLauncher::generateIDMFileNameForVariation(double variation) con
   iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".iidm";
   return iidmFile.str();
 }
-
 
 }  // namespace DYNAlgorithms

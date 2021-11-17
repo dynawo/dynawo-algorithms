@@ -8,10 +8,6 @@
       <criterionNonRespected id="total load power = 218.624MW &gt; 200MW (criteria id: Risque QdE)" time="200.000000"/>
     </scenarioResults>
   </loadIncreaseResults>
-  <loadIncreaseResults loadLevel="0" status="CONVERGENCE">
-    <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
-    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
-  </loadIncreaseResults>
   <loadIncreaseResults loadLevel="50" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
