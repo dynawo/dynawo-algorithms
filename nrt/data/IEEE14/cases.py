@@ -58,6 +58,12 @@ job_file = os.path.join(os.path.dirname(__file__), "MC_specific_load_var", "fic_
 
 test_cases.append((case_name, case_description, "MC", job_file, 10, 1, False, standardReturnCodeType, standardReturnCode))
 
+case_name = "IEEE14_MC_LOCAL_FAIL_AT_0"
+case_description = "IEEE14 - Margin Calculation fails at 0"
+job_file = os.path.join(os.path.dirname(__file__), "MC_Fault_local", "IEEE14_MC_Fault.zip")
+
+test_cases.append((case_name, case_description, "MC", job_file, -1, 10, True, standardReturnCodeType, standardReturnCode))
+
 #########################################
 #   IEEE14 - Systematic Analysis        #
 #########################################
@@ -77,4 +83,3 @@ case_description = "IEEE14 - Simulation"
 job_file = os.path.join(os.path.dirname(__file__), "IEEE14_BlackBoxModels", "IEEE14.jobs")
 
 test_cases.append((case_name, case_description, "CS", job_file, -1, 5, False, standardReturnCodeType, standardReturnCode))
-
