@@ -1,5 +1,6 @@
 build
 build-code
+3rdParty/mpich/mpich-*.tar.gz
 install
 distributions/*
 nbproject/*
@@ -17,11 +18,16 @@ nrt/data/IEEE14/SA*/IEEE14*
 nrt/data/IEEE14/SA*/*.dyd
 nrt/data/IEEE14/SA*/*.par
 nrt/data/IEEE14/SA*/*.xml
+nrt/data/IEEE14/SA*/*/result.save.txt
+nrt/data/IEEE14/MC*/*/result.save.txt
 nrt/data/IEEE14/SA*/constraints
 nrt/data/IEEE14/SA*/timeLine
 nrt/data/IEEE14/SA*/timeline
 nrt/data/IEEE14/SA*/logs
 nrt/data/IEEE14/SA*/result.zip
+nrt/data/IEEE14/SA*/Base
+nrt/data/IEEE14/SA*/Disconnect*
+nrt/data/IEEE14/SA*/Fault*
 nrt/data/IEEE14/MC*/IEEE14*
 nrt/data/IEEE14/MC*/*.dmp
 nrt/data/IEEE14/MC*/*.iidm

@@ -29,7 +29,7 @@ It depends on the [core dynawo libraries of Dyna&omega;o](https://github.com/dyn
 
 ### Configure
 
-To build Dyna&omega algorithms, you must first deploy the Dyna&omega;o library.
+To build Dyna&omega;o algorithms, you must first deploy the Dyna&omega;o library.
 
 ``` bash
 $> ./myEnvDynawo.sh build-all

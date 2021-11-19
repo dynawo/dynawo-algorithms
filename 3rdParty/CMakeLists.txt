@@ -45,3 +45,35 @@ if(UNIX)
     )
   endif()
 endif()
+
+set(mpich_url http://www.mpich.org/static/downloads/3.4.2/mpich-3.4.2.tar.gz)
+set(MPI_HOME ${CMAKE_INSTALL_PREFIX}/mpich)
+find_package(MPI QUIET)
+if(MPI_FOUND)
+  add_custom_target(mpich)
+  set(MPI_HOME ${CMAKE_INSTALL_PREFIX}/mpich)
+else()
+  ExternalProject_Add(mpich
+      INSTALL_DIR         ${CMAKE_INSTALL_PREFIX}/mpich
+      DOWNLOAD_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/mpich
+      TMP_DIR             ${TMP_DIR}
+      STAMP_DIR           ${DOWNLOAD_DIR}/mpich-stamp
+      SOURCE_DIR          ${DOWNLOAD_DIR}/mpich
+      URL                 ${mpich_url}
+      BUILD_IN_SOURCE     1
+
+      CONFIGURE_COMMAND   <SOURCE_DIR>/configure
+                          --prefix=<INSTALL_DIR>
+                          "CC=${CMAKE_C_COMPILER}"
+                          "CXX=${CMAKE_CXX_COMPILER}"
+                          "CFLAGS=-m64 -O3 -DNDEBUG"
+                          "CXXFLAGS=-m64 -O3 -DNDEBUG"
+                          "FCFLAGS=-m64 -O3 -DNDEBUG"
+                          "LDFLAGS=-m64 -O3 -DNDEBUG"
+                          --with-device=ch3:nemesis
+                          --disable-fortran
+                          --enable-fast=all,O3,ndebug
+  )
+  ExternalProject_Get_Property(mpich install_dir)
+  set(MPI_HOME ${install_dir})
+endif()

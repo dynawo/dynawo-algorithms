@@ -20,10 +20,6 @@
 
 #include "DYNSystematicAnalysisLauncher.h"
 
-#ifdef WITH_OPENMP
-#include <omp.h>
-#endif
-
 #include <limits>
 #include <iostream>
 #include <iomanip>
@@ -54,6 +50,7 @@
 #include "DYNSimulationResult.h"
 #include "DYNAggrResXmlExporter.h"
 #include "MacrosMessage.h"
+#include "DYNMPIContext.h"
 
 namespace DYNAlgorithms {
 
@@ -66,31 +63,43 @@ SystematicAnalysisLauncher::launch() {
   const std::string& baseJobsFile = scenarios->getJobsFile();
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
 
-#ifdef WITH_OPENMP
-  omp_set_num_threads(nbThreads_);
-#endif
-  results_.resize(static_cast<unsigned int>(events.size()));
+  auto& context = mpi::context();
 
-  for (unsigned int i=0; i < events.size(); i++) {
+  if (context.isRootProc()) {
+    // only required for root proc
+    results_.resize(events.size());
+  }
+
+  mpi::forEach(0, events.size(), [this, &events](unsigned int i){
     std::string workingDir  = createAbsolutePath(events[i]->getId(), workingDirectory_);
     if (!exists(workingDir))
       create_directory(workingDir);
     else if (!is_directory(workingDir))
       throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
-  }
+  });
 
-  inputs_.readInputs(workingDirectory_, baseJobsFile, events.size());
+  inputs_.readInputs(workingDirectory_, baseJobsFile);
 
-#pragma omp parallel for schedule(dynamic, 1)
-  for (unsigned int i=0; i < events.size(); i++) {
-    inputs_.setCurrentVariant(i);
-    results_[i] = launchScenario(events[i]);
+  mpi::forEach(0, events.size(), [this, &events](unsigned int i){
+      auto result = launchScenario(events[i]);
+      exportResult(result);
+  });
+
+  mpi::Context::sync();
+
+  // Update results for root proc
+  if (context.isRootProc()) {
+    for (unsigned int i = 0; i < events.size(); i++) {
+      const auto& scenario = events.at(i);
+      results_.at(i) = importResult(scenario->getId());
+      cleanResult(scenario->getId());
+    }
   }
 }
 
 SimulationResult
 SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario) {
-  if (nbThreads_ == 1)
+  if (mpi::context().nbProcs() == 1)
     std::cout << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile()
               << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
@@ -113,7 +122,7 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
     simulate(simulation, result);
   }
 
-  if (nbThreads_ == 1)
+  if (mpi::context().nbProcs() == 1)
     std::cout << " scenario :" << scenario->getId() << " final status: " << getStatusAsString(result.getStatus()) << std::endl;
 
   return result;

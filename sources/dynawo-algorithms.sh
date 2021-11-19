@@ -40,6 +40,8 @@ export_var_env() {
   export $name="$value"
 }
 
+MPIRUN_PATH=$(which mpirun 2> /dev/null)
+
 usage="Usage: `basename $0` [option] -- program to launch Dynawo simulation
 
 where [option] can be:
@@ -53,6 +55,7 @@ where [option] can be:
 setDynawoEnv() {
   export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   export_var_env DYNAWO_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
+  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
 
   export_var_env DYNAWO_ADEPT_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
   export_var_env DYNAWO_SUNDIALS_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
@@ -79,6 +82,10 @@ setDynawoEnv() {
 setLibPath() {
   # set LD_LIBRARY_PATH
   export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
+
+  if [ -z "$MPIRUN_PATH" ]; then
+    MPIRUN_PATH="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/bin/mpirun"
+  fi
 }
 
 export_preload() {
@@ -159,31 +166,46 @@ algo_MC() {
   LD_LIBRARY_PATH_BEFORE=$LD_LIBRARY_PATH
   setDynawoEnv
   setLibPath
-
-  # launch margin calculation
   export_preload
-  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=MC $@
-  RETURN_CODE=$?
-  unset LD_PRELOAD
 
-  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
+  args=""
+  NBPROCS=1
+  FILTER_TIMELINE=false
   while (($#)); do
   case $1 in
     --directory)
       if [ ! -z "$2" ]; then
   	    if [ -d "$2" ]; then
-          filter_timeline $2
+          FILTER_TIMELINE=true
+          timeline=$2
         fi
       fi
-      break
+      args="$args --directory"
+      shift
+      ;;
+    --nbThreads|-np)
+      NBPROCS=$2
+      shift # past argument
+      shift # past value
       ;;
     *)
+      args="$args $1"
       shift
-      break
       ;;
     esac
   done
+
+  # launch margin calculation
+  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=MC $args
+  RETURN_CODE=$?
+  unset LD_PRELOAD
+
+  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
+
+  if [ "$FILTER_TIMELINE" = true ]; then
+    filter_timeline $timeline
+  fi
 
   return ${RETURN_CODE}
 }
@@ -192,31 +214,45 @@ algo_SA() {
   LD_LIBRARY_PATH_BEFORE=$LD_LIBRARY_PATH
   setDynawoEnv
   setLibPath
-
-  # launch dynamic systematic analysis
   export_preload
-  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=SA $@
-  RETURN_CODE=$?
-  unset LD_PRELOAD
 
-  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
+  NBPROCS=1
+  args=""
+  FILTER_TIMELINE=false
   while (($#)); do
   case $1 in
     --directory)
       if [ ! -z "$2" ]; then
   	    if [ -d "$2" ]; then
-          filter_timeline $2
+          FILTER_TIMELINE=true
+          timeline=$2
         fi
       fi
-      break
+      args="$args --directory"
+      shift
+      ;;
+    --nbThreads|-np)
+      NBPROCS=$2
+      shift # past argument
+      shift # past value
       ;;
     *)
+      args="$args $1"
       shift
-      break
       ;;
     esac
   done
+
+  # launch dynamic systematic analysis
+  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=SA $args
+  RETURN_CODE=$?
+  unset LD_PRELOAD
+
+  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
+  if [ "$FILTER_TIMELINE" = true ]; then
+    filter_timeline $timeline
+  fi
 
   return ${RETURN_CODE}
 }

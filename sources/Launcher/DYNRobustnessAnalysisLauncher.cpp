@@ -20,6 +20,7 @@
 #include "DYNRobustnessAnalysisLauncher.h"
 
 #include <fstream>
+#include <limits>
 
 #include <xml/sax/parser/ParserFactory.h>
 #include <xml/sax/parser/ParserException.h>
@@ -59,6 +60,7 @@
 #include "DYNMultipleJobsXmlHandler.h"
 #include "DYNMultipleJobs.h"
 #include "MacrosMessage.h"
+#include "DYNMPIContext.h"
 
 #include <boost/make_shared.hpp>
 using DYN::Trace;
@@ -67,8 +69,7 @@ using multipleJobs::MultipleJobs;
 namespace DYNAlgorithms {
 
 RobustnessAnalysisLauncher::RobustnessAnalysisLauncher() :
-logTag_("DYN-ALGO"),
-nbThreads_(1) {
+logTag_("DYN-ALGO") {
 }
 
 RobustnessAnalysisLauncher::~RobustnessAnalysisLauncher() {
@@ -95,11 +96,6 @@ RobustnessAnalysisLauncher::setDirectory(const std::string& directory) {
 }
 
 void
-RobustnessAnalysisLauncher::setNbThreads(const int nbThreads) {
-  nbThreads_ = nbThreads;
-}
-
-void
 RobustnessAnalysisLauncher::init(const bool doInitLog) {
   // check if directory exists, if directory is not set, workingDirectory is the current directory
   workingDirectory_ = "";
@@ -115,7 +111,7 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
   workingDirectory_ += '/';  // to be sure to have an '/' at the end of the path
 
-  if (doInitLog)
+  if (doInitLog && mpi::context().isRootProc())
     initLog();
 
   // build the name of the outputFile
@@ -228,17 +224,22 @@ RobustnessAnalysisLauncher::initLog() {
 
 std::string
 RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) const {
-  // Unzip the input file in the working directory
-  boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
-  for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();
-      itE != archive->getEntries().end(); ++itE) {
-    std::string nom = itE->first;
-    std::string data(itE->second->getData());
-    std::fstream file;
-    file.open((workingDirectory_ + nom).c_str(), std::ios::out);
-    file << data;
-    file.close();
+  auto& context = mpi::context();
+  if (context.isRootProc()) {
+    // Only the main proc should open the archive
+    // Unzip the input file in the working directory
+    boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
+    for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();
+        itE != archive->getEntries().end(); ++itE) {
+      std::string nom = itE->first;
+      std::string data(itE->second->getData());
+      std::fstream file;
+      file.open((workingDirectory_ + nom).c_str(), std::ios::out);
+      file << data;
+      file.close();
+    }
   }
+  mpi::Context::sync();  // To ensure that all procs can access the file
   // When input is given as a zip file we are assuming the multiple jobs definition is always in a file named fic_MULTIPLE.xml
   return createAbsolutePath("fic_MULTIPLE.xml", parentDirectory(inputFileFullPath));
 }
@@ -290,8 +291,8 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   context->setInputDirectory(workingDirectory_);
   context->setWorkingDirectory(workingDir);
 
-  boost::shared_ptr<DYN::DataInterface> dataInterface = analysisContext.dataInterfaceContainer()
-    ? analysisContext.dataInterfaceContainer()->getDataInterface()
+  boost::shared_ptr<DYN::DataInterface> dataInterface = !analysisContext.iidmPath().empty()
+    ? DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, analysisContext.iidmPath().generic_string())
     : boost::shared_ptr<DYN::DataInterface>();
   boost::shared_ptr<DYN::Simulation> simulation =
     boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, dataInterface));
@@ -489,6 +490,10 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
 
 void
 RobustnessAnalysisLauncher::writeResults() const {
+  if (!mpi::context().isRootProc()) {
+    // only main proccessus is performing the archive
+    return;
+  }
   std::map<std::string, std::string > mapData;  // association between filename and data
   bool zipIt = extensionEquals(outputFileFullPath_, ".zip");
   createOutputs(mapData, zipIt);
@@ -503,6 +508,154 @@ RobustnessAnalysisLauncher::writeResults() const {
     }
 
     zip::ZipOutputStream::write(outputFileFullPath_, archive);
+  }
+}
+
+boost::filesystem::path
+RobustnessAnalysisLauncher::computeResultFile(const std::string& id) const {
+  namespace fs = boost::filesystem;
+  fs::path ret(createAbsolutePath(id, workingDirectory_));
+  if (!fs::exists(ret)) {
+    fs::create_directory(ret);
+  }
+
+  ret.append("result.save.txt");
+
+  return ret;
+}
+
+SimulationResult
+RobustnessAnalysisLauncher::importResult(const std::string& id) const {
+  auto filepath = computeResultFile(id);
+  SimulationResult ret;
+  const char delimiter = ':';
+
+  // Private type to modify the locale for ifstream
+  // by default all white spaces are considered for '>>' operator
+  class Delimiter : public std::ctype<char> {
+   public:
+    Delimiter(): std::ctype<char>(getTable()) {}
+    static mask const* getTable() {
+      static mask rc[table_size];
+      rc['\n'] = std::ctype_base::space;
+      return &rc[0];
+    }
+  };
+  std::ifstream file(filepath.generic_string());
+  if (file.fail()) {
+    return ret;
+  }
+  file.precision(precisionResultFile_);
+  file.imbue(std::locale(file.getloc(), new Delimiter));
+
+  // scenario
+  std::string tmpStr;
+  file >> tmpStr;
+  tmpStr = tmpStr.substr(tmpStr.find(delimiter)+1);
+  ret.setScenarioId(tmpStr);
+
+  // timeline
+  file >> tmpStr;
+  assert(tmpStr == "timeline:");
+  auto& timeline = ret.getTimelineStream();
+  while (tmpStr != "constraints:") {
+    file >> tmpStr;
+    if (tmpStr == "constraints:") {
+      // case no timeline
+      break;
+    }
+    timeline << tmpStr << std::endl;
+  }
+
+  // constraints
+  auto& constraints = ret.getConstraintsStream();
+  while (tmpStr.find("variation:") != 0) {
+    file >> tmpStr;
+    if (tmpStr.find("variation:") == 0) {
+      // case no constraints
+      break;
+    }
+    constraints << tmpStr << std::endl;
+  }
+
+  // variation
+  double variation;
+  tmpStr = tmpStr.substr(tmpStr.find(delimiter)+1);
+  std::stringstream ss(tmpStr);
+  ss >> variation;
+  ret.setVariation(variation);
+
+  // success
+  bool success;
+  file >> tmpStr;
+  assert(tmpStr.find("success:") == 0);
+  tmpStr = tmpStr.substr(tmpStr.find(delimiter)+1);
+  ss.clear();
+  ss.str(tmpStr);
+  ss >> std::boolalpha >> success;
+  ret.setSuccess(success);
+
+  // status
+  unsigned int status;
+  file >> tmpStr;
+  assert(tmpStr.find("status:") == 0);
+  tmpStr = tmpStr.substr(tmpStr.find(delimiter)+1);
+  ss.clear();
+  ss.str(tmpStr);
+  ss >> status;
+  ret.setStatus(static_cast<status_t>(status));
+
+  // criteria
+  file >> tmpStr;
+  assert(tmpStr == "criteria:");
+  tmpStr.clear();
+  std::vector<std::pair<double, std::string>> criteria;
+  // reading fail can happen at the end of the file if file ends with endline characters
+  while (!file.eof() && (file >> tmpStr)) {
+    if (tmpStr.find(delimiter) == std::string::npos) {
+      break;
+    }
+    double time;
+    auto timeStr = tmpStr.substr(0, tmpStr.find(delimiter));
+    ss.clear();
+    ss.str(timeStr);
+    ss >> time;
+    auto message = tmpStr.substr(tmpStr.find(delimiter)+1);
+    criteria.emplace_back(std::make_pair(time, message));
+  }
+  ret.setFailingCriteria(criteria);
+
+  return ret;
+}
+
+void
+RobustnessAnalysisLauncher::exportResult(const SimulationResult& result) const {
+  auto filepath = computeResultFile(result.getUniqueScenarioId());
+
+  std::ofstream file(filepath.generic_string());
+  file.precision(precisionResultFile_);
+  file << "scenario:" << result.getScenarioId() << std::endl;
+  file << "timeline:" << std::endl << result.getTimelineStreamStr() << std::endl;
+  file << "constraints:" << std::endl << result.getConstraintsStreamStr() << std::endl;
+  file << "variation:" <<result.getVariation() << std::endl;
+  file << "success:" << std::boolalpha << result.getSuccess() << std::endl;
+  file << "status:" << static_cast<unsigned int>(result.getStatus()) << std::endl;
+  file << "criteria:" << std::endl;
+  for (const auto& criteria : result.getFailingCriteria()) {
+    file << criteria.first << ":" << criteria.second << std::endl;
+  }
+}
+
+
+void
+RobustnessAnalysisLauncher::cleanResult(const std::string& id) const {
+  namespace fs = boost::filesystem;
+  auto& context = mpi::context();
+  if (context.isRootProc()) {
+    remove(computeResultFile(id));
+    fs::path ret(createAbsolutePath(id, workingDirectory_));
+    if (fs::is_empty(ret))
+      remove(ret.c_str());
   }
 }
 

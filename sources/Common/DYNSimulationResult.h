@@ -126,6 +126,15 @@ class SimulationResult {
   std::string getUniqueScenarioId() const;
 
   /**
+   * @brief Get the Unique Scenario Id
+   *
+   * @param scenarioId scenario id to use
+   * @param variation variation to use
+   * @return unique scenario id associated to a simulation
+   */
+  static std::string getUniqueScenarioId(const std::string& scenarioId, double variation);
+
+  /**
    * @brief getter of the indicator of success of the simulation
    * @return indicator of success of the simulation
    */

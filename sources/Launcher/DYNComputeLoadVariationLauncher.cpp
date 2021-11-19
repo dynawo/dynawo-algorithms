@@ -49,7 +49,7 @@ ComputeLoadVariationLauncher::launch() {
   else if (!is_directory(workingDir))
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
 
-  inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile(), 1);
+  inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
 
   SimulationParameters params;

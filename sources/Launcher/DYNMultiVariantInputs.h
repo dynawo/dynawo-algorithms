@@ -20,9 +20,8 @@
 #ifndef LAUNCHER_DYNMULTIVARIANTINPUTS_H_
 #define LAUNCHER_DYNMULTIVARIANTINPUTS_H_
 
-#include "DYNDataInterfaceContainer.h"
-
 #include <JOBJobEntry.h>
+#include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace DYNAlgorithms {
@@ -40,19 +39,9 @@ class MultiVariantInputs {
    *
    * @param workingDirectory working directory of current run
    * @param jobFile the job file to use
-   * @param nbVariants the number of variants to use
    * @param iidmFile the iidm file to use instead of the reference in the job
    */
-  void readInputs(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile = "");
-
-  /**
-   * @brief Update variant for current run
-   *
-   * The variant name will be the string representation of the integer
-   *
-   * @param variant the variant number
-   */
-  void setCurrentVariant(unsigned int variant);
+  void readInputs(const std::string& workingDirectory, const std::string& jobFile, const std::string& iidmFile = "");
 
   /**
    * @brief Retrieve a copy of the job entry
@@ -61,11 +50,12 @@ class MultiVariantInputs {
   boost::shared_ptr<job::JobEntry> cloneJobEntry() const;
 
   /**
-   * @brief Retrieve the data interface container
-   * @returns the data interface container for the context
+   * @brief Retrieve the IIDM path to use
+   *
+   * @return IIDM path to use
    */
-  inline const boost::shared_ptr<DataInterfaceContainer>& dataInterfaceContainer() const {
-    return dataInterfaceContainer_;
+  inline const boost::filesystem::path& iidmPath() const {
+    return iidmPath_;
   }
 
   /**
@@ -85,8 +75,8 @@ class MultiVariantInputs {
   }
 
  private:
-  boost::shared_ptr<job::JobEntry> jobEntry_;                         ///< job entry to use
-  boost::shared_ptr<DataInterfaceContainer> dataInterfaceContainer_;  ///< data interface container to use
+  boost::shared_ptr<job::JobEntry> jobEntry_;  ///< job entry to use
+  boost::filesystem::path iidmPath_;           ///< IIDM path to use
   double tLoadIncreaseVariationMax_;                                  ///< maximum time duration of the variation during the load increase part
 };
 }  // namespace DYNAlgorithms

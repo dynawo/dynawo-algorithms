@@ -51,6 +51,7 @@ set(DYN_ALGO_COMMON_SOURCES
   DYNLoadIncrease.cpp
   DYNSimulationResult.cpp
   DYNLoadIncreaseResult.cpp
+  DYNMPIContext.cpp
   ${CPP_KEYS}
   )
 
@@ -60,6 +61,8 @@ set(DYN_ALGO_COMMON_HEADERS
   DYNScenarios.h
   DYNSimulationResult.h
   DYNLoadIncreaseResult.h
+  DYNMPIContext.h
+  DYNMPIContext.hpp
   ${INCLUDE_KEYS}
   )
 
@@ -77,6 +80,7 @@ target_include_directories(dynawo_algorithms_Common
 
 target_link_libraries(dynawo_algorithms_Common
   Dynawo::dynawo_Common
+  MPI::MPI_CXX
   )
 
 install(TARGETS dynawo_algorithms_Common EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})

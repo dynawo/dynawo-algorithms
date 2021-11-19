@@ -31,6 +31,7 @@
 #include "DYNMarginCalculationLauncher.h"
 #include "DYNComputeLoadVariationLauncher.h"
 #include "DYNComputeSimulationLauncher.h"
+#include "DYNMPIContext.h"
 
 using DYNAlgorithms::ComputeSimulationLauncher;
 using DYNAlgorithms::SystematicAnalysisLauncher;
@@ -40,16 +41,17 @@ using DYNAlgorithms::ComputeLoadVariationLauncher;
 namespace po = boost::program_options;
 
 static void launchSimulation(const std::string& jobFile, const std::string& outputFile);
-static void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads);
-static void launchSystematicAnalysis(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads);
+static void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
+static void launchSystematicAnalysis(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
 static void launchLoadVariationCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int variation);
 
 int main(int argc, char** argv) {
+  DYNAlgorithms::mpi::Context& mpiContext = DYNAlgorithms::mpi::context();
+  static_cast<void>(mpiContext);  // we don't use directly the MPI context here but call the MPI to initialize the context here
   std::string simulationType = "";
   std::string inputFile = "";
   std::string outputFile = "";
   std::vector<std::string> directoryVec;
-  int nbThreads = 1;
   int variation = -1;
   try {
     // declare program options
@@ -63,8 +65,6 @@ int main(int argc, char** argv) {
              "Set the input file of the simulation (*.zip or *.xml)")
             ("output", po::value<std::string>(&outputFile),
              "Set the output file of the simulation (*.zip or *.xml)")
-            ("nbThreads", po::value<int>(&nbThreads),
-             "Set the number of threads that could be used by the simulation")
             ("directory", po::value<std::vector<std::string> >(&directoryVec)->multitoken(),
              "Set the working directory of the simulation")
              ("variation", po::value<int>(&variation),
@@ -96,12 +96,6 @@ int main(int argc, char** argv) {
     }
 
     // launch simulation
-    if (nbThreads <= 0) {
-      std::cout << " The number of threads of the simulation should be a positive integer" << std::endl;
-      std::cout << desc << std::endl;
-      return 1;
-    }
-
     if (simulationType != "MC" && simulationType != "SA" && simulationType != "CS") {
       std::cout << simulationType << " : unknown simulation type" << std::endl;
       std::cout << desc << std::endl;
@@ -124,7 +118,7 @@ int main(int argc, char** argv) {
 
     boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
     if (simulationType == "MC" && variation < 0) {
-      launchMarginCalculation(inputFile, outputFile, directory, nbThreads);
+      launchMarginCalculation(inputFile, outputFile, directory);
       boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
       boost::posix_time::time_duration diff = t1 - t0;
       std::cout << "Margin calculation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
@@ -134,7 +128,7 @@ int main(int argc, char** argv) {
       boost::posix_time::time_duration diff = t1 - t0;
       std::cout << "Load variation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
     } else if (simulationType == "SA") {
-      launchSystematicAnalysis(inputFile, outputFile, directory, nbThreads);
+      launchSystematicAnalysis(inputFile, outputFile, directory);
       boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
       boost::posix_time::time_duration diff = t1 - t0;
       std::cout << "Systematic analysis finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
@@ -165,7 +159,6 @@ void launchSimulation(const std::string& jobFile, const std::string& outputFile)
   boost::shared_ptr<ComputeSimulationLauncher> simulationLauncher = boost::shared_ptr<ComputeSimulationLauncher>(new ComputeSimulationLauncher());
   simulationLauncher->setInputFile(jobFile);
   simulationLauncher->setOutputFile(outputFile);
-  simulationLauncher->setNbThreads(1);
   try {
     simulationLauncher->launch();
   }
@@ -176,12 +169,11 @@ void launchSimulation(const std::string& jobFile, const std::string& outputFile)
   simulationLauncher->writeResults();
 }
 
-void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads) {
+void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory) {
   boost::shared_ptr<MarginCalculationLauncher> marginCalculationLauncher = boost::shared_ptr<MarginCalculationLauncher>(new MarginCalculationLauncher());
   marginCalculationLauncher->setInputFile(inputFile);
   marginCalculationLauncher->setOutputFile(outputFile);
   marginCalculationLauncher->setDirectory(directory);
-  marginCalculationLauncher->setNbThreads(nbThreads);
 
   marginCalculationLauncher->init(true);
   try {
@@ -205,12 +197,11 @@ void launchLoadVariationCalculation(const std::string& inputFile, const std::str
   loadVariationLauncher->launch();
 }
 
-void launchSystematicAnalysis(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads) {
+void launchSystematicAnalysis(const std::string& inputFile, const std::string& outputFile, const std::string& directory) {
   boost::shared_ptr<SystematicAnalysisLauncher> analysisLauncher = boost::shared_ptr<SystematicAnalysisLauncher>(new SystematicAnalysisLauncher());
   analysisLauncher->setInputFile(inputFile);
   analysisLauncher->setOutputFile(outputFile);
   analysisLauncher->setDirectory(directory);
-  analysisLauncher->setNbThreads(nbThreads);
 
   analysisLauncher->init();
   analysisLauncher->launch();

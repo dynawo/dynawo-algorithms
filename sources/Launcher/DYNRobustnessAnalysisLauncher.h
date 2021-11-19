@@ -23,12 +23,12 @@
 #include <string>
 #include <map>
 #include <boost/shared_ptr.hpp>
+#include <boost/filesystem.hpp>
 
 #include "DYNSimulation.h"
 #include "JOBJobEntry.h"
 #include "DYNSimulationResult.h"
 #include "DYNMultiVariantInputs.h"
-#include "DYNDataInterfaceContainer.h"
 
 #include <DYNDataInterface.h>
 
@@ -77,12 +77,6 @@ class RobustnessAnalysisLauncher {
    * @param directory working directory to use
    */
   void setDirectory(const std::string& directory);
-
-  /**
-   * @brief set the number of threads to use
-   * @param nbThreads number of threads to use
-   */
-  void setNbThreads(const int nbThreads);
 
   /**
    * @brief initialize the algorithm
@@ -192,6 +186,28 @@ class RobustnessAnalysisLauncher {
    */
   static void initParametersWithJob(boost::shared_ptr<job::JobEntry> job, SimulationParameters& params);
 
+  /**
+   * @brief Export a save result file
+   *
+   * @param result the simulation result to export
+   */
+  void exportResult(const SimulationResult& result) const;
+
+  /**
+   * @brief Import simulation result from a save file
+   *
+   * @param id the scenario id
+   * @return SimulationResult from this scenario
+   */
+  SimulationResult importResult(const std::string& id) const;
+
+  /**
+   * @brief Clean from disk everything that was created for synchronization
+   *
+   * @param id the scenario id
+   */
+  void cleanResult(const std::string& id) const;
+
  protected:
   const std::string logTag_;  ///< tag string in dynawo.log
   std::string inputFile_;  ///< input data for the analysis
@@ -199,10 +215,12 @@ class RobustnessAnalysisLauncher {
   std::string directory_;  ///< working directory as input
   std::string workingDirectory_;  ///< absolute path of the working directory
   std::string outputFileFullPath_;  ///< absolute path of the outputFile
-  int nbThreads_;  ///< number of threads to use
   boost::shared_ptr<multipleJobs::MultipleJobs> multipleJobs_;  ///< multipleJobs description tu use for the systematic analysis
 
   MultiVariantInputs inputs_;  ///< basic analysis context, common to all
+
+ private:
+  static constexpr int precisionResultFile_ = std::numeric_limits<double>::max_digits10;  ///< precision of double in save results files
 
  private:
   /**
@@ -247,6 +265,14 @@ class RobustnessAnalysisLauncher {
    * @return the full path of the unzipped file containing the multiple jobs definition
    */
   std::string unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) const;
+
+  /**
+   * @brief Computes the result save file from an id and the working directory
+   *
+   * @param id the simulation id to use
+   * @return the filepath of the corresponding result file
+   */
+  boost::filesystem::path computeResultFile(const std::string& id) const;
 };
 
 }  // namespace DYNAlgorithms
