@@ -39,7 +39,7 @@ testing::Environment* const env = initXmlEnvironment();
 class MyLauncher : public RobustnessAnalysisLauncher {
  public:
   void launch() {
-    inputs_.readInputs(workingDirectory_, "MyJobs.jobs", 1);
+    inputs_.readInputs(workingDirectory_, "MyJobs.jobs");
     boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
     addDydFileToJob(job, "MyDydFile.dyd");
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries().size(), 2);
@@ -86,10 +86,6 @@ class MyLauncher : public RobustnessAnalysisLauncher {
 
   void testDirectory(const std::string& directory) {
     ASSERT_EQ(directory_, directory);
-  }
-
-  void testNbThreads(int nbThreads) {
-    ASSERT_EQ(nbThreads_, nbThreads);
   }
 
   void testWorkingDirectory(const std::string& workingDirectory) {
@@ -145,10 +141,6 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   launcher.testDirectory("");
   launcher.setDirectory("MyDirectory");
   launcher.testDirectory("MyDirectory");
-
-  launcher.testNbThreads(1);
-  launcher.setNbThreads(2);
-  launcher.testNbThreads(2);
 
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::DirectoryDoesNotExist);
   launcher.testWorkingDirectory(createAbsolutePath("MyDirectory", current_path()));

@@ -32,22 +32,16 @@ TEST(MultiVariant, base) {
   std::string workingDir = "res";
   std::string iidmFile = "IEEE14.iidm";
   std::string jobFile = "MyJobs.jobs";
-  unsigned int nbVariants = 2;
+  boost::filesystem::path expectedIIDM(boost::filesystem::current_path());
+  expectedIIDM.append(workingDir);
+  expectedIIDM.append(iidmFile);
 
-  inputs.readInputs(workingDir, jobFile, nbVariants);
-  ASSERT_FALSE(inputs.dataInterfaceContainer());
+  inputs.readInputs(workingDir, jobFile);
+  ASSERT_TRUE(inputs.iidmPath().empty());
 
   jobFile = "MyJobsWithIIDM.jobs";
-  inputs.readInputs(workingDir, jobFile, nbVariants);
-  ASSERT_TRUE(inputs.dataInterfaceContainer());
-  inputs.setCurrentVariant(0);
-  ASSERT_TRUE(inputs.dataInterfaceContainer()->getDataInterface());
-  inputs.setCurrentVariant(1);
-  ASSERT_TRUE(inputs.dataInterfaceContainer()->getDataInterface());
-#ifdef USE_POWSYBL
-  // variant not existing
-  ASSERT_THROW(inputs.setCurrentVariant(2), powsybl::PowsyblException);
-#endif
+  inputs.readInputs(workingDir, jobFile);
+  ASSERT_EQ(inputs.iidmPath(), expectedIIDM);
   boost::shared_ptr<job::JobEntry> job1 = inputs.cloneJobEntry();
   boost::shared_ptr<job::JobEntry> job2 = inputs.cloneJobEntry();
   ASSERT_TRUE(job1);
@@ -56,46 +50,12 @@ TEST(MultiVariant, base) {
   ASSERT_EQ(job1->getName(), "My Jobs IIDM");
 
   jobFile = "MyJobs.jobs";
-  inputs.readInputs(workingDir, jobFile, nbVariants, iidmFile);
-  ASSERT_TRUE(inputs.dataInterfaceContainer());
-  inputs.setCurrentVariant(0);
-  ASSERT_TRUE(inputs.dataInterfaceContainer()->getDataInterface());
+  inputs.readInputs(workingDir, jobFile, iidmFile);
+  ASSERT_EQ(inputs.iidmPath(), expectedIIDM);
 
   boost::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
   ASSERT_TRUE(job);
   ASSERT_EQ(job->getName(), "My Jobs");
 }
-
-#ifdef USE_POWSYBL
-TEST(MultiVariant, multi) {
-  MultiVariantInputs inputs;
-  constexpr unsigned int nbVariants = 2;
-
-  std::string workingDir = "res";
-  std::string iidmFile = "IEEE14.iidm";
-  std::string jobFile = "MyJobs.jobs";
-
-  inputs.readInputs(workingDir, jobFile, nbVariants, iidmFile);
-
-  boost::shared_ptr<DYN::DataInterface> dataInterface1;
-  boost::shared_ptr<DYN::DataInterface> dataInterface2;
-
-  std::thread thread1([&inputs, &dataInterface1]() {
-    inputs.setCurrentVariant(0);
-    ASSERT_TRUE(inputs.dataInterfaceContainer()->getDataInterface());
-    dataInterface1 = inputs.dataInterfaceContainer()->getDataInterface();
-  });
-  std::thread thread2([&inputs, &dataInterface2]() {
-    inputs.setCurrentVariant(1);
-    ASSERT_TRUE(inputs.dataInterfaceContainer()->getDataInterface());
-    dataInterface2 = inputs.dataInterfaceContainer()->getDataInterface();
-  });
-
-  thread1.join();
-  thread2.join();
-
-  ASSERT_NE(dataInterface1, dataInterface2);
-}
-#endif
 
 }  // namespace DYNAlgorithms

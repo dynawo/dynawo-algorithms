@@ -18,4 +18,3 @@ DirectoryDoesNotExist            = directory : %1% does not exist
 XmlParsingError                  = error while parsing file %1% : %2%
 IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)
 InputFileFormatNotSupported      = input file should be either a zip or a xml file (found %1%)
-VariantSetBeforeInit             = trying to set variant %1% but analysis context not fully initialized: no IIDM provided during init or init not done

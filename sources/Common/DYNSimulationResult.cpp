@@ -120,11 +120,16 @@ SimulationResult::getVariation() const {
 
 std::string
 SimulationResult::getUniqueScenarioId() const {
+  return getUniqueScenarioId(scenarioId_, variation_);
+}
+
+std::string
+SimulationResult::getUniqueScenarioId(const std::string& scenarioId, double variation) {
   std::ostringstream ss;
-  ss << scenarioId_;
-  if (variation_ >= 0.) {
+  ss << scenarioId;
+  if (variation >= 0.) {
     ss << "-";
-    ss << variation_;
+    ss << variation;
   }
   return ss.str();
 }

@@ -29,14 +29,14 @@
 namespace DYNAlgorithms {
 
 void
-MultiVariantInputs::readInputs(const std::string& workingDirectory, const std::string& jobFile, unsigned int nbVariants, const std::string& iidmFile) {
+MultiVariantInputs::readInputs(const std::string& workingDirectory, const std::string& jobFile, const std::string& iidmFile) {
   // job
   job::XmlImporter importer;
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory + "/" + jobFile);
   //  implicit : only one job per file
   jobEntry_ = *jobsCollection->begin();
 
-  // Compute the iidm file path according to the criterias:
+  // Compute the iidm file path according to the criteria:
   // - priority to the file given in parameter
   // - if not given, use the one in the network entry of the job
   std::string iidmFilePath;
@@ -53,19 +53,7 @@ MultiVariantInputs::readInputs(const std::string& workingDirectory, const std::s
       }
     }
   }
-
-  if (!iidmFilePath.empty()) {
-    dataInterfaceContainer_ = boost::make_shared<DataInterfaceContainer>(iidmFilePath, nbVariants);
-  }
-}
-
-void
-MultiVariantInputs::setCurrentVariant(unsigned int variant) {
-  if (!dataInterfaceContainer_) {
-    throw DYNAlgorithmsError(VariantSetBeforeInit, variant);
-  }
-
-  dataInterfaceContainer_->initDataInterface(variant);
+  iidmPath_ = iidmFilePath;
 }
 
 boost::shared_ptr<job::JobEntry>

@@ -27,6 +27,7 @@ where [option] can be:
 
     =========== Building dynawo-algorithms project
     config                        configure dynawo-algorithms's compiling environnement using CMake
+    build-3rd-party               build dynawo-algorithms 3rd parties and install
     build                         build dynawo-algorithms and install
     build-3rd-party               build dynawo-algorithms 3rd parties and install
     build-doc                     build dynawo-algorithms's documentation
@@ -68,6 +69,8 @@ where [option] can be:
 
 SCRIPT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && echo "$(pwd)"/"$(basename ${BASH_SOURCE[0]})")
 TOTAL_CPU=$(grep -c ^processor /proc/cpuinfo)
+NBPROCS=1
+MPIRUN_PATH=$(which mpirun 2> /dev/null)
 
 export_var_env_force() {
   local var=$@
@@ -223,13 +226,18 @@ set_environnement() {
   # dynawo-algorithms
   export_var_env DYNAWO_ALGORITHMS_HOME=UNDEFINED
   export_git_branch
+  SUFFIX_CX11=""
+  if [ "$(echo "$DYNAWO_CXX11_ENABLED" | tr '[:upper:]' '[:lower:]')" = "yes" -o "$(echo "$DYNAWO_CXX11_ENABLED" | tr '[:upper:]' '[:lower:]')" = "true" -o "$(echo "$DYNAWO_CXX11_ENABLED" | tr '[:upper:]' '[:lower:]')" = "on" ]; then
+    SUFFIX_CX11="-cxx11"
+    export_var_env DYNAWO_CXX11_ENABLED=YES
+  fi
   export_var_env_force DYNAWO_ALGORITHMS_SRC_DIR=$DYNAWO_ALGORITHMS_HOME
   export_var_env DYNAWO_ALGORITHMS_DEPLOY_DIR=$DYNAWO_ALGORITHMS_HOME/deploy/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/dynawo-algorithms
 
   export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR=$DYNAWO_ALGORITHMS_HOME/build/3rdParty/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/shared/$DYNAWO_BUILD_TYPE$SUFFIX_CX11
   export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR=$DYNAWO_ALGORITHMS_HOME/install/3rdParty/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/shared/$DYNAWO_BUILD_TYPE$SUFFIX_CX11
   export_var_env_force DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR=$DYNAWO_ALGORITHMS_HOME/3rdParty
-  
+
   export_var_env DYNAWO_ALGORITHMS_BUILD_DIR=$DYNAWO_ALGORITHMS_HOME/build/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
   export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR=$DYNAWO_ALGORITHMS_HOME/install/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
   export_var_env DYNAWO_FORCE_CXX11_ABI=false
@@ -286,6 +294,10 @@ set_environnement() {
   export_var_env DYNAWO_DICTIONARIES=dictionaries_mapping
 
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
+
+  if [ -z "$MPIRUN_PATH" ]; then
+    MPIRUN_PATH="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/mpirun"
+  fi
 
   # Only used until now by nrt
   export_var_env DYNAWO_NB_PROCESSORS_USED=1
@@ -425,6 +437,7 @@ config_dynawo_algorithms() {
     -DCMAKE_BUILD_TYPE:STRING=$DYNAWO_BUILD_TYPE \
     -DDYNAWO_ALGORITHMS_HOME:PATH=$DYNAWO_ALGORITHMS_HOME \
     -DDYNAWO_HOME:PATH=$DYNAWO_HOME \
+    -DDYNAWO_ALGORITHMS_THIRD_PARTY_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR \
     -DBUILD_TESTS=$DYNAWO_BUILD_TESTS \
     -DBUILD_TESTS_COVERAGE=$DYNAWO_BUILD_TESTS_COVERAGE \
     -DCMAKE_INSTALL_PREFIX:PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR \
@@ -485,6 +498,8 @@ test_doxygen_doc_dynawo_algorithms() {
 
 build_tests() {
   clean_dynawo_algorithms || error_exit
+  config_dynawo_algorithms_3rdParties || error_exit
+  build_dynawo_algorithms_3rdParties || error_exit
   config_dynawo_algorithms || error_exit
   build_dynawo_algorithms || error_exit
   tests=$@
@@ -499,6 +514,8 @@ build_tests() {
 
 build_tests_coverage() {
   clean_dynawo_algorithms || error_exit
+  config_dynawo_algorithms_3rdParties || error_exit
+  build_dynawo_algorithms_3rdParties || error_exit
   config_dynawo_algorithms || error_exit
   build_dynawo_algorithms || error_exit
   tests=$@
@@ -666,11 +683,19 @@ deploy_dynawo_algorithms() {
   mkdir -p lib
   mkdir -p include
   mkdir -p share
+
   echo "deploying gperftools libraries"
   cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/bin/* bin/.
   cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/lib/* lib/.
   cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/include/* include/.
   cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/share/* share/.
+
+  if [ -d $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich ]; then
+    echo "deploying mpich libraries and binaries"
+    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/* bin/.
+    cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/* lib/.
+  fi
+
   echo "deploying Dynawo-algorithms libraries"
   cp $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/* bin/.
   cp $DYNAWO_ALGORITHMS_INSTALL_DIR/lib/* lib/.
@@ -761,6 +786,12 @@ create_distrib_with_headers() {
   cp ../lib/* dynawo-algorithms/lib/.
   cp -r ../share/* dynawo-algorithms/share/
   cp ../dynawo-algorithms.sh dynawo-algorithms/
+  
+  if [ -d "$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich" ]; then
+    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/* dynawo-algorithms/bin/.
+    cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/* dynawo-algorithms/lib/.
+  fi
+
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
   cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
@@ -814,17 +845,17 @@ launch_CS() {
 
 launch_SA() {
   export_preload
-  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
-  unset LD_PRELOAD
+  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
   RETURN_CODE=$?
+  unset LD_PRELOAD
   return ${RETURN_CODE}
 }
 
 launch_MC() {
   export_preload
-  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
-  unset LD_PRELOAD
+  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
   RETURN_CODE=$?
+  unset LD_PRELOAD
   return ${RETURN_CODE}
 }
 
@@ -836,17 +867,17 @@ launch_CS_gdb() {
 
 launch_SA_gdb() {
   export_preload
-  gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
-  unset LD_PRELOAD
+  "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
   RETURN_CODE=$?
+  unset LD_PRELOAD
   return ${RETURN_CODE}
 }
 
 launch_MC_gdb() {
   export_preload
-  gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
-  unset LD_PRELOAD
+  "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
   RETURN_CODE=$?
+  unset LD_PRELOAD
   return ${RETURN_CODE}
 }
 
@@ -859,13 +890,27 @@ elif [ -n "$ZSH_VERSION" ]; then
 fi
 
 ## force build_type for specific cases
-LAUNCH_COMMAND=$*
 MODE=$1
+ARGS=""
+while (($#)); do
+  key="$1"
+  case $key in
+    --nbThreads|-np)
+    NBPROCS=$2
+    shift # past argument
+    shift # past value
+    ;;
+  *)
+    ARGS="$ARGS $key"
+    shift # past argument
+    ;;
+  esac
+done
 
 ## set environnement variables
 set_environnement $MODE
 
-ARGS=`echo ${LAUNCH_COMMAND} | cut -d' ' -f2-`
+ARGS=`echo ${ARGS} | cut -d' ' -f2-`
 ## launch command
 case $MODE in
   config)

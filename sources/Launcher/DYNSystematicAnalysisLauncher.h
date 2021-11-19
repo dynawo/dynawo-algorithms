@@ -20,11 +20,12 @@
 #ifndef LAUNCHER_DYNSYSTEMATICANALYSISLAUNCHER_H_
 #define LAUNCHER_DYNSYSTEMATICANALYSISLAUNCHER_H_
 
+#include "DYNRobustnessAnalysisLauncher.h"
+
+#include <boost/shared_ptr.hpp>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include <boost/shared_ptr.hpp>
-#include "DYNRobustnessAnalysisLauncher.h"
 
 namespace DYNAlgorithms {
 class Scenario;
@@ -60,6 +61,5 @@ class SystematicAnalysisLauncher : public RobustnessAnalysisLauncher {
   std::vector<SimulationResult> results_;  ///< results of the systematic analysis
 };
 }  // namespace DYNAlgorithms
-
 
 #endif  // LAUNCHER_DYNSYSTEMATICANALYSISLAUNCHER_H_
