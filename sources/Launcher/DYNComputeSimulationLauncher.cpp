@@ -21,13 +21,38 @@
 
 #include "DYNAggrResXmlExporter.h"
 
-#include <JOBXmlImporter.h>
-#include <JOBIterators.h>
-#include <JOBJobsCollection.h>
-#include <JOBJobEntry.h>
 #include <DYNFileSystemUtils.h>
+#include <JOBIterators.h>
+#include <JOBJobEntry.h>
+#include <JOBOutputsEntry.h>
+#include <JOBJobsCollection.h>
+#include <JOBXmlImporter.h>
 
 namespace DYNAlgorithms {
+
+bool
+ComputeSimulationLauncher::findExportIIDM(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates) {
+  for (std::vector<boost::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
+    if ((*it)->getTimestamp()) {
+      // one without timestamp : it means that it concerns the final state
+      return (*it)->getExportIIDMFile();
+    }
+  }
+
+  return false;
+}
+
+bool
+ComputeSimulationLauncher::findExportDump(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates) {
+  for (std::vector<boost::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
+    if ((*it)->getTimestamp()) {
+      // one without timestamp : it means that it concerns the final state
+      return (*it)->getExportDumpFile();
+    }
+  }
+
+  return false;
+}
 
 void
 ComputeSimulationLauncher::launch() {
@@ -39,13 +64,15 @@ ComputeSimulationLauncher::launch() {
   job::XmlImporter importer;
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(inputFile_);
   workingDirectory_ = workingDir;
-  for (job::job_iterator itJobEntry = jobsCollection->begin();
-      itJobEntry != jobsCollection->end();
-      ++itJobEntry) {
+  for (job::job_iterator itJobEntry = jobsCollection->begin(); itJobEntry != jobsCollection->end(); ++itJobEntry) {
     boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
     std::cout << DYNLog(LaunchingJob, (*itJobEntry)->getName()) << std::endl;
     SimulationResult result;
     SimulationParameters params;
+    if (!job->getOutputsEntry()->getFinalStateEntries().empty()) {
+      params.activateExportIIDM_ = findExportIIDM(job->getOutputsEntry()->getFinalStateEntries());
+      params.activateDumpFinalState_ = findExportDump(job->getOutputsEntry()->getFinalStateEntries());
+    }
     result.setScenarioId(job->getName());
     boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
     if (simulation) {
@@ -58,7 +85,6 @@ ComputeSimulationLauncher::launch() {
 }
 
 void
-ComputeSimulationLauncher::createOutputs(std::map<std::string, std::string>& /*mapData*/, bool /*zipIt*/) const {
-}
+ComputeSimulationLauncher::createOutputs(std::map<std::string, std::string>& /*mapData*/, bool /*zipIt*/) const {}
 
 }  // namespace DYNAlgorithms
