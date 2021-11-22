@@ -68,7 +68,7 @@ launch the following command:
 $> ./myEnvDynawoAlgorithms.sh build
 ```
 
-All commands described in the rest of this README are accessible throught this script. To access all options of the script myEnvDFL.sh, type:
+All commands described in the rest of this README are accessible throught this script. To access all options of the script myEnvDynawoAlgorithms.sh, type:
 
 ``` bash
 $> ./myEnvDynawoAlgorithms.sh help
@@ -110,7 +110,7 @@ $> ./myEnvDynawoAlgorithms.sh CS --input PATH_TO_JOBS
 $> ./myEnvDynawoAlgorithms.sh SA --directory PATH_TO_SA_FOLDER --input fic_MULTIPLE.xml --output aggregatedResults.xml --nbThreads NB_THREADS_TO_USE
 ```
 
-fic_MULTIPLE.xml can be replaced by a archive file containing all the required input files
+fic_MULTIPLE.xml can be replaced by an archive file containing all the required input files
 
 ## Launching a margin calculation
 
@@ -118,7 +118,7 @@ fic_MULTIPLE.xml can be replaced by a archive file containing all the required i
 $> ./myEnvDynawoAlgorithms.sh MC --directory PATH_TO_MC_FOLDER --input fic_MULTIPLE.xml --output aggregatedResults.xml --nbThreads NB_THREADS_TO_USE
 ```
 
-fic_MULTIPLE.xml can be replaced by a archive file containing all the required input files
+fic_MULTIPLE.xml can be replaced by an archive file containing all the required input files
 
 ## Creating the distribution
 
