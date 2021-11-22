@@ -45,6 +45,7 @@
 #include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <JOBJobEntry.h>
+#include <JOBSimulationEntry.h>
 
 #include "DYNMarginCalculationLauncher.h"
 #include "DYNMultipleJobs.h"
@@ -71,6 +72,20 @@ MarginCalculationLauncher::createScenarioWorkingDir(const std::string& scenarioI
 }
 
 void
+MarginCalculationLauncher::readTimes(const std::string& jobFileLoadIncrease, const std::string& jobFileScenario) {
+  // job
+  job::XmlImporter importer;
+  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFileLoadIncrease);
+  //  implicit : only one job per file
+  job::job_iterator jobIt = jobsCollection->begin();
+  tLoadIncrease_ = (*jobIt)->getSimulationEntry()->getStopTime();
+
+  jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFileScenario);
+  jobIt = jobsCollection->begin();
+  tScenario_ = (*jobIt)->getSimulationEntry()->getStopTime() - (*jobIt)->getSimulationEntry()->getStartTime();
+}
+
+void
 MarginCalculationLauncher::launch() {
   assert(multipleJobs_);
   results_.clear();
@@ -85,6 +100,9 @@ MarginCalculationLauncher::launch() {
 #ifdef WITH_OPENMP
   omp_set_num_threads(nbThreads_);
 #endif
+
+  // Retrieve from jobs file tLoadIncrease and tScenario
+  readTimes(loadIncrease->getJobsFile(), baseJobsFile);
 
   std::queue< task_t > toRun;
   std::vector<size_t> allEvents;
@@ -445,14 +463,53 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
   //  force simulation to load previous dump and to use final values
   params.InitialStateFile_ = dumpFile.str();
   params.iidmFile_ = generateIDMFileNameForVariation(variation);
+
+  // startTime and stopTime are adapted depending on the variation length
+  double startTime = tLoadIncrease_ - (100. - variation)/100. * inputs_.getTLoadIncreaseVariationMax();
+  params.startTime_ = startTime;
+  params.stopTime_ = startTime + tScenario_;
+
   result.setScenarioId(scenario->getId());
   result.setVariation(variation);
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs);
-  simulation->setTimelineOutputFile("");
-  simulation->setConstraintsOutputFile("");
 
-  if (simulation)
+  if (simulation) {
+    simulation->setTimelineOutputFile("");
+    simulation->setConstraintsOutputFile("");
+    // The event time should be adapted (the list of events models supported currently corresponds to events really used)
+    boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
+    std::string DDBDir = getEnvVar("DYNAWO_DDB_DIR");
+    std::vector<boost::shared_ptr<DYN::SubModel> > subModels = modelMulti->findSubModelByLib(DDBDir + "/EventQuadripoleDisconnection"
+      + DYN::sharedLibraryExtension());
+    std::vector<boost::shared_ptr<DYN::SubModel> > subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventConnectedStatus"
+      + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointBoolean" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/SetPoint" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointReal" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointDoubleReal" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointGenerator" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointLoad" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/LineTrippingEvent" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/TfoTrippingEvent" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventConnectedStatus" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventQuadripoleConnection" + DYN::sharedLibraryExtension());
+    for (std::vector<boost::shared_ptr<DYN::SubModel> >::const_iterator it = subModels.begin(); it != subModels.end(); ++it) {
+      double tEvent = (*it)->findParameterDynamic("event_tEvent").getValue<double>();
+      (*it)->setParameterValue("event_tEvent", DYN::PAR, tEvent - (100. - variation) * inputs_.getTLoadIncreaseVariationMax() / 100., false);
+      (*it)->setSubModelParameters();
+    }
     simulate(simulation, result);
+  }
 
   if (nbThreads_ == 1)
     std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
@@ -537,7 +594,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   job->getOutputsEntry()->setConstraintsEntry(boost::shared_ptr<job::ConstraintsEntry>());
 
   SimulationParameters params;
-  //  force simulation to dump final values (would be used as input to launch each events)
+  //  force simulation to dump final values (would be used as input to launch each event)
   params.activateDumpFinalState_ = true;
   params.activateExportIIDM_ = true;
   std::stringstream iidmFile;
@@ -547,7 +604,6 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".dmp";
   params.dumpFinalStateFile_ = dumpFile.str();
 
-  std::string DDBDir = getMandatoryEnvVar("DYNAWO_DDB_DIR");
   std::stringstream scenarioId;
   scenarioId << "loadIncrease-" << variation;
   result.setScenarioId(scenarioId.str());
@@ -555,29 +611,32 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
 
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
+    std::string DDBDir = getMandatoryEnvVar("DYNAWO_DDB_DIR");
     std::vector<boost::shared_ptr<DYN::SubModel> > subModels = modelMulti->findSubModelByLib(DDBDir + "/DYNModelVariationArea" + DYN::sharedLibraryExtension());
-    for (unsigned int i=0; i < subModels.size(); i++) {
-      double startTime = subModels[i]->findParameterDynamic("startTime").getValue<double>();
-      double stopTime = subModels[i]->findParameterDynamic("stopTime").getValue<double>();
-      int nbLoads = subModels[i]->findParameterDynamic("nbLoads").getValue<int>();
+    for (std::vector<boost::shared_ptr<DYN::SubModel> >::const_iterator it = subModels.begin(); it != subModels.end(); ++it) {
+      double startTime = (*it)->findParameterDynamic("startTime").getValue<double>();
+      double stopTime = (*it)->findParameterDynamic("stopTime").getValue<double>();
+      inputs_.setTLoadIncreaseVariationMax(stopTime - startTime);
+      int nbLoads = (*it)->findParameterDynamic("nbLoads").getValue<int>();
       for (int k = 0; k < nbLoads; ++k) {
         std::stringstream deltaPName;
         deltaPName << "deltaP_load_" << k;
-        double deltaP = subModels[i]->findParameterDynamic(deltaPName.str()).getValue<double>();
-        subModels[i]->setParameterValue(deltaPName.str(), DYN::PAR, deltaP*variation/100., false);
+        double deltaP = (*it)->findParameterDynamic(deltaPName.str()).getValue<double>();
+        (*it)->setParameterValue(deltaPName.str(), DYN::PAR, deltaP*variation/100., false);
 
         std::stringstream deltaQName;
         deltaQName << "deltaQ_load_" << k;
-        double deltaQ = subModels[i]->findParameterDynamic(deltaQName.str()).getValue<double>();
-        subModels[i]->setParameterValue(deltaQName.str(), DYN::PAR, deltaQ*variation/100., false);
+        double deltaQ = (*it)->findParameterDynamic(deltaQName.str()).getValue<double>();
+        (*it)->setParameterValue(deltaQName.str(), DYN::PAR, deltaQ*variation/100., false);
       }
       // change of the stop time to keep the same ramp of variation.
       double originalDuration = stopTime - startTime;
       double newStopTime = startTime + originalDuration * variation / 100.;
-      subModels[i]->setParameterValue("stopTime", DYN::PAR, newStopTime, false);
-      subModels[i]->setSubModelParameters();  // update values stored in subModel
-      Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseModelParameter, subModels[i]->name(), newStopTime, variation/100.) << Trace::endline;
+      (*it)->setParameterValue("stopTime", DYN::PAR, newStopTime, false);
+      (*it)->setSubModelParameters();  // update values stored in subModel
+      Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseModelParameter, (*it)->name(), newStopTime, variation/100.) << Trace::endline;
     }
+    simulation->setStopTime(tLoadIncrease_ - (100. - variation)/100. * inputs_.getTLoadIncreaseVariationMax());
     simulate(simulation, result);
   }
   Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseEnd, variation, getStatusAsString(result.getStatus())) << Trace::endline;

@@ -68,9 +68,26 @@ class MultiVariantInputs {
     return dataInterfaceContainer_;
   }
 
+  /**
+   * @brief set maximum time duration of the variation during the load increase part
+   * @param t time duration of the variation during the load increase part
+   */
+  inline void setTLoadIncreaseVariationMax(double t) {
+    tLoadIncreaseVariationMax_ = t;
+  }
+
+  /**
+   * @brief get maximum time duration of the variation during the load increase part
+   * @return the maximum time duration of the variation during the load increase part
+   */
+  inline double getTLoadIncreaseVariationMax() const {
+    return tLoadIncreaseVariationMax_;
+  }
+
  private:
   boost::shared_ptr<job::JobEntry> jobEntry_;                         ///< job entry to use
   boost::shared_ptr<DataInterfaceContainer> dataInterfaceContainer_;  ///< data interface container to use
+  double tLoadIncreaseVariationMax_;                                  ///< maximum time duration of the variation during the load increase part
 };
 }  // namespace DYNAlgorithms
 

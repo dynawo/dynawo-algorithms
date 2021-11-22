@@ -49,6 +49,7 @@
 #include <DYNMacrosMessage.h>
 #include <DYNDataInterfaceFactory.h>
 #include <DYNTrace.h>
+#include <DYNCommon.h>
 
 #include <config.h>
 #include <gitversion.h>
@@ -312,6 +313,13 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
 
   if (!params.activateExportIIDM_)
     simulation->disableExportIIDM();
+
+  if (params.startTime_ > 0. || DYN::doubleIsZero(params.startTime_))
+    simulation->setStartTime(params.startTime_);
+
+  if (params.stopTime_ > 0. || DYN::doubleIsZero(params.stopTime_))
+    simulation->setStopTime(params.stopTime_);
+
   try {
     simulation->init();
   } catch (const DYN::Error& e) {
