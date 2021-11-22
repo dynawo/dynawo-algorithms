@@ -592,26 +592,41 @@ create_distrib() {
 
   ZIP_FILE=dynawoAlgorithms_V$version.zip
 
-  cd $DYNAWO_ALGORITHMS_INSTALL_DIR
+  deploy_dynawo_algorithms
+
+  # create distribution
+  if [ ! -d "$DYNAWO_ALGORITHMS_DEPLOY_DIR" ]; then
+    error_exit "$DYNAWO_ALGORITHMS_DEPLOY_DIR does not exist."
+  fi
+  pushd $DYNAWO_ALGORITHMS_DEPLOY_DIR > /dev/null
+
   mkdir tmp/
   cd tmp/
-  cp -r $DYNAWO_HOME/* .
-  cp ../bin/* bin/
-  cp ../lib/* lib/.
-  cp -r ../share/* share/
+  mkdir -p dynawo-algorithms
+  cp -r $DYNAWO_HOME/bin dynawo-algorithms/
+  cp -r $DYNAWO_HOME/lib dynawo-algorithms/
+  cp -r $DYNAWO_HOME/ddb dynawo-algorithms/
+  cp -r $DYNAWO_HOME/share dynawo-algorithms/
+  cp -r $DYNAWO_HOME/dynawo.sh dynawo-algorithms/
+
+  cp ../bin/* dynawo-algorithms/bin/
+  cp ../lib/* dynawo-algorithms/lib/.
+  cp -r ../share/* dynawo-algorithms/share/
   # combines dictionaries mapping
-  cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> share/dictionaries_mapping.dic
-  cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py bin/.
-  zip -r -y ../$ZIP_FILE bin/ lib/ share/ ddb/ dynawo.sh
-  cd $DYNAWO_ALGORITHMS_INSTALL_DIR
+  cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
+  cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
+  zip -r -y ../$ZIP_FILE dynawo-algorithms/
+  cd $DYNAWO_ALGORITHMS_DEPLOY_DIR
 
   # remove temp directory
-  rm -rf $DYNAWO_ALGORITHMS_INSTALL_DIR/tmp
+  rm -rf tmp
 
   # move distribution in distribution directory
   DISTRIB_DIR=$DYNAWO_ALGORITHMS_HOME/distributions
   mkdir -p $DISTRIB_DIR
   mv $ZIP_FILE $DISTRIB_DIR
+
+  popd > /dev/null
 }
 
 verify_browser() {
