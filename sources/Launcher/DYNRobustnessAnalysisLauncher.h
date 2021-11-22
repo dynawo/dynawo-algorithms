@@ -115,6 +115,8 @@ class RobustnessAnalysisLauncher {
   struct SimulationParameters {
     bool activateExportIIDM_;  ///< if true the iidm will be exported at the end of the simulation
     bool activateDumpFinalState_;  ///< if true the final state will be exported at the end of the simulation
+    double startTime_;  ///< startTime to use for the simulation, if empty the one defined in the job will be applied
+    double stopTime_;  ///< stopTime to use for the simulation, if empty the one defined in the job will be applied
     std::string iidmFile_;  ///< path to the input iidm file, if empty the one defined in the job will be applied
     std::string InitialStateFile_;  ///< path to the initial state file, if empty the one defined in the job will be applied
     std::string dumpFinalStateFile_;  ///< path where to dump the final state file, if empty the one defined in the job will be applied
@@ -125,7 +127,9 @@ class RobustnessAnalysisLauncher {
      */
     SimulationParameters() :
       activateExportIIDM_(false),
-      activateDumpFinalState_(false) {}
+      activateDumpFinalState_(false),
+      startTime_(-1),
+      stopTime_(-1) {}
   };
 
   /**
