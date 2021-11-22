@@ -11,10 +11,34 @@
     of simulation tools for power systems.
 -->
 
+# Dyna&omega;o algorithms
+
+Dyna&omega;o algorithms aims to contain the complex algorithms used in analysis over multiple simulation such as:
+
+- systematic analysis
+- margin calulation
+
+It depends on the [core dynawo libraries of Dyna&omega;o](https://github.com/dynawo/dynawo)
+
 ## Building Dyna&omega;o algorithms
 
-You need to deploy Dyna&omega;o first.  
-Then you need to launch the following commands:
+### Configure
+
+To build Dyna&omega algorithms, you must first deploy the Dyna&omega;o library.
+
+``` bash
+$> ./myEnvDynawo.sh build-all
+$> ./myEnvDynawo.sh deploy
+```
+
+This command creates a deploy folder in ${DYNAWO_HOME}.
+The path to dynawo deploy is then the path to the subdirectory `dynawo` in the deploy folder. It is generally similar to:
+
+``` bash
+PATH_TO_DYNAWO_DEPLOY=${DYNAWO_HOME}/deploy/gcc8/shared/dynawo/
+```
+
+To build Dyna&omega;o algorithms you need to clone the repository launch the following commands in the source code directory. it will create a `myEnvDynawoAlgorithms.sh` script file that will be your personal entrypoint to launch algorithms and configure some options.
 
 ``` bash
 $> echo '#!/bin/bash
@@ -32,35 +56,72 @@ export DYNAWO_CXX11_ENABLED=YES
 
 $DYNAWO_ALGORITHMS_HOME/util/envDynawoAlgorithms.sh $@' > myEnvDynawoAlgorithms.sh
 $> chmod +x myEnvDynawoAlgorithms.sh
+```
+
+Then update the path "PATH_TO_DYNAWO_DEPLOY" in the file to your deployed installation of Dyna&omega;o
+
+### Build
+
+launch the following command:
+
+``` bash
 $> ./myEnvDynawoAlgorithms.sh build
 ```
 
-For more details on the fic_MULTIPLE.xml and aggregatedResults.xml formats please refer to the documentation.
+All commands described in the rest of this README are accessible throught this script. To access all options of the script myEnvDFL.sh, type:
+
+``` bash
+$> ./myEnvDynawoAlgorithms.sh help
+```
+
+To deploy Dyna&omega;o algorithms, launch the following command after build:
+
+``` bash
+$> ./myEnvDynawoAlgorithms.sh deploy
+```
+
+## Tests
+
+To launch Dyna&omega;o algorithms unit tests, launch the following command:
+
+``` bash
+$> ./myEnvDynawoAlgorithms.sh build-tests
+```
+
+To launch Dyna&omega;o algorithms nrt, launch the following command after build:
+
+``` bash
+$> ./myEnvDynawoAlgorithms.sh nrt
+```
+
+:warning: nrt do not cover the use of multithreading
+
 ## Launching a simulation
+
+For more details on the fic_MULTIPLE.xml and aggregatedResults.xml formats please refer to the documentation.
 
 ``` bash
 $> ./myEnvDynawoAlgorithms.sh CS --input PATH_TO_JOBS
-
 ```
 
 ## Launching a systematic analysis
 
 ``` bash
 $> ./myEnvDynawoAlgorithms.sh SA --directory PATH_TO_SA_FOLDER --input fic_MULTIPLE.xml --output aggregatedResults.xml --nbThreads NB_THREADS_TO_USE
-
 ```
+
+fic_MULTIPLE.xml can be replaced by a archive file containing all the required input files
 
 ## Launching a margin calculation
+
 ``` bash
 $> ./myEnvDynawoAlgorithms.sh MC --directory PATH_TO_MC_FOLDER --input fic_MULTIPLE.xml --output aggregatedResults.xml --nbThreads NB_THREADS_TO_USE
-
 ```
+
+fic_MULTIPLE.xml can be replaced by a archive file containing all the required input files
 
 ## Creating the distribution
 
 ``` bash
 $> ./myEnvDynawoAlgorithms.sh distrib
-
 ```
-
-
