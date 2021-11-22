@@ -307,11 +307,11 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   if (!params.dumpFinalStateFile_.empty())
     simulation->setDumpFinalStateFile(params.dumpFinalStateFile_);
 
-  if (params.activateDumpFinalState_)
-    simulation->activateDumpFinalState(true);
+  if (!params.activateDumpFinalState_)
+    simulation->disableDumpFinalState();
 
-  if (params.activateExportIIDM_)
-    simulation->activateExportIIDM(true);
+  if (!params.activateExportIIDM_)
+    simulation->disableExportIIDM();
   try {
     simulation->init();
   } catch (const DYN::Error& e) {
@@ -358,7 +358,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       std::cerr << e.what() << std::endl;
       Trace::error() << e.what() << Trace::endline;
       // Needed as otherwise terminate might crash due to badly formed model
-      simulation->activateExportIIDM(false);
+      simulation->disableExportIIDM();
       simulation->terminate();
       result.setSuccess(false);
       if (e.type() == DYN::Error::SIMULATION) {
