@@ -15,35 +15,35 @@
     <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
     <scenarioResults id="Fault" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 345.328MW &gt; 200MW (criteria id: Risque protection)" time="110.000010"/>
+      <criterionNonRespected id="total load power = 345.328MW &gt; 200MW (criteria id: Risque protection)" time="109.999986"/>
     </scenarioResults>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="25" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
     <scenarioResults id="Fault" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 259.526MW &gt; 200MW (criteria id: Risque protection)" time="110.000010"/>
+      <criterionNonRespected id="total load power = 259.526MW &gt; 200MW (criteria id: Risque protection)" time="109.999980"/>
     </scenarioResults>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="13" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
     <scenarioResults id="Fault" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 214.966MW &gt; 200MW (criteria id: Risque protection)" time="110.000010"/>
+      <criterionNonRespected id="total load power = 214.966MW &gt; 200MW (criteria id: Risque protection)" time="109.999979"/>
     </scenarioResults>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="7" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
     <scenarioResults id="Fault" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 351.779MW &gt; 200MW (criteria id: Risque protection)" time="110.020458"/>
+      <criterionNonRespected id="total load power = 351.779MW &gt; 200MW (criteria id: Risque protection)" time="110.064695"/>
     </scenarioResults>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="4" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
     <scenarioResults id="Fault" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 312.12MW &gt; 200MW (criteria id: Risque protection)" time="110.020458"/>
+      <criterionNonRespected id="total load power = 312.12MW &gt; 200MW (criteria id: Risque protection)" time="110.057322"/>
     </scenarioResults>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="0" status="CONVERGENCE">
