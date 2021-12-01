@@ -503,6 +503,7 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
   setCriteriaFileForJob(job, scenario->getCriteriaFile());
 
   SimulationParameters params;
+  initParametersWithJob(job, params);
   std::stringstream dumpFile;
   dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".dmp";
   //  force simulation to load previous dump and to use final values

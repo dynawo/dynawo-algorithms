@@ -470,4 +470,38 @@ RobustnessAnalysisLauncher::writeResults() const {
   }
 }
 
+bool
+RobustnessAnalysisLauncher::findExportIIDM(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates) {
+  for (std::vector<boost::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
+    if (!(*it)->getTimestamp()) {
+      // one without timestamp : it means that it concerns the final state
+      return (*it)->getExportIIDMFile();
+    }
+  }
+
+  return false;
+}
+
+bool
+RobustnessAnalysisLauncher::findExportDump(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates) {
+  for (std::vector<boost::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
+    if (!(*it)->getTimestamp()) {
+      // one without timestamp : it means that it concerns the final state
+      return (*it)->getExportDumpFile();
+    }
+  }
+
+  return false;
+}
+
+void
+RobustnessAnalysisLauncher::initParametersWithJob(boost::shared_ptr<job::JobEntry> job, SimulationParameters& params) {
+  const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStateEntries = job->getOutputsEntry()->getFinalStateEntries();
+  // It is considered that only the first final entry is relevant for parameters for systematic analysis
+  if (!finalStateEntries.empty()) {
+    params.activateExportIIDM_ = findExportIIDM(finalStateEntries);
+    params.activateDumpFinalState_ = findExportDump(finalStateEntries);
+  }
+}
+
 }  // namespace DYNAlgorithms
