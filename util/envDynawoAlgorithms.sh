@@ -189,6 +189,7 @@ set_environnement() {
   export_var_env DYNAWO_BUILD_TESTS_COVERAGE=OFF
   export_var_env DYNAWO_BUILD_TYPE=UNDEFINED
   export_var_env DYNAWO_CXX11_ENABLED=UNDEFINED
+  export_var_env DYNAWO_CMAKE_GENERATOR="Unix Makefiles"
 
   export_var_env DYNAWO_COMPILER_VERSION=$($DYNAWO_C_COMPILER -dumpversion)
 
@@ -353,7 +354,7 @@ config_dynawo_algorithms() {
     -DLIBZIP_HOME=$DYNAWO_LIBZIP_HOME \
     -DCMAKE_MODULE_PATH=$DYNAWO_HOME/share/cmake \
     -DDYNAWO_PYTHON_COMMAND="$DYNAWO_ALGORITHMS_PYTHON_COMMAND" \
-    -G "Unix Makefiles" \
+    -G $DYNAWO_CMAKE_GENERATOR \
     "-DCMAKE_PREFIX_PATH=$DYNAWO_LIBXML_HOME;$DYNAWO_HOME/share" \
     $DYNAWO_ALGORITHMS_SRC_DIR
   RETURN_CODE=$?
@@ -363,8 +364,8 @@ config_dynawo_algorithms() {
 # Compile dynawo-algorithms
 build_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
-  make -j$DYNAWO_NB_PROCESSORS_USED &&
-  make -j$DYNAWO_NB_PROCESSORS_USED install
+  cmake --build . -j$DYNAWO_NB_PROCESSORS_USED &&
+  cmake --build . -j$DYNAWO_NB_PROCESSORS_USED --target install
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -379,7 +380,7 @@ build_test_doc() {
 build_doc_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
   mkdir -p $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/
-  make -j$DYNAWO_NB_PROCESSORS_USED doc
+  cmake --build . -j$DYNAWO_NB_PROCESSORS_USED --target doc
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -418,16 +419,15 @@ build_tests_coverage() {
   config_dynawo_algorithms || error_exit
   build_dynawo_algorithms || error_exit
   tests=$@
-  cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target reset-coverage --config Debug || error_exit "Error during make reset-coverage."
+  cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target reset-coverage --config Debug || error_exit "Error during reset-coverage."
   if [ -z "$tests" ]; then
-    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target tests-coverage --config Debug || error_exit "Error during make tests-coverage."
+    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target tests-coverage --config Debug || error_exit "Error during tests-coverage."
   else
     for test in ${tests}; do
-      cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target ${test}-coverage --config Debug || error_exit "Error during make ${test}-coverage."
+      cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target ${test}-coverage --config Debug || error_exit "Error during ${test}-coverage."
     done
   fi
   cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target export-coverage --config Debug
-  make export-coverage
 
   RETURN_CODE=$?
   if [ ${RETURN_CODE} -ne 0 ]; then
