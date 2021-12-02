@@ -498,7 +498,9 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
   subDir << "step-" << variation << "/" << scenario->getId();
   std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
   boost::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
-  job->getOutputsEntry()->getTimelineEntry()->setMaxPriority(1);
+  if (job->getOutputsEntry()->getTimelineEntry()) {
+    job->getOutputsEntry()->getTimelineEntry()->setMaxPriority(1);
+  }
   addDydFileToJob(job, scenario->getDydFile());
   setCriteriaFileForJob(job, scenario->getCriteriaFile());
 
