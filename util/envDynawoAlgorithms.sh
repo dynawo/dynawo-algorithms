@@ -364,8 +364,8 @@ config_dynawo_algorithms() {
 # Compile dynawo-algorithms
 build_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
-  cmake --build . -j$DYNAWO_NB_PROCESSORS_USED &&
-  cmake --build . -j$DYNAWO_NB_PROCESSORS_USED --target install
+  cmake --build . &&
+  cmake --build . --target install
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -380,7 +380,7 @@ build_test_doc() {
 build_doc_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
   mkdir -p $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/
-  cmake --build . -j$DYNAWO_NB_PROCESSORS_USED --target doc
+  cmake --build . --target doc
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
