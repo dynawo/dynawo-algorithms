@@ -67,7 +67,6 @@ export DYNAWO_BROWSER=firefox
 export DYNAWO_NB_PROCESSORS_USED=1
 
 export DYNAWO_BUILD_TYPE=Release
-export DYNAWO_CXX11_ENABLED=YES
 
 $DYNAWO_ALGORITHMS_HOME/util/envDynawoAlgorithms.sh $@' > myEnvDynawoAlgorithms.sh
 $> chmod +x myEnvDynawoAlgorithms.sh

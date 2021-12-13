@@ -1,3 +1,4 @@
 warning: return type of member DYNAlgorithms::RobustnessAnalysisLauncher::launch is not documented
 warning: return type of member DYNAlgorithms::RobustnessAnalysisLauncher::createOutputs is not documented
 warning: return type of member DYNAlgorithms::RobustnessAnalysisLauncher::initParametersWithJob is not documented
+warning: return type of member DYNAlgorithms::mpi::Context::sync is not documented

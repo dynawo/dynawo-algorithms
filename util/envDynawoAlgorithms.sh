@@ -137,13 +137,6 @@ export_var_env_default() {
   export_var_env ${name}_DEFAULT=false
 }
 
-env_var_sanity_check() {
-  value_dynawo=`grep "DYNAWO_CXX11_ENABLED=\"" ${DYNAWO_HOME}/dynawoEnv.txt | sed -e 's/DYNAWO_CXX11_ENABLED="//g' | sed -e 's/"//g'`
-  if [[ "${DYNAWO_CXX11_ENABLED}" != "${value_dynawo}" ]]; then
-  	error_exit "Cannot build dynawo-algorithms with DYNAWO_CXX11_ENABLED=\"${DYNAWO_CXX11_ENABLED}\" as dynawo core was built with DYNAWO_CXX11_ENABLED=\"${value_dynawo}\""
-  fi
-}
-
 export_git_branch() {
   current_dir=$PWD
   pushd $DYNAWO_ALGORITHMS_HOME> /dev/null
@@ -183,7 +176,6 @@ export_preload() {
 
 # Export variables needed for dynawo-algorithms
 set_environnement() {
-  env_var_sanity_check
   # Force build type when building tests (or tests coverage)
   case $1 in
     build-tests-coverage)
@@ -218,7 +210,6 @@ set_environnement() {
   export_var_env DYNAWO_BUILD_TESTS=OFF
   export_var_env DYNAWO_BUILD_TESTS_COVERAGE=OFF
   export_var_env DYNAWO_BUILD_TYPE=UNDEFINED
-  export_var_env DYNAWO_CXX11_ENABLED=UNDEFINED
   export_var_env DYNAWO_CMAKE_GENERATOR="Unix Makefiles"
 
   export_var_env DYNAWO_COMPILER_VERSION=$($DYNAWO_C_COMPILER -dumpversion)
@@ -226,11 +217,6 @@ set_environnement() {
   # dynawo-algorithms
   export_var_env DYNAWO_ALGORITHMS_HOME=UNDEFINED
   export_git_branch
-  SUFFIX_CX11=""
-  if [ "$(echo "$DYNAWO_CXX11_ENABLED" | tr '[:upper:]' '[:lower:]')" = "yes" -o "$(echo "$DYNAWO_CXX11_ENABLED" | tr '[:upper:]' '[:lower:]')" = "true" -o "$(echo "$DYNAWO_CXX11_ENABLED" | tr '[:upper:]' '[:lower:]')" = "on" ]; then
-    SUFFIX_CX11="-cxx11"
-    export_var_env DYNAWO_CXX11_ENABLED=YES
-  fi
   export_var_env_force DYNAWO_ALGORITHMS_SRC_DIR=$DYNAWO_ALGORITHMS_HOME
   export_var_env DYNAWO_ALGORITHMS_DEPLOY_DIR=$DYNAWO_ALGORITHMS_HOME/deploy/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/dynawo-algorithms
 
@@ -443,7 +429,6 @@ config_dynawo_algorithms() {
     -DBUILD_TESTS=$DYNAWO_BUILD_TESTS \
     -DBUILD_TESTS_COVERAGE=$DYNAWO_BUILD_TESTS_COVERAGE \
     -DCMAKE_INSTALL_PREFIX:PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR \
-    -DCXX11_ENABLED:BOOL=$DYNAWO_CXX11_ENABLED \
     -DXERCESC_HOME=$DYNAWO_XERCESC_HOME \
     -DBOOST_ROOT=$DYNAWO_BOOST_HOME/ \
     -DBOOST_ROOT_DEFAULT:STRING=FALSE \
@@ -492,7 +477,7 @@ test_doxygen_doc_dynawo_algorithms() {
       echo "| Result of doxygen doc generation |"
       echo "===================================="
       echo " nbWarnings = ${nb_warnings} > 0 => doc is incomplete"
-      echo " edit ${DYNAWO_ALGORITHMS_INSTALL_DIR}/doxygen/warnings.txt  to have more details"
+      echo " edit ${DYNAWO_ALGORITHMS_INSTALL_DIR}/doxygen/warnings_filtered.txt  to have more details"
       error_exit "Doxygen doc is not complete"
     fi
   fi
