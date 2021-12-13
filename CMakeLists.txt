@@ -43,30 +43,7 @@ list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}/share/cmake")
 list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}/share")
 list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}")
 
-# If C++11 is enabled, check flags availability
-set(CXX11_ENABLED ${CXX11_ENABLED} CACHE BOOL "")
-set(FORCE_CXX11_ABI OFF CACHE BOOL "Choose either ON or OFF.")
-
-if(CXX11_ENABLED)
-  # Test if a C++11 flag is supported
-  include(CheckCXXCompilerFlag)
-  check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
-  check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-  if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DLANG_CXX11")
-    if(FORCE_CXX11_ABI)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
-    endif()
-  elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -DLANG_CXX0X")
-  else()
-    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Disabling C++11.")
-    set(CXX11_ENABLED OFF CACHE BOOL "" FORCE)
-  endif()
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
-endif()
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Add specific options for compiler
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -111,17 +88,10 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-private-field")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-weak-vtables")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror")
-  if(CXX11_ENABLED)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat-local-type-template-args")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat-pedantic")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-deprecated")
-  else()
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-pedantic")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-variadic-macros")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++11-extensions")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++11-long-long")
-  endif()
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat-local-type-template-args")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat-pedantic")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-deprecated")
 endif()
 
 # Python Interpreter
@@ -143,11 +113,7 @@ endif()
 # Tell BOOST to disable auto linking
 add_definitions(-DBOOST_ALL_NO_LIB)
 
-if(CXX11_ENABLED)
-  set(Boost_RequiredVersion  "1.70")
-else()
-  set(Boost_RequiredVersion  "1.64")
-endif()
+set(Boost_RequiredVersion  "1.70")
 if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
   find_package(Boost "${Boost_RequiredVersion}" REQUIRED
     COMPONENTS
@@ -190,13 +156,9 @@ find_package(XercesC 3.2.2 REQUIRED)
 find_package(libXML 0.2.4 REQUIRED)
 
 #libIIDM
-if(NOT CXX11_ENABLED)
-  set(USE_LEGACY_IIDM YES)
-else()
-  file(STRINGS ${DYNAWO_HOME}/dynawoEnv.txt DYNAWO_ENV REGEX "^[ ]*DYNAWO_USE_LEGACY_IIDM[ ]*=")
-  string(REGEX REPLACE "^[ ]*DYNAWO_USE_LEGACY_IIDM[ ]*=[ ]*\"([^\"]*)\"" "\\1" USE_LEGACY_IIDM ${DYNAWO_ENV})
-  unset(DYNAWO_ENV)
-endif()
+file(STRINGS ${DYNAWO_HOME}/dynawoEnv.txt DYNAWO_ENV REGEX "^[ ]*DYNAWO_USE_LEGACY_IIDM[ ]*=")
+string(REGEX REPLACE "^[ ]*DYNAWO_USE_LEGACY_IIDM[ ]*=[ ]*\"([^\"]*)\"" "\\1" USE_LEGACY_IIDM ${DYNAWO_ENV})
+unset(DYNAWO_ENV)
 
 if(NOT USE_LEGACY_IIDM)
   set(DYNAWO_USE_LIBXML2 "Y")
