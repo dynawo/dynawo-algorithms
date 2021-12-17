@@ -44,7 +44,7 @@ download_file()
       --remote-header-name \
       --location \
       --header "Accept: application/octet-stream" \
-      "$DOWNLOAD_URL" \
+      --url "$DOWNLOAD_URL" \
       --create-dirs \
       --output "$FILENAME"
 }
