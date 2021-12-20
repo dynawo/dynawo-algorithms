@@ -37,6 +37,7 @@ get_filename_component(DYNAWO_HOME ${DYNAWO_HOME} ABSOLUTE)
 
 # If C++11 is enabled, check flags availability
 set(CXX11_ENABLED ${CXX11_ENABLED} CACHE BOOL "")
+set(FORCE_CXX11_ABI OFF CACHE BOOL "Choose either ON or OFF.")
 if(CXX11_ENABLED)
   # Test if a C++11 flag is supported
   include(CheckCXXCompilerFlag)
@@ -44,6 +45,9 @@ if(CXX11_ENABLED)
   check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
   if(COMPILER_SUPPORTS_CXX11)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DLANG_CXX11")
+    if(FORCE_CXX11_ABI)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
+    endif()
   elseif(COMPILER_SUPPORTS_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -DLANG_CXX0X")
   else()
