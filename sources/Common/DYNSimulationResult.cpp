@@ -88,6 +88,16 @@ SimulationResult::setStatus(status_t status) {
   status_ = status;
 }
 
+void
+SimulationResult::setCriticalTimeMessageError(std::string messageCriticalTimeError) {
+  messageCriticalTimeError_ = messageCriticalTimeError;
+}
+
+std::string
+SimulationResult::getCriticalTimeMessageError() const {
+  return messageCriticalTimeError_;
+}
+
 std::stringstream&
 SimulationResult::getTimelineStream() {
   return timelineStream_;

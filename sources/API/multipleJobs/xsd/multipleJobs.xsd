@@ -17,6 +17,7 @@
       <xs:choice minOccurs="0">
         <xs:element name="scenarios" type="dyn:Scenarios"/>
         <xs:element name="marginCalculation" type="dyn:MarginCalculation"/>
+        <xs:element name="criticalTimeCalculation" type="dyn:CriticalTimeCalculation"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -53,5 +54,15 @@
     </xs:sequence>
     <xs:attribute name="calculationType" type="dyn:CalculationType" use="required"/>
     <xs:attribute name="accuracy" type="xs:integer" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="CriticalTimeCalculation">
+    <xs:attribute name="accuracy" type="xs:double" use="required"/>
+    <xs:attribute name="jobsFile" type="xs:string" use="required"/>
+    <xs:attribute name="dydId" type="xs:string" use="required"/>
+    <xs:attribute name="startPar" type="xs:string" use="required"/>
+    <xs:attribute name="endPar" type="xs:string" use="required"/>
+    <xs:attribute name="minValue" type="xs:double" use="required"/>
+    <xs:attribute name="maxValue" type="xs:double" use="required"/>
   </xs:complexType>
 </xs:schema>

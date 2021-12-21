@@ -47,13 +47,15 @@ where [option] can be:
     SA ([args])                   launch a systematic analysis
     MC ([args])                   launch a margin calculation
     CS ([args])                   launch a simple Dynawo simulation
+    CTC ([args])                  launch a critical time calculation
 
     =========== Tests
     nrt ([-p regex] [-n name_filter])     run (filtered) non-regression tests and open the result in chosen browser
     version-validation            clean all built items, then build them all
     SA-gdb ([args])               launch a systematic analysis with gdb
     MC-gdb ([args])               launch a margin calculation with gdb
-    CS-gdb ([args])               launch a simple Dynawo simulationwith gdb
+    CS-gdb ([args])               launch a simple Dynawo simulation with gdb
+    CTC-gdb ([args])              launch a critical time calculation with gdb
     build-tests                   build and launch dynawo-algorithms's unittest
     build-tests-coverage          build/launch dynawo-algorithms's unittest and generate code coverage report
     unittest-gdb [arg]            call unittest in gdb
@@ -989,6 +991,12 @@ launch_MC() {
   return ${RETURN_CODE}
 }
 
+launch_CTC() {
+  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+  RETURN_CODE=$?
+  return ${RETURN_CODE}
+}
+
 launch_CS_gdb() {
   gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CS $@
   RETURN_CODE=$?
@@ -1008,6 +1016,12 @@ launch_MC_gdb() {
   "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
   RETURN_CODE=$?
   unset LD_PRELOAD
+  return ${RETURN_CODE}
+}
+
+launch_CTC_gdb() {
+  gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+  RETURN_CODE=$?
   return ${RETURN_CODE}
 }
 
@@ -1132,6 +1146,9 @@ case $MODE in
   CS)
     launch_CS ${ARGS} || error_exit "Dynawo simulation failed"
     ;;
+  CTC)
+    launch_CTC ${ARGS} || error_exit "Critical time calculation failed"
+    ;;
   SA-gdb)
     launch_SA_gdb ${ARGS} || error_exit "Systematic analysis failed"
     ;;
@@ -1143,7 +1160,10 @@ case $MODE in
   CS-gdb)
     launch_CS_gdb ${ARGS} || error_exit "Dynawo simulation failed"
     ;;
-
+  
+  CTC-gdb)
+    launch_CTC_gdb ${ARGS} || error_exit "Critical time calculation failed"
+    ;;
   nrt)
     nrt ${ARGS} || error_exit "Error during Dynawo's non regression tests execution"
     ;;

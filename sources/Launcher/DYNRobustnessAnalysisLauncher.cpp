@@ -402,6 +402,11 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
     } catch (const DYN::MessageError& m) {
       std::cerr << m.what() << std::endl;
       Trace::error() << m.what() << Trace::endline;
+
+      std::string m_str(m.what());
+      std::replace(m_str.begin(), m_str.end(), '\n', ' ');
+      result.setCriticalTimeMessageError(m_str);
+
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);

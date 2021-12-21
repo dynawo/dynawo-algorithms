@@ -95,3 +95,13 @@ case_description = "IEEE14 - Simulation"
 job_file = os.path.join(os.path.dirname(__file__), "IEEE14_BlackBoxModels", "IEEE14.jobs")
 
 test_cases.append((case_name, case_description, "CS", job_file, -1, 5, False, standardReturnCodeType, standardReturnCode))
+
+#########################################
+#  IEEE14 - Critical Time Calculation   #
+#########################################
+
+case_name = "IEEE14_CTC"
+case_description = "IEEE14 - Critical Time Calculation input file"
+job_file = os.path.join(os.path.dirname(__file__), "CTC", "fic_MULTIPLE.xml")
+
+test_cases.append((case_name, case_description, "CTC", job_file, -1, 5, False, standardReturnCodeType, standardReturnCode))

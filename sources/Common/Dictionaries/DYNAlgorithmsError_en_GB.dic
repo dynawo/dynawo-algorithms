@@ -18,3 +18,5 @@ DirectoryDoesNotExist            = directory : %1% does not exist
 XmlParsingError                  = error while parsing file %1% : %2%
 IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)
 InputFileFormatNotSupported      = input file should be either a zip or a xml file (found %1%)
+CriticalTimeCalculationTaskNotFound    = criticalTimeCalculation task not found in input files
+IncoherentAccuracyCriticalTime         = accuracy of critical time calculation should be a number between 0 and 1 (found : %1%)

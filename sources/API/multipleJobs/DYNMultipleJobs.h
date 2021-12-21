@@ -25,6 +25,7 @@
 namespace DYNAlgorithms {
 class Scenarios;
 class MarginCalculation;
+class CriticalTimeCalculation;
 }
 
 namespace multipleJobs {
@@ -58,6 +59,12 @@ class MultipleJobs {
   void setMarginCalculation(const boost::shared_ptr<DYNAlgorithms::MarginCalculation>& marginCalculation);
 
   /**
+   * @brief Set the critical time calculation input data to launch
+   * @param criticalTimeCalculation critical time calculation input data to launch
+   */
+  void setCriticalTimeCalculation(const boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation>& criticalTimeCalculation);
+
+  /**
    * @brief get the list of scenarios to launch
    * @return list of scenarios to launch
    */
@@ -69,9 +76,16 @@ class MultipleJobs {
    */
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> getMarginCalculation() const;
 
+  /**
+   * @brief get the critical time calculation to launch
+   * @return critical time calculation to launch
+   */
+  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> getCriticalTimeCalculation() const;
+
  private:
   boost::shared_ptr<DYNAlgorithms::Scenarios> scenarios_;  ///< scenarios to launch
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> marginCalculation_;  ///< margin calculation to launch
+  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;  ///< critical time calculation to launch
 };
 
 }  // namespace multipleJobs
