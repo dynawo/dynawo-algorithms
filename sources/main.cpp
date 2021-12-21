@@ -30,12 +30,14 @@
 #include "DYNMarginCalculationLauncher.h"
 #include "DYNComputeLoadVariationLauncher.h"
 #include "DYNComputeSimulationLauncher.h"
+#include "DYNCriticalTimeLauncher.h"
 #include "DYNMultiProcessingContext.h"
 
 using DYNAlgorithms::ComputeSimulationLauncher;
 using DYNAlgorithms::SystematicAnalysisLauncher;
 using DYNAlgorithms::MarginCalculationLauncher;
 using DYNAlgorithms::ComputeLoadVariationLauncher;
+using DYNAlgorithms::CriticalTimeLauncher;
 
 namespace po = boost::program_options;
 
@@ -43,6 +45,7 @@ static void launchSimulation(const std::string& jobFile, const std::string& outp
 static void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
 static void launchSystematicAnalysis(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
 static void launchLoadVariationCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int variation);
+static void launchCriticalTimeCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
 
 int main(int argc, char** argv) {
   DYNAlgorithms::multiprocessing::Context procContext;  // Should only be used once per process in the main thread
@@ -50,6 +53,11 @@ int main(int argc, char** argv) {
   std::string simulationType = "";
   std::string inputFile = "";
   std::string outputFile = "";
+
+  std::string simulationMC_SA_CS_CTC = "Set the simulation type to launch : MC (Margin calculation), SA (systematic analysis), CS (compute simulation)"
+  " or CTC (critical time calculation)";
+  const char* allSimulationsType = simulationMC_SA_CS_CTC.c_str();
+
   std::vector<std::string> directoryVec;
   int variation = -1;
   try {
@@ -59,7 +67,7 @@ int main(int argc, char** argv) {
     desc.add_options()
             ("help,h", "Produce help message")
             ("simulationType", po::value<std::string>(&simulationType)->required(),
-             "Set the simulation type to launch : MC (Margin calculation),  SA (systematic analysis) or CS (compute simulation)")
+             allSimulationsType)
             ("input", po::value<std::string>(&inputFile)->required(),
              "Set the input file of the simulation (*.zip or *.xml)")
             ("output", po::value<std::string>(&outputFile),
@@ -95,14 +103,14 @@ int main(int argc, char** argv) {
     }
 
     // launch simulation
-    if (simulationType != "MC" && simulationType != "SA" && simulationType != "CS") {
+    if (simulationType != "MC" && simulationType != "SA" && simulationType != "CS" && simulationType != "CTC") {
       std::cout << simulationType << " : unknown simulation type" << std::endl;
       std::cout << desc << std::endl;
       return 1;
     }
 
-    if ((simulationType == "SA" || simulationType == "MC") && outputFile == "") {
-      std::cout << "An output file. (*.zip or *.xml) is required for SA and MC simulations." << std::endl;
+    if ((simulationType == "SA" || simulationType == "MC" || simulationType == "CTC") && outputFile == "") {
+      std::cout << "An output file. (*.zip or *.xml) is required for SA, MC and CTC simulations." << std::endl;
       std::cout << desc << std::endl;
       return 1;
     }
@@ -123,6 +131,8 @@ int main(int argc, char** argv) {
       launchSystematicAnalysis(inputFile, outputFile, directory);
     } else if (simulationType == "CS") {
       launchSimulation(inputFile, outputFile);
+    } else if (simulationType == "CTC") {
+      launchCriticalTimeCalculation(inputFile, outputFile, directory);
     }
   }  catch (const char *s) {
     std::cerr << s << std::endl;
@@ -194,4 +204,16 @@ void launchSystematicAnalysis(const std::string& inputFile, const std::string& o
   analysisLauncher->init(initLog);
   analysisLauncher->launch();
   analysisLauncher->writeResults();
+}
+
+void launchCriticalTimeCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory) {
+  boost::shared_ptr<CriticalTimeLauncher> criticalTimeLauncher = boost::shared_ptr<CriticalTimeLauncher>(new CriticalTimeLauncher());
+  criticalTimeLauncher->setInputFile(inputFile);
+  criticalTimeLauncher->setOutputFile(outputFile);
+  criticalTimeLauncher->setDirectory(directory);
+
+  const bool initLog = true;
+  criticalTimeLauncher->init(initLog);
+  criticalTimeLauncher->launch();
+  criticalTimeLauncher->writeResults();
 }

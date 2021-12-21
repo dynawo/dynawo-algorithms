@@ -17,6 +17,7 @@
 #include "DYNScenario.h"
 #include "DYNScenarios.h"
 #include "DYNMarginCalculation.h"
+#include "DYNCriticalTimeCalculation.h"
 #include "DYNSimulationResult.h"
 #include "DYNLoadIncreaseResult.h"
 #include "MacrosMessage.h"
@@ -101,6 +102,25 @@ TEST(TestBaseClasses, testMarginCalculation) {
   ASSERT_THROW_DYNAWO(mc.setAccuracy(-1), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracy);
   ASSERT_THROW_DYNAWO(mc.setAccuracy(101), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracy);
   ASSERT_THROW_DYNAWO(mc.setAccuracy(0), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracy);
+}
+
+TEST(TestBaseClasses, testCriticalTimeCalculation) {
+  CriticalTimeCalculation ct;
+  ct.setAccuracy(0.01);
+  ct.setJobsFile("Myjobs.jobs");
+  ct.setDydId("MyDydId");
+  ct.setEndPar("MyEndPar");
+  ct.setMinValue(1);
+  ct.setMaxValue(2);
+  ASSERT_EQ(ct.getAccuracy(), 0.01);
+  ASSERT_EQ(ct.getJobsFile(), "Myjobs.jobs");
+  ASSERT_EQ(ct.getDydId(), "MyDydId");
+  ASSERT_EQ(ct.getEndPar(), "MyEndPar");
+  ASSERT_EQ(ct.getMinValue(), 1);
+  ASSERT_EQ(ct.getMaxValue(), 2);
+
+  ASSERT_THROW_DYNAWO(ct.setAccuracy(-1), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
+  ASSERT_THROW_DYNAWO(ct.setAccuracy(2), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
 }
 
 TEST(TestBaseClasses, testSimulationResult) {
@@ -250,5 +270,4 @@ TEST(TestBaseClasses, testLoadIncreaseResult) {
   ASSERT_FALSE(sr2.getSuccess());
   ASSERT_EQ(sr2.getStatus(), CRITERIA_NON_RESPECTED_STATUS);
 }
-
 }  // namespace DYNAlgorithms

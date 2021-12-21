@@ -21,9 +21,11 @@
 
 #include "DYNScenarios.h"
 #include "DYNMarginCalculation.h"
+#include "DYNCriticalTimeCalculation.h"
 
 using DYNAlgorithms::Scenarios;
 using DYNAlgorithms::MarginCalculation;
+using DYNAlgorithms::CriticalTimeCalculation;
 
 namespace multipleJobs {
 
@@ -40,6 +42,11 @@ MultipleJobs::setMarginCalculation(const boost::shared_ptr<MarginCalculation>& m
   marginCalculation_ = marginCalculation;
 }
 
+void
+MultipleJobs::setCriticalTimeCalculation(const boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation>& criticalTimeCalculation) {
+  criticalTimeCalculation_ = criticalTimeCalculation;
+}
+
 boost::shared_ptr<Scenarios>
 MultipleJobs::getScenarios() const {
   return scenarios_;
@@ -48,5 +55,10 @@ MultipleJobs::getScenarios() const {
 boost::shared_ptr<MarginCalculation>
 MultipleJobs::getMarginCalculation() const {
   return marginCalculation_;
+}
+
+boost::shared_ptr<CriticalTimeCalculation>
+MultipleJobs::getCriticalTimeCalculation() const {
+  return criticalTimeCalculation_;
 }
 }  // namespace multipleJobs
