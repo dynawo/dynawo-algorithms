@@ -52,6 +52,7 @@ set(DYN_ALGO_COMMON_SOURCES
   DYNSimulationResult.cpp
   DYNLoadIncreaseResult.cpp
   DYNMultiProcessingContext.cpp
+  DYNCriticalTimeCalculation.cpp
   ${CPP_KEYS}
   )
 
@@ -62,6 +63,7 @@ set(DYN_ALGO_COMMON_HEADERS
   DYNSimulationResult.h
   DYNLoadIncreaseResult.h
   DYNMultiProcessingContext.h
+  DYNCriticalTimeCalculation.h
   ${INCLUDE_KEYS}
   )
 

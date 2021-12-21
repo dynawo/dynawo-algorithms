@@ -104,6 +104,34 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
 }
 
 void
+XmlExporter::exportCriticalTimeResultsToFile(double criticalTime, const std::string& messageCriticalTimeError, std::string filePath) const {
+  fstream file;
+  file.open(filePath.c_str(), fstream::out);
+  if (!file.is_open()) {
+    throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filePath.c_str());
+  }
+
+  exportCriticalTimeResultsToStream(criticalTime, messageCriticalTimeError, file);
+  file.close();
+}
+
+void
+XmlExporter::exportCriticalTimeResultsToStream(double criticalTime, const std::string& messageCriticalTimeError, std::ostream& stream) const {
+  FormatterPtr formatter = Formatter::createFormatter(stream, "http://www.rte-france.com/dynawo");
+
+  formatter->startDocument();
+  AttributeList attrs;
+  formatter->startElement("aggregatedResults", attrs);
+  attrs.add("criticalTime", criticalTime);
+  attrs.add("message", messageCriticalTimeError);
+  formatter->startElement("criticalTimeResults", attrs);
+  formatter->endElement();
+
+  formatter->endElement();  // aggregatedResults
+  formatter->endDocument();
+}
+
+void
 XmlExporter::appendScenarioResultsElement(const vector<SimulationResult>& results, FormatterPtr& formatter) const {
   AttributeList attrs;
   for (size_t i=0; i < results.size(); i++) {

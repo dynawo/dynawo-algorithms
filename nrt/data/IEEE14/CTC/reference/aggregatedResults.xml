@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<aggregatedResults xmlns="http://www.rte-france.com/dynawo">
+  <criticalTimeResults criticalTime="1.6200000000000001" message="GEN____1_SM : The following assertion has been violated %sat time %f not (generator.theta &gt; 3.141592653589793 and time &gt; 0.1)"/>
+</aggregatedResults>
