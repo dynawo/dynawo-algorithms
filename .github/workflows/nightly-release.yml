@@ -69,8 +69,8 @@ jobs:
         run: |
           export DYNAWO_HOME=$(pwd)/dynawo
           export DYNAWO_ALGORITHMS_HOME=$(pwd)
-          util/envDynawo.sh distrib
-          util/envDynawo.sh distrib-headers
+          util/envDynawoAlgorithms.sh distrib
+          util/envDynawoAlgorithms.sh distrib-headers
 
       - name: INFO. Files created in distributions folder
         run: du -hs distributions/*
