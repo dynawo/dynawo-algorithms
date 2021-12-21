@@ -97,6 +97,17 @@ class SimulationResult {
   void setStatus(status_t status);
 
   /**
+   * @brief set the message error of the last simulation failed
+   * @param message the message error
+  */
+  void setCriticalTimeMessageError(const std::string& messageCriticalTimeError);
+
+  /**
+   * @brief get the message error of the last simulation failed
+  */
+  const std::string& getCriticalTimeMessageError() const;
+
+  /**
    * @brief getter of the timeline stream associated to the scenario
    * @return timeline stream associated to the scenario
    */
@@ -275,6 +286,7 @@ class SimulationResult {
   std::string constraintsFileExtension_;  ///< constraints export mode for this result
   std::string lostEquipmentsFileExtension_;  ///< lost equipments export mode for this result
   std::string logPath_;   ///< Path to the general dynawo log file associated to this result
+  std::string messageCriticalTimeError_;  ///< message of the last simulation failed.
 };
 
 }  // namespace DYNAlgorithms
