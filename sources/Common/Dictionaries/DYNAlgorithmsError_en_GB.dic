@@ -11,11 +11,13 @@
 // of simulation tools for power systems.
 //
 
-FileDoesNotExist                 = file : %1% does not exist
-MarginCalculationTaskNotFound    = marginCalculation task not found in input files
-SystematicAnalysisTaskNotFound   = scenarios not found in input files
-DirectoryDoesNotExist            = directory : %1% does not exist
-XmlParsingError                  = error while parsing file %1% : %2%
-IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)
-InputFileFormatNotSupported      = input file should be either a zip or a xml file (found %1%)
-VariantSetBeforeInit             = trying to set variant %1% but analysis context not fully initialized: no IIDM provided during init or init not done
+FileDoesNotExist                       = file : %1% does not exist
+MarginCalculationTaskNotFound          = marginCalculation task not found in input files
+CriticalTimeCalculationTaskNotFound    = criticalTimeCalculation task not found in input files
+SystematicAnalysisTaskNotFound         = scenarios not found in input files
+DirectoryDoesNotExist                  = directory : %1% does not exist
+XmlParsingError                        = error while parsing file %1% : %2%
+IncoherentAccuracy                     = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)
+IncoherentAccuracyCriticalTime         = accuracy of critical time calculation should be a number between 0 and 1 (found : %1%)
+InputFileFormatNotSupported            = input file should be either a zip or a xml file (found %1%)
+VariantSetBeforeInit                   = trying to set variant %1% but analysis context not fully initialized: no IIDM provided during init or init not done

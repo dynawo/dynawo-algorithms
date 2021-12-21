@@ -30,6 +30,7 @@
 #include "DYNMultipleJobs.h"
 #include "DYNMultipleJobsFactory.h"
 #include "DYNMarginCalculation.h"
+#include "DYNCriticalTimeCalculation.h"
 #include "DYNScenarios.h"
 #include "DYNScenario.h"
 
@@ -43,18 +44,22 @@ using DYNAlgorithms::Scenarios;
 using DYNAlgorithms::Scenario;
 using DYNAlgorithms::MarginCalculation;
 using DYNAlgorithms::LoadIncrease;
+using DYNAlgorithms::CriticalTimeCalculation;
 
 namespace multipleJobs {
 
 XmlHandler::XmlHandler() :
 multipleJobsRead_(MultipleJobsFactory::newInstance()),
 scenariosHandler_(parser::ElementName(multipleJobs_ns, "scenarios")),
+criticalTimeCalculationHandler_(parser::ElementName(multipleJobs_ns, "criticalTimeCalculation")),
 marginCalculationHandler_(parser::ElementName(multipleJobs_ns, "marginCalculation")) {
   onElement(multipleJobs_ns("multipleJobs/scenarios"), scenariosHandler_);
   onElement(multipleJobs_ns("multipleJobs/marginCalculation"), marginCalculationHandler_);
+  onElement(multipleJobs_ns("multipleJobs/criticalTimeCalculation"), criticalTimeCalculationHandler_);
 
   scenariosHandler_.onEnd(lambda::bind(&XmlHandler::addScenarios, lambda::ref(*this)));
   marginCalculationHandler_.onEnd(lambda::bind(&XmlHandler::addMarginCalculation, lambda::ref(*this)));
+  criticalTimeCalculationHandler_.onEnd(lambda::bind(&XmlHandler::addCriticalTimeCalculation, lambda::ref(*this)));
 }
 
 XmlHandler::~XmlHandler() {
@@ -73,6 +78,11 @@ XmlHandler::addScenarios() {
 void
 XmlHandler::addMarginCalculation() {
   multipleJobsRead_->setMarginCalculation(marginCalculationHandler_.get());
+}
+
+void
+XmlHandler::addCriticalTimeCalculation() {
+  multipleJobsRead_->setCriticalTimeCalculation(criticalTimeCalculationHandler_.get());
 }
 
 MarginCalculationHandler::MarginCalculationHandler(const elementName_type& root_element) :
@@ -116,6 +126,43 @@ MarginCalculationHandler::setLoadIncrease() {
 boost::shared_ptr<MarginCalculation>
 MarginCalculationHandler::get() const {
   return marginCalculation_;
+}
+
+CriticalTimeCalculationHandler::CriticalTimeCalculationHandler(const elementName_type& root_element) {
+  onStartElement(root_element, lambda::bind(&CriticalTimeCalculationHandler::create, lambda::ref(*this), lambda_args::arg2));
+}
+
+CriticalTimeCalculationHandler::~CriticalTimeCalculationHandler() {
+}
+
+boost::shared_ptr<CriticalTimeCalculation>
+CriticalTimeCalculationHandler::get() const {
+  return criticalTimeCalculation_;
+}
+
+void
+CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
+  criticalTimeCalculation_ = boost::shared_ptr<CriticalTimeCalculation>(new CriticalTimeCalculation());
+  if (attributes.has("accuracy"))
+    criticalTimeCalculation_->setAccuracy(attributes["accuracy"]);
+
+  if (attributes.has("jobsFile"))
+    criticalTimeCalculation_->setJobsFile(attributes["jobsFile"]);
+
+  if (attributes.has("dydId"))
+    criticalTimeCalculation_->setDydId(attributes["dydId"]);
+
+  if (attributes.has("startPar"))
+    criticalTimeCalculation_->setStartPar(attributes["startPar"]);
+
+  if (attributes.has("endPar"))
+    criticalTimeCalculation_->setEndPar(attributes["endPar"]);
+
+  if (attributes.has("minValue"))
+    criticalTimeCalculation_->setMinValue(attributes["minValue"]);
+
+  if (attributes.has("maxValue"))
+    criticalTimeCalculation_->setMaxValue(attributes["maxValue"]);
 }
 
 ScenariosHandler::ScenariosHandler(const elementName_type& root_element) :

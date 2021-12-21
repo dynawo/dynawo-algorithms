@@ -28,6 +28,7 @@ namespace DYNAlgorithms {
 class Scenario;
 class Scenarios;
 class MarginCalculation;
+class CriticalTimeCalculation;
 class LoadIncrease;
 }
 
@@ -188,6 +189,36 @@ class MarginCalculationHandler : public xml::sax::parser::ComposableElementHandl
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> marginCalculation_;  ///< current margin calculation element
 };
 
+class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElementHandler {
+ public:
+  /**
+   * @brief Constructor
+   * @param root_element complete name of the element read by the handler
+   */
+  explicit CriticalTimeCalculationHandler(const elementName_type& root_element);
+
+  /**
+   * @brief default destructor
+   */
+  ~CriticalTimeCalculationHandler();
+
+  /**
+   * @brief return the margin calculation read in xml file
+   * @return margin calculation object build thanks to infos read in xml file
+   */
+  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> get() const;
+
+ protected:
+  /**
+   * @brief Called when the XML element opening tag is read
+   * @param attributes attributes of the element
+   */
+  void create(attributes_type const& attributes);
+
+ private:
+  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;  ///< current critical time calculation element
+};
+
 /**
  * @class XmlHandler
  * @brief Parameters file handler class
@@ -225,9 +256,15 @@ class XmlHandler : public xml::sax::parser::ComposableDocumentHandler {
    */
   void addMarginCalculation();
 
+  /**
+   * @brief add a margin calculation element to the current MultipleJobs element
+   */
+  void addCriticalTimeCalculation();
+
  private:
   boost::shared_ptr<MultipleJobs> multipleJobsRead_;  ///< MultipleJobs instance
   ScenariosHandler scenariosHandler_;  ///< handler used to read scenarios element
+  CriticalTimeCalculationHandler criticalTimeCalculationHandler_;  ///< handler used to read critical time calculation element
   MarginCalculationHandler marginCalculationHandler_;  ///< handler used to read margin calculation element
 };
 

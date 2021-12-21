@@ -21,6 +21,7 @@
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="loadIncreaseResults" type="dyn:LoadIncreaseResults"/>
         <xs:element name="scenarioResults" type="dyn:ScenarioResults"/>
+        <xs:element name="criticalTimeResults" type="dyn:CriticalTimeResults">
       </xs:choice>
       <xs:attribute name="status" use="optional" type="dyn:Status"/>
     </xs:complexType>
@@ -54,6 +55,11 @@
     </xs:sequence>
     <xs:attribute name="loadLevel" use="required" type="xs:double"/>
     <xs:attribute name="status" use="required" type="dyn:Status"/>
+  </xs:complexType>
+
+  <xs:complexType name="CriticalTimeResults">
+    <xs:attribute name="criticalTime" use="required" type="xs:double"/>
+    <xs:attribute name="message" use="required" type="xs:string"/>
   </xs:complexType>
 </xs:schema>
 
