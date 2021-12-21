@@ -30,6 +30,7 @@ set(DYN_ALGO_LAUNCHER_HEADERS
   )
 
 add_library(dynawo_algorithms_Launcher SHARED ${DYN_ALGO_LAUNCHER_SOURCES})
+add_dependencies(dynawo_algorithms_Launcher revisiontag)
 
 install(FILES ${DYN_ALGO_LAUNCHER_HEADERS} DESTINATION ${INCLUDEDIR_NAME})
 
