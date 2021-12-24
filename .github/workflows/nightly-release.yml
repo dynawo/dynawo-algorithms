@@ -21,15 +21,14 @@ jobs:
       DYNAWO_CXX11_ENABLED: YES
       DYNAWO_NB_PROCESSORS_USED: 2
       GH_API: ${{ github.api_url }}/repos/${{ github.repository }}
+      GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
       CURL_JSON: 'curl --silent --header "Content-Type": "application/json"'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Fetch Dynawo (XXX(Luma) from zamarrenolm/dynawo)
-        env:
-          GH_API_DYNAWO: ${{ github.api_url }}/repos/zamarrenolm/dynawo
+      - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
 
