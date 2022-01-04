@@ -30,30 +30,6 @@
 
 namespace DYNAlgorithms {
 
-bool
-ComputeSimulationLauncher::findExportIIDM(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates) {
-  for (std::vector<boost::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
-    if ((*it)->getTimestamp()) {
-      // one without timestamp : it means that it concerns the final state
-      return (*it)->getExportIIDMFile();
-    }
-  }
-
-  return false;
-}
-
-bool
-ComputeSimulationLauncher::findExportDump(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates) {
-  for (std::vector<boost::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
-    if ((*it)->getTimestamp()) {
-      // one without timestamp : it means that it concerns the final state
-      return (*it)->getExportDumpFile();
-    }
-  }
-
-  return false;
-}
-
 void
 ComputeSimulationLauncher::launch() {
   std::string outputFileFullPath = outputFile_;
@@ -69,10 +45,7 @@ ComputeSimulationLauncher::launch() {
     std::cout << DYNLog(LaunchingJob, (*itJobEntry)->getName()) << std::endl;
     SimulationResult result;
     SimulationParameters params;
-    if (!job->getOutputsEntry()->getFinalStateEntries().empty()) {
-      params.activateExportIIDM_ = findExportIIDM(job->getOutputsEntry()->getFinalStateEntries());
-      params.activateDumpFinalState_ = findExportDump(job->getOutputsEntry()->getFinalStateEntries());
-    }
+    initParametersWithJob(job, params);
     result.setScenarioId(job->getName());
     boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
     if (simulation) {

@@ -182,6 +182,16 @@ class RobustnessAnalysisLauncher {
    */
   void writeOutputs(const SimulationResult& result) const;
 
+  /**
+   * @brief Initialize parameters with jobs
+   *
+   * This will initizalize final state according to final state without timestamp in job definition
+   *
+   * @param job the job to use
+   * @param params the parameters to update
+   */
+  static void initParametersWithJob(boost::shared_ptr<job::JobEntry> job, SimulationParameters& params);
+
  protected:
   const std::string logTag_;  ///< tag string in dynawo.log
   std::string inputFile_;  ///< input data for the analysis
@@ -195,6 +205,28 @@ class RobustnessAnalysisLauncher {
   MultiVariantInputs inputs_;  ///< basic analysis context, common to all
 
  private:
+  /**
+   * @brief Find in the final state entries if the final state IIDM export is required
+   *
+   * Find the first final state entry without timestamp, if it exists, and uses it as base to determine if
+   * IIDM export for final state is required
+   *
+   * @param finalStates the list of final state entries to check
+   * @return true if IIDM export is required, false if not
+   */
+  static bool findExportIIDM(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates);
+
+  /**
+   * @brief Find in the final state entries if the final state dump export is required
+   *
+   * Find the first final state entry without timestamp, if it exists, and uses it as base to determine if
+   * dump export for final state is required
+   *
+   * @param finalStates the list of final state entries to check
+   * @return true if dump export is required, false if not
+   */
+  static bool findExportDump(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates);
+
   /**
    * @brief Initialize algorithm log
    */

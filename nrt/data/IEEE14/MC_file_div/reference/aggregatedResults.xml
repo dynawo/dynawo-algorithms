@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <aggregatedResults xmlns="http://www.rte-france.com/dynawo">
   <loadIncreaseResults loadLevel="100" status="DIVERGENCE"/>
-  <loadIncreaseResults loadLevel="0" status="CONVERGENCE">
+  <loadIncreaseResults loadLevel="50" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="DIVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="25" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="DIVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="13" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="19" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="DIVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="16" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="DIVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="15" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="DIVERGENCE"/>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
   </loadIncreaseResults>

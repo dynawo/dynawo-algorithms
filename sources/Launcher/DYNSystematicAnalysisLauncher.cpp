@@ -45,6 +45,8 @@
 #include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <JOBJobEntry.h>
+#include <JOBOutputsEntry.h>
+#include <JOBTimelineEntry.h>
 
 #include "DYNMultipleJobs.h"
 #include "DYNScenarios.h"
@@ -94,10 +96,15 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+  if (job->getOutputsEntry()->getTimelineEntry()) {
+    job->getOutputsEntry()->getTimelineEntry()->setMaxPriority(1);
+  }
   addDydFileToJob(job, scenario->getDydFile());
   setCriteriaFileForJob(job, scenario->getCriteriaFile());
 
   SimulationParameters params;
+  initParametersWithJob(job, params);
+
   SimulationResult result;
   result.setScenarioId(scenario->getId());
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);

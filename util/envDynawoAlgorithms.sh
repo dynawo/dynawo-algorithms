@@ -191,6 +191,7 @@ set_environnement() {
   export_var_env DYNAWO_BUILD_TESTS_COVERAGE=OFF
   export_var_env DYNAWO_BUILD_TYPE=UNDEFINED
   export_var_env DYNAWO_CXX11_ENABLED=UNDEFINED
+  export_var_env DYNAWO_CMAKE_GENERATOR="Unix Makefiles"
 
   export_var_env DYNAWO_COMPILER_VERSION=$($DYNAWO_C_COMPILER -dumpversion)
 
@@ -198,7 +199,7 @@ set_environnement() {
   export_var_env DYNAWO_ALGORITHMS_HOME=UNDEFINED
   export_git_branch
   export_var_env_force DYNAWO_ALGORITHMS_SRC_DIR=$DYNAWO_ALGORITHMS_HOME
-  export_var_env DYNAWO_ALGORITHMS_DEPLOY_DIR=$DYNAWO_ALGORITHMS_HOME/deploy/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION
+  export_var_env DYNAWO_ALGORITHMS_DEPLOY_DIR=$DYNAWO_ALGORITHMS_HOME/deploy/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/dynawo-algorithms
 
   export_var_env DYNAWO_ALGORITHMS_BUILD_DIR=$DYNAWO_ALGORITHMS_HOME/build/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
   export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR=$DYNAWO_ALGORITHMS_HOME/install/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
@@ -355,7 +356,7 @@ config_dynawo_algorithms() {
     -DLIBZIP_HOME=$DYNAWO_LIBZIP_HOME \
     -DCMAKE_MODULE_PATH=$DYNAWO_HOME/share/cmake \
     -DDYNAWO_PYTHON_COMMAND="$DYNAWO_ALGORITHMS_PYTHON_COMMAND" \
-    -G "Unix Makefiles" \
+    -G "$DYNAWO_CMAKE_GENERATOR" \
     "-DCMAKE_PREFIX_PATH=$DYNAWO_LIBXML_HOME;$DYNAWO_HOME/share" \
     $DYNAWO_ALGORITHMS_SRC_DIR
   RETURN_CODE=$?
@@ -365,8 +366,8 @@ config_dynawo_algorithms() {
 # Compile dynawo-algorithms
 build_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
-  make -j$DYNAWO_NB_PROCESSORS_USED &&
-  make -j$DYNAWO_NB_PROCESSORS_USED install
+  cmake --build . &&
+  cmake --build . --target install
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -381,7 +382,7 @@ build_test_doc() {
 build_doc_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
   mkdir -p $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/
-  make -j$DYNAWO_NB_PROCESSORS_USED doc
+  cmake --build . --target doc
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -420,16 +421,15 @@ build_tests_coverage() {
   config_dynawo_algorithms || error_exit
   build_dynawo_algorithms || error_exit
   tests=$@
-  cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target reset-coverage --config Debug || error_exit "Error during make reset-coverage."
+  cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target reset-coverage --config Debug || error_exit "Error during reset-coverage."
   if [ -z "$tests" ]; then
-    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target tests-coverage --config Debug || error_exit "Error during make tests-coverage."
+    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target tests-coverage --config Debug || error_exit "Error during tests-coverage."
   else
     for test in ${tests}; do
-      cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target ${test}-coverage --config Debug || error_exit "Error during make ${test}-coverage."
+      cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target ${test}-coverage --config Debug || error_exit "Error during ${test}-coverage."
     done
   fi
   cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target export-coverage --config Debug
-  make export-coverage
 
   RETURN_CODE=$?
   if [ ${RETURN_CODE} -ne 0 ]; then
@@ -594,26 +594,41 @@ create_distrib() {
 
   ZIP_FILE=dynawoAlgorithms_V$version.zip
 
-  cd $DYNAWO_ALGORITHMS_INSTALL_DIR
+  deploy_dynawo_algorithms
+
+  # create distribution
+  if [ ! -d "$DYNAWO_ALGORITHMS_DEPLOY_DIR" ]; then
+    error_exit "$DYNAWO_ALGORITHMS_DEPLOY_DIR does not exist."
+  fi
+  pushd $DYNAWO_ALGORITHMS_DEPLOY_DIR > /dev/null
+
   mkdir tmp/
   cd tmp/
-  cp -r $DYNAWO_HOME/* .
-  cp ../bin/* bin/
-  cp ../lib/* lib/.
-  cp -r ../share/* share/
+  mkdir -p dynawo-algorithms
+  cp -r $DYNAWO_HOME/bin dynawo-algorithms/
+  cp -r $DYNAWO_HOME/lib dynawo-algorithms/
+  cp -r $DYNAWO_HOME/ddb dynawo-algorithms/
+  cp -r $DYNAWO_HOME/share dynawo-algorithms/
+  cp -r $DYNAWO_HOME/dynawo.sh dynawo-algorithms/
+
+  cp ../bin/* dynawo-algorithms/bin/
+  cp ../lib/* dynawo-algorithms/lib/.
+  cp -r ../share/* dynawo-algorithms/share/
   # combines dictionaries mapping
-  cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> share/dictionaries_mapping.dic
-  cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py bin/.
-  zip -r -y ../$ZIP_FILE bin/ lib/ share/ ddb/ dynawo.sh
-  cd $DYNAWO_ALGORITHMS_INSTALL_DIR
+  cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
+  cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
+  zip -r -y ../$ZIP_FILE dynawo-algorithms/
+  cd $DYNAWO_ALGORITHMS_DEPLOY_DIR
 
   # remove temp directory
-  rm -rf $DYNAWO_ALGORITHMS_INSTALL_DIR/tmp
+  rm -rf tmp
 
   # move distribution in distribution directory
   DISTRIB_DIR=$DYNAWO_ALGORITHMS_HOME/distributions
   mkdir -p $DISTRIB_DIR
   mv $ZIP_FILE $DISTRIB_DIR
+
+  popd > /dev/null
 }
 
 verify_browser() {

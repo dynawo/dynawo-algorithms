@@ -41,28 +41,6 @@ class ComputeSimulationLauncher : public RobustnessAnalysisLauncher {
 
  private:
   /**
-   * @brief Find in the final state entries if the final state IIDM export is required
-   *
-   * Find the first final state entry without timestamp, if it exists, and uses it as base to determine if
-   * IIDM export for final state is required
-   *
-   * @param finalStates the list of final state entries to check
-   * @return true if IIDM export is required, false if not
-   */
-  static bool findExportIIDM(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates);
-
-  /**
-   * @brief Find in the final state entries if the final state dump export is required
-   *
-   * Find the first final state entry without timestamp, if it exists, and uses it as base to determine if
-   * dump export for final state is required
-   *
-   * @param finalStates the list of final state entries to check
-   * @return true if dump export is required, false if not
-   */
-  static bool findExportDump(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates);
-
-  /**
    * @brief create outputs file for each job
    * @param mapData map associating a fileName and the data contained in the file
    * @param zipIt true if we want to fill mapData to create a zip, false if we want to write the files on the disk
