@@ -35,6 +35,24 @@ upload_zip_file()
       --data-binary @$FILE
 }
 
+download_asset() {
+  local GH_API_REPO=$1
+  local RELEASE_TAG=$2
+  local ASSET_NAME=$3
+  local ASSET_URL=$($CURL_JSON $GH_API_REPO/releases/tags/$RELEASE_TAG | python3 -c \
+    "import sys, json; assets = [a for a in json.load(sys.stdin)['assets'] if a['name'] == '$ASSET_NAME']; print(assets[0]['browser_download_url']) if assets else ''" \
+    )
+  echo "INFO. asset url:"
+  echo "$ASSET_URL"
+  echo ""
+  if [ ! -z $ASSET_URL ]; then
+    download_file $ASSET_URL $ASSET_NAME
+  else
+    echo "Asset $ASSET_NAME not found in $RELEASE_TAG release in repository $REPO"
+    exit 1
+  fi
+}
+
 download_file()
 {
   local DOWNLOAD_URL=$1
