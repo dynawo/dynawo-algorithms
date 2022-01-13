@@ -71,7 +71,7 @@ ComputeLoadVariationLauncher::launch() {
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
 
   if (simulation) {
-    boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
+    boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
     std::vector<boost::shared_ptr<DYN::SubModel> > subModels = modelMulti->findSubModelByLib(DDBDir + "/DYNModelVariationArea" + DYN::sharedLibraryExtension());
     for (unsigned int i=0; i < subModels.size(); i++) {
       double startTime = subModels[i]->findParameterDynamic("startTime").getValue<double>();
