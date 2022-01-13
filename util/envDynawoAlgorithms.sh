@@ -408,7 +408,6 @@ test_doxygen_doc_dynawo_algorithms() {
   fi
 }
 
-
 build_tests() {
   clean_dynawo_algorithms || error_exit
   config_dynawo_algorithms || error_exit
@@ -445,6 +444,18 @@ build_tests_coverage() {
   if [ "$DYNAWO_RESULTS_SHOW" = true ] ; then
     $DYNAWO_BROWSER $DYNAWO_ALGORITHMS_BUILD_DIR/coverage/index.html
   fi
+  cp $DYNAWO_ALGORITHMS_BUILD_DIR/coverage/coverage.info $DYNAWO_ALGORITHMS_HOME/build
+  if [ -d "$DYNAWO_ALGORITHMS_HOME/build/coverage-sonar" ]; then
+    rm -rf "$DYNAWO_ALGORITHMS_HOME/build/coverage-sonar"
+  fi
+  mkdir -p $DYNAWO_ALGORITHMS_HOME/build/coverage-sonar || error_exit "Impossible to create $DYNAWO_ALGORITHMS_HOME/build/coverage-sonar."
+  cd $DYNAWO_ALGORITHMS_HOME/build/coverage-sonar
+  for file in $(find $DYNAWO_ALGORITHMS_BUILD_DIR -name "*.gcno" | grep -v "/test/"); do
+    cpp_file_name=$(basename $file .gcno)
+    cpp_file=$(find $DYNAWO_ALGORITHMS_HOME/sources -name "$cpp_file_name" 2> /dev/null)
+    gcov -pb $cpp_file -o $file > /dev/null
+  done
+  find $DYNAWO_ALGORITHMS_HOME/build/coverage-sonar -type f -not -name "*dynawo-algorithms*" -exec rm -f {} \;
 }
 
 unittest_gdb() {
