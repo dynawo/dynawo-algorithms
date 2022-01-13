@@ -1,0 +1,99 @@
+name: CI
+
+on: [push]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: dynawo/dynawo-ci:latest
+    env:
+      DYNAWO_BUILD_TYPE: Debug
+      DYNAWO_CXX11_ENABLED: YES
+      DYNAWO_COMPILER: GCC
+      DYNAWO_RESULTS_SHOW: "false"
+      DYNAWO_NB_PROCESSORS_USED: 2
+      DYNAWO_VERSION: 1.3.0
+      GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
+      CURL_JSON: 'curl --silent --header "Content-Type": "application/json"'
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+
+      - name: Fetch Dynawo
+        run: |
+          source .github/workflows/tools.sh
+          download_asset $GH_API_DYNAWO nightly Dynawo_headers_V${DYNAWO_VERSION}.zip
+
+      - name: Unzip Dynawo
+        run: |
+          unzip "Dynawo_headers_V${DYNAWO_VERSION}.zip"
+
+      - name: Build
+        run: |
+          export DYNAWO_HOME=$(pwd)/dynawo
+          export DYNAWO_ALGORITHMS_HOME=$(pwd)
+          util/envDynawoAlgorithms.sh build
+
+  coverage:
+    runs-on: ubuntu-latest
+    container: dynawo/dynawo-ci:latest
+    env:
+      DYNAWO_BUILD_TYPE: Debug
+      DYNAWO_CXX11_ENABLED: YES
+      DYNAWO_COMPILER: GCC
+      DYNAWO_RESULTS_SHOW: "false"
+      DYNAWO_NB_PROCESSORS_USED: 2
+      DYNAWO_VERSION: 1.3.0
+      GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
+      CURL_JSON: 'curl --silent --header "Content-Type": "application/json"'
+    steps:
+      - name: Install Sonar wrapper
+        working-directory: ${{ runner.workspace }}
+        env:
+          CONTAINER_WORKSPACE: ${{ runner.workspace }}
+        run: |
+          wget https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+          unzip build-wrapper-linux-x86.zip
+
+      - name: Install Sonar scanner
+        working-directory: ${{ runner.workspace }}
+        env:
+          SONAR_SCANNER_VERSION: 4.6.0.2311
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip
+          unzip sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip
+          ln -s sonar-scanner-${SONAR_SCANNER_VERSION} sonar
+          rm sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip
+          dnf install -y java-11-openjdk
+
+      - name: Checkout sources
+        uses: actions/checkout@v1
+
+      - name: Fetch Dynawo
+        run: |
+          source .github/workflows/tools.sh
+          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip
+
+      - name: Unzip Dynawo
+        run: |
+          unzip "Dynawo_omc_V${DYNAWO_VERSION}.zip"
+
+      - name: Build
+        env:
+          CONTAINER_WORKSPACE: ${{ runner.workspace }}
+        run: |
+          export DYNAWO_HOME=$(pwd)/dynawo
+          export DYNAWO_ALGORITHMS_HOME=$(pwd)
+          $CONTAINER_WORKSPACE/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output util/envDynawoAlgorithms.sh build-tests-coverage
+
+      - name: Sonarcloud
+        working-directory: ${{ runner.workspace }}/dynawo-algorithms
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          CONTAINER_WORKSPACE: ${{ runner.workspace }}
+        run: $CONTAINER_WORKSPACE/sonar/bin/sonar-scanner -Dsonar.host.url=https://sonarcloud.io -Dsonar.cfamily.threads=2
