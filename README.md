@@ -13,6 +13,11 @@
 
 # Dyna&omega;o algorithms
 
+[![Build Status](https://github.com/dynawo/dynawo-algorithms/workflows/CI/badge.svg)](https://github.com/dynawo/dynawo-algorithms/actions)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dynawo_dynawo-algorithms&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dynawo_dynawo-algorithms)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=dynawo_dynawo-algorithms&metric=coverage)](https://sonarcloud.io/summary/new_code?id=dynawo_dynawo-algorithms)
+[![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
+
 Dyna&omega;o algorithms aims to contain the complex algorithms used in analysis over multiple simulation such as:
 
 - systematic analysis
