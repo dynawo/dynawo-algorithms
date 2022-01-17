@@ -548,9 +548,8 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
     subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
     subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/TfoTrippingEvent" + DYN::sharedLibraryExtension());
     subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventConnectedStatus" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
     subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventQuadripoleConnection" + DYN::sharedLibraryExtension());
+    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
     for (std::vector<boost::shared_ptr<DYN::SubModel> >::const_iterator it = subModels.begin(); it != subModels.end(); ++it) {
       double tEvent = (*it)->findParameterDynamic("event_tEvent").getValue<double>();
       (*it)->setParameterValue("event_tEvent", DYN::PAR, tEvent - (100. - variation) * inputs_.getTLoadIncreaseVariationMax() / 100., false);
