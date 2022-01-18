@@ -33,23 +33,24 @@ namespace DYNAlgorithms {
 class SimulationResults;
 class CriticalTimeCalculation;
 /**
- * @brief Margin Calculation launcher class
+ * @brief Critical Time Calculation launcher class
  *
- * Class for margin calculation launched by cvg
+ * Class for critical time calculation launched by cvg
  */
 class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
  public:
   /**
-   * @copydoc RobustnessAnalysisLauncher::launch()
+   * @brief Search critical time with a specific default in the simulation. We follow
+   * dichotomy's algorithm to find it.
    */
   void launch();
 
   /**
-   * @brief Search critical time with a specific default in the simulation. We follow
-   * dichotomy's algorithm to find it.
+   * @brief Launch the simulation with the new value calculted in the critical
+   * time algorithm
    */
-  void SearchCriticalTime();
-  
+  void SetParametersAndLaunchSimulation();
+
   /**
    * @brief Update superior born to find the right critical time
    * and calcul the next time value we want to test.
@@ -61,17 +62,17 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
   void updateIndexes(double& tPrevious, double& curAccuracy, const double& multiplierRound);
 
  protected:
-  double tSup_; ///< value that will be updated until we find the critical time
-  SimulationResult results_;  ///< results of the systematic analysis
-  boost::shared_ptr<DYN::SubModel> subModel_; ///< submodel for each simulation
-  boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation_; ///< critical time calculation
+  double tSup_;  ///< value that will be updated until we find the critical time
+  std::string jobsFile_;  ///< Job file of the simulation
+  SimulationResult results_;  ///< results of the critical time calculation
+  boost::shared_ptr<DYN::SubModel> subModel_;  ///< submodel for each simulation
+  boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation_;  ///< critical time calculation
 
  private:
   /**
    * @copydoc RobustnessAnalysisLauncher::createOutputs()
    */
   void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
-
 };
 }  // namespace DYNAlgorithms
 
