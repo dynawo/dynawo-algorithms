@@ -13,8 +13,6 @@ jobs:
     strategy:
       fail-fast: false
     env:
-      DYNAWO_INSTALL_OPENMODELICA: /opt/OpenModelica/Install
-      DYNAWO_SRC_OPENMODELICA: /opt/OpenModelica/Source
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_BUILD_TYPE: Release
       DYNAWO_FORCE_CXX11_ABI: "true"
