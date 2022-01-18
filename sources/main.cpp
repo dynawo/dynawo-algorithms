@@ -45,17 +45,16 @@ static void launchSimulation(const std::string& jobFile, const std::string& outp
 static void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads);
 static void launchSystematicAnalysis(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads);
 static void launchLoadVariationCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int variation);
-static void launchCriticalTimeCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads);
+static void launchCriticalTimeCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
 
 int main(int argc, char** argv) {
   std::string simulationType = "";
   std::string inputFile = "";
   std::string outputFile = "";
 
-  std::string simulationMC_SA_CS = "Set the simulation type to launch : MC (Margin calculation), SA (systematic analysis), CS (compute simulation)";
-  std::string simulationCTC = " or CTC (critical time calculation)";
-  std::string allSimulationsTypeStr = simulationMC_SA_CS.append(simulationCTC);
-  const char* allSimulationsType = allSimulationsTypeStr.c_str();
+  std::string simulationMC_SA_CS_CTC = "Set the simulation type to launch : MC (Margin calculation), SA (systematic analysis), CS (compute simulation)"
+  " or CTC (critical time calculation)";
+  const char* allSimulationsType = simulationMC_SA_CS_CTC.c_str();
 
   std::vector<std::string> directoryVec;
   int nbThreads = 1;
@@ -120,7 +119,7 @@ int main(int argc, char** argv) {
 
       if (simulationType == "SA" || simulationType == "MC" || simulationType == "CTC") {
         if (outputFile == "") {
-          std::cout << "An output file. (*.zip or *.xml) is required for SA and MC simulations." << std::endl;
+          std::cout << "An output file. (*.zip or *.xml) is required for SA, MC and CTC simulations." << std::endl;
           std::cout << desc << std::endl;
           return 1;
         }
@@ -156,10 +155,10 @@ int main(int argc, char** argv) {
         boost::posix_time::time_duration diff = t1 - t0;
         std::cout << "Simulation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
       } else if (simulationType == "CTC") {
-        launchCriticalTimeCalculation(inputFile, outputFile, directory, nbThreads);
+        launchCriticalTimeCalculation(inputFile, outputFile, directory);
         boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
         boost::posix_time::time_duration diff = t1 - t0;
-        std::cout << "Simulation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
+        std::cout << "Critical Time Calculation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
       }
     }    catch (...) {
       throw;
@@ -237,14 +236,13 @@ void launchSystematicAnalysis(const std::string& inputFile, const std::string& o
   analysisLauncher->writeResults();
 }
 
-void launchCriticalTimeCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads) {
+void launchCriticalTimeCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory) {
   boost::shared_ptr<CriticalTimeLauncher> criticalTimeLauncher = boost::shared_ptr<CriticalTimeLauncher>(new CriticalTimeLauncher());
   criticalTimeLauncher->setInputFile(inputFile);
   criticalTimeLauncher->setOutputFile(outputFile);
   criticalTimeLauncher->setDirectory(directory);
-  criticalTimeLauncher->setNbThreads(nbThreads);
 
   criticalTimeLauncher->init();
-  criticalTimeLauncher->SearchCriticalTime();
+  criticalTimeLauncher->launch();
   criticalTimeLauncher->writeResults();
 }

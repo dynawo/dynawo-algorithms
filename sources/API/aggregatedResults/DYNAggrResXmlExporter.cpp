@@ -102,7 +102,7 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToFile(const double& criticalTime, std::string messageCriticalTimeError, const std::string& filePath) const {
+XmlExporter::exportCriticalTimeResultsToFile(double criticalTime, const std::string& messageCriticalTimeError, std::string filePath) const {
   fstream file;
   file.open(filePath.c_str(), fstream::out);
   if (!file.is_open()) {
@@ -114,7 +114,7 @@ XmlExporter::exportCriticalTimeResultsToFile(const double& criticalTime, std::st
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToStream(const double& criticalTime, std::string messageCriticalTimeError, std::ostream& stream) const {
+XmlExporter::exportCriticalTimeResultsToStream(double criticalTime, const std::string& messageCriticalTimeError, std::ostream& stream) const {
   FormatterPtr formatter = Formatter::createFormatter(stream, "http://www.rte-france.com/dynawo");
 
   formatter->startDocument();

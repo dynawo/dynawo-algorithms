@@ -36,29 +36,23 @@ using multipleJobs::MultipleJobs;
 namespace DYNAlgorithms {
 
 void
-CriticalTimeLauncher::launch() {
-  const std::string& jobsFile = criticalTimeCalculation_->getJobsFile();
-
-#ifdef WITH_OPENMP
-omp_set_num_threads(nbThreads_);
-#endif
-
-  inputs_.readInputs(workingDirectory_, jobsFile, 1);
+CriticalTimeLauncher::SetParametersAndLaunchSimulation() {
+  inputs_.readInputs(workingDirectory_, jobsFile_, 1);
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   SimulationParameters params;
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDirectory_, job, params, results_, inputs_);
-  
+
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
-    std::string DDBDir = getEnvVar("DYNAWO_DDB_DIR");
 
     const std::string& dydId = criticalTimeCalculation_->getDydId();
     const std::string& endPar = criticalTimeCalculation_->getEndPar();
 
-    subModel_ = modelMulti->findSubModelByName(dydId);
-    subModel_->setParameterValue(endPar, DYN::PAR, tSup_, false);
-    subModel_->setSubModelParameters();
-    
+    if (modelMulti->findSubModelByName(dydId) != NULL) {
+      subModel_ = modelMulti->findSubModelByName(dydId);
+      subModel_->setParameterValue(endPar, DYN::PAR, tSup_, false);
+      subModel_->setSubModelParameters();
+    }
     simulate(simulation, results_);
   }
 }
@@ -69,47 +63,45 @@ CriticalTimeLauncher::updateIndexes(double& tPrevious, double& curAccuracy, cons
   double midDichotomy = std::round((std::abs(tSup_ - tPrevious) / 2) * multiplierRound) / multiplierRound;
   double tmp = tSup_;
 
-  if(results_.getSuccess())
+  if (results_.getSuccess())
     tSup_ += midDichotomy;
-  else 
+  else
     tSup_ -= midDichotomy;
 
   tPrevious = tmp;
 }
 
 void
-CriticalTimeLauncher::SearchCriticalTime() {
+CriticalTimeLauncher::launch() {
   criticalTimeCalculation_ = multipleJobs_->getCriticalTimeCalculation();
   if (!criticalTimeCalculation_)
     throw DYNAlgorithmsError(CriticalTimeCalculationTaskNotFound);
-  
-  const double accuracy = criticalTimeCalculation_->getAccuracy(); 
+
+  const double accuracy = criticalTimeCalculation_->getAccuracy();
   double curAccuracy = 1;
   const double multiplierRound = 1 / accuracy;
-  
-  bool firstSimuPassed = false;
 
-  double tInf = criticalTimeCalculation_->getMinValue();
   tSup_ = criticalTimeCalculation_->getMaxValue();
+  jobsFile_ = criticalTimeCalculation_->getJobsFile();
+  double tInf = criticalTimeCalculation_->getMinValue();
   double tPrevious = tSup_;
-    
-  while(curAccuracy > accuracy) {
-    launch();
-    if (firstSimuPassed)
-      updateIndexes(tPrevious, curAccuracy, multiplierRound);
-    else {
-      if (results_.getSuccess())
-        tSup_ += std::round(((tSup_ - tInf) / 2) * multiplierRound) / multiplierRound;
-      else
-        tSup_ -= std::round(((tSup_ - tInf) / 2) * multiplierRound) / multiplierRound;
 
-      firstSimuPassed = true;
-    }
+  // First simulation case.
+  SetParametersAndLaunchSimulation();
+  if (results_.getSuccess())
+    tSup_ += std::round(((tSup_ - tInf) / 2) * multiplierRound) / multiplierRound;
+  else
+    tSup_ -= std::round(((tSup_ - tInf) / 2) * multiplierRound) / multiplierRound;
+
+  while (curAccuracy > accuracy) {
+    SetParametersAndLaunchSimulation();
+    updateIndexes(tPrevious, curAccuracy, multiplierRound);
   }
+
   // Check if the final result is calculated with a failed simulation
-  if(!results_.getSuccess())
+  if (!results_.getSuccess())
     tSup_ -= accuracy;
-  
+
   tSup_ = std::round(tSup_ * multiplierRound) / multiplierRound;;
 }
 

@@ -87,12 +87,12 @@ class SimulationResult {
    * @brief set the message error of the last simulation failed
    * @param message the message error
   */
-  void setCriticalTimeMessageError(std::string messageCriticalTimeError);
+  void setCriticalTimeMessageError(const std::string& messageCriticalTimeError);
 
   /**
    * @brief get the message error of the last simulation failed
   */
-  std::string getCriticalTimeMessageError() const;
+  const std::string& getCriticalTimeMessageError() const;
 
   /**
    * @brief getter of the timeline stream associated to the scenario

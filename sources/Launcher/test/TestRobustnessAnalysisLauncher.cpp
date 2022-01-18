@@ -145,7 +145,6 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     ASSERT_EQ(ct->getAccuracy(), 0.001);
     ASSERT_EQ(ct->getJobsFile(), "MyJobs.jobs");
     ASSERT_EQ(ct->getDydId(), "FAULT_GEN_1");
-    ASSERT_EQ(ct->getStartPar(), "fault_tBegin");
     ASSERT_EQ(ct->getEndPar(), "fault_tEnd");
     ASSERT_EQ(ct->getMinValue(), 1);
     ASSERT_EQ(ct->getMaxValue(), 1.620);
