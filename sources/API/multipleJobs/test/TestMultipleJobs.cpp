@@ -133,9 +133,8 @@ TEST(TestMultipleJobs, TestMultipleJobsXmlHanderCriticalTime) {
   ASSERT_EQ(ct->getAccuracy(), 0.001);
   ASSERT_EQ(ct->getJobsFile(), "Myjobs.jobs");
   ASSERT_EQ(ct->getDydId(), "MyDydId");
-  ASSERT_EQ(ct->getStartPar(), "MyStartPar");
   ASSERT_EQ(ct->getEndPar(), "MyEndPar");
-  ASSERT_EQ(ct->getMinValue(), 0);
+  ASSERT_EQ(ct->getMinValue(), 0.1);
   ASSERT_EQ(ct->getMaxValue(), 1);
 }
 }  // namespace multipleJobs

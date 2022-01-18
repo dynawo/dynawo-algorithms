@@ -60,7 +60,6 @@
     <xs:attribute name="accuracy" type="xs:double" use="required"/>
     <xs:attribute name="jobsFile" type="xs:string" use="required"/>
     <xs:attribute name="dydId" type="xs:string" use="required"/>
-    <xs:attribute name="startPar" type="xs:string" use="required"/>
     <xs:attribute name="endPar" type="xs:string" use="required"/>
     <xs:attribute name="minValue" type="xs:double" use="required"/>
     <xs:attribute name="maxValue" type="xs:double" use="required"/>

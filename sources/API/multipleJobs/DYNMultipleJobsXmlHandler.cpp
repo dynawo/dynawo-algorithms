@@ -152,9 +152,6 @@ CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
   if (attributes.has("dydId"))
     criticalTimeCalculation_->setDydId(attributes["dydId"]);
 
-  if (attributes.has("startPar"))
-    criticalTimeCalculation_->setStartPar(attributes["startPar"]);
-
   if (attributes.has("endPar"))
     criticalTimeCalculation_->setEndPar(attributes["endPar"]);
 

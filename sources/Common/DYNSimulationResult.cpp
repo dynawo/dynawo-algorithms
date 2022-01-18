@@ -89,11 +89,11 @@ SimulationResult::setStatus(status_t status) {
 }
 
 void
-SimulationResult::setCriticalTimeMessageError(std::string messageCriticalTimeError) {
+SimulationResult::setCriticalTimeMessageError(const std::string& messageCriticalTimeError) {
   messageCriticalTimeError_ = messageCriticalTimeError;
 }
 
-std::string
+const std::string&
 SimulationResult::getCriticalTimeMessageError() const {
   return messageCriticalTimeError_;
 }

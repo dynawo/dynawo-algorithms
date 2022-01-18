@@ -45,7 +45,7 @@ static void launchSimulation(const std::string& jobFile, const std::string& outp
 static void launchMarginCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
 static void launchSystematicAnalysis(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
 static void launchLoadVariationCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int variation);
-static void launchCriticalTimeCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int nbThreads);
+static void launchCriticalTimeCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory);
 
 int main(int argc, char** argv) {
   DYNAlgorithms::mpi::Context& mpiContext = DYNAlgorithms::mpi::context();
@@ -54,10 +54,9 @@ int main(int argc, char** argv) {
   std::string inputFile = "";
   std::string outputFile = "";
 
-  std::string simulationMC_SA_CS = "Set the simulation type to launch : MC (Margin calculation), SA (systematic analysis), CS (compute simulation)";
-  std::string simulationCTC = " or CTC (critical time calculation)";
-  std::string allSimulationsTypeStr = simulationMC_SA_CS.append(simulationCTC);
-  const char* allSimulationsType = allSimulationsTypeStr.c_str();
+  std::string simulationMC_SA_CS_CTC = "Set the simulation type to launch : MC (Margin calculation), SA (systematic analysis), CS (compute simulation)"
+  " or CTC (critical time calculation)";
+  const char* allSimulationsType = simulationMC_SA_CS_CTC.c_str();
 
   std::vector<std::string> directoryVec;
   int variation = -1;
@@ -215,6 +214,6 @@ void launchCriticalTimeCalculation(const std::string& inputFile, const std::stri
 
   const bool initLog = true;
   criticalTimeLauncher->init(initLog);
-  criticalTimeLauncher->SearchCriticalTime();
+  criticalTimeLauncher->launch();
   criticalTimeLauncher->writeResults();
 }

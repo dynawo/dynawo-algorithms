@@ -33,11 +33,6 @@ namespace DYNAlgorithms {
 class CriticalTimeCalculation {
  public:
   /**
-   * constructor
-   */
-  CriticalTimeCalculation();
-
-  /**
    * @brief set the accuracy of the algorithm
    * @param accuracy accuracy of the algorithm
    */
@@ -59,31 +54,19 @@ class CriticalTimeCalculation {
    * @brief get the jobs file used for the simulation
    * @return jobs file used for the simulation
    */
-  std::string getJobsFile() const;
+  const std::string& getJobsFile() const;
 
   /**
-   * @brief set the id parameter
+   * @brief set the id parameter from the Dyd file.
    * @param parSetId id parameter we will use
    */
-  void setDydId(std::string parSetId);
+  void setDydId(const std::string& dydId);
 
   /**
-   * @brief set the id parameter
+   * @brief get the id parameter from the Dyd file.
    * @return id parameter we will use
    */
   std::string getDydId() const;
-
-  /**
-   * @brief set the start parameter used for the simulation
-   * @param startPar start parameter used for the simulation
-   */
-  void setStartPar(std::string startPar);
-
-  /**
-   * @brief set the start parameter used for the simulation
-   * @return start parameter used for the simulation
-   */
-  std::string getStartPar() const;
 
   /**
    * @brief set the end parameter used for the simulation
@@ -92,7 +75,7 @@ class CriticalTimeCalculation {
   void setEndPar(std::string endPar);
 
   /**
-   * @brief set the end parameter used for the simulation
+   * @brief get the end parameter used for the simulation
    * @return end parameter used for the simulation
    */
   std::string getEndPar() const;
@@ -104,7 +87,7 @@ class CriticalTimeCalculation {
   void setMinValue(double minValue);
 
   /**
-   * @brief set the minimum value used for the simulation
+   * @brief get the minimum value used for the simulation
    * @return minimum value used for the simulation
    */
   double getMinValue() const;
@@ -116,19 +99,18 @@ class CriticalTimeCalculation {
   void setMaxValue(double maxValue);
 
   /**
-   * @brief set the maximum value used for the simulation
+   * @brief get the maximum value used for the simulation
    * @return maximum value used for the simulation
    */
   double getMaxValue();
 
  private:
   double accuracy_;  ///< accuracy of the algorithm
-  std::string jobsFile_; ///< jobs file used for the simulation
-  std::string dydId_; ///< dyd id in the dyd file
-  std::string startPar_; ///< start parameter used for the simulation
-  std::string endPar_; ///< end parameter used for the simulation
-  double minValue_; ///< minimum value for the critical time
-  double maxValue_; ///< maximum value for the critical time
+  std::string jobsFile_;  ///< jobs file used for the simulation
+  std::string dydId_;  ///< dyd id in the dyd file
+  std::string endPar_;  ///< end parameter used for the simulation
+  double minValue_;  ///< minimum value for the critical time
+  double maxValue_;  ///< maximum value for the critical time
 };
 
 }  // namespace DYNAlgorithms

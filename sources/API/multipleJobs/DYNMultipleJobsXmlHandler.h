@@ -203,8 +203,8 @@ class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElemen
   ~CriticalTimeCalculationHandler();
 
   /**
-   * @brief return the margin calculation read in xml file
-   * @return margin calculation object build thanks to infos read in xml file
+   * @brief return the critical time calculation read in xml file
+   * @return critical time calculation object build thanks to infos read in xml file
    */
   boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> get() const;
 
@@ -257,7 +257,7 @@ class XmlHandler : public xml::sax::parser::ComposableDocumentHandler {
   void addMarginCalculation();
 
   /**
-   * @brief add a margin calculation element to the current MultipleJobs element
+   * @brief add a critical time calculation element to the current MultipleJobs element
    */
   void addCriticalTimeCalculation();
 

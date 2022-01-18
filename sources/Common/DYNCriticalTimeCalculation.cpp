@@ -21,13 +21,10 @@
 #include "MacrosMessage.h"
 
 namespace DYNAlgorithms {
-CriticalTimeCalculation::CriticalTimeCalculation():
-accuracy_(0.001) {
-}
 
 void
 CriticalTimeCalculation::setAccuracy(double accuracy) {
-  if (accuracy <= 0 || accuracy > 1)
+  if (accuracy < 0 || accuracy > 1)
     throw DYNAlgorithmsError(IncoherentAccuracyCriticalTime, accuracy);
   accuracy_ = accuracy;
 }
@@ -42,29 +39,19 @@ CriticalTimeCalculation::setJobsFile(std::string jobsFile) {
   jobsFile_ = jobsFile;
 }
 
-std::string
+const std::string&
 CriticalTimeCalculation::getJobsFile() const {
   return jobsFile_;
 }
 
 void
-CriticalTimeCalculation::setDydId(std::string dydId) {
+CriticalTimeCalculation::setDydId(const std::string& dydId) {
   dydId_ = dydId;
 }
 
 std::string
 CriticalTimeCalculation::getDydId() const {
   return dydId_;
-}
-
-void
-CriticalTimeCalculation::setStartPar(std::string startPar) {
-  startPar_ = startPar;
-}
-
-std::string
-CriticalTimeCalculation::getStartPar() const {
-  return startPar_;
 }
 
 void
