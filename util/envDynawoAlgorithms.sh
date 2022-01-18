@@ -243,6 +243,9 @@ set_environnement() {
   export_var_env_force DYNAWO_ALGORITHMS_ENV_DYNAWO_ALGORITHMS=$SCRIPT
   export_var_env_force DYNAWO_ENV_DYNAWO=$SCRIPT
   export_var_env DYNAWO_ALGORITHMS_PYTHON_COMMAND="python"
+  if [ ! -x "$(command -v ${DYNAWO_ALGORITHMS_PYTHON_COMMAND})" ]; then
+    error_exit "Your python interpreter \"${DYNAWO_ALGORITHMS_PYTHON_COMMAND}\" does not work. Use export DYNAWO_ALGORITHMS_PYTHON_COMMAND=<Python Interpreter> in your myEnvDynawo.sh."
+  fi
   export_var_env_force DYNAWO_CURVES_TO_HTML_DIR=$DYNAWO_HOME/sbin/curvesToHtml
   export_var_env_force DYNAWO_INSTALL_DIR=$DYNAWO_HOME
   export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_HOME/OpenModelica
