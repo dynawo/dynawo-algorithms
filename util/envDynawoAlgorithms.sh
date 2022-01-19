@@ -602,6 +602,7 @@ deploy_dynawo_algorithms() {
   cp $DYNAWO_ALGORITHMS_INSTALL_DIR/lib/* lib/.
   cp $DYNAWO_ALGORITHMS_INSTALL_DIR/include/* include/.
   cp -r $DYNAWO_ALGORITHMS_INSTALL_DIR/share/* share/.
+  cp $DYNAWO_ALGORITHMS_INSTALL_DIR/dynawo-algorithms.sh .
 
   if [ -d "$DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen" ]; then
     mkdir -p doxygen
@@ -688,6 +689,7 @@ create_distrib_with_headers() {
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
   cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
   zip -r -y ../$ZIP_FILE dynawo-algorithms/
+  zip -r -y ../$ZIP_FILE dynawo-algorithms/dynawo-algorithms.sh
   cd $DYNAWO_ALGORITHMS_DEPLOY_DIR
 
   # remove temp directory
