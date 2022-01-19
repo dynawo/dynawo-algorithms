@@ -51,7 +51,7 @@ where [option] can be:
     --help                     show this message"
 
 setEnv() {
-  export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR=$(dirname $(dirname $(readlink -f $0)))
+  export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   export_var_env DYNAWO_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
 
   export_var_env DYNAWO_ADEPT_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
@@ -101,7 +101,7 @@ algo_CS() {
   # launch dynawo-algorithms
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CS $@
   RETURN_CODE=$?
-  
+
   while (($#)); do
   case $1 in
     --input)
@@ -118,7 +118,7 @@ algo_CS() {
       ;;
     esac
   done
-  
+
   return ${RETURN_CODE}
 }
 
