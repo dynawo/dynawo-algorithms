@@ -173,7 +173,7 @@ def main():
     log_message = "Running non-regression tests"
 
     timeout = 0
-    if options.timeout > 0:
+    if options.timeout is not None and options.timeout > 0:
         timeout = options.timeout
         log_message += " with " + timeout + "s timeout"
 

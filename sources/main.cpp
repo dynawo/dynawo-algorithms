@@ -96,59 +96,53 @@ int main(int argc, char** argv) {
     }
 
     // launch simulation
-    try {
-      if (nbThreads <= 0) {
-        std::cout << " The number of threads of the simulation should be a positive integer" << std::endl;
-        std::cout << desc << std::endl;
-        return 1;
-      }
+    if (nbThreads <= 0) {
+      std::cout << " The number of threads of the simulation should be a positive integer" << std::endl;
+      std::cout << desc << std::endl;
+      return 1;
+    }
 
-      if (simulationType != "MC" && simulationType != "SA" && simulationType != "CS") {
-        std::cout << simulationType << " : unknown simulation type" << std::endl;
-        std::cout << desc << std::endl;
-        return 1;
-      }
+    if (simulationType != "MC" && simulationType != "SA" && simulationType != "CS") {
+      std::cout << simulationType << " : unknown simulation type" << std::endl;
+      std::cout << desc << std::endl;
+      return 1;
+    }
 
-      if (simulationType == "SA" || simulationType == "MC") {
-        if (outputFile == "") {
-          std::cout << "An output file. (*.zip or *.xml) is required for SA and MC simulations." << std::endl;
-          std::cout << desc << std::endl;
-          return 1;
-        }
-      }
+    if ((simulationType == "SA" || simulationType == "MC") && outputFile == "") {
+      std::cout << "An output file. (*.zip or *.xml) is required for SA and MC simulations." << std::endl;
+      std::cout << desc << std::endl;
+      return 1;
+    }
 
-      DYN::InitXerces xerces;
-      DYN::InitLibXml2 libxml2;
+    DYN::InitXerces xerces;
+    DYN::InitLibXml2 libxml2;
 
-      DYN::IoDicos& dicos = DYN::IoDicos::instance();
-      dicos.addPath(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
-      dicos.addDicos(getMandatoryEnvVar("DYNAWO_DICTIONARIES"),
-                      getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
+    DYN::IoDicos& dicos = DYN::IoDicos::instance();
+    dicos.addPath(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
+    dicos.addDicos(getMandatoryEnvVar("DYNAWO_DICTIONARIES"),
+        getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
 
-      boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
-      if (simulationType == "MC" && variation < 0) {
-        launchMarginCalculation(inputFile, outputFile, directory, nbThreads);
-        boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-        boost::posix_time::time_duration diff = t1 - t0;
-        std::cout << "Margin calculation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
-      } else if (simulationType == "MC") {
-        launchLoadVariationCalculation(inputFile, outputFile, directory, variation);
-        boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-        boost::posix_time::time_duration diff = t1 - t0;
-        std::cout << "Load variation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
-      } else if (simulationType == "SA") {
-        launchSystematicAnalysis(inputFile, outputFile, directory, nbThreads);
-        boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-        boost::posix_time::time_duration diff = t1 - t0;
-        std::cout << "Systematic analysis finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
-      } else if (simulationType == "CS") {
-        launchSimulation(inputFile, outputFile);
-        boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-        boost::posix_time::time_duration diff = t1 - t0;
-        std::cout << "Simulation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
-      }
-    }    catch (...) {
-      throw;
+    boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
+    if (simulationType == "MC" && variation < 0) {
+      launchMarginCalculation(inputFile, outputFile, directory, nbThreads);
+      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+      boost::posix_time::time_duration diff = t1 - t0;
+      std::cout << "Margin calculation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
+    } else if (simulationType == "MC") {
+      launchLoadVariationCalculation(inputFile, outputFile, directory, variation);
+      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+      boost::posix_time::time_duration diff = t1 - t0;
+      std::cout << "Load variation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
+    } else if (simulationType == "SA") {
+      launchSystematicAnalysis(inputFile, outputFile, directory, nbThreads);
+      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+      boost::posix_time::time_duration diff = t1 - t0;
+      std::cout << "Systematic analysis finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
+    } else if (simulationType == "CS") {
+      launchSimulation(inputFile, outputFile);
+      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+      boost::posix_time::time_duration diff = t1 - t0;
+      std::cout << "Simulation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
     }
   }  catch (const char *s) {
     std::cerr << s << std::endl;

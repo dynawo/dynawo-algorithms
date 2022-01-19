@@ -69,7 +69,7 @@ SystematicAnalysisLauncher::launch() {
 #ifdef WITH_OPENMP
   omp_set_num_threads(nbThreads_);
 #endif
-  results_.resize((unsigned int)(events.size()));
+  results_.resize(static_cast<unsigned int>(events.size()));
 
   for (unsigned int i=0; i < events.size(); i++) {
     std::string workingDir  = createAbsolutePath(events[i]->getId(), workingDirectory_);
