@@ -84,6 +84,17 @@ class SimulationResult {
   void setStatus(status_t status);
 
   /**
+   * @brief set the message error of the last simulation failed
+   * @param message the message error
+  */
+  void setCriticalTimeMessageError(const std::string& messageCriticalTimeError);
+
+  /**
+   * @brief get the message error of the last simulation failed
+  */
+  const std::string& getCriticalTimeMessageError() const;
+
+  /**
    * @brief getter of the timeline stream associated to the scenario
    * @return timeline stream associated to the scenario
    */
@@ -157,6 +168,7 @@ class SimulationResult {
   bool success_;  ///< @b true if the simulation reached its end, @b false otherwise
   status_t status_;  ///< detailed output status of the simulation
   std::vector<std::pair<double, std::string> > failingCriteria_;  ///< failing criteria ids
+  std::string messageCriticalTimeError_;  ///< message of the last simulation failed.
 };
 
 }  // namespace DYNAlgorithms
