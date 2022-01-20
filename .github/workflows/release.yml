@@ -26,11 +26,11 @@ jobs:
       - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO v${DYNAWO_VERSION} Dynawo_headers_V${DYNAWO_VERSION}.zip
+          download_asset $GH_API_DYNAWO v${DYNAWO_VERSION} Dynawo_Linux_cxx11_v${DYNAWO_VERSION}.zip
 
       - name: Unzip Dynawo
         run: |
-          unzip "Dynawo_headers_V${DYNAWO_VERSION}.zip"
+          unzip "Dynawo_Linux_cxx11_v${DYNAWO_VERSION}.zip"
 
       - name: Build
         run: |
