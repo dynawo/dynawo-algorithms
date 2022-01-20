@@ -227,7 +227,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   /**
    * @brief double comparison with tolerance
    */
-  struct dynawoDoubleLess : public std::binary_function<double, SimulationResult, bool> {
+  struct dynawoDoubleLess : std::binary_function<double, SimulationResult, bool> {
     /**
      * @brief double comparison with tolerance
      * @param left first real to compare

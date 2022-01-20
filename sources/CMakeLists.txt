@@ -26,7 +26,7 @@ target_link_libraries(dynawoAlgorithms
   $<$<NOT:$<BOOL:${USE_LEGACY_IIDM}>>:LibXml2::LibXml2>
   )
 
-install(PROGRAMS execDynawoAlgorithms.sh DESTINATION ${BINDIR_NAME})
+install(PROGRAMS dynawo-algorithms.sh DESTINATION .)
 
 set_target_properties(dynawoAlgorithms PROPERTIES VERSION ${DYNAWO_ALGORITHMS_VERSION_STRING})
 install(TARGETS dynawoAlgorithms DESTINATION ${BINDIR_NAME})
