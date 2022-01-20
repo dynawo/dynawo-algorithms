@@ -31,7 +31,7 @@ jobs:
       - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_headers_V${DYNAWO_VERSION}.zip
+          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip
 
       - name: Unzip Dynawo
         run: |
@@ -49,6 +49,7 @@ jobs:
       - name: Tests
         if: ${{ matrix.build-type == 'Debug' }}
         run: |
+          dnf install -y gtest-devel gmock-devel
           export DYNAWO_HOME=$(pwd)/dynawo
           export DYNAWO_ALGORITHMS_HOME=$(pwd)
           util/envDynawoAlgorithms.sh build-tests
