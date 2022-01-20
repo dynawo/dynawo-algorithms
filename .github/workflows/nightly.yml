@@ -35,7 +35,7 @@ jobs:
 
       - name: Unzip Dynawo
         run: |
-          unzip "Dynawo_headers_V${DYNAWO_VERSION}.zip"
+          unzip "Dynawo_omc_V${DYNAWO_VERSION}.zip"
 
       - name: Dynawo version
         run: ./dynawo/dynawo.sh version
