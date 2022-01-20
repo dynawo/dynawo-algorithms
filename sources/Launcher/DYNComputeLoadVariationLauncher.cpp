@@ -108,6 +108,7 @@ ComputeLoadVariationLauncher::launch() {
 
 void
 ComputeLoadVariationLauncher::createOutputs(std::map<std::string, std::string>& /*mapData*/, bool /*zipIt*/) const {
+  // Only simulation outputs are needed
 }
 
 }  // namespace DYNAlgorithms

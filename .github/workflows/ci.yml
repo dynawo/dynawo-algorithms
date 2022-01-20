@@ -32,6 +32,9 @@ jobs:
         run: |
           unzip "Dynawo_headers_V${DYNAWO_VERSION}.zip"
 
+      - name: Dynawo version
+        run: ./dynawo/dynawo.sh version
+
       - name: Build
         run: |
           export DYNAWO_HOME=$(pwd)/dynawo
