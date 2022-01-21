@@ -33,6 +33,8 @@ jobs:
           unzip "Dynawo_Linux_cxx11_v${DYNAWO_VERSION}.zip"
 
       - name: Build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export DYNAWO_HOME=$(pwd)/dynawo
           export DYNAWO_ALGORITHMS_HOME=$(pwd)
