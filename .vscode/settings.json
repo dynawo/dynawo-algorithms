@@ -1,0 +1,29 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "editor.formatOnSave": false,
+    "cmake.configureOnOpen": true,
+
+    "[diff]": {
+        "files.trimTrailingWhitespace": false
+    },
+
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.buildDirectory": "${workspaceFolder}/build-code/dynawo-algorithms",
+
+    "cmake.configureSettings": {
+        "DYNAWO_HOME": "${workspaceFolder}/../dynawo/build-code/deploy",
+        "DYNAWO_ALGORITHMS_HOME": "${workspaceFolder}",
+
+        "CMAKE_INSTALL_PREFIX": "${workspaceFolder}/build-code/Install/dynawo-algorithms",
+
+        "CXX11_ENABLED": "ON",
+        "FORCE_CXX11_ABI": "OFF",
+        "BUILD_TESTS": "ON",
+        "BUILD_TESTS_COVERAGE": "OFF",
+        "BOOST_ROOT_DEFAULT": "true"
+    },
+
+    "files.exclude": {
+        "build-code": true,
+    }
+}
