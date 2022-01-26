@@ -13,8 +13,8 @@ jobs:
     env:
       DYNAWO_BUILD_TYPE: Debug
       DYNAWO_CXX11_ENABLED: YES
-      DYNAWO_COMPILER: GCC
       DYNAWO_RESULTS_SHOW: "false"
+      DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_NB_PROCESSORS_USED: 2
       DYNAWO_VERSION: 1.3.0
       GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
@@ -32,6 +32,9 @@ jobs:
         run: |
           unzip "Dynawo_headers_V${DYNAWO_VERSION}.zip"
 
+      - name: Dynawo version
+        run: ./dynawo/dynawo.sh version
+
       - name: Build
         run: |
           export DYNAWO_HOME=$(pwd)/dynawo
@@ -44,7 +47,7 @@ jobs:
     env:
       DYNAWO_BUILD_TYPE: Debug
       DYNAWO_CXX11_ENABLED: YES
-      DYNAWO_COMPILER: GCC
+      DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_NB_PROCESSORS_USED: 2
       DYNAWO_VERSION: 1.3.0

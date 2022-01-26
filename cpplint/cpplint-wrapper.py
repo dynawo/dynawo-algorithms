@@ -25,7 +25,7 @@ def filterGitName(filename, status):
 
 def filterFilename(filename):
     source_file = filename.endswith(b".cpp")
-    header_file = filename.endswith(b".h") or filename.endswith(b".hpp") or filename.endswith(b".hxx")
+    header_file = (filename.endswith(b".h") or filename.endswith(b".hpp") or filename.endswith(b".hxx"))
 
     return source_file or header_file
 
@@ -59,10 +59,9 @@ def cpplint(root_directory, filename, filter):
     cmd = "python"
     if os.environ.get('DYNAWO_PYTHON_COMMAND') is not None:
         cmd = os.environ.get('DYNAWO_PYTHON_COMMAND')
-    if filter is None:
-        options = [cmd, cpplint_path, filename]
-    else:
-        options = [cmd, cpplint_path, "--filter", filter, filename]
+    options = [cmd, cpplint_path, "--quiet", filename]
+    if filter != None:
+        options = [cmd, cpplint_path, "--quiet", "--filter", filter, filename]
     process = subprocess.Popen(options, stdout=subprocess.PIPE, cwd=root_directory)
     process.wait()
 

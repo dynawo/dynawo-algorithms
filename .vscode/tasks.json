@@ -1,0 +1,26 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Deploy DynawoAlgorithms",
+            "type": "shell",
+            "command": "util/envDynawoAlgorithms.sh",
+            "args": ["deploy"],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "DYNAWO_HOME": "${workspaceFolder}/../dynawo/build-code/deploy",
+                    "DYNAWO_ALGORITHMS_HOME": "${workspaceFolder}",
+                    "DYNAWO_BUILD_TYPE": "Debug",
+                    "DYNAWO_CXX11_ENABLED": "YES",
+                    "DYNAWO_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy",
+                    "DYNAWO_ALGORITHMS_INSTALL_DIR": "${workspaceFolder}/build-code/Install/dynawo-algorithms",
+                    "DYNAWO_ALGORITHMS_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy",
+                    "DYNAWO_ALGORITHMS_BUILD_DIR": "${workspaceFolder}/build-code/dynawo-algorithms"
+                }
+              }
+        }
+    ]
+}

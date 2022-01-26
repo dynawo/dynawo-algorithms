@@ -243,6 +243,9 @@ set_environnement() {
   export_var_env_force DYNAWO_ALGORITHMS_ENV_DYNAWO_ALGORITHMS=$SCRIPT
   export_var_env_force DYNAWO_ENV_DYNAWO=$SCRIPT
   export_var_env DYNAWO_ALGORITHMS_PYTHON_COMMAND="python"
+  if [ ! -x "$(command -v ${DYNAWO_ALGORITHMS_PYTHON_COMMAND})" ]; then
+    error_exit "Your python interpreter \"${DYNAWO_ALGORITHMS_PYTHON_COMMAND}\" does not work. Use export DYNAWO_ALGORITHMS_PYTHON_COMMAND=<Python Interpreter> in your myEnvDynawoAlgorithms.sh."
+  fi
   export_var_env_force DYNAWO_CURVES_TO_HTML_DIR=$DYNAWO_HOME/sbin/curvesToHtml
   export_var_env_force DYNAWO_INSTALL_DIR=$DYNAWO_HOME
   export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_HOME/OpenModelica
@@ -360,11 +363,9 @@ config_dynawo_algorithms() {
     -DBOOST_ROOT=$DYNAWO_BOOST_HOME/ \
     -DBOOST_ROOT_DEFAULT:STRING=FALSE \
     -DLIBZIP_HOME=$DYNAWO_LIBZIP_HOME \
-    -DCMAKE_MODULE_PATH=$DYNAWO_HOME/share/cmake \
     -DDYNAWO_PYTHON_COMMAND="$DYNAWO_ALGORITHMS_PYTHON_COMMAND" \
     $CMAKE_OPTIONAL \
     -G "$DYNAWO_CMAKE_GENERATOR" \
-    "-DCMAKE_PREFIX_PATH=$DYNAWO_LIBXML_HOME;$DYNAWO_HOME/share" \
     $DYNAWO_ALGORITHMS_SRC_DIR
   RETURN_CODE=$?
   return ${RETURN_CODE}
@@ -396,7 +397,10 @@ build_doc_dynawo_algorithms() {
 
 test_doxygen_doc_dynawo_algorithms() {
   if [ -f $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/warnings.txt  ] ; then
-    nb_warnings=$(wc -l $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/warnings.txt | cut -f1 -d' ')
+    rm -f $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/warnings_filtered.txt
+    # need to filter "return type of member (*) is not documented" as it is a doxygen bug detected on 1.8.17 that will be solved in 1.8.18
+    grep -Fvf $DYNAWO_ALGORITHMS_HOME/util/warnings_to_filter.txt $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/warnings.txt > $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/warnings_filtered.txt
+    nb_warnings=$(wc -l $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/warnings_filtered.txt | awk '{print $1}')
     if [ ${nb_warnings} -ne 0 ]; then
       echo "===================================="
       echo "| Result of doxygen doc generation |"
@@ -596,6 +600,7 @@ deploy_dynawo_algorithms() {
   cp $DYNAWO_ALGORITHMS_INSTALL_DIR/lib/* lib/.
   cp $DYNAWO_ALGORITHMS_INSTALL_DIR/include/* include/.
   cp -r $DYNAWO_ALGORITHMS_INSTALL_DIR/share/* share/.
+  cp $DYNAWO_ALGORITHMS_INSTALL_DIR/dynawo-algorithms.sh .
 
   if [ -d "$DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen" ]; then
     mkdir -p doxygen
@@ -632,6 +637,7 @@ create_distrib() {
   cp ../bin/* dynawo-algorithms/bin/
   cp ../lib/* dynawo-algorithms/lib/.
   cp -r ../share/* dynawo-algorithms/share/
+  cp ../dynawo-algorithms.sh dynawo-algorithms/
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
   cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
@@ -678,10 +684,12 @@ create_distrib_with_headers() {
   cp ../include/* dynawo-algorithms/include/
   cp ../lib/* dynawo-algorithms/lib/.
   cp -r ../share/* dynawo-algorithms/share/
+  cp ../dynawo-algorithms.sh dynawo-algorithms/
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
   cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
   zip -r -y ../$ZIP_FILE dynawo-algorithms/
+  zip -r -y ../$ZIP_FILE dynawo-algorithms/dynawo-algorithms.sh
   cd $DYNAWO_ALGORITHMS_DEPLOY_DIR
 
   # remove temp directory
