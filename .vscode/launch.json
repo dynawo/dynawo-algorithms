@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/build-code/Install/dynawo-algorithms/bin/dynawoAlgorithms",
             "args": [ "--simulationType", "MC", "--input", "fic_MULTIPLE.xml", "--output", "output.zip", "--directory", "${workspaceFolder}/nrt/data/MC/files" ],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [
                 { "name": "DYNAWO_ALGORITHMS_LOCALE", "value" : "en_GB" },
                 { "name": "DYNAWO_INSTALL_DIR", "value" : "${workspaceFolder}/../dynawo/build-code/deploy" },
@@ -22,7 +22,7 @@
                 { "name": "DYNAWO_IIDM_EXTENSION", "value" : "${workspaceFolder}/../dynawo/build-code/deploy/lib/libdynawo_DataInterfaceIIDMExtension.so" },
                 { "name": "DYNAWO_LIBIIDM_EXTENSIONS", "value" : "${workspaceFolder}/../dynawo/build-code/deploy/lib" },
                 { "name": "IIDM_XML_XSD_PATH", "value" : "${workspaceFolder}/../dynawo/build-code/deploy/share/iidm/xsd/" },
-                { "name": "LD_LIBRARY_PATH", "value" : "${LD_LIBRARY_PATH}:${workspaceFolder}/build-code/Install/dynawo-algorithms/lib:${workspaceFolder}/../dynawo/build-code/deploy/lib" }
+                { "name": "LD_LIBRARY_PATH", "value" : "${env:LD_LIBRARY_PATH}:${workspaceFolder}/build-code/Install/dynawo-algorithms/lib:${workspaceFolder}/../dynawo/build-code/deploy/lib" }
             ],
             "externalConsole": false,
             "MIMode": "gdb",
