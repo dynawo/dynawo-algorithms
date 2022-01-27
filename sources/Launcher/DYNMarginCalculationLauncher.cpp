@@ -305,6 +305,10 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
 void
 MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const double maxVariation, const double tolerance,
     const std::vector<size_t>& eventIdxs, std::queue< task_t >& toRun) {
+  if (eventIdxs.empty()) {
+    toRun = std::queue< task_t >();
+    return;
+  }
   unsigned nbMaxToAdd = nbThreads_/eventIdxs.size();
   if (nbMaxToAdd == 0) nbMaxToAdd = 1;
   double newVariation = round((minVariation + maxVariation)/2.);
