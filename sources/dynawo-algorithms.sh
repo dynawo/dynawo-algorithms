@@ -50,7 +50,7 @@ where [option] can be:
     --version                  show Dynawo version
     --help                     show this message"
 
-setEnv() {
+setDynawoEnv() {
   export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   export_var_env DYNAWO_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
 
@@ -72,7 +72,9 @@ setEnv() {
   export_var_env DYNAWO_DICTIONARIES=dictionaries_mapping
 
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
+}
 
+setLibPath() {
   # set LD_LIBRARY_PATH
   export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
 }
@@ -96,12 +98,16 @@ filter_timeline() {
 }
 
 algo_CS() {
-  setEnv
+  LD_LIBRARY_PATH_BEFORE=$LD_LIBRARY_PATH
+  setDynawoEnv
+  setLibPath
 
   # launch dynawo-algorithms
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CS $@
   RETURN_CODE=$?
 
+  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
   while (($#)); do
   case $1 in
     --input)
@@ -123,12 +129,16 @@ algo_CS() {
 }
 
 algo_MC() {
-  setEnv
+  LD_LIBRARY_PATH_BEFORE=$LD_LIBRARY_PATH
+  setDynawoEnv
+  setLibPath
 
   # launch margin calculation
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=MC $@
   RETURN_CODE=$?
 
+  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
   while (($#)); do
   case $1 in
     --directory)
@@ -150,12 +160,16 @@ algo_MC() {
 }
 
 algo_SA() {
-  setEnv
+  LD_LIBRARY_PATH_BEFORE=$LD_LIBRARY_PATH
+  setDynawoEnv
+  setLibPath
 
   # launch dynamic systematic analysis
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=SA $@
   RETURN_CODE=$?
 
+  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
   while (($#)); do
   case $1 in
     --directory)
@@ -199,7 +213,8 @@ while (($#)); do
       break
       ;;
     --version)
-      setEnv
+      setDynawoEnv
+      setLibPath
       $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --version
       break
       ;;
