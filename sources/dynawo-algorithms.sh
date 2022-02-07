@@ -59,6 +59,7 @@ setDynawoEnv() {
   export_var_env DYNAWO_SUITESPARSE_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
   export_var_env DYNAWO_NICSLU_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
   export_var_env DYNAWO_LIBIIDM_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
+  export_var_env DYNAWO_TCMALLOC_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
 
   export_var_env DYNAWO_IIDM_EXTENSION=$DYNAWO_LIBIIDM_INSTALL_DIR/lib/libdynawo_DataInterfaceIIDMExtension.so
   export_var_env DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
@@ -77,6 +78,31 @@ setDynawoEnv() {
 setLibPath() {
   # set LD_LIBRARY_PATH
   export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
+}
+
+export_preload() {
+  lib="tcmalloc"
+  # uncomment to activate tcmalloc in debug when build is in debug
+  # if [ $DYNAWO_BUILD_TYPE == "Debug" ]; then
+  #   lib=$lib"_debug"
+  # fi
+  lib=$lib".so"
+  
+  if [ -d $DYNAWO_TCMALLOC_INSTALL_DIR/lib ]; then
+    externalTcMallocLib=$(find $DYNAWO_TCMALLOC_INSTALL_DIR/lib -iname *$lib)
+    if [ -n "$externalTcMallocLib" ]; then
+      echo "Use downloaded tcmalloc library $externalTcMallocLib"
+      export LD_PRELOAD=$externalTcMallocLib
+      return
+    fi
+  fi
+
+  nativeTcMallocLib=$(ldconfig -p | grep -e $lib$ | cut -d ' ' -f4)
+  if [ -n "$nativeTcMallocLib" ]; then
+    echo "Use native tcmalloc library $nativeTcMallocLib"
+    export LD_PRELOAD=$nativeTcMallocLib
+    return
+  fi
 }
 
 find_and_call_timeline() {
@@ -134,8 +160,10 @@ algo_MC() {
   setLibPath
 
   # launch margin calculation
+  export_preload
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=MC $@
   RETURN_CODE=$?
+  unset LD_PRELOAD
 
   #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
@@ -165,8 +193,10 @@ algo_SA() {
   setLibPath
 
   # launch dynamic systematic analysis
+  export_preload
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=SA $@
   RETURN_CODE=$?
+  unset LD_PRELOAD
 
   #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE

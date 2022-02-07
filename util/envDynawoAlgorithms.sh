@@ -28,6 +28,7 @@ where [option] can be:
     =========== Building dynawo-algorithms project
     config                        configure dynawo-algorithms's compiling environnement using CMake
     build                         build dynawo-algorithms and install
+    build-3rd-party               build dynawo-algorithms 3rd parties and install
     build-doc                     build dynawo-algorithms's documentation
 
     clean-build-all               call in this order clean, config, build, build-doc
@@ -152,6 +153,31 @@ export_git_branch() {
   popd > /dev/null
 }
 
+export_preload() {
+  lib="tcmalloc"
+  # uncomment to activate tcmalloc in debug when build is in debug
+  # if [ $DYNAWO_BUILD_TYPE == "Debug" ]; then
+  #   lib=$lib"_debug"
+  # fi
+  lib=$lib".so"
+
+  if [ -d $DYNAWO_TCMALLOC_INSTALL_DIR/lib ]; then
+    externalTcMallocLib=$(find $DYNAWO_TCMALLOC_INSTALL_DIR/lib -iname *$lib)
+    if [ -n "$externalTcMallocLib" ]; then
+      echo "Use downloaded tcmalloc library $externalTcMallocLib"
+      export LD_PRELOAD=$externalTcMallocLib
+      return
+    fi
+  fi
+
+  nativeTcMallocLib=$(ldconfig -p | grep -e $lib$ | cut -d ' ' -f4)
+  if [ -n "$nativeTcMallocLib" ]; then
+    echo "Use native tcmalloc library $nativeTcMallocLib"
+    export LD_PRELOAD=$nativeTcMallocLib
+    return
+  fi
+}
+
 # Export variables needed for dynawo-algorithms
 set_environnement() {
   env_var_sanity_check
@@ -200,9 +226,15 @@ set_environnement() {
   export_var_env_force DYNAWO_ALGORITHMS_SRC_DIR=$DYNAWO_ALGORITHMS_HOME
   export_var_env DYNAWO_ALGORITHMS_DEPLOY_DIR=$DYNAWO_ALGORITHMS_HOME/deploy/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/dynawo-algorithms
 
+  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR=$DYNAWO_ALGORITHMS_HOME/build/3rdParty/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/shared/$DYNAWO_BUILD_TYPE$SUFFIX_CX11
+  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR=$DYNAWO_ALGORITHMS_HOME/install/3rdParty/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/shared/$DYNAWO_BUILD_TYPE$SUFFIX_CX11
+  export_var_env_force DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR=$DYNAWO_ALGORITHMS_HOME/3rdParty
+  
   export_var_env DYNAWO_ALGORITHMS_BUILD_DIR=$DYNAWO_ALGORITHMS_HOME/build/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
   export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR=$DYNAWO_ALGORITHMS_HOME/install/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
   export_var_env DYNAWO_FORCE_CXX11_ABI=false
+  
+  export_var_env_force DYNAWO_TCMALLOC_INSTALL_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/gperftools
 
   # External libs
   export_var_env DYNAWO_HOME=UNDEFINED
@@ -338,6 +370,28 @@ display_environmentVariables() {
   set +x
 }
 
+config_dynawo_algorithms_3rdParties() {
+  if [ ! -d "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR" ]; then
+    mkdir -p $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR
+  fi
+  cd $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR
+  cmake -DCMAKE_C_COMPILER:PATH=$DYNAWO_C_COMPILER \
+    -DCMAKE_CXX_COMPILER:PATH=$DYNAWO_CXX_COMPILER \
+    -DCMAKE_BUILD_TYPE:STRING=$DYNAWO_BUILD_TYPE \
+    -DCMAKE_INSTALL_PREFIX=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR \
+    $DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR
+  RETURN_CODE=$?
+  return ${RETURN_CODE}
+}
+
+build_dynawo_algorithms_3rdParties() {
+  pushd $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR > /dev/null
+  cmake --build . -j$DYNAWO_NB_PROCESSORS_USED
+  RETURN_CODE=$?
+  popd > /dev/null
+  return ${RETURN_CODE}
+}
+
 # Configure dynawo-algorithms
 config_dynawo_algorithms() {
   if [ ! -d "$DYNAWO_ALGORITHMS_BUILD_DIR" ]; then
@@ -349,7 +403,7 @@ config_dynawo_algorithms() {
     CMAKE_OPTIONAL="$CMAKE_OPTIONAL -DFORCE_CXX11_ABI=$DYNAWO_FORCE_CXX11_ABI"
   fi
 
-  cd $DYNAWO_ALGORITHMS_BUILD_DIR
+  pushd $DYNAWO_ALGORITHMS_BUILD_DIR > /dev/null
   cmake -DCMAKE_C_COMPILER:PATH=$DYNAWO_C_COMPILER \
     -DCMAKE_CXX_COMPILER:PATH=$DYNAWO_CXX_COMPILER \
     -DCMAKE_BUILD_TYPE:STRING=$DYNAWO_BUILD_TYPE \
@@ -368,6 +422,7 @@ config_dynawo_algorithms() {
     -G "$DYNAWO_CMAKE_GENERATOR" \
     $DYNAWO_ALGORITHMS_SRC_DIR
   RETURN_CODE=$?
+  popd > /dev/null
   return ${RETURN_CODE}
 }
 
@@ -595,6 +650,11 @@ deploy_dynawo_algorithms() {
   mkdir -p lib
   mkdir -p include
   mkdir -p share
+  echo "deploying gperftools libraries"
+  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/bin/* bin/.
+  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/lib/* lib/.
+  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/include/* include/.
+  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/share/* share/.
   echo "deploying Dynawo-algorithms libraries"
   cp $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/* bin/.
   cp $DYNAWO_ALGORITHMS_INSTALL_DIR/lib/* lib/.
@@ -737,13 +797,17 @@ launch_CS() {
 }
 
 launch_SA() {
+  export_preload
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+  unset LD_PRELOAD
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
 
 launch_MC() {
+  export_preload
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+  unset LD_PRELOAD
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -755,13 +819,17 @@ launch_CS_gdb() {
 }
 
 launch_SA_gdb() {
+  export_preload
   gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+  unset LD_PRELOAD
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
 
 launch_MC_gdb() {
+  export_preload
   gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+  unset LD_PRELOAD
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -788,9 +856,20 @@ case $MODE in
     config_dynawo_algorithms || error_exit "Error while configuring dynawo-algorithms"
     ;;
 
+  config-3rd-Party)
+    config_dynawo_algorithms_3rdParties || error_exit "Error while configuring dynawo-algorithms 3rd parties"
+    ;;
+
   build)
+    config_dynawo_algorithms_3rdParties || error_exit "Error while configuring dynawo-algorithms 3rd parties"
+    build_dynawo_algorithms_3rdParties || error_exit "Error while building dynawo-algorithms 3rd parties"
     config_dynawo_algorithms ||  error_exit "Error while configuring dynawo-algorithms"
     build_dynawo_algorithms || error_exit "Error while building dynawo-algorithms"
+    ;;
+
+  build-3rd-party)
+    config_dynawo_algorithms_3rdParties || error_exit "Error while configuring dynawo-algorithms 3rd parties"
+    build_dynawo_algorithms_3rdParties || error_exit "Error while building dynawo-algorithms 3rd parties"
     ;;
 
   build-doc)

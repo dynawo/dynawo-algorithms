@@ -58,3 +58,4 @@ gitversion_algorithms.h*
 # End of https://www.toptal.com/developers/gitignore/api/vscode
 
 myEnvDynawoAlgorithms.sh
+3rdParty/gperftools/gperftools-*.tar.gz
