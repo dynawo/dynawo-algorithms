@@ -34,6 +34,13 @@ set(LIBDIR_NAME lib)
 set(DOCDIR_NAME doxygen)
 
 get_filename_component(DYNAWO_HOME ${DYNAWO_HOME} ABSOLUTE)
+get_filename_component(DYNAWO_ALGORITHMS_HOME ${DYNAWO_ALGORITHMS_HOME} ABSOLUTE)
+
+list(APPEND CMAKE_MODULE_PATH "${DYNAWO_HOME}/share/cmake")
+
+list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}/share/cmake")
+list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}/share")
+list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}")
 
 # If C++11 is enabled, check flags availability
 set(CXX11_ENABLED ${CXX11_ENABLED} CACHE BOOL "")
