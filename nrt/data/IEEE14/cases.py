@@ -64,6 +64,12 @@ job_file = os.path.join(os.path.dirname(__file__), "MC_Fault_local", "IEEE14_MC_
 
 test_cases.append((case_name, case_description, "MC", job_file, -1, 10, True, standardReturnCodeType, standardReturnCode))
 
+case_name = "IEEE14_MC empty scenario list"
+case_description = "IEEE14 - empty scenario list"
+job_file = os.path.join(os.path.dirname(__file__), "MC_no_scenario", "fic_MULTIPLE.xml")
+
+test_cases.append((case_name, case_description, "MC", job_file, -1, 1, False, standardReturnCodeType, standardReturnCode))
+
 #########################################
 #   IEEE14 - Systematic Analysis        #
 #########################################

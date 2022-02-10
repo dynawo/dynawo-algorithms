@@ -97,6 +97,9 @@ MarginCalculationLauncher::launch() {
   }
   const boost::shared_ptr<LoadIncrease>& loadIncrease = marginCalculation->getLoadIncrease();
   const boost::shared_ptr<Scenarios>& scenarios = marginCalculation->getScenarios();
+  if (!scenarios) {
+    throw DYNAlgorithmsError(SystematicAnalysisTaskNotFound);
+  }
   const std::string& baseJobsFile = scenarios->getJobsFile();
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
 #ifdef WITH_OPENMP
