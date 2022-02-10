@@ -182,7 +182,7 @@ def main():
     if (options.directory_names is not None) and (len(options.directory_names) > 0):
         with_directory_name = True
         directory_names = options.directory_names
-        if options.timeout > 0:
+        if options.timeout is not None and options.timeout > 0:
             log_message += " and"
         else:
             log_message += " with"
