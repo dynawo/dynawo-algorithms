@@ -77,7 +77,7 @@ class TestCaseAlgo:
             if self.variation > 0:
                 command = [env_dynawo, self.job_type, "--input", os.path.basename(self.jobs_file_), "--directory", directory, "--output", os.path.basename(output_file), "--variation", str(self.variation)]
             else:
-                command = [env_dynawo, self.job_type, "--input", os.path.basename(self.jobs_file_), "--directory", directory, "--output", os.path.basename(output_file)]
+                command = [env_dynawo, self.job_type, "--input", os.path.basename(self.jobs_file_), "--directory", directory, "--output", os.path.basename(output_file), "--nbThreads", str(2)]
         else:
             command = [env_dynawo, self.job_type, "--input", self.jobs_file_]
 
