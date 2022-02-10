@@ -70,6 +70,12 @@ job_file = os.path.join(os.path.dirname(__file__), "MC_no_scenario", "fic_MULTIP
 
 test_cases.append((case_name, case_description, "MC", job_file, -1, 1, False, standardReturnCodeType, standardReturnCode))
 
+case_name = "IEEE14_MC failing load increase"
+case_description = "IEEE14 - failing load increase"
+job_file = os.path.join(os.path.dirname(__file__), "MC_failing_load_increase", "fic_MULTIPLE.xml")
+
+test_cases.append((case_name, case_description, "MC", job_file, -1, 1, False, standardReturnCodeType, standardReturnCode))
+
 #########################################
 #   IEEE14 - Systematic Analysis        #
 #########################################
