@@ -18,7 +18,7 @@
     <country id="AFGHANISTAN"/>
   </busCriteria>
   <loadCriteria>
-    <parameters id ="Risque protection" scope="DYNAMIC" type="SUM" pMax="200"">
+    <parameters id ="Risque protection" scope="DYNAMIC" type="SUM" pMax="200">
       <voltageLevel uMaxPu="0.85"/>
     </parameters>
     <country id="AF"/>
