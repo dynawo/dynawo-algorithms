@@ -1,0 +1,139 @@
+%% Except where otherwise noted, content in this documentation is Copyright (c)
+%% 2022, RTE (http://www.rte-france.com) and licensed under a
+%% CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/)
+%% license. All rights reserved.
+
+\documentclass[a4paper, 12pt]{report}
+
+% Latex setup
+\input{../latex_setup.tex}
+
+\begin{document}
+
+\title{\Dynawo-algorithms Installation Documentation}
+\date\today
+
+\maketitle
+\tableofcontents
+
+\chapter{Install procedure}
+
+\Dynawo-algorithm is available on \textbf{Linux}. 
+You can either build it from sources or use binaries distributed on Github.
+This project adds additional features to the \href{https://github.com/dynawo/dynawo}{\Dynawo} project.
+
+\section{\Dynawo-algorithms binaries distribution}
+
+\Dynawo-algorithms release is available on Github : \href{https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.0/Dynawo_Algorithms_Linux_v1.3.0.zip}{Linux release}.
+
+The packages required to use the distribution are the same as \Dynawo.
+
+\subsection{Using a distribution}
+
+You can use the following commands to download and test the latest distribution:
+\begin{lstlisting}[language=bash, breaklines=true, breakatwhitespace=false]
+$> curl -L $(curl -s -L -X GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep "Dynawo_Algorithms_Linux" | grep url | cut -d '"' -f 4) -o Dynawo_Algorithms_Linux_latest.zip
+$> unzip Dynawo_Algorithms_Linux_latest.zip
+$> cd dynawo-algorithms
+$> ./dynawo-algorithms.sh CS --input Dynawo_Linux_latest/nrt/data/IEEE14/IEEE14_BlackBoxModels/IEEE14.jobs
+$> ./dynawo-algorithms.sh help
+\end{lstlisting}
+
+\section{Building requirements}
+
+\Dynawo-algorithms is tested on Linux platforms (Centos, Debian and Ubuntu based) and provided that you can install system packages there should be no problem on any other Linux distribution. 
+
+The requirements to build \Dynawo-algorithms are the same as \Dynawo.
+
+\section[Building Dynawo-algorithms]{Building \Dynawo-algorithms}
+\label{Dynawo_algorithms_Installation_Documentation_Building_Dynawo_algorithm}
+The first step is to build \Dynawo in a separate folder. Please refer to the \Dynawo documentation to do so.
+Then, the following command needs to be launched from the \Dynawo folder.
+
+\begin{lstlisting}[language=bash]
+$> ./myEnvDynawo.sh deploy
+\end{lstlisting}
+
+This command creates a deploy folder. The path to dynawo deploy is then the path to the subdirectory dynawo in the deploy folder. It is similar to:
+
+\begin{lstlisting}[language=bash]
+$> PATH_TO_DYNAWO_DEPLOY=<DYNAWO FOLDER>/deploy/<COMPILER><COMPILER VERSION>/shared/dynawo/
+\end{lstlisting}
+
+To build \Dynawo-algorithms you need to clone the github repository and launch the following commands in the source code directory:
+
+\begin{lstlisting}[language=bash]
+$> git clone https://github.com/dynawo/dynawo-algorithms.git
+$> cd dynawo-algorithms
+$> echo '#!/bin/bash
+export DYNAWO_ALGORITHMS_HOME=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+export DYNAWO_HOME=PATH_TO_DYNAWO_DEPLOY
+
+export DYNAWO_LOCALE=en_GB
+export DYNAWO_RESULTS_SHOW=true
+export DYNAWO_BROWSER=firefox
+
+export DYNAWO_NB_PROCESSORS_USED=1
+
+export DYNAWO_BUILD_TYPE=Release
+export DYNAWO_CXX11_ENABLED=YES
+
+$DYNAWO_ALGORITHMS_HOME/util/envDynawoAlgorithms.sh $@' > myEnvDynawoAlgorithms.sh
+$> chmod +x myEnvDynawoAlgorithms.sh
+$> ./myEnvDynawoAlgorithms.sh build
+\end{lstlisting}
+
+Below is a description of some environment variables that can be modified in the file \textit{myEnvDynawoAlgorithms.sh}:
+
+\begin{center}
+\begin{tabular}{|l|l|}
+  \hline
+   DYNAWO\_BROWSER & Default browser command \\
+  \hline
+   DYNAWO\_NB\_PROCESSORS\_USED & Maximum number of cores to use \\
+  \hline
+   DYNAWO\_BUILD\_TYPE & Build type: Release or Debug \\
+  \hline
+\end{tabular}
+\end{center}
+
+\textbf{Warning}: If you're working behind a proxy make sure you have exported the following proxy environment variables:
+
+\begin{lstlisting}[language=bash]
+$> export http_proxy=
+$> export https_proxy=
+$> export no_proxy=localhost,127.0.0.0/8,::1
+$> export HTTP_PROXY=$http_proxy;export HTTPS_PROXY=$https_proxy;export NO_PROXY=$no_proxy;
+\end{lstlisting}
+
+\section[Launching Dynawo-algorithms]{Launching \Dynawo-algorithms}
+
+Once you have installed and compiled \Dynawo-algorithms as explained in part \ref{Dynawo_algorithms_Installation_Documentation_Building_Dynawo_algorithm}, 
+you can launch a simulation by calling one example:
+
+\begin{lstlisting}[language=bash, breaklines=true, breakatwhitespace=false]
+$> ./myEnvDynawoAlgorithms.sh CS --input nrt/data/IEEE14/IEEE14_BlackBoxModels/IEEE14.jobs
+\end{lstlisting}
+
+This command launches a simple simulation on the IEEE 14-bus network that should succeed if your installation went well and your compilation finished successfully.
+
+\section{Third parties}
+
+To run a simulation, \Dynawo-algorithms uses several external libraries that are downloaded and compiled during the building process:
+\begin{itemize}
+\item \href{https://github.com/gperftools/gperftools} {\underline{gperftools}}, a collection of a high-performance multi-threaded
+malloc implementations distributed under the BSD license. \Dynawo-algorithms is currently using the version 2.6.1.
+
+\item \href{https://www.mpich.org/}{\underline{MPICH}}, an implementation of the Message Passing Interface (MPI) standard distributed under a BSD-like license. 
+\Dynawo-algorithms is currently using the version 3.4.2.
+\end{itemize}
+
+In addition to these libraries needed for the simulation process, \Dynawo-algorithms downloads the code for one other library:
+\begin{itemize}
+\item \href{https://github.com/google/styleguide/tree/gh-pages/cpplint}{\underline{cpplint}}, 
+a tool used during \Dynawo-algorithms compilation process to ensure that the C++ files follow the Google\textquotesingle s C++ style.
+\end{itemize}
+
+Finally, \Dynawo-algorithms also uses others libraries for the unit testing process or to build its source documentation. 
+
+\end{document}
