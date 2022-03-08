@@ -1,0 +1,66 @@
+%% Except where otherwise noted, content in this documentation is Copyright (c)
+%% 2022, RTE (http://www.rte-france.com) and licensed under a
+%% CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/)
+%% license. All rights reserved.
+
+\documentclass[a4paper, 12pt]{report}
+
+% Latex setup
+\input{../latex_setup.tex}
+
+\begin{document}
+
+\title{\Dynawo-algorithms Advanced Documentation}
+\date\today
+
+\maketitle
+\tableofcontents
+
+\chapter{Advanced documentation}
+
+This chapter contains documentation on advanced features for readers that would like to have a deep look in \Dynawo-algorithms. It will explain:
+\begin{itemize}
+\item \Dynawo code organization (\ref{Dynawo_Algorithms_Advanced_Documentation_Code_Organization})
+\end{itemize}
+
+\section{Code organization}
+\label{Dynawo_Algorithms_Advanced_Documentation_Code_Organization}
+
+The \Dynawo-algorithms source code \href{https://github.com/dynawo/dynawo-algorithms.git}
+{\underline{repository}} is organized as follows:
+\dirtree{%
+.1 cmake.
+.1 cpplint.
+.1 documentation.
+.1 doxygen.
+.1 nrt.
+.1 sources.
+.3 API.
+.3 Common.
+.3 Launcher.
+.1 util.
+}
+\begin{itemize}
+\item the cmake folder contains all the files related to the general
+configuration of the compilation process;
+\item the cpplint directory contains the Python scripts needed to use cpplint;
+\item the documentation directory contains the different latex documents used to
+create this documentation;
+\item the doxygen folder contains the \Dynawo-algorithms settings to build the source code
+documentation;
+\item the nrt directory contains the testsuite used to check the correct
+behaviour of the tool. They also serve as examples of the 
+tool behaviour and main principles;
+\item the sources directory contains all the code related to \Dynawo-algorithms itself. This is the most important directory;
+\item the util directory contains some utilities code.
+\end{itemize}
+
+The source code is divided into different subdirectories corresponding to the different parts of the \Dynawo-algorithms tool. They are:
+\begin{itemize}
+\item the API directory contains the code related to all the Input/Output
+files;
+\item the Common directory contains all the code dealing with common feature and methods as well as the dictionaries for logs;
+\item the Launcher folder contains the main algorithms;
+\end{itemize}
+
+\end{document}
