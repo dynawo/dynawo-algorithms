@@ -242,9 +242,9 @@ set_environnement() {
   export_var_env_force DYNAWO_NRT_DIR=$DYNAWO_ALGORITHMS_NRT_DIR
   export_var_env_force DYNAWO_ALGORITHMS_ENV_DYNAWO_ALGORITHMS=$SCRIPT
   export_var_env_force DYNAWO_ENV_DYNAWO=$SCRIPT
-  export_var_env DYNAWO_ALGORITHMS_PYTHON_COMMAND="python"
-  if [ ! -x "$(command -v ${DYNAWO_ALGORITHMS_PYTHON_COMMAND})" ]; then
-    error_exit "Your python interpreter \"${DYNAWO_ALGORITHMS_PYTHON_COMMAND}\" does not work. Use export DYNAWO_ALGORITHMS_PYTHON_COMMAND=<Python Interpreter> in your myEnvDynawoAlgorithms.sh."
+  export_var_env DYNAWO_PYTHON_COMMAND="python"
+  if [ ! -x "$(command -v ${DYNAWO_PYTHON_COMMAND})" ]; then
+    error_exit "Your python interpreter \"${DYNAWO_PYTHON_COMMAND}\" does not work. Use export DYNAWO_PYTHON_COMMAND=<Python Interpreter> in your myEnvDynawoAlgorithms.sh."
   fi
   export_var_env_force DYNAWO_CURVES_TO_HTML_DIR=$DYNAWO_HOME/sbin/curvesToHtml
   export_var_env_force DYNAWO_INSTALL_DIR=$DYNAWO_HOME
@@ -363,7 +363,7 @@ config_dynawo_algorithms() {
     -DBOOST_ROOT=$DYNAWO_BOOST_HOME/ \
     -DBOOST_ROOT_DEFAULT:STRING=FALSE \
     -DLIBZIP_HOME=$DYNAWO_LIBZIP_HOME \
-    -DDYNAWO_PYTHON_COMMAND="$DYNAWO_ALGORITHMS_PYTHON_COMMAND" \
+    -DDYNAWO_PYTHON_COMMAND="$DYNAWO_PYTHON_COMMAND" \
     $CMAKE_OPTIONAL \
     -G "$DYNAWO_CMAKE_GENERATOR" \
     $DYNAWO_ALGORITHMS_SRC_DIR
@@ -711,7 +711,7 @@ verify_browser() {
 
 nrt() {
   export_var_env_force DYNAWO_NRT_DIFF_DIR=$DYNAWO_HOME/sbin/nrt/nrt_diff
-  $DYNAWO_ALGORITHMS_PYTHON_COMMAND -u $DYNAWO_ALGORITHMS_NRT_DIR/nrtAlgo.py $@
+  $DYNAWO_PYTHON_COMMAND -u $DYNAWO_ALGORITHMS_NRT_DIR/nrtAlgo.py $@
   FAILED_CASES_NUM=$?
 
   if [ ! -f "$DYNAWO_ALGORITHMS_NRT_DIR/output/$DYNAWO_BRANCH_NAME/report.html" ]; then
