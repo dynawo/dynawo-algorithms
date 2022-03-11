@@ -351,13 +351,25 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();
   }
+
   if (job->getOutputsEntry() && job->getOutputsEntry()->getTimelineEntry())
     result.setTimelineFileExtensionFromExportMode(job->getOutputsEntry()->getTimelineEntry()->getExportMode());
   if (job->getOutputsEntry() && job->getOutputsEntry()->getConstraintsEntry())
     result.setConstraintsFileExtensionFromExportMode(job->getOutputsEntry()->getConstraintsEntry()->getExportMode());
+
+  std::vector<boost::shared_ptr<job::AppenderEntry> > appendersEntry = job->getOutputsEntry()->getLogsEntry()->getAppenderEntries();
+  for (std::vector<boost::shared_ptr<job::AppenderEntry> >::iterator itApp = appendersEntry.begin(), itAppEnd = appendersEntry.end();
+      itApp != itAppEnd; ++itApp) {
+    if ((*itApp)->getTag() == "") {
+      std::string file = createAbsolutePath("outputs", workingDir);
+      file = createAbsolutePath("logs", file);
+      file = createAbsolutePath((*itApp)->getFilePath(), file);
+      result.setLogPath(file);
+      break;
+    }
+  }
   return simulation;
 }
-
 
 status_t
 RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& simulation, SimulationResult& result) {
@@ -409,6 +421,8 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
 
 void
 RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::map<std::string, std::string>& mapData) const {
+  Trace::resetCustomAppenders();  // to force flush
+  Trace::resetPersistantCustomAppenders();  // to force flush
   if (!result.getTimelineStreamStr().empty()) {
     std::stringstream timelineName;
     timelineName << "timeLine/timeline_" << result.getUniqueScenarioId() << "." << result.getTimelineFileExtension();
@@ -420,18 +434,30 @@ RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::ma
     constraintsName << "constraints/constraints_" << result.getUniqueScenarioId() << "." << result.getConstraintsFileExtension();
     mapData[constraintsName.str()] = result.getConstraintsStreamStr();
   }
+
+  if (!result.getLogPath().empty()) {
+    std::stringstream logName;
+    logName << "logs/log_" << result.getUniqueScenarioId() << ".log";
+    std::ifstream t(result.getLogPath());
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    mapData[logName.str()] = buffer.str();
+  }
 }
 
 void
 RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
-  std::string constraintPath;
-  std::string timelinePath;
-  constraintPath = createAbsolutePath("constraints", workingDirectory_);
+  Trace::resetCustomAppenders();  // to force flush
+  Trace::resetPersistantCustomAppenders();  // to force flush
+  std::string constraintPath = createAbsolutePath("constraints", workingDirectory_);
   if (!is_directory(constraintPath))
     create_directory(constraintPath);
-  timelinePath = createAbsolutePath("timeLine", workingDirectory_);
+  std::string timelinePath = createAbsolutePath("timeLine", workingDirectory_);
   if (!is_directory(timelinePath))
     create_directory(timelinePath);
+  std::string logPath = createAbsolutePath("logs", workingDirectory_);
+  if (!is_directory(logPath))
+    create_directory(logPath);
   if (!result.getConstraintsStreamStr().empty()) {
     std::fstream file;
     std::string filepath = createAbsolutePath("constraints_" + result.getUniqueScenarioId() + "." + result.getConstraintsFileExtension(), constraintPath);
@@ -452,6 +478,12 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
     }
     file << result.getTimelineStreamStr();
     file.close();
+  }
+
+  if (!result.getLogPath().empty()) {
+    boost::filesystem::path from(result.getLogPath());
+    boost::filesystem::path to(createAbsolutePath("log_" + result.getUniqueScenarioId() + ".log", logPath));
+    boost::filesystem::copy_file(from, to, boost::filesystem::copy_option::overwrite_if_exists);
   }
 }
 

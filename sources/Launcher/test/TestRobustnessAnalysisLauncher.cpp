@@ -63,6 +63,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     ASSERT_FALSE(exists("res/constraints/constraints_MyScenario.xml"));
     ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.txt"));
     ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.xml"));
+    ASSERT_TRUE(exists("res/logs/log_MyScenario.log"));
 
     result_.getConstraintsStream() << "Test Constraints";
     result_.getTimelineStream() << "Test Timeline";
@@ -72,6 +73,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     ASSERT_TRUE(exists("res/constraints/constraints_MyScenario.xml"));
     ASSERT_TRUE(exists("res/timeLine/timeline_MyScenario.txt"));
     ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.xml"));
+    ASSERT_TRUE(exists("res/logs/log_MyScenario.log"));
   }
 
   void testInputFile(const std::string& inputFile) {

@@ -173,6 +173,18 @@ class SimulationResult {
    */
   void setTimelineFileExtensionFromExportMode(const std::string &timelineExportMode);
 
+  /**
+   * @brief getter of the general dynawo log path
+   * @return general dynawo log path
+   */
+  const std::string& getLogPath() const;
+
+  /**
+   * @brief setter of the  general dynawo log path
+   * @param logPath new general dynawo log path
+   */
+  void setLogPath(const std::string& logPath);
+
  private:
   std::stringstream timelineStream_;  ///< stream for the timeline associated to the scenario
   std::stringstream constraintsStream_;  ///< stream for the constraints associated to the scenario
@@ -183,6 +195,7 @@ class SimulationResult {
   std::vector<std::pair<double, std::string> > failingCriteria_;  ///< failing criteria ids
   std::string timelineFileExtension_;  ///< timeline export mode for this result
   std::string constraintsFileExtension_;  ///< constraints export mode for this result
+  std::string logPath_;   ///< Path to the general dynawo log file associated to this result
 };
 
 }  // namespace DYNAlgorithms

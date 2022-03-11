@@ -41,7 +41,8 @@ SimulationResult::SimulationResult(const SimulationResult& result):
     status_(result.status_),
     failingCriteria_(result.failingCriteria_),
     timelineFileExtension_(result.timelineFileExtension_),
-    constraintsFileExtension_(result.constraintsFileExtension_) {
+    constraintsFileExtension_(result.constraintsFileExtension_),
+    logPath_(result.logPath_) {
   timelineStream_ << result.timelineStream_.str();
   constraintsStream_ << result.constraintsStream_.str();
 }
@@ -62,6 +63,7 @@ SimulationResult::operator=(const SimulationResult& result) {
   failingCriteria_ = result.failingCriteria_;
   timelineFileExtension_ = result.timelineFileExtension_;
   constraintsFileExtension_ =  result.constraintsFileExtension_;
+  logPath_ = result.logPath_;
   return *this;
 }
 
@@ -173,5 +175,15 @@ SimulationResult::setTimelineFileExtensionFromExportMode(const std::string &time
     timelineFileExtension_ = "txt";
   else if (timelineExportMode == "CSV")
     timelineFileExtension_ = "csv";
+}
+
+const std::string&
+SimulationResult::getLogPath() const {
+  return logPath_;
+}
+
+void
+SimulationResult::setLogPath(const std::string& logPath) {
+  logPath_ = logPath;
 }
 }  // namespace DYNAlgorithms

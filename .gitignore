@@ -20,6 +20,7 @@ nrt/data/IEEE14/SA*/*.xml
 nrt/data/IEEE14/SA*/constraints
 nrt/data/IEEE14/SA*/timeLine
 nrt/data/IEEE14/SA*/timeline
+nrt/data/IEEE14/SA*/logs
 nrt/data/IEEE14/SA*/result.zip
 nrt/data/IEEE14/MC*/IEEE14*
 nrt/data/IEEE14/MC*/*.dmp
@@ -29,6 +30,7 @@ nrt/data/IEEE14/MC*/dynawo.log
 nrt/data/IEEE14/MC*/*.par
 nrt/data/IEEE14/MC*/timeLine
 nrt/data/IEEE14/MC*/timeline
+nrt/data/IEEE14/MC*/logs
 nrt/data/IEEE14/MC*/constraints
 nrt/data/IEEE14/MC*/result.zip
 nrt/data/IEEE14/MC*/*.dyd
