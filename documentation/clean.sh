@@ -6,7 +6,7 @@
 # license. All rights reserved.
 
 folders=(introduction installation configuringDynawoAlgorithms advancedDoc
-licenses/dynawo licenses/dynawo-algorithms-documentation licenses/gperftools licenses/mpich licenses/cpplint)
+licenses/dynawo licenses/dynawo-algorithms licenses/dynawo-algorithms-documentation licenses/gperftools licenses/mpich licenses/cpplint)
 
 for folder in ${folders[*]}; do
   if [ -d "$folder" ]; then
@@ -14,4 +14,4 @@ for folder in ${folders[*]}; do
   fi
 done
 
-rm -f dynawoAlgorithmsDocumentation/DynawoAlgorithmsDocumentation.tex
+rm -rf dynawoAlgorithmsDocumentation
