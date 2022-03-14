@@ -56,6 +56,15 @@ where [option] can be:
     build-tests                   build and launch dynawo-algorithms's unittest
     build-tests-coverage          build/launch dynawo-algorithms's unittest and generate code coverage report
     unittest-gdb [arg]            call unittest in gdb
+    
+    =========== dynawo-algorithms documentation
+    doc                                   open Dynawo-algorithms's documentation
+    doxygen-doc                           open Dynawo-algorithms's Doxygen documentation into chosen browser
+ 
+    build-doc                             build documentation
+    build-doxygen-doc                     build all doxygen documentation
+
+    clean-doc                             clean documentation
 
     =========== dynawo-algorithms
     version-validation            clean all built items, then build them all
@@ -265,6 +274,7 @@ set_environnement() {
   export_var_env DYNAWO_ALGORITHMS_XSD_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR/share/xsd
   export_var_env DYNAWO_ALGORITHMS_LOCALE=en_GB # or fr_FR
   export_var_env DYNAWO_BROWSER=firefox
+  export_var_env DYNAWO_PDFVIEWER=xdg-open
   export_var_env DYNAWO_SCRIPTS_DIR=$DYNAWO_HOME/sbin/
   export_var_env_force DYNAWO_ALGORITHMS_NRT_DIR=$DYNAWO_ALGORITHMS_HOME/nrt
   export_var_env_force DYNAWO_NRT_DIR=$DYNAWO_ALGORITHMS_NRT_DIR
@@ -307,22 +317,68 @@ set_environnement() {
   set_commit_hook
 }
 
+ld_library_path_remove() {
+  export LD_LIBRARY_PATH=`echo -n $LD_LIBRARY_PATH | awk -v RS=: -v ORS=: '$0 != "'$1'"' | sed 's/:$//'`;
+}
+
+ld_library_path_prepend() {
+  if [ ! -z "$LD_LIBRARY_PATH" ]; then
+    ld_library_path_remove $1
+    export LD_LIBRARY_PATH="$1:$LD_LIBRARY_PATH"
+  else
+    export LD_LIBRARY_PATH="$1"
+  fi
+}
+
+python_path_remove() {
+  export PYTHONPATH=`echo -n $PYTHONPATH | awk -v RS=: -v ORS=: '$0 != "'$1'"' | sed 's/:$//'`;
+}
+
+python_path_append() {
+  if [ ! -z "$PYTHONPATH" ]; then
+    python_path_remove $1
+    export PYTHONPATH="$PYTHONPATH:$1"
+  else
+    export PYTHONPATH="$1"
+  fi
+}
+
+path_remove() {
+  export PATH=`echo -n $PATH | awk -v RS=: -v ORS=: '$0 != "'$1'"' | sed 's/:$//'`;
+}
+
+path_prepend() {
+  if [ ! -z "$PATH" ]; then
+    path_remove $1
+    export PATH="$1:$PATH"
+  else
+    export PATH="$1"
+  fi
+}
+
 set_standardEnvironmentVariables() {
-  export LD_LIBRARY_PATH=$DYNAWO_HOME/lib:$LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
+  ld_library_path_prepend $DYNAWO_HOME/lib
+  ld_library_path_prepend $DYNAWO_ALGORITHMS_INSTALL_DIR/lib
+
+  path_prepend $DYNAWO_INSTALL_OPENMODELICA/bin
+  python_path_append $SCRIPTS_DIR
 
   if [ "$DYNAWO_BUILD_TYPE" = "Debug" ]; then
     if [ -d "$DYNAWO_GTEST_HOME/lib64" ]; then
-      export LD_LIBRARY_PATH=$DYNAWO_GTEST_HOME/lib64:$LD_LIBRARY_PATH
+      ld_library_path_prepend $DYNAWO_GTEST_HOME/lib64 
     elif [ -d "$DYNAWO_GTEST_HOME/lib" ]; then
-      export LD_LIBRARY_PATH=$DYNAWO_GTEST_HOME/lib:$LD_LIBRARY_PATH
+      ld_library_path_prepend $DYNAWO_GTEST_HOME/lib
     else
       error_exit "Not enable to find GoogleTest library directory for runtime."
     fi
   fi
+}
 
-  export PATH=$DYNAWO_INSTALL_OPENMODELICA/bin:$PATH
-  export PYTHONPATH=$PYTHONPATH:$SCRIPTS_DIR
+reset_environment_variables() {
+  ld_library_path_remove $DYNAWO_HOME/lib
+  ld_library_path_remove $DYNAWO_ALGORITHMS_INSTALL_DIR/lib
+  path_remove $DYNAWO_INSTALL_OPENMODELICA/bin
+  python_path_remove $SCRIPTS_DIR
 }
 
 set_compiler() {
@@ -462,14 +518,55 @@ build_dynawo_algorithms() {
   return ${RETURN_CODE}
 }
 
+build_doc() {
+  if [ ! -d "$DYNAWO_ALGORITHMS_HOME/documentation" ]; then
+    error_exit "$DYNAWO_ALGORITHMS_HOME/documentation does not exist."
+  fi
+  cd $DYNAWO_ALGORITHMS_HOME/documentation
+  bash dynawo_algorithms_documentation.sh
+}
+
+clean_doc() {
+  if [ ! -d "$DYNAWO_ALGORITHMS_HOME/documentation" ]; then
+    error_exit "$DYNAWO_ALGORITHMS_HOME/documentation does not exist."
+  fi
+  cd $DYNAWO_ALGORITHMS_HOME/documentation
+  bash clean.sh
+}
+
+open_pdf() {
+  if [ -z "$1" ]; then
+    error_exit "You need to specify a pdf file to open."
+  fi
+  reset_environment_variables #zlib conflict
+  if [ ! -z "$DYNAWO_PDFVIEWER" ]; then
+    if [ -x "$(command -v $DYNAWO_PDFVIEWER)" ]; then
+      if [ -f "$1" ]; then
+        $DYNAWO_PDFVIEWER $1
+      else
+        error_exit "Pdf file $1 you try to open does not exist."
+      fi
+    else
+      error_exit "pdfviewer $DYNAWO_PDFVIEWER seems not to be executable."
+    fi
+  elif [ -x "$(command -v xdg-open)" ]; then
+      xdg-open $1
+  else
+    error_exit "Cannot determine how to open pdf document from command line. Use DYNAWO_PDFVIEWER environment variable."
+  fi
+}
+
+open_doc() {
+  open_pdf $DYNAWO_ALGORITHMS_HOME/documentation/dynawoAlgorithmsDocumentation/DynawoAlgorithmsDocumentation.pdf
+}
 
 #build all doc
-build_test_doc() {
-  build_doc_dynawo_algorithms || error_exit
+build_doxygen_doc() {
+  build_doxygen_doc_dynawo_algorithms || error_exit
   test_doxygen_doc_dynawo_algorithms || error_exit
 }
 
-build_doc_dynawo_algorithms() {
+build_doxygen_doc_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
   mkdir -p $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/
   cmake --build . --target doc $DYNAWO_CMAKE_BUILD_OPTION
@@ -600,7 +697,7 @@ clean_build_dynawo_algorithms() {
 
 clean_build_all_dynawo_algorithms() {
   clean_build_dynawo_algorithms || error_exit
-  build_test_doc || error_exit
+  build_doxygen_doc || error_exit
 }
 
 version_validation() {
@@ -647,11 +744,11 @@ clean_old_branches() {
   cd ${current_dir}
 }
 
-doc_dynawo_algorithms() {
+open_doxygen_doc() {
   if [ ! -f $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/html/index.html ]; then
     echo "Doxygen documentation not yet generated"
     echo "Generating ..."
-    build_test_doc
+    build_doxygen_doc
     RETURN_CODE=$?
     if [ ${RETURN_CODE} -ne 0 ]; then
       exit ${RETURN_CODE}
@@ -942,7 +1039,11 @@ case $MODE in
     ;;
 
   build-doc)
-    build_test_doc || error_exit "Error while building doxygen documentation"
+    build_doc || error_exit "Error during the build of dynawo documentation"
+    ;;
+
+  build-doxygen-doc)
+    build_doxygen_doc || error_exit "Error while building doxygen documentation"
     ;;
 
   build-tests)
@@ -1023,8 +1124,16 @@ case $MODE in
     clean_old_branches || error_exit "Error during the cleaning of old branches build/install/nrt"
     ;;
 
+  clean-doc)
+    clean_doc || error_exit "Error during the clean of Dynawo documentation"
+    ;;
+
   doc)
-    doc_dynawo_algorithms || error_exit "Error during dynawo-algorithms doc visualisation"
+    open_doc || error_exit "Error during the opening of Dynawo documentation"
+    ;;
+
+  doxygen-doc)
+    open_doxygen_doc || error_exit "Error during Dynawo Doxygen doc visualisation"
     ;;
 
   version)
