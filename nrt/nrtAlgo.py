@@ -77,7 +77,7 @@ class TestCaseAlgo:
             if self.variation > 0:
                 command = [env_dynawo, self.job_type, "--input", os.path.basename(self.jobs_file_), "--directory", directory, "--output", os.path.basename(output_file), "--variation", str(self.variation)]
             else:
-                command = [env_dynawo, self.job_type, "--input", os.path.basename(self.jobs_file_), "--directory", directory, "--output", os.path.basename(output_file)]
+                command = [env_dynawo, self.job_type, "--input", os.path.basename(self.jobs_file_), "--directory", directory, "--output", os.path.basename(output_file), "--nbThreads", str(2)]
         else:
             command = [env_dynawo, self.job_type, "--input", self.jobs_file_]
 
@@ -182,7 +182,7 @@ def main():
     if (options.directory_names is not None) and (len(options.directory_names) > 0):
         with_directory_name = True
         directory_names = options.directory_names
-        if options.timeout > 0:
+        if options.timeout is not None and options.timeout > 0:
             log_message += " and"
         else:
             log_message += " with"

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<aggregatedResults xmlns="http://www.rte-france.com/dynawo">
+  <loadIncreaseResults loadLevel="100" status="CRITERIA_NON_RESPECTED"/>
+  <loadIncreaseResults loadLevel="50" status="CRITERIA_NON_RESPECTED"/>
+  <loadIncreaseResults loadLevel="25" status="CRITERIA_NON_RESPECTED"/>
+  <loadIncreaseResults loadLevel="0" status="CRITERIA_NON_RESPECTED"/>
+</aggregatedResults>

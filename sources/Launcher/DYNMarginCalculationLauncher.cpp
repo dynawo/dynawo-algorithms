@@ -97,6 +97,9 @@ MarginCalculationLauncher::launch() {
   }
   const boost::shared_ptr<LoadIncrease>& loadIncrease = marginCalculation->getLoadIncrease();
   const boost::shared_ptr<Scenarios>& scenarios = marginCalculation->getScenarios();
+  if (!scenarios) {
+    throw DYNAlgorithmsError(SystematicAnalysisTaskNotFound);
+  }
   const std::string& baseJobsFile = scenarios->getJobsFile();
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
 #ifdef WITH_OPENMP
@@ -582,22 +585,33 @@ void
 MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
     const double variation, const double tolerance, SimulationResult& result) {
   Trace::info(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
-  if (nbThreads_ == 1) {
-    inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile(), 1);
-    inputs_.setCurrentVariant(0.);
-    launchLoadIncrease(loadIncrease, variation, result);
-    return;
-  }
 
-  std::set<double, dynawoDoubleLess> variationsToLaunch;
   std::map<double, SimulationResult, dynawoDoubleLess>::const_iterator itVariation = loadIncreaseCache_.find(variation);
   if (itVariation != loadIncreaseCache_.end()) {
     Trace::info(logTag_) << DYNAlgorithmsLog(LoadIncreaseResultsFound, variation) << Trace::endline;
     result = itVariation->second;
     return;
-  } else {
-    variationsToLaunch.insert(variation);
   }
+
+  if (nbThreads_ == 1) {
+    inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile(), 1);
+    inputs_.setCurrentVariant(0.);
+    launchLoadIncrease(loadIncrease, variation, result);
+
+    // Hack to add 0. if the load increase is below 50. as we know we never did 0. in the first place
+    if (variation < 50. && !result.getSuccess() && loadIncreaseCache_.find(0.) == loadIncreaseCache_.end()) {
+      Trace::info(logTag_) << DYNAlgorithmsLog(VariationValue, 0.) << Trace::endline;
+      SimulationResult result0;
+      inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile(), 1);
+      inputs_.setCurrentVariant(0.);
+      launchLoadIncrease(loadIncrease, 0., result0);
+      loadIncreaseCache_.insert(std::make_pair(0., result0));
+    }
+    return;
+  }
+
+  std::set<double, dynawoDoubleLess> variationsToLaunch;
+  variationsToLaunch.insert(variation);
 
   // Hack to add 0. if the load increase is below 50. as we know we never did 0. in the first place
   if (loadIncreaseCache_.find(0.) == loadIncreaseCache_.end() && variation < 50.)

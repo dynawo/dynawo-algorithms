@@ -71,6 +71,7 @@ setDynawoEnv() {
   export_var_env DYNAWO_DDB_DIR=$DYNAWO_INSTALL_DIR/ddb
   export_var_env DYNAWO_RESOURCES_DIR=$DYNAWO_INSTALL_DIR/share:$DYNAWO_INSTALL_DIR/share/xsd
   export_var_env DYNAWO_DICTIONARIES=dictionaries_mapping
+  export_var_env DYNAWO_PYTHON_COMMAND="python"
 
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
 }
@@ -111,7 +112,7 @@ find_and_call_timeline() {
   fi
 find $1 -name $2 | while read filename; do
     echo "Processing file '$filename'"
-    python $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/timelineFilter.py --timelineFile $filename
+    ${DYNAWO_PYTHON_COMMAND} -u $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/timelineFilter.py --timelineFile $filename
     RESULT_FILE=`dirname $filename`
     RESULT_FILE=$RESULT_FILE/$3
     mv $RESULT_FILE $filename
