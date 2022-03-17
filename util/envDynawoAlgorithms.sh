@@ -249,6 +249,8 @@ set_environnement() {
   export_var_env_force DYNAWO_SUNDIALS_HOME=$DYNAWO_HOME
   export_var_env_force DYNAWO_SUITESPARSE_HOME=$DYNAWO_HOME
   export_var_env_force DYNAWO_NICSLU_HOME=$DYNAWO_HOME
+  export_var_env DYNAWO_GTEST_HOME=$DYNAWO_HOME
+  export_var_env DYNAWO_GMOCK_HOME=$DYNAWO_HOME
 
   export_var_env_force DYNAWO_IIDM_EXTENSION=$DYNAWO_LIBIIDM_INSTALL_DIR/lib/libdynawo_DataInterfaceIIDMExtension.so
   export_var_env_force DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
@@ -300,6 +302,16 @@ set_environnement() {
 set_standardEnvironmentVariables() {
   export LD_LIBRARY_PATH=$DYNAWO_HOME/lib:$LD_LIBRARY_PATH
   export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
+
+  if [ "$DYNAWO_BUILD_TYPE" = "Debug" ]; then
+    if [ -d "$DYNAWO_GTEST_HOME/lib64" ]; then
+      export LD_LIBRARY_PATH=$DYNAWO_GTEST_HOME/lib64:$LD_LIBRARY_PATH
+    elif [ -d "$DYNAWO_GTEST_HOME/lib" ]; then
+      export LD_LIBRARY_PATH=$DYNAWO_GTEST_HOME/lib:$LD_LIBRARY_PATH
+    else
+      error_exit "Not enable to find GoogleTest library directory for runtime."
+    fi
+  fi
 
   export PATH=$DYNAWO_INSTALL_OPENMODELICA/bin:$PATH
   export PYTHONPATH=$PYTHONPATH:$SCRIPTS_DIR
@@ -401,6 +413,10 @@ config_dynawo_algorithms() {
   CMAKE_OPTIONAL=""
   if [ $DYNAWO_FORCE_CXX11_ABI = true ]; then
     CMAKE_OPTIONAL="$CMAKE_OPTIONAL -DFORCE_CXX11_ABI=$DYNAWO_FORCE_CXX11_ABI"
+  fi  
+  if [ $DYNAWO_BUILD_TESTS = "ON" -o $DYNAWO_BUILD_TESTS_COVERAGE = "ON" ]; then
+    CMAKE_OPTIONAL="$CMAKE_OPTIONAL -DGTEST_ROOT=$DYNAWO_GTEST_HOME"
+    CMAKE_OPTIONAL="$CMAKE_OPTIONAL -DGMOCK_HOME=$DYNAWO_GMOCK_HOME"
   fi
 
   pushd $DYNAWO_ALGORITHMS_BUILD_DIR > /dev/null
