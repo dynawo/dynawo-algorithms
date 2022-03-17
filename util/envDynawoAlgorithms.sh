@@ -386,7 +386,7 @@ config_dynawo_algorithms_3rdParties() {
 
 build_dynawo_algorithms_3rdParties() {
   pushd $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR > /dev/null
-  cmake --build . -j$DYNAWO_NB_PROCESSORS_USED
+  cmake --build .
   RETURN_CODE=$?
   popd > /dev/null
   return ${RETURN_CODE}
