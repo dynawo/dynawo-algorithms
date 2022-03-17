@@ -26,7 +26,9 @@ namespace DYNAlgorithms {
 SimulationResult::SimulationResult():
     variation_(-1.),
     success_(false),
-    status_(EXECUTION_PROBLEM_STATUS) {
+    status_(EXECUTION_PROBLEM_STATUS),
+    timelineFileExtension_("xml"),
+    constraintsFileExtension_("xml") {
 }
 
 SimulationResult::~SimulationResult() {
@@ -37,7 +39,9 @@ SimulationResult::SimulationResult(const SimulationResult& result):
     variation_(result.variation_),
     success_(result.success_),
     status_(result.status_),
-    failingCriteria_(result.failingCriteria_) {
+    failingCriteria_(result.failingCriteria_),
+    timelineFileExtension_(result.timelineFileExtension_),
+    constraintsFileExtension_(result.constraintsFileExtension_) {
   timelineStream_ << result.timelineStream_.str();
   constraintsStream_ << result.constraintsStream_.str();
 }
@@ -56,6 +60,8 @@ SimulationResult::operator=(const SimulationResult& result) {
   constraintsStream_.clear();
   constraintsStream_ << result.constraintsStream_.str();
   failingCriteria_ = result.failingCriteria_;
+  timelineFileExtension_ = result.timelineFileExtension_;
+  constraintsFileExtension_ =  result.constraintsFileExtension_;
   return *this;
 }
 
@@ -139,5 +145,33 @@ SimulationResult::getFailingCriteria() const {
 void
 SimulationResult::setFailingCriteria(const std::vector<std::pair<double, std::string> >& failingCriteria) {
   failingCriteria_ = failingCriteria;
+}
+
+const std::string&
+SimulationResult::getConstraintsFileExtension() const {
+  return constraintsFileExtension_;
+}
+
+void
+SimulationResult::setConstraintsFileExtensionFromExportMode(const std::string &constraintsExportMode) {
+  if (constraintsExportMode == "XML")
+    constraintsFileExtension_ = "xml";
+  else if (constraintsExportMode == "TXT")
+    constraintsFileExtension_ = "txt";
+}
+
+const std::string&
+SimulationResult::getTimelineFileExtension() const {
+  return timelineFileExtension_;
+}
+
+void
+SimulationResult::setTimelineFileExtensionFromExportMode(const std::string &timelineExportMode) {
+  if (timelineExportMode == "XML")
+    timelineFileExtension_ = "xml";
+  else if (timelineExportMode == "TXT")
+    timelineFileExtension_ = "txt";
+  else if (timelineExportMode == "CSV")
+    timelineFileExtension_ = "csv";
 }
 }  // namespace DYNAlgorithms

@@ -149,6 +149,30 @@ class SimulationResult {
    */
   void setFailingCriteria(const std::vector<std::pair<double, std::string> >& failingCriteria);
 
+  /**
+   * @brief getter of the constraints file extension
+   * @return constraints file extension
+   */
+  const std::string& getConstraintsFileExtension() const;
+
+  /**
+   * @brief setter of the constraints file extension based on constraints export mode from the job
+   * @param constraintsExportMode constraints export mode
+   */
+  void setConstraintsFileExtensionFromExportMode(const std::string &constraintsExportMode);
+
+  /**
+   * @brief getter of the timeline file extension
+   * @return timeline file extension
+   */
+  const std::string& getTimelineFileExtension() const;
+
+  /**
+   * @brief setter of the timeline file extension based on timeline export mode from the job
+   * @param timelineExportMode timeline export mode
+   */
+  void setTimelineFileExtensionFromExportMode(const std::string &timelineExportMode);
+
  private:
   std::stringstream timelineStream_;  ///< stream for the timeline associated to the scenario
   std::stringstream constraintsStream_;  ///< stream for the constraints associated to the scenario
@@ -157,6 +181,8 @@ class SimulationResult {
   bool success_;  ///< @b true if the simulation reached its end, @b false otherwise
   status_t status_;  ///< detailed output status of the simulation
   std::vector<std::pair<double, std::string> > failingCriteria_;  ///< failing criteria ids
+  std::string timelineFileExtension_;  ///< timeline export mode for this result
+  std::string constraintsFileExtension_;  ///< constraints export mode for this result
 };
 
 }  // namespace DYNAlgorithms

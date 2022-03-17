@@ -351,6 +351,10 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     result.setStatus(EXECUTION_PROBLEM_STATUS);
     return boost::shared_ptr<DYN::Simulation>();
   }
+  if (job->getOutputsEntry() && job->getOutputsEntry()->getTimelineEntry())
+    result.setTimelineFileExtensionFromExportMode(job->getOutputsEntry()->getTimelineEntry()->getExportMode());
+  if (job->getOutputsEntry() && job->getOutputsEntry()->getConstraintsEntry())
+    result.setConstraintsFileExtensionFromExportMode(job->getOutputsEntry()->getConstraintsEntry()->getExportMode());
   return simulation;
 }
 
@@ -407,13 +411,13 @@ void
 RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::map<std::string, std::string>& mapData) const {
   if (!result.getTimelineStreamStr().empty()) {
     std::stringstream timelineName;
-    timelineName << "timeLine/timeline_" << result.getUniqueScenarioId() << ".xml";
+    timelineName << "timeLine/timeline_" << result.getUniqueScenarioId() << "." << result.getTimelineFileExtension();
     mapData[timelineName.str()] = result.getTimelineStreamStr();
   }
 
   if (!result.getConstraintsStreamStr().empty()) {
     std::stringstream constraintsName;
-    constraintsName << "constraints/constraints_" << result.getUniqueScenarioId() << ".xml";
+    constraintsName << "constraints/constraints_" << result.getUniqueScenarioId() << "." << result.getConstraintsFileExtension();
     mapData[constraintsName.str()] = result.getConstraintsStreamStr();
   }
 }
@@ -430,7 +434,7 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
     create_directory(timelinePath);
   if (!result.getConstraintsStreamStr().empty()) {
     std::fstream file;
-    std::string filepath = createAbsolutePath("constraints_" + result.getUniqueScenarioId() + ".xml", constraintPath);
+    std::string filepath = createAbsolutePath("constraints_" + result.getUniqueScenarioId() + "." + result.getConstraintsFileExtension(), constraintPath);
     file.open(filepath.c_str(), std::fstream::out);
     if (!file.is_open()) {
       throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filepath.c_str());
@@ -440,7 +444,7 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
   }
 
   if (!result.getTimelineStreamStr().empty()) {
-    std::string filepath = createAbsolutePath("timeline_" + result.getUniqueScenarioId() + ".xml", timelinePath);
+    std::string filepath = createAbsolutePath("timeline_" + result.getUniqueScenarioId() + "." + result.getTimelineFileExtension(), timelinePath);
     std::fstream file;
     file.open(filepath.c_str(), std::fstream::out);
     if (!file.is_open()) {
