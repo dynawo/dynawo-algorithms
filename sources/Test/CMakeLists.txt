@@ -17,6 +17,8 @@ add_library(dynawo_algorithms_Test_utils SHARED ${DYN_ALGO_TEST_UTILS_SOURCES})
 
 target_link_libraries(dynawo_algorithms_Test_utils
   PRIVATE
+    GTest::gmock_main
+    GTest::gtest_main
     XMLSAXParser${LibXML_LINK_SUFFIX}
     $<$<NOT:$<BOOL:${USE_LEGACY_IIDM}>>:LibXml2::LibXml2>
 )
