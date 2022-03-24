@@ -30,4 +30,8 @@
 
 #define DYNAWO_ALGORITHMS_VERSION_STRING "@DYNAWO_ALGORITHMS_VERSION_STRING@" ///< dynawo-algorithms version in string
 
+#if '@DYNAWO_USE_LIBXML2@' == 'Y'
+#define DYNAWO_USE_LIBXML2 ///< defined if Dynawo-algorithms use LibXml2
+#endif
+
 #endif /* DYNAWO_ALGORITHMS_CONFIG_H_ */

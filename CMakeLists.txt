@@ -199,10 +199,11 @@ else()
 endif()
 
 if(NOT USE_LEGACY_IIDM)
-  add_definitions(-DUSE_POWSYBL)
+  set(DYNAWO_USE_LIBXML2 "Y")
   find_package(LibXml2 "2.9" REQUIRED)
   find_package(LibIIDM "1.4.0" REQUIRED)
 else()
+  set(DYNAWO_USE_LIBXML2 "N")
   find_package(libIIDM 0.2.8 REQUIRED
     COMPONENTS
       core
