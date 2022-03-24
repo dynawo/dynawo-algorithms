@@ -241,7 +241,7 @@ set_environnement() {
   export_var_env DYNAWO_ALGORITHMS_BUILD_DIR=$DYNAWO_ALGORITHMS_HOME/build/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
   export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR=$DYNAWO_ALGORITHMS_HOME/install/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
   export_var_env DYNAWO_FORCE_CXX11_ABI=false
-  
+
   export_var_env_force DYNAWO_TCMALLOC_INSTALL_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/gperftools
 
   # External libs
@@ -403,6 +403,8 @@ config_dynawo_algorithms_3rdParties() {
     -DCMAKE_CXX_COMPILER:PATH=$DYNAWO_CXX_COMPILER \
     -DCMAKE_BUILD_TYPE:STRING=$DYNAWO_BUILD_TYPE \
     -DCMAKE_INSTALL_PREFIX=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR \
+    -DDOWNLOAD_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/src \
+    -DTMP_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/tmp \
     $DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR
   RETURN_CODE=$?
   return ${RETURN_CODE}
@@ -425,7 +427,7 @@ config_dynawo_algorithms() {
   CMAKE_OPTIONAL=""
   if [ $DYNAWO_FORCE_CXX11_ABI = true ]; then
     CMAKE_OPTIONAL="$CMAKE_OPTIONAL -DFORCE_CXX11_ABI=$DYNAWO_FORCE_CXX11_ABI"
-  fi  
+  fi
   if [ $DYNAWO_BUILD_TESTS = "ON" -o $DYNAWO_BUILD_TESTS_COVERAGE = "ON" ]; then
     CMAKE_OPTIONAL="$CMAKE_OPTIONAL -DGTEST_ROOT=$DYNAWO_GTEST_HOME"
     CMAKE_OPTIONAL="$CMAKE_OPTIONAL -DGMOCK_HOME=$DYNAWO_GMOCK_HOME"
@@ -594,6 +596,8 @@ uninstall_dynawo_algorithms() {
 clean_build_dynawo_algorithms() {
   clean_dynawo_algorithms || error_exit
   uninstall_dynawo_algorithms || error_exit
+  config_dynawo_algorithms_3rdParties || error_exit
+  build_dynawo_algorithms_3rdParties || error_exit
   config_dynawo_algorithms || error_exit
   build_dynawo_algorithms || error_exit
 }
@@ -685,15 +689,21 @@ deploy_dynawo_algorithms() {
   mkdir -p share
 
   echo "deploying gperftools libraries"
-  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/bin/* bin/.
-  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/lib/* lib/.
-  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/include/* include/.
-  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/share/* share/.
+  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/lib/libtcmalloc.so* lib/.
 
+  echo "deploying mpich libraries and binaries"
+  cp $MPIRUN_PATH bin/.
   if [ -d $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich ]; then
-    echo "deploying mpich libraries and binaries"
-    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/* bin/.
-    cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/* lib/.
+    cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpi.so* lib/.
+    cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpicxx.so* lib/.
+  else
+    if [ ! -f "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt" ]; then
+      error_exit "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR should not be deleted before deploy to be able to determine lib system paths used during compilation."
+    fi
+    mpi_lib=$(cat $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt | grep -i libmpi.so | cut -d '=' -f 2)
+    mpicxx_lib=$(cat $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt | grep -i libmpi_cxx.so | cut -d '=' -f 2)
+    cp -r ${mpi_lib}* lib/.
+    cp -r ${mpicxx_lib}* lib/.
   fi
 
   echo "deploying Dynawo-algorithms libraries"
@@ -708,6 +718,9 @@ deploy_dynawo_algorithms() {
     echo "deploying doxygen"
     cp -r $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/html doxygen/.
   fi
+
+  rm -f lib/*.la
+  rm -f lib/*.a
 
   popd > /dev/null
 }
@@ -786,11 +799,6 @@ create_distrib_with_headers() {
   cp ../lib/* dynawo-algorithms/lib/.
   cp -r ../share/* dynawo-algorithms/share/
   cp ../dynawo-algorithms.sh dynawo-algorithms/
-  
-  if [ -d "$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich" ]; then
-    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/* dynawo-algorithms/bin/.
-    cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/* dynawo-algorithms/lib/.
-  fi
 
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
