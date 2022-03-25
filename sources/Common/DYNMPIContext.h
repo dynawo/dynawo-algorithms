@@ -41,9 +41,13 @@ class Context {
   /// @brief Destructor
   ~Context();
 
+  /// @brief no copy constructor
   Context(const Context&) = delete;
+  /// @brief no assignment
   Context& operator=(const Context&) = delete;
+  /// @brief no copy constructor
   Context(Context&&) = delete;
+  /// @brief no assignment
   Context& operator=(Context&&) = delete;
 
   /// @brief Synchronize all process
