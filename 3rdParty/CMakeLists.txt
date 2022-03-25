@@ -22,7 +22,14 @@ set(DOWNLOAD_DIR ${CMAKE_INSTALL_PREFIX}/src CACHE PATH "Directory where 3rd par
 set(TMP_DIR ${CMAKE_INSTALL_PREFIX}/tmp CACHE PATH "Directory where 3rd parties temporary files are created.")
 
 if(UNIX)
-  set(GPERFTOOLS_URL https://github.com/gperftools/gperftools/releases/download/gperftools-2.6.1/gperftools-2.6.1.tar.gz)
+  set(gperftools_version "2.6.1")
+  if(DEFINED ENV{DYNAWO_ALGORITHMS_GPERFTOOLS_DOWNLOAD_URL})
+    set(gperftools_prefix_url $ENV{DYNAWO_ALGORITHMS_GPERFTOOLS_DOWNLOAD_URL})
+  else()
+    set(gperftools_prefix_url https://github.com/gperftools/gperftools/releases/download)
+  endif()
+  set(gperftools_url ${gperftools_prefix_url}/gperftools-${gperftools_version}/gperftools-${gperftools_version}.tar.gz)
+  set(gperftools_md5 e010d656b8b62e61c0af0c4d79843782)
   find_library(tcmalloc NAMES "tcmalloc" PATHS ${CMAKE_INSTALL_PREFIX}/gperftools/lib)
   if (NOT tcmalloc)
     ExternalProject_Add(gperftools
@@ -31,7 +38,8 @@ if(UNIX)
             TMP_DIR             ${TMP_DIR}
             STAMP_DIR           ${DOWNLOAD_DIR}/gperftools-stamp
             SOURCE_DIR          ${DOWNLOAD_DIR}/gperftools
-            URL                 ${GPERFTOOLS_URL}
+            URL                 ${gperftools_url}
+            URL_MD5             ${gperftools_md5}
             BUILD_IN_SOURCE     1
 
             CONFIGURE_COMMAND   <SOURCE_DIR>/configure
@@ -46,7 +54,15 @@ if(UNIX)
   endif()
 endif()
 
-set(mpich_url http://www.mpich.org/static/downloads/3.4.2/mpich-3.4.2.tar.gz)
+set(mpich_version "3.4.2")
+if(DEFINED ENV{DYNAWO_ALGORITHMS_MPICH_DOWNLOAD_URL})
+  set(mpich_prefix_url $ENV{DYNAWO_ALGORITHMS_MPICH_DOWNLOAD_URL})
+else()
+  set(mpich_prefix_url http://www.mpich.org/static/downloads)
+endif()
+set(mpich_url ${mpich_prefix_url}/${mpich_version}/mpich-${mpich_version}.tar.gz)
+set(mpich_md5 6ee1cfff98728e5160c6e78bdb1986ca)
+
 set(MPI_HOME ${CMAKE_INSTALL_PREFIX}/mpich)
 find_package(MPI QUIET)
 if(MPI_FOUND)
@@ -60,6 +76,7 @@ else()
       STAMP_DIR           ${DOWNLOAD_DIR}/mpich-stamp
       SOURCE_DIR          ${DOWNLOAD_DIR}/mpich
       URL                 ${mpich_url}
+      URL_MD5             ${mpich_md5}
       BUILD_IN_SOURCE     1
 
       CONFIGURE_COMMAND   <SOURCE_DIR>/configure
