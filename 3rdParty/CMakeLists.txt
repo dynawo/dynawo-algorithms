@@ -30,7 +30,7 @@ if(UNIX)
   endif()
   set(gperftools_url ${gperftools_prefix_url}/gperftools-${gperftools_version}/gperftools-${gperftools_version}.tar.gz)
   set(gperftools_md5 e010d656b8b62e61c0af0c4d79843782)
-  find_library(tcmalloc NAMES "tcmalloc" PATHS ${CMAKE_INSTALL_PREFIX}/gperftools/lib)
+  find_library(tcmalloc NAMES "tcmalloc" HINTS ${CMAKE_INSTALL_PREFIX}/gperftools/lib)
   if (NOT tcmalloc)
     ExternalProject_Add(gperftools
             INSTALL_DIR         ${CMAKE_INSTALL_PREFIX}/gperftools
@@ -63,11 +63,9 @@ endif()
 set(mpich_url ${mpich_prefix_url}/${mpich_version}/mpich-${mpich_version}.tar.gz)
 set(mpich_md5 6ee1cfff98728e5160c6e78bdb1986ca)
 
-set(MPI_HOME ${CMAKE_INSTALL_PREFIX}/mpich)
 find_package(MPI QUIET)
 if(MPI_FOUND)
   add_custom_target(mpich)
-  set(MPI_HOME ${CMAKE_INSTALL_PREFIX}/mpich)
 else()
   ExternalProject_Add(mpich
       INSTALL_DIR         ${CMAKE_INSTALL_PREFIX}/mpich

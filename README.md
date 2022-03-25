@@ -27,6 +27,16 @@ It depends on the [core dynawo libraries of Dyna&omega;o](https://github.com/dyn
 
 ## Building Dyna&omega;o algorithms
 
+### Optionnal requirements
+
+You can install the following 3rd parties with system packages for Ubuntu 20.04:
+
+``` bash
+$> apt install -y libgoogle-perftools-dev mpich
+```
+
+For other Linux distributions similar packages should exist. If not they will be downloaded and installed during the next steps.
+
 ### Configure
 
 To build Dyna&omega;o algorithms, you must first deploy the Dyna&omega;o library.

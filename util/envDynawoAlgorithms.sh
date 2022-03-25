@@ -27,7 +27,7 @@ where [option] can be:
 
     =========== Building dynawo-algorithms project
     config                        configure dynawo-algorithms's compiling environnement using CMake
-    build-3rd-party               build dynawo-algorithms 3rd parties and install
+    config-3rd-Party              configure dynawo-algorithms 3rd parties compiling environnement using CMake
     build                         build dynawo-algorithms and install
     build-3rd-party               build dynawo-algorithms 3rd parties and install
     build-doc                     build dynawo-algorithms's documentation
