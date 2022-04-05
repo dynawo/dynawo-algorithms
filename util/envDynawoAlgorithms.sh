@@ -681,6 +681,7 @@ deploy_dynawo_algorithms() {
   if [ -d $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich ]; then
     cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpi.so* lib/.
     cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpicxx.so* lib/.
+    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/hydra_pmi_proxy bin/.
   else
     if [ ! -f "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt" ]; then
       error_exit "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR should not be deleted before deploy to be able to determine lib system paths used during compilation."
