@@ -358,15 +358,17 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   if (job->getOutputsEntry() && job->getOutputsEntry()->getConstraintsEntry())
     result.setConstraintsFileExtensionFromExportMode(job->getOutputsEntry()->getConstraintsEntry()->getExportMode());
 
-  std::vector<boost::shared_ptr<job::AppenderEntry> > appendersEntry = job->getOutputsEntry()->getLogsEntry()->getAppenderEntries();
-  for (std::vector<boost::shared_ptr<job::AppenderEntry> >::iterator itApp = appendersEntry.begin(), itAppEnd = appendersEntry.end();
-      itApp != itAppEnd; ++itApp) {
-    if ((*itApp)->getTag() == "") {
-      std::string file = createAbsolutePath("outputs", workingDir);
-      file = createAbsolutePath("logs", file);
-      file = createAbsolutePath((*itApp)->getFilePath(), file);
-      result.setLogPath(file);
-      break;
+  if (job->getOutputsEntry() && job->getOutputsEntry()->getLogsEntry()) {
+    std::vector<boost::shared_ptr<job::AppenderEntry> > appendersEntry = job->getOutputsEntry()->getLogsEntry()->getAppenderEntries();
+    for (std::vector<boost::shared_ptr<job::AppenderEntry> >::iterator itApp = appendersEntry.begin(), itAppEnd = appendersEntry.end();
+        itApp != itAppEnd; ++itApp) {
+      if ((*itApp)->getTag() == "") {
+        std::string file = createAbsolutePath("outputs", workingDir);
+        file = createAbsolutePath("logs", file);
+        file = createAbsolutePath((*itApp)->getFilePath(), file);
+        result.setLogPath(file);
+        break;
+      }
     }
   }
   return simulation;
@@ -391,7 +393,8 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
         std::vector<std::pair<double, std::string> > failingCriteria;
         simulation->getFailingCriteria(failingCriteria);
         result.setFailingCriteria(failingCriteria);
-      } else if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR) {
+      } else if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR
+          || e.type() == DYN::Error::NUMERICAL_ERROR) {
         result.setStatus(DIVERGENCE_STATUS);
       } else {
         result.setStatus(EXECUTION_PROBLEM_STATUS);
