@@ -183,9 +183,23 @@ algo_MC() {
       args="$args --directory"
       shift
       ;;
+    --directory=*)
+      value="${1#*=}"
+      if [ ! -z "$value" ]; then
+        if [ -d "$value" ]; then
+          FILTER_TIMELINE=true
+          timeline=$value
+        fi
+      fi
+      args="$args --directory=$value"
+      shift
+      ;;
     --nbThreads|-np)
       NBPROCS=$2
-      shift # past argument
+      shift 2 # past argument and value
+      ;;
+    --nbThreads=*)
+      NBPROCS="${1#*=}"
       shift # past value
       ;;
     *)
@@ -231,9 +245,23 @@ algo_SA() {
       args="$args --directory"
       shift
       ;;
+    --directory=*)
+      value="${1#*=}"
+      if [ ! -z "$value" ]; then
+            if [ -d "$value" ]; then
+          FILTER_TIMELINE=true
+          timeline=$value
+        fi
+      fi
+      args="$args --directory=$value"
+      shift
+      ;;
     --nbThreads|-np)
       NBPROCS=$2
-      shift # past argument
+      shift 2 # past argument and value
+      ;;
+    --nbThreads=*)
+      NBPROCS="${1#*=}"
       shift # past value
       ;;
     *)
