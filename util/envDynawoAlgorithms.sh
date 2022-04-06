@@ -889,9 +889,12 @@ ARGS=""
 while (($#)); do
   key="$1"
   case $key in
-    --nbThreads|-np)
+  --nbThreads|-np)
     NBPROCS=$2
-    shift # past argument
+    shift 2 # past argument and value
+    ;;
+  --nbThreads=*)
+    NBPROCS="${1#*=}"
     shift # past value
     ;;
   *)
