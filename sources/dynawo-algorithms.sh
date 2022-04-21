@@ -63,6 +63,8 @@ setDynawoEnv() {
   export_var_env DYNAWO_NICSLU_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
   export_var_env DYNAWO_LIBIIDM_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
   export_var_env DYNAWO_TCMALLOC_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
+  export_var_env DYNAWO_XERCESC_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
+  export_var_env DYNAWO_LIBXML_HOME=$DYNAWO_ALGORITHMS_INSTALL_DIR
 
   export_var_env DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
 
@@ -76,6 +78,11 @@ setDynawoEnv() {
   export_var_env DYNAWO_PYTHON_COMMAND="python"
 
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
+  
+  if [ -d "$DYNAWO_INSTALL_DIR/OpenModelica" ]; then
+    export PATH=$DYNAWO_INSTALL_DIR/OpenModelica/bin:$PATH
+    export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_INSTALL_DIR/OpenModelica
+  fi
 }
 
 setLibPath() {
@@ -112,26 +119,7 @@ export_preload() {
   fi
 }
 
-find_and_call_timeline() {
-  if [ ! -d "$1" ]; then
-    return 1
-  fi
-find $1 -name $2 | while read filename; do
-    echo "Processing file '$filename'"
-    ${DYNAWO_PYTHON_COMMAND} -u $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/timelineFilter.py --timelineFile $filename
-    RESULT_FILE=`dirname $filename`
-    RESULT_FILE=$RESULT_FILE/$3
-    mv $RESULT_FILE $filename
-  done
-}
-
-filter_timeline() {
-  find_and_call_timeline $1 "timeline.log" "filtered_timeline.log"
-  find_and_call_timeline $1 "timeline.xml" "filtered_timeline.xml"
-}
-
 algo_CS() {
-  LD_LIBRARY_PATH_BEFORE=$LD_LIBRARY_PATH
   setDynawoEnv
   setLibPath
 
@@ -139,60 +127,18 @@ algo_CS() {
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CS $@
   RETURN_CODE=$?
 
-  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
-  while (($#)); do
-  case $1 in
-    --input)
-      if [ ! -z "$2" ]; then
-  	    if [ -f "$2" ]; then
-          filter_timeline `dirname $2`
-        fi
-      fi
-      break
-      ;;
-    *)
-      shift
-      break
-      ;;
-    esac
-  done
-
   return ${RETURN_CODE}
 }
 
 algo_MC() {
-  LD_LIBRARY_PATH_BEFORE=$LD_LIBRARY_PATH
   setDynawoEnv
   setLibPath
   export_preload
 
   args=""
   NBPROCS=1
-  FILTER_TIMELINE=false
   while (($#)); do
   case $1 in
-    --directory)
-      if [ ! -z "$2" ]; then
-  	    if [ -d "$2" ]; then
-          FILTER_TIMELINE=true
-          timeline=$2
-        fi
-      fi
-      args="$args --directory"
-      shift
-      ;;
-    --directory=*)
-      value="${1#*=}"
-      if [ ! -z "$value" ]; then
-        if [ -d "$value" ]; then
-          FILTER_TIMELINE=true
-          timeline=$value
-        fi
-      fi
-      args="$args --directory=$value"
-      shift
-      ;;
     --nbThreads|-np)
       NBPROCS=$2
       shift 2 # past argument and value
@@ -213,13 +159,6 @@ algo_MC() {
   RETURN_CODE=$?
   unset LD_PRELOAD
 
-  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
-
-  if [ "$FILTER_TIMELINE" = true ]; then
-    filter_timeline $timeline
-  fi
-
   return ${RETURN_CODE}
 }
 
@@ -231,30 +170,8 @@ algo_SA() {
 
   NBPROCS=1
   args=""
-  FILTER_TIMELINE=false
   while (($#)); do
   case $1 in
-    --directory)
-      if [ ! -z "$2" ]; then
-  	    if [ -d "$2" ]; then
-          FILTER_TIMELINE=true
-          timeline=$2
-        fi
-      fi
-      args="$args --directory"
-      shift
-      ;;
-    --directory=*)
-      value="${1#*=}"
-      if [ ! -z "$value" ]; then
-            if [ -d "$value" ]; then
-          FILTER_TIMELINE=true
-          timeline=$value
-        fi
-      fi
-      args="$args --directory=$value"
-      shift
-      ;;
     --nbThreads|-np)
       NBPROCS=$2
       shift 2 # past argument and value
@@ -274,12 +191,6 @@ algo_SA() {
   "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=SA $args
   RETURN_CODE=$?
   unset LD_PRELOAD
-
-  #Need to go back to system installation as dynawo libxml2 conflicts with python lxml
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_BEFORE
-  if [ "$FILTER_TIMELINE" = true ]; then
-    filter_timeline $timeline
-  fi
 
   return ${RETURN_CODE}
 }
