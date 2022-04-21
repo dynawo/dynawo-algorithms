@@ -171,6 +171,12 @@ class SimulationResult {
   void setConstraintsFileExtensionFromExportMode(const std::string &constraintsExportMode);
 
   /**
+   * @brief setter of the constraints file extension
+   * @param constraintsFileExtension constraints export mode
+   */
+  void setConstraintsFileExtension(const std::string &constraintsFileExtension);
+
+  /**
    * @brief getter of the timeline file extension
    * @return timeline file extension
    */
@@ -181,6 +187,12 @@ class SimulationResult {
    * @param timelineExportMode timeline export mode
    */
   void setTimelineFileExtensionFromExportMode(const std::string &timelineExportMode);
+
+  /**
+   * @brief setter of the timeline file extension
+   * @param timelineFileExtension timeline export mode
+   */
+  void setTimelineFileExtension(const std::string &timelineFileExtension);
 
   /**
    * @brief getter of the general dynawo log path
