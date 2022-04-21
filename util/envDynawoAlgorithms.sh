@@ -36,6 +36,7 @@ where [option] can be:
 
     distrib                       create distribution of dynawo-algorithms
     distrib-headers               create distribution of dynawo-algorithms with headers
+    distrib-omc                   create distribution of dynawo-algorithms with OpenModelica
     deploy                        deploy the current version of dynawo-algorithms binaries/libraries/includes to be used as a release by an another project
 
     clean                         remove dynawo-algorithms objects
@@ -732,6 +733,7 @@ create_distrib() {
   cp -r $DYNAWO_HOME/lib dynawo-algorithms/
   cp -r $DYNAWO_HOME/ddb dynawo-algorithms/
   cp -r $DYNAWO_HOME/share dynawo-algorithms/
+  cp -r $DYNAWO_HOME/sbin dynawo-algorithms/
   cp -r $DYNAWO_HOME/dynawo.sh dynawo-algorithms/
 
   cp ../bin/* dynawo-algorithms/bin/
@@ -740,7 +742,6 @@ create_distrib() {
   cp ../dynawo-algorithms.sh dynawo-algorithms/
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
-  cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
   zip -r -y ../$ZIP_FILE dynawo-algorithms/
   cd $DYNAWO_ALGORITHMS_DEPLOY_DIR
 
@@ -756,10 +757,19 @@ create_distrib() {
 }
 
 create_distrib_with_headers() {
+  if [ ! -z "$1" ]; then
+    if [ "$1" = "with_omc" ]; then
+      with_omc=yes
+    fi
+  fi
   DYNAWO_ALGORITHMS_VERSION=$(version)
   version=$(echo $DYNAWO_ALGORITHMS_VERSION | cut -f1 -d' ')
 
-  ZIP_FILE=DynawoAlgorithms_headers_V$version.zip
+  if [ "$with_omc" = "yes" ]; then
+    ZIP_FILE=DynawoAlgorithms_omc_V$version.zip
+  else  
+    ZIP_FILE=DynawoAlgorithms_headers_V$version.zip
+  fi
 
   deploy_dynawo_algorithms
 
@@ -777,8 +787,12 @@ create_distrib_with_headers() {
   cp -r $DYNAWO_HOME/lib dynawo-algorithms/
   cp -r $DYNAWO_HOME/ddb dynawo-algorithms/
   cp -r $DYNAWO_HOME/share dynawo-algorithms/
+  cp -r $DYNAWO_HOME/sbin dynawo-algorithms/
   cp -r $DYNAWO_HOME/dynawo.sh dynawo-algorithms/
   cp -r $DYNAWO_HOME/dynawoEnv.txt dynawo-algorithms/
+  if [ "$with_omc" = "yes" ]; then
+    cp -r $DYNAWO_HOME/OpenModelica dynawo-algorithms/
+  fi
 
   cp ../bin/* dynawo-algorithms/bin/
   cp ../include/* dynawo-algorithms/include/
@@ -788,7 +802,6 @@ create_distrib_with_headers() {
 
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
-  cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
   zip -r -y ../$ZIP_FILE dynawo-algorithms/
   zip -r -y ../$ZIP_FILE dynawo-algorithms/dynawo-algorithms.sh
   cd $DYNAWO_ALGORITHMS_DEPLOY_DIR
@@ -960,6 +973,10 @@ case $MODE in
 
   distrib-headers)
     create_distrib_with_headers || error_exit "Error while building dynawo-algorithms distribution with headers"
+    ;;
+
+  distrib-omc)
+    create_distrib_with_headers "with_omc" || error_exit "Error while building dynawo-algorithms distribution with omc"
     ;;
 
   deploy)
