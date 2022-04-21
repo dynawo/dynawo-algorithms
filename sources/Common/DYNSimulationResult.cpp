@@ -167,6 +167,11 @@ SimulationResult::setConstraintsFileExtensionFromExportMode(const std::string &c
     constraintsFileExtension_ = "txt";
 }
 
+void
+SimulationResult::setConstraintsFileExtension(const std::string &constraintsFileExtension) {
+  constraintsFileExtension_ = constraintsFileExtension;
+}
+
 const std::string&
 SimulationResult::getTimelineFileExtension() const {
   return timelineFileExtension_;
@@ -180,6 +185,11 @@ SimulationResult::setTimelineFileExtensionFromExportMode(const std::string &time
     timelineFileExtension_ = "txt";
   else if (timelineExportMode == "CSV")
     timelineFileExtension_ = "csv";
+}
+
+void
+SimulationResult::setTimelineFileExtension(const std::string &timelineFileExtension) {
+  timelineFileExtension_ = timelineFileExtension;
 }
 
 const std::string&

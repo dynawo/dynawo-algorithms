@@ -608,6 +608,24 @@ RobustnessAnalysisLauncher::importResult(const std::string& id) const {
   ss >> status;
   ret.setStatus(static_cast<status_t>(status));
 
+  // timeline extension:
+  std::string timelineExtension;
+  file >> timelineExtension;
+  timelineExtension = timelineExtension.substr(timelineExtension.find(delimiter)+1);
+  ret.setTimelineFileExtension(timelineExtension);
+
+  // constraints extension:
+  std::string cstrExtension;
+  file >> cstrExtension;
+  cstrExtension = cstrExtension.substr(cstrExtension.find(delimiter)+1);
+  ret.setConstraintsFileExtension(cstrExtension);
+
+  // log:
+  std::string logPath;
+  file >> logPath;
+  logPath = logPath.substr(logPath.find(delimiter)+1);
+  ret.setLogPath(logPath);
+
   // criteria
   file >> tmpStr;
   assert(tmpStr == "criteria:");
@@ -643,6 +661,9 @@ RobustnessAnalysisLauncher::exportResult(const SimulationResult& result) const {
   file << "variation:" <<result.getVariation() << std::endl;
   file << "success:" << std::boolalpha << result.getSuccess() << std::endl;
   file << "status:" << static_cast<unsigned int>(result.getStatus()) << std::endl;
+  file << "timeline extension:" << result.getTimelineFileExtension() << std::endl;
+  file << "constraints extension:" << result.getConstraintsFileExtension() << std::endl;
+  file << "log:" << result.getLogPath() << std::endl;
   file << "criteria:" << std::endl;
   for (const auto& criteria : result.getFailingCriteria()) {
     file << criteria.first << ":" << criteria.second << std::endl;
