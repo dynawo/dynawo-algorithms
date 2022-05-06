@@ -246,7 +246,7 @@ set_environnement() {
   export_var_env DYNAWO_GTEST_HOME=$DYNAWO_HOME
   export_var_env DYNAWO_GMOCK_HOME=$DYNAWO_HOME
 
-  export_var_env_force DYNAWO_IIDM_EXTENSION=$DYNAWO_LIBIIDM_INSTALL_DIR/lib/libdynawo_DataInterfaceIIDMExtension.so
+  export_var_env DYNAWO_IIDM_EXTENSION=$DYNAWO_LIBIIDM_INSTALL_DIR/lib/libdynawo_DataInterfaceIIDMExtension.so
   export_var_env_force DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
 
   # For Modelica models compilation
