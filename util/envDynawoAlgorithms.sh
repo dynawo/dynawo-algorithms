@@ -246,7 +246,7 @@ set_environnement() {
   export_var_env DYNAWO_GTEST_HOME=$DYNAWO_HOME
   export_var_env DYNAWO_GMOCK_HOME=$DYNAWO_HOME
 
-  export_var_env_force DYNAWO_IIDM_EXTENSION=$DYNAWO_LIBIIDM_INSTALL_DIR/lib/libdynawo_DataInterfaceIIDMExtension.so
+  export_var_env DYNAWO_IIDM_EXTENSION=$DYNAWO_LIBIIDM_INSTALL_DIR/lib/libdynawo_DataInterfaceIIDMExtension.so
   export_var_env_force DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
 
   # For Modelica models compilation
@@ -391,6 +391,7 @@ config_dynawo_algorithms_3rdParties() {
     -DCMAKE_INSTALL_PREFIX=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR \
     -DDOWNLOAD_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/src \
     -DTMP_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/tmp \
+    -DDYNAWO_HOME=$DYNAWO_HOME \
     $DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR
   RETURN_CODE=$?
   return ${RETURN_CODE}
