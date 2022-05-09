@@ -279,6 +279,16 @@ set_environnement() {
   export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_HOME/OpenModelica
   export_var_env DYNAWO_DICTIONARIES=dictionaries_mapping
 
+  export_var_env DYNAWO_CMAKE_BUILD_OPTION=""
+  if [ -x "$(command -v cmake)" ]; then
+    CMAKE_VERSION=$(cmake --version | head -1 | awk '{print $(NF)}')
+    CMAKE_BUILD_OPTION=""
+    if [ $(echo $CMAKE_VERSION | cut -d '.' -f 1) -ge 3 -a $(echo $CMAKE_VERSION | cut -d '.' -f 2) -ge 12 ]; then
+      CMAKE_BUILD_OPTION="-j $DYNAWO_NB_PROCESSORS_USED"
+    fi
+    export_var_env_force DYNAWO_CMAKE_BUILD_OPTION="$CMAKE_BUILD_OPTION"
+  fi
+
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
 
   if [ -z "$MPIRUN_PATH" ]; then
@@ -392,6 +402,7 @@ config_dynawo_algorithms_3rdParties() {
     -DDOWNLOAD_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/src \
     -DTMP_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/tmp \
     -DDYNAWO_HOME=$DYNAWO_HOME \
+    -DMPI_HOME=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich \
     $DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR
   RETURN_CODE=$?
   return ${RETURN_CODE}
@@ -399,7 +410,7 @@ config_dynawo_algorithms_3rdParties() {
 
 build_dynawo_algorithms_3rdParties() {
   pushd $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR > /dev/null
-  cmake --build .
+  cmake --build . $DYNAWO_CMAKE_BUILD_OPTION
   RETURN_CODE=$?
   popd > /dev/null
   return ${RETURN_CODE}
@@ -446,8 +457,7 @@ config_dynawo_algorithms() {
 # Compile dynawo-algorithms
 build_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
-  cmake --build . &&
-  cmake --build . --target install
+  cmake --build . --target install $DYNAWO_CMAKE_BUILD_OPTION
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -462,7 +472,7 @@ build_test_doc() {
 build_doc_dynawo_algorithms() {
   cd $DYNAWO_ALGORITHMS_BUILD_DIR
   mkdir -p $DYNAWO_ALGORITHMS_INSTALL_DIR/doxygen/
-  cmake --build . --target doc
+  cmake --build . --target doc $DYNAWO_CMAKE_BUILD_OPTION
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -492,9 +502,9 @@ build_tests() {
   build_dynawo_algorithms || error_exit
   tests=$@
   if [ -z "$tests" ]; then
-    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target tests --config Debug
+    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target tests --config Debug $DYNAWO_CMAKE_BUILD_OPTION
   else
-    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target ${tests} --config Debug
+    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target ${tests} --config Debug $DYNAWO_CMAKE_BUILD_OPTION
   fi
   RETURN_CODE=$?
   return ${RETURN_CODE}
@@ -507,15 +517,15 @@ build_tests_coverage() {
   config_dynawo_algorithms || error_exit
   build_dynawo_algorithms || error_exit
   tests=$@
-  cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target reset-coverage --config Debug || error_exit "Error during reset-coverage."
+  cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target reset-coverage --config Debug $DYNAWO_CMAKE_BUILD_OPTION || error_exit "Error during reset-coverage."
   if [ -z "$tests" ]; then
-    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target tests-coverage --config Debug || error_exit "Error during tests-coverage."
+    cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target tests-coverage --config Debug $DYNAWO_CMAKE_BUILD_OPTION || error_exit "Error during tests-coverage."
   else
     for test in ${tests}; do
-      cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target ${test}-coverage --config Debug || error_exit "Error during ${test}-coverage."
+      cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target ${test}-coverage --config Debug $DYNAWO_CMAKE_BUILD_OPTION || error_exit "Error during ${test}-coverage."
     done
   fi
-  cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target export-coverage --config Debug
+  cmake --build $DYNAWO_ALGORITHMS_BUILD_DIR --target export-coverage --config Debug $DYNAWO_CMAKE_BUILD_OPTION
 
   RETURN_CODE=$?
   if [ ${RETURN_CODE} -ne 0 ]; then
