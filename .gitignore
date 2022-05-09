@@ -11,6 +11,12 @@ documentation/*.log
 documentation/*.nlo
 documentation/*.out
 documentation/*.pdf
+documentation/*/*/*.aux
+documentation/*/*/*.log
+documentation/*/*/*.nlo
+documentation/*/*/*.out
+documentation/*/*/*.pdf
+documentation/dynawoAlgorithmsDocumentation
 nrt/data/*/*/outputs*/
 nrt/data/*/*/step-*
 nrt/data/IEEE14/IEEE14*/*.xml
