@@ -53,7 +53,7 @@ Please refer to the section \ref{Dynawo_algorithms_Outputs_AggrResults} for more
 \subsubsection{SA mode: systematic analysis}
 
 The Systematic Analysis (SA) mode can be used to start from a single base simulation and to observe 
-if the network remains stable when some events occur (typically N-k scenarios).\\
+if the network remains stable when some events occur.\\
 
 \begin{center}
 \begin{figure}[H]
@@ -81,7 +81,7 @@ if the network remains stable when some events occur (typically N-k scenarios).\
 \end{figure}
 \end{center}
 
-The inputs is a xml multiple jobs file.
+The input is a xml multiple jobs file.
 
 \lstinputlisting[language=XML, morekeywords={id},title=multiple jobs file example]{../resources/syntaxExample/SASyntaxExample.xml}
 
@@ -89,7 +89,7 @@ In this example, the base situation is described in \textbf{IEEE14.jobs} file. T
 
 Three scenarios will be applied to this base situation: `DisconnectLine', 'Fault` and DisconnectGroup'. 
 Each event is described in an additional \textbf{dyd} file that will be added to the base situation. 
-The 'Base' scenario has no associated \textbf{dyd} file and will thus simulate to the base situation.
+The 'Base' scenario has no associated \textbf{dyd} file and will thus simulate the base situation.
 
 Below is an example of a \textbf{dyd} file for an event:
 
@@ -110,8 +110,8 @@ $> ./myEnvDynawoAlgorithms.sh SA --directory nrt/data/IEEE14/SA --input fic_MULT
 \end{lstlisting}
 
 This command will launch the systematic analysis described in the file \textit{nrt/data/IEEE14/SA/fic\_MULTIPLE.xml} in multi-threading 
-and provide as outputs a file named \textit{results.xml} containing the status of each simulated event, 
-in addition to the timelines and constraint files of the \Dynawo event simulations.\\
+and provides as outputs a file named \textit{results.xml} containing the status of each simulated event, 
+in addition to the timelines, logs and constraint files of the \Dynawo event simulations.\\
 
 \begin{lstlisting}[language=bash, breaklines=true, breakatwhitespace=false]
 $> ./myEnvDynawoAlgorithms.sh SA --directory nrt/data/IEEE14/SA --input inputs.zip --output outputs.zip
@@ -119,7 +119,7 @@ $> ./myEnvDynawoAlgorithms.sh SA --directory nrt/data/IEEE14/SA --input inputs.z
 
 This command will unzip the files contained in \textit{inputs.zip}, launch a SA assuming the input file name is \textit{fic\_MULTIPLE.xml}
 and provide as outputs a zipped file named \textit{outputs.zip} containing the status of each simulated event, 
-the timelines and constraint files of the \Dynawo event simulations.\\
+the timelines, logs and constraint files of the \Dynawo event simulations.\\
 
 Please refer to the section \ref{Dynawo_algorithms_Outputs_AggrResults} for more details on the output file.
 
@@ -127,8 +127,8 @@ Please refer to the section \ref{Dynawo_algorithms_Outputs_AggrResults} for more
 \subsubsection{MC mode: margin calculation}
 
 The Margin Calculation (MC) mode can be used to start from a single base simulation, to apply a load variation and to observe 
-if the network remains stable when some events occur (typically N-k scenarios).\\
-The algorithm is as follows: we first simulate the maximum load variation (100\%), and the use the results as the starting point for each event simulation.
+if the network remains stable when some events occur.\\
+The algorithm is as follows: we first simulate the maximum load variation (100\%), and then use the results as the starting point for each event simulation.
 If one of those simulation fails, a dichotomy is applied to find out the maximum load variation for which all events (global margin) or each event (local margin) pass.\\
 
 \begin{center}
@@ -170,7 +170,7 @@ If one of those simulation fails, a dichotomy is applied to find out the maximum
 \end{figure}
 \end{center}
 
-The inputs is a xml multiple jobs file.
+The input is a xml multiple jobs file.
 
 \lstinputlisting[language=XML, morekeywords={id},title=multiple jobs file example]{../resources/syntaxExample/MCSyntaxExample.xml}
 
@@ -201,16 +201,16 @@ $> ./myEnvDynawoAlgorithms.sh MC --directory nrt/data/IEEE14/MC --input fic_MULT
 \end{lstlisting}
 
 This command will launch the margin calculation described in the file \textit{nrt/data/IEEE14/MC/fic\_MULTIPLE.xml} in multi-threading 
-and provide as outputs a file named \textit{results.xml} containing the status of all simulations that were run, 
-in addition to the timelines and constraint files.\\
+and provides as outputs a file named \textit{results.xml} containing the status of all simulations that were run, 
+in addition to the timelines, logs and constraint files.\\
 
 \begin{lstlisting}[language=bash, breaklines=true, breakatwhitespace=false]
 $> ./myEnvDynawoAlgorithms.sh MC --directory nrt/data/IEEE14/MC --input inputs.zip --output outputs.zip
 \end{lstlisting}
 
 This command will unzip the files contained in \textit{inputs.zip}, launch a MC assuming the input file name is \textit{fic\_MULTIPLE.xml}
-and provide as outputs a zipped file named \textit{outputs.zip} containing the status of all simulations that were run, 
-in addition to the timelines and constraint files.\\
+and provides as outputs a zipped file named \textit{outputs.zip} containing the status of all simulations that were run, 
+in addition to the timelines, logs and constraint files.\\
 
 Please refer to the section \ref{Dynawo_algorithms_Outputs_AggrResults} for more details on the output file.
 
@@ -257,12 +257,12 @@ results file with one scenario entry for each job in the input jobs file.
 
 \subsubsection{SA mode}
 
-the output files of the SA mode are the timelines and constraint files for all simulations (if they were requested in the base \textbf{.jobs} file), in addition to an aggregated 
+the output files of the SA mode are the timelines, logs and constraint files for all simulations (if they were requested in the base \textbf{.jobs} file), in addition to an aggregated 
 results file with one result per scenario.
 
 \subsubsection{MC mode}
 
-the output files of the SA mode are the timelines and constraint files for all simulations (if they were requested in the base \textbf{.jobs} files), in addition to an aggregated 
+the output files of the SA mode are the timelines, logs and constraint files for all simulations (if they were requested in the base \textbf{.jobs} files), in addition to an aggregated 
 results file with one result per load increase and one result per scenario for each variation that were simulated.
 
 \lstinputlisting[language=XML, morekeywords={id},title=MC results file example]{../resources/syntaxExample/MCResults.xml}
