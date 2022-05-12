@@ -789,7 +789,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
 void
 MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const {
   Trace::resetCustomAppenders();  // to force flush
-  Trace::resetPersistantCustomAppenders();  // to force flush
+  Trace::resetPersistantCustomAppender(logTag_, DYN::INFO);  // to force flush
   aggregatedResults::XmlExporter exporter;
   if (zipIt) {
     std::stringstream aggregatedResults;
