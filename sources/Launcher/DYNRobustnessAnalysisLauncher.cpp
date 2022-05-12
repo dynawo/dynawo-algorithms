@@ -426,7 +426,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
 void
 RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::map<std::string, std::string>& mapData) const {
   Trace::resetCustomAppenders();  // to force flush
-  Trace::resetPersistantCustomAppenders();  // to force flush
+  Trace::resetPersistantCustomAppender(logTag_, DYN::INFO);  // to force flush
   if (!result.getTimelineStreamStr().empty()) {
     std::stringstream timelineName;
     timelineName << "timeLine/timeline_" << result.getUniqueScenarioId() << "." << result.getTimelineFileExtension();
@@ -452,7 +452,7 @@ RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::ma
 void
 RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
   Trace::resetCustomAppenders();  // to force flush
-  Trace::resetPersistantCustomAppenders();  // to force flush
+  Trace::resetPersistantCustomAppender(logTag_, DYN::INFO);  // to force flush
   std::string constraintPath = createAbsolutePath("constraints", workingDirectory_);
   if (!is_directory(constraintPath))
     create_directory(constraintPath);
