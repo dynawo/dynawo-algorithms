@@ -32,8 +32,8 @@ The packages required to use the distribution are the same as \Dynawo.
 
 You can use the following commands to download and test the latest distribution:
 \begin{lstlisting}[language=bash, breaklines=true, breakatwhitespace=false]
-$> curl -L $(curl -s -L -X GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep "Dynawo_Algorithms_Linux" | grep url | cut -d '"' -f 4) -o Dynawo_Algorithms_Linux_latest.zip
-$> unzip Dynawo_Algorithms_Linux_latest.zip
+$> curl -L $(curl -s -L -X GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep "DynawoAlgorithms_Linux" | grep url | cut -d '"' -f 4) -o DynawoAlgorithms_Linux_latest.zip
+$> unzip DynawoAlgorithms_Linux_latest.zip
 $> cd dynawo-algorithms
 $> ./dynawo-algorithms.sh CS --input Dynawo_Linux_latest/nrt/data/IEEE14/IEEE14_BlackBoxModels/IEEE14.jobs
 $> ./dynawo-algorithms.sh help
