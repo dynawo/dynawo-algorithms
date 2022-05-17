@@ -22,10 +22,10 @@ Dyna&omega;o-algorithms is a wrapper around [Dyna&omega;o](https://dynawo.github
 It can be used with any tool of the Dyna&omega;o toolsuite (DynaFlow, DynaWaltz, DynaSwing, DySym, DynaWave).
 
 It provides the following possibilities:
-  - **Unitary simulations**: simulations of one or several power systems described in a .jobs file 
+  - **Unitary simulations**: simulations of one or several power systems test cases described in a .jobs file 
   (see [Dyna&omega;o documentation](https://github.com/dynawo/dynawo/releases/download/v1.3.0/DynawoDocumentation.pdf));
-  - **Systematic analysis**: simulations of a same base power system subject to different events to assess the global stability;
-  - **Margin calculation**: simulations of a same base power system with a load variation and subject to different events to compute the maximum load increase in a specific region before the voltage collapses;
+  - **Systematic analysis**: simulations of a same base power system test case subject to different events to assess the global stability;
+  - **Margin calculation**: simulations of a same base power system test case with a load variation and subject to different events to compute the maximum load increase in a specific region before the voltage collapses;
   - **Load increase**: simulation of a single load variation.
 
 ## Dyna&omega;o algorithms Distribution
@@ -86,7 +86,7 @@ The path to dynawo deploy is then the path to the subdirectory `dynawo` in the d
 PATH_TO_DYNAWO_DEPLOY=${DYNAWO_HOME}/deploy/gcc8/shared/dynawo/
 ```
 
-To build Dyna&omega;o-algorithms you need to clone the repository launch the following commands in the source code directory. it will create a `myEnvDynawoAlgorithms.sh` script file that will be your personal entrypoint to launch algorithms and configure some options.
+To build Dyna&omega;o-algorithms you need to clone the repository and launch the following commands in the source code directory. It will create a `myEnvDynawoAlgorithms.sh` script file that will be your personal entrypoint to launch algorithms and configure some options.
 
 ``` bash
 $> echo '#!/bin/bash
