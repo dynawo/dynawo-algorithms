@@ -72,7 +72,23 @@ For other Linux distributions similar packages should exist. If not they will be
 
 ### Configure
 
-To build Dyna&omega;o-algorithms, you must first deploy the Dyna&omega;o library.
+You can either choose to build Dyna&omega;o-algorithms with a pre-built nightly version of Dyna&omega;o or by building Dyna&omega;o from scratch. Choose one of the two options below.
+
+#### With pre-build dynawo nightly
+
+``` bash
+$> cd dynawo-algorithms
+$> curl -LO https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_headers_V1.4.0.zip
+$> unzip Dynawo_headers_V1.4.0.zip
+```
+
+``` bash
+PATH_TO_DYNAWO_DEPLOY=$(pwd)/dynawo
+```
+
+#### By building dynawo
+
+To build Dyna&omega;o and deploy, you can do:
 
 ``` bash
 $> ./myEnvDynawo.sh build-all
@@ -86,7 +102,9 @@ The path to dynawo deploy is then the path to the subdirectory `dynawo` in the d
 PATH_TO_DYNAWO_DEPLOY=${DYNAWO_HOME}/deploy/gcc8/shared/dynawo/
 ```
 
-To build Dyna&omega;o-algorithms you need to clone the repository and launch the following commands in the source code directory. It will create a `myEnvDynawoAlgorithms.sh` script file that will be your personal entrypoint to launch algorithms and configure some options.
+#### Environment creation
+
+To build Dyna&omega;o-algorithms you need to clone the repository and launch the following commands in the source code directory. it will create a `myEnvDynawoAlgorithms.sh` script file that will be your personal entrypoint to launch algorithms and configure some options.
 
 ``` bash
 $> echo '#!/bin/bash
