@@ -56,11 +56,11 @@ where [option] can be:
     build-tests                   build and launch dynawo-algorithms's unittest
     build-tests-coverage          build/launch dynawo-algorithms's unittest and generate code coverage report
     unittest-gdb [arg]            call unittest in gdb
-    
+
     =========== dynawo-algorithms documentation
     doc                                   open Dynawo-algorithms's documentation
     doxygen-doc                           open Dynawo-algorithms's Doxygen documentation into chosen browser
- 
+
     build-doc                             build documentation
     build-doxygen-doc                     build all doxygen documentation
 
@@ -365,7 +365,7 @@ set_standardEnvironmentVariables() {
 
   if [ "$DYNAWO_BUILD_TYPE" = "Debug" ]; then
     if [ -d "$DYNAWO_GTEST_HOME/lib64" ]; then
-      ld_library_path_prepend $DYNAWO_GTEST_HOME/lib64 
+      ld_library_path_prepend $DYNAWO_GTEST_HOME/lib64
     elif [ -d "$DYNAWO_GTEST_HOME/lib" ]; then
       ld_library_path_prepend $DYNAWO_GTEST_HOME/lib
     else
@@ -846,6 +846,14 @@ create_distrib() {
   cp ../lib/* dynawo-algorithms/lib/.
   cp -r ../share/* dynawo-algorithms/share/
   cp ../dynawo-algorithms.sh dynawo-algorithms/
+
+  mkdir -p dynawo-algorithms/examples/CS
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/IEEE14_BlackBoxModels/* dynawo-algorithms/examples/CS
+  mkdir -p dynawo-algorithms/examples/SA
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/MC/files/* dynawo-algorithms/examples/SA
+  mkdir -p dynawo-algorithms/examples/MC
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/SA/files/* dynawo-algorithms/examples/MC
+
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
   cp $DYNAWO_HOME/sbin/timeline_filter/timelineFilter.py dynawo-algorithms/bin/.
@@ -893,6 +901,13 @@ create_distrib_with_headers() {
   cp ../lib/* dynawo-algorithms/lib/.
   cp -r ../share/* dynawo-algorithms/share/
   cp ../dynawo-algorithms.sh dynawo-algorithms/
+
+  mkdir -p dynawo-algorithms/examples/CS
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/IEEE14_BlackBoxModels/* dynawo-algorithms/examples/CS
+  mkdir -p dynawo-algorithms/examples/SA
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/MC/files/* dynawo-algorithms/examples/SA
+  mkdir -p dynawo-algorithms/examples/MC
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/SA/files/* dynawo-algorithms/examples/MC
 
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic

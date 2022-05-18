@@ -21,7 +21,7 @@
       <dyn:modelicaModels useStandardModels="true"/>
     </dyn:modeler>
     <dyn:simulation startTime="0" stopTime="100">
-      <dyn:criteria criteriaFile="../criteria.crt"/>
+      <dyn:criteria criteriaFile="criteria.crt"/>
     </dyn:simulation>
     <dyn:outputs directory="outputs">
       <dyn:timeline exportMode="TXT"/>

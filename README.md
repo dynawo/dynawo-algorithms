@@ -25,6 +25,36 @@ Dyna&omega;o algorithms aims to contain the complex algorithms used in analysis 
 
 It depends on the [core dynawo libraries of Dyna&omega;o](https://github.com/dynawo/dynawo)
 
+## Dyna&omega;o algorithms Distribution
+
+You can download a pre-built Dyna&omega;o algorithms release to start testing it. Pre-built releases are available for **Linux**:
+- [Linux](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.0/DynawoAlgorithms_Linux_v1.3.0.zip)
+
+### Linux Requirements for Distribution
+
+- Binary utilities: [curl](https://curl.haxx.se/) and unzip
+
+``` bash
+$> apt install -y unzip curl
+$> dnf install -y unzip curl
+```
+
+### Using a distribution
+
+#### Linux
+
+You can launch the following commands to download and test the latest distribution:
+
+``` bash
+$> curl -L $(curl -s -L -X GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep "DynawoAlgorithms_Linux_v" | grep url | cut -d '"' -f 4) -o DynawoAlgorithms_Linux_latest.zip
+$> unzip DynawoAlgorithms_Linux_latest.zip
+$> cd dynawo-algorithms
+$> ./dynawo-algorithms.sh --help
+$> ./dynawo-algorithms.sh CS --input examples/CS/IEEE14.jobs
+$> ./dynawo-algorithms.sh SA --input fic_MULTIPLE.xml --output testSA.zip --directory examples/SA
+$> ./dynawo-algorithms.sh MC --input fic_MULTIPLE.xml --output testMC.zip --directory examples/MC
+```
+
 ## Building Dyna&omega;o algorithms
 
 ### Optionnal requirements
