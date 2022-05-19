@@ -28,7 +28,7 @@ import nrt
 nrtDiff_dir = os.environ["DYNAWO_NRT_DIFF_DIR"]
 sys.path.append(nrtDiff_dir)
 import nrtDiff
-    
+
 class TestCaseAlgo:
     def __init__(self, case, case_name, case_description, job_type, jobs_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes):
         self.case_ = case
@@ -53,14 +53,14 @@ class TestCaseAlgo:
     def launch(self, timeout):
         start_time = time.time()
         command = []
-        
+
         if self.zip_inputs :
             with contextlib.closing(ZipFile(self.jobs_file_, 'w')) as zipObj:
                 path_to_zip = os.path.join(os.path.dirname(self.jobs_file_), "files")
                 for file in os.listdir(path_to_zip):
-                    if ".dyd" in file or ".jobs" in file or ".par" in file or ".iidm" in file or ".crv" in file or "fic_MULTIPLE.xml" in file:
+                    if ".dyd" in file or ".jobs" in file or ".par" in file or ".iidm" in file or ".crv" in file or "fic_MULTIPLE.xml" in file or ".crt" in file:
                         zipObj.write(os.path.join(path_to_zip, file), file)
-        
+
 
         if os.getenv("DYNAWO_ENV_DYNAWO") is None:
             print("environment variable DYNAWO_ENV_DYNAWO needs to be defined")
@@ -116,7 +116,7 @@ class TestCaseAlgo:
         if self.ok_ and ".zip" in self.jobs_file_ and (self.job_type == "SA" or self.job_type == "MC"):
             with contextlib.closing(ZipFile(output_file, 'r')) as zipObj:
                 zipObj.extractall(directory)
-            
+
         end_time = time.time()
         self.time_ = end_time - start_time
 
