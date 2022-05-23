@@ -34,6 +34,7 @@ nrt/data/IEEE14/SA*/result.zip
 nrt/data/IEEE14/SA*/Base
 nrt/data/IEEE14/SA*/Disconnect*
 nrt/data/IEEE14/SA*/Fault*
+nrt/data/IEEE14/SA*/dynawo.log
 nrt/data/IEEE14/MC*/IEEE14*
 nrt/data/IEEE14/MC*/*.dmp
 nrt/data/IEEE14/MC*/*.iidm

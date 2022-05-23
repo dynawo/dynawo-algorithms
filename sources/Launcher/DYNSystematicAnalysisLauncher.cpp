@@ -27,6 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 #include <libzip/ZipFile.h>
 #include <libzip/ZipFileFactory.h>
@@ -43,6 +44,7 @@
 #include <JOBJobEntry.h>
 #include <JOBOutputsEntry.h>
 #include <JOBTimelineEntry.h>
+#include <DYNTrace.h>
 
 #include "DYNMultipleJobs.h"
 #include "DYNScenarios.h"
@@ -52,10 +54,17 @@
 #include "MacrosMessage.h"
 #include "DYNMPIContext.h"
 
+using DYN::Trace;
+
 namespace DYNAlgorithms {
+
+static DYN::TraceStream TraceInfo(const std::string& tag = "") {
+  return mpi::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
+}
 
 void
 SystematicAnalysisLauncher::launch() {
+  boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
   boost::shared_ptr<Scenarios> scenarios = multipleJobs_->getScenarios();
   if (!scenarios) {
     throw DYNAlgorithmsError(SystematicAnalysisTaskNotFound);
@@ -95,6 +104,9 @@ SystematicAnalysisLauncher::launch() {
       cleanResult(scenario->getId());
     }
   }
+  boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+  boost::posix_time::time_duration diff = t1 - t0;
+  TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Systematic analysis", diff.total_milliseconds()/1000) << Trace::endline;
 }
 
 SimulationResult
