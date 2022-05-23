@@ -19,7 +19,6 @@
  */
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "boost/date_time/posix_time/posix_time.hpp"
 
 #include <DYNExecUtils.h>
 #include <DYNIoDico.h>
@@ -116,27 +115,14 @@ int main(int argc, char** argv) {
     dicos.addDicos(getMandatoryEnvVar("DYNAWO_DICTIONARIES"),
         getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
 
-    boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
     if (simulationType == "MC" && variation < 0) {
       launchMarginCalculation(inputFile, outputFile, directory);
-      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-      boost::posix_time::time_duration diff = t1 - t0;
-      std::cout << "Margin calculation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
     } else if (simulationType == "MC") {
       launchLoadVariationCalculation(inputFile, outputFile, directory, variation);
-      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-      boost::posix_time::time_duration diff = t1 - t0;
-      std::cout << "Load variation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
     } else if (simulationType == "SA") {
       launchSystematicAnalysis(inputFile, outputFile, directory);
-      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-      boost::posix_time::time_duration diff = t1 - t0;
-      std::cout << "Systematic analysis finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
     } else if (simulationType == "CS") {
       launchSimulation(inputFile, outputFile);
-      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-      boost::posix_time::time_duration diff = t1 - t0;
-      std::cout << "Simulation finished in " << diff.total_milliseconds()/1000 << "s" << std::endl;
     }
   }  catch (const char *s) {
     std::cerr << s << std::endl;
@@ -175,7 +161,8 @@ void launchMarginCalculation(const std::string& inputFile, const std::string& ou
   marginCalculationLauncher->setOutputFile(outputFile);
   marginCalculationLauncher->setDirectory(directory);
 
-  marginCalculationLauncher->init(true);
+  const bool initLog = true;
+  marginCalculationLauncher->init(initLog);
   try {
     marginCalculationLauncher->launch();
   }
@@ -203,7 +190,8 @@ void launchSystematicAnalysis(const std::string& inputFile, const std::string& o
   analysisLauncher->setOutputFile(outputFile);
   analysisLauncher->setDirectory(directory);
 
-  analysisLauncher->init();
+  const bool initLog = true;
+  analysisLauncher->init(initLog);
   analysisLauncher->launch();
   analysisLauncher->writeResults();
 }

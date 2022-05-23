@@ -23,6 +23,8 @@
 #include <ctime>
 #include <iomanip>
 
+#include "boost/date_time/posix_time/posix_time.hpp"
+
 #include <libzip/ZipFile.h>
 #include <libzip/ZipFileFactory.h>
 #include <libzip/ZipEntry.h>
@@ -105,6 +107,7 @@ MarginCalculationLauncher::readTimes(const std::string& jobFileLoadIncrease, con
 void
 MarginCalculationLauncher::launch() {
   assert(multipleJobs_);
+  boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
   results_.clear();
   boost::shared_ptr<MarginCalculation> marginCalculation = multipleJobs_->getMarginCalculation();
   if (!marginCalculation) {
@@ -157,6 +160,9 @@ MarginCalculationLauncher::launch() {
     if (nbSuccess == events.size()) {  // all events succeed
       TraceInfo(logTag_) << "============================================================ " << Trace::endline;
       TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, 100.) << Trace::endline;
+      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+      boost::posix_time::time_duration diff = t1 - t0;
+      TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
       TraceInfo(logTag_) << "============================================================ " << Trace::endline;
       cleanResultDirectories(events);
       return;
@@ -196,6 +202,9 @@ MarginCalculationLauncher::launch() {
       } else {
         TraceInfo(logTag_) << "============================================================ " << Trace::endline;
         TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, 0.) << Trace::endline;
+        boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+        boost::posix_time::time_duration diff = t1 - t0;
+        TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
         TraceInfo(logTag_) << "============================================================ " << Trace::endline;
         cleanResultDirectories(events);
         return;  // unable to launch the initial simulation with 0% of load increase
@@ -207,6 +216,12 @@ MarginCalculationLauncher::launch() {
         TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
         if (it->getStatus() != CONVERGENCE_STATUS) {  // one event crashes
           cleanResultDirectories(events);
+          TraceInfo(logTag_) << "============================================================ " << Trace::endline;
+          TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, 0.) << Trace::endline;
+          boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+          boost::posix_time::time_duration diff = t1 - t0;
+          TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
+          TraceInfo(logTag_) << "============================================================ " << Trace::endline;
           return;
         }
       }
@@ -214,6 +229,9 @@ MarginCalculationLauncher::launch() {
     }
     TraceInfo(logTag_) << "============================================================ " << Trace::endline;
     TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, value) << Trace::endline;
+    boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+    boost::posix_time::time_duration diff = t1 - t0;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
     TraceInfo(logTag_) << "============================================================ " << Trace::endline;
   } else {
     assert(marginCalculation->getCalculationType() == MarginCalculation::LOCAL_MARGIN);
@@ -257,6 +275,9 @@ MarginCalculationLauncher::launch() {
     for (size_t i = 0; i < results.size(); ++i) {
       TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueScenario, events[i]->getId(), results[i]) << Trace::endline;
     }
+    boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+    boost::posix_time::time_duration diff = t1 - t0;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
     TraceInfo(logTag_) << "============================================================ " << Trace::endline;
   }
   cleanResultDirectories(events);
