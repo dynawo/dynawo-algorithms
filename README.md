@@ -159,8 +159,6 @@ To launch Dyna&omega;o-algorithms nrt, launch the following command after build:
 $> ./myEnvDynawoAlgorithms.sh nrt
 ```
 
-:warning: nrt do not cover the use of multithreading
-
 ## Launching a simulation
 
 For more details on the fic_MULTIPLE.xml and aggregatedResults.xml formats please refer to the documentation.
