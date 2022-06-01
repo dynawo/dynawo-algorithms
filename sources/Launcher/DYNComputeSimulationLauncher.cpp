@@ -20,6 +20,7 @@
 #include "DYNComputeSimulationLauncher.h"
 
 #include "DYNAggrResXmlExporter.h"
+#include "MacrosMessage.h"
 
 #include <DYNFileSystemUtils.h>
 #include <JOBIterators.h>
@@ -27,13 +28,21 @@
 #include <JOBOutputsEntry.h>
 #include <JOBJobsCollection.h>
 #include <JOBXmlImporter.h>
+#include <DYNTrace.h>
+
+#include "boost/date_time/posix_time/posix_time.hpp"
+
+using DYN::Trace;
 
 namespace DYNAlgorithms {
 
 void
 ComputeSimulationLauncher::launch() {
+  boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
   std::string outputFileFullPath = outputFile_;
   std::string workingDir = absolute(remove_file_name(inputFile_));
+  workingDirectory_ = workingDir;
+  initLog();
   if (outputFileFullPath.empty()) {
     outputFileFullPath = createAbsolutePath("results.xml", workingDir);
   }
@@ -55,6 +64,9 @@ ComputeSimulationLauncher::launch() {
   }
   aggregatedResults::XmlExporter exporter;
   exporter.exportScenarioResultsToFile(results_, outputFileFullPath);
+  boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+  boost::posix_time::time_duration diff = t1 - t0;
+  Trace::info(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Simulation", diff.total_milliseconds()/1000) << Trace::endline;
 }
 
 void

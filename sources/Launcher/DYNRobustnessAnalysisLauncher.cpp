@@ -363,7 +363,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     for (std::vector<boost::shared_ptr<job::AppenderEntry> >::iterator itApp = appendersEntry.begin(), itAppEnd = appendersEntry.end();
         itApp != itAppEnd; ++itApp) {
       if ((*itApp)->getTag() == "") {
-        std::string file = createAbsolutePath("outputs", workingDir);
+        std::string file = createAbsolutePath(job->getOutputsEntry()->getOutputsDirectory(), workingDir);
         file = createAbsolutePath("logs", file);
         file = createAbsolutePath((*itApp)->getFilePath(), file);
         result.setLogPath(file);
