@@ -208,6 +208,11 @@ class RobustnessAnalysisLauncher {
    */
   void cleanResult(const std::string& id) const;
 
+  /**
+   * @brief Initialize algorithm log
+   */
+  void initLog();
+
  protected:
   const std::string logTag_;  ///< tag string in dynawo.log
   std::string inputFile_;  ///< input data for the analysis
@@ -244,11 +249,6 @@ class RobustnessAnalysisLauncher {
    * @return true if dump export is required, false if not
    */
   static bool findExportDump(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates);
-
-  /**
-   * @brief Initialize algorithm log
-   */
-  void initLog();
 
   /**
    * read the input data for launching the systematic analysis

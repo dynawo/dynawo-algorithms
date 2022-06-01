@@ -20,6 +20,7 @@ documentation/dynawoAlgorithmsDocumentation
 nrt/data/*/*/outputs*/
 nrt/data/*/*/step-*
 nrt/data/IEEE14/IEEE14*/*.xml
+nrt/data/IEEE14/IEEE14*/dynawo.log
 nrt/data/IEEE14/SA*/IEEE14*
 nrt/data/IEEE14/SA*/*.dyd
 nrt/data/IEEE14/SA*/*.par
@@ -35,6 +36,7 @@ nrt/data/IEEE14/SA*/Base
 nrt/data/IEEE14/SA*/Disconnect*
 nrt/data/IEEE14/SA*/Fault*
 nrt/data/IEEE14/SA*/dynawo.log
+nrt/data/IEEE14/SA*/criteria*
 nrt/data/IEEE14/MC*/IEEE14*
 nrt/data/IEEE14/MC*/*.dmp
 nrt/data/IEEE14/MC*/*.iidm
@@ -47,6 +49,7 @@ nrt/data/IEEE14/MC*/logs
 nrt/data/IEEE14/MC*/constraints
 nrt/data/IEEE14/MC*/result.zip
 nrt/data/IEEE14/MC*/*.dyd
+nrt/data/IEEE14/MC*/criteria*
 nrt/data/*/*/*/outputs*/
 nrt/output
 *.pyc
