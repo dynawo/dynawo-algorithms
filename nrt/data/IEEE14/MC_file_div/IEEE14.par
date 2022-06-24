@@ -301,7 +301,7 @@
     <par type="INT" name="nbLoads" value="3"/>
     <par type="DOUBLE" name="startTime" value="10"/>
     <par type="DOUBLE" name="stopTime" value="70"/>
-    <par type="DOUBLE" name="deltaP_load_0" value="10"/>
+    <par type="DOUBLE" name="deltaP_load_0" value="20"/>
     <par type="DOUBLE" name="deltaQ_load_0" value="1"/>
     <par type="DOUBLE" name="deltaP_load_1" value="10"/>
     <par type="DOUBLE" name="deltaQ_load_1" value="1"/>
