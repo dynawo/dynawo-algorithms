@@ -255,7 +255,6 @@ set_environnement() {
   export_var_env DYNAWO_GTEST_HOME=$DYNAWO_HOME
   export_var_env DYNAWO_GMOCK_HOME=$DYNAWO_HOME
 
-  export_var_env DYNAWO_IIDM_EXTENSION=$DYNAWO_LIBIIDM_INSTALL_DIR/lib/libdynawo_DataInterfaceIIDMExtension.so
   export_var_env_force DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
 
   # For Modelica models compilation
@@ -787,17 +786,18 @@ deploy_dynawo_algorithms() {
   echo "deploying mpich libraries and binaries"
   cp $MPIRUN_PATH bin/.
   if [ -d $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich ]; then
-    cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpi.so* lib/.
-    cp -r $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpicxx.so* lib/.
+    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpi.so* lib/.
+    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpicxx.so* lib/.
     cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/hydra_pmi_proxy bin/.
   else
     if [ ! -f "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt" ]; then
       error_exit "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR should not be deleted before deploy to be able to determine lib system paths used during compilation."
     fi
-    mpi_lib=$(cat $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt | grep -i libmpi.so | cut -d '=' -f 2)
-    mpicxx_lib=$(cat $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt | grep -i libmpi_cxx.so | cut -d '=' -f 2)
-    cp -r ${mpi_lib}* lib/.
-    cp -r ${mpicxx_lib}* lib/.
+    mpi_lib=$(cat $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt | grep "MPI_.*_LIBRARY:FILEPATH" | cut -d '=' -f 2)
+    for lib in ${mpi_lib}; do
+      cp ${lib}* lib/.
+    done
+    cp $(dirname $MPIRUN_PATH)/hydra_pmi_proxy bin/.
   fi
 
   echo "deploying Dynawo-algorithms libraries"

@@ -15,7 +15,6 @@ jobs:
         build-type: [Release, Debug]
       fail-fast: false
     env:
-      DYNAWO_CXX11_ENABLED: YES
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_BUILD_TYPE: ${{ matrix.build-type }}
       DYNAWO_NB_PROCESSORS_USED: 2
