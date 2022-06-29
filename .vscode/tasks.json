@@ -14,11 +14,12 @@
                     "DYNAWO_HOME": "${workspaceFolder}/../dynawo/build-code/deploy",
                     "DYNAWO_ALGORITHMS_HOME": "${workspaceFolder}",
                     "DYNAWO_BUILD_TYPE": "Debug",
-                    "DYNAWO_CXX11_ENABLED": "YES",
                     "DYNAWO_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy",
-                    "DYNAWO_ALGORITHMS_INSTALL_DIR": "${workspaceFolder}/build-code/Install/dynawo-algorithms",
+                    "DYNAWO_ALGORITHMS_INSTALL_DIR": "${workspaceFolder}/build-code/install/dynawo-algorithms",
                     "DYNAWO_ALGORITHMS_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy",
-                    "DYNAWO_ALGORITHMS_BUILD_DIR": "${workspaceFolder}/build-code/dynawo-algorithms"
+                    "DYNAWO_ALGORITHMS_BUILD_DIR": "${workspaceFolder}/build-code/dynawo-algorithms",
+                    "DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR": "${workspaceFolder}/build-code/3rdParty/build",
+                    "DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR": "${workspaceFolder}/build-code/install/3rdParty"
                 }
               }
         }
