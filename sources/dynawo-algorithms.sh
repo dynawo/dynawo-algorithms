@@ -83,6 +83,7 @@ setDynawoEnv() {
   if [ -d "$DYNAWO_INSTALL_DIR/OpenModelica" ]; then
     export PATH=$DYNAWO_INSTALL_DIR/OpenModelica/bin:$PATH
     export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_INSTALL_DIR/OpenModelica
+    export_var_env OPENMODELICAHOME=$DYNAWO_INSTALL_OPENMODELICA
   fi
 }
 
