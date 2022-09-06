@@ -33,6 +33,8 @@ set(INCLUDEDIR_NAME include)
 set(LIBDIR_NAME lib)
 set(DOCDIR_NAME doxygen)
 
+get_filename_component(libdir ${CMAKE_INSTALL_PREFIX}/${LIBDIR_NAME} ABSOLUTE)
+
 get_filename_component(DYNAWO_HOME ${DYNAWO_HOME} ABSOLUTE)
 get_filename_component(DYNAWO_ALGORITHMS_HOME ${DYNAWO_ALGORITHMS_HOME} ABSOLUTE)
 get_filename_component(DYNAWO_ALGORITHMS_THIRD_PARTY_DIR ${DYNAWO_ALGORITHMS_THIRD_PARTY_DIR} ABSOLUTE)
@@ -284,6 +286,19 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dynawoalgorithms-config-version.cmake
   )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/sources/config_algorithms.h.in ${CMAKE_CURRENT_SOURCE_DIR}/sources/config_algorithms.h @ONLY)
+
+if(MSVC)
+  set(runtime_PATH "PATH=${DYNAWO_HOME}/bin;${DYNAWO_HOME}/OpenModelica/bin;${libdir};$ENV{PATH}")
+  if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
+    set(runtime_tests_PATH "PATH=${GTEST_ROOT}/bin;${DYNAWO_HOME}/bin;${DYNAWO_HOME}/OpenModelica/bin;${libdir};$ENV{PATH}")
+  endif()
+else() # Linux
+  set(runtime_LD_LIBRARY_PATH "LD_LIBRARY_PATH=\"${DYNAWO_HOME}/lib:${libdir}:$ENV{LD_LIBRARY_PATH}\"")
+  set(runtime_PATH "PATH=\"${DYNAWO_HOME}/OpenModelica/bin:$ENV{PATH}\"")
+  if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
+    set(runtime_tests_PATH "LD_LIBRARY_PATH=${GTEST_ROOT}/lib:${DYNAWO_HOME}/lib:${libdir}:$ENV{LD_LIBRARY_PATH}")
+  endif()
+endif()
 
 include(cpplint/cpplint.cmake)
 
