@@ -100,12 +100,14 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param events list of scenarios to launch
    * @param maximumVariationPassing maximum variation passing found so far
    * @param tolerance maximum difference between the real value of the maximum variation and the value returned
+   * @param minVariation minimum variation for dichotomie
+   * @param maxVariation maximum variation for dichotomie
    *
    * @return maximum variation value for which all the scenarios pass
    */
   double computeGlobalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
       const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events,
-      std::vector<double >& maximumVariationPassing, double tolerance);
+      std::vector<double >& maximumVariationPassing, double tolerance, double minVariation, double maxVariation);
   /**
    * @brief Research of the maximum variation value for all the scenarios
    * try to find the maximum load increase between 0 and 100% for each scenario.
@@ -115,12 +117,14 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param baseJobsFile jobs file to use as basis for the events
    * @param events list of scenarios to launch
    * @param tolerance maximum difference between the real value of the maximum variation and the value returned
+   * @param minVariation minimum variation for dichotomie
+   * @param maxVariation maximum variation for dichotomie
    * @param results adter execution, contains the maximum variation value for the events
    *
    * @return maximum variation value for which the loadIncrease scenario pass
    */
   double computeLocalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-      const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events, double tolerance,
+      const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events, double tolerance, double minVariation, double maxVariation,
       std::vector<double >& results);
 
   /**
@@ -129,13 +133,17 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    *
    * @param loadIncrease scenario to simulate the load increase
    * @param variation percentage of launch variation to perform
+   * @param minVariation minimum variation for dichotomie
+   * @param maxVariation maximum variation for dichotomie
    * @param tolerance maximum difference between the real value of the maximum variation and the value returned
    * @param result result of the load increase
    *
    */
   void findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease, const double variation,
-      const double tolerance,
-      SimulationResult& result);
+                                const double minVariation,
+                                const double maxVariation,
+                                const double tolerance,
+                                SimulationResult& result);
 
   /**
    * @brief launch the load increase scenario
@@ -236,10 +244,12 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    *
    * @param maxNumber max number of variations of the computed vector
    * @param variation the base variation
+   * @param minVariation minimum variation for dichotomie
+   * @param maxVariation maximum variation for dichotomie
    * @param tolerance the tolerance for variation
    * @return the list of variations to launch in parallel
    */
-  std::vector<double> generateVariationsToLaunch(unsigned int maxNumber, double variation, double tolerance) const;
+  std::vector<double> generateVariationsToLaunch(unsigned int maxNumber, double variation, double minVariation, double maxVariation, double tolerance) const;
 
   /**
    * @brief Synchronize successes between all process
