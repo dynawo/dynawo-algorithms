@@ -124,26 +124,43 @@ MarginCalculationLauncher::launch() {
   // Retrieve from jobs file tLoadIncrease and tScenario
   readTimes(loadIncrease->getJobsFile(), baseJobsFile);
 
+  double maxVariation = 100.;
+  double minVariation = 0.;
+  double variation = maxVariation;
+  SimulationResult resultMaxVariation;
+  findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
+                           marginCalculation->getAccuracy(), resultMaxVariation);
+
+  if (!loadIncreaseStatus_[variation].success) {
+    variation = minVariation;
+    for (auto& status : loadIncreaseStatus_) {
+      if (status.second.success && status.first > variation)
+        variation = status.first;
+    }
+    // No computation here as the load increase has already been launched, we only update resultMaxVariation for the right variation
+    findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
+                             marginCalculation->getAccuracy(), resultMaxVariation);
+    maxVariation = variation;
+  }
+
   std::queue< task_t > toRun;
   std::vector<size_t> allEvents;
   for (size_t i=0, iEnd = events.size(); i < iEnd ; i++)
     allEvents.push_back(i);
-  toRun.push(task_t(100., 100., allEvents));
+  toRun.push(task_t(maxVariation, maxVariation, allEvents));
 
   results_.push_back(LoadIncreaseResult());
   size_t idx = results_.size() - 1;
   results_[idx].resize(events.size());
-  results_[idx].setLoadLevel(100.);
+  results_[idx].setLoadLevel(maxVariation);
 
   // step one : launch the loadIncrease and then all events with 100% of the load increase
   // if there is no crash => no need to go further
   // We start with 100% as it is the most common result of margin calculations on real large cases
-  SimulationResult result100;
-  findOrLaunchLoadIncrease(loadIncrease, 100., marginCalculation->getAccuracy(), result100);
-  results_[idx].setStatus(result100.getStatus());
+  results_[idx].setStatus(resultMaxVariation.getStatus());
   std::vector<double > maximumVariationPassing(events.size(), 0.);
-  if (result100.getSuccess()) {
-    findAllLevelsBetween(0., 100., marginCalculation->getAccuracy(), allEvents, toRun);
+  if (resultMaxVariation.getSuccess()) {
+    findAllLevelsBetween(0., maxVariation, marginCalculation->getAccuracy(), allEvents, toRun);
     findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
 
     // analyze results
@@ -154,12 +171,12 @@ MarginCalculationLauncher::launch() {
       TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
       if (it->getStatus() == CONVERGENCE_STATUS) {  // event OK
         nbSuccess++;
-        maximumVariationPassing[id] = 100.;
+        maximumVariationPassing[id] = maxVariation;
       }
     }
     if (nbSuccess == events.size()) {  // all events succeed
       TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-      TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, 100.) << Trace::endline;
+      TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, maxVariation) << Trace::endline;
       boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
       boost::posix_time::time_duration diff = t1 - t0;
       TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
@@ -167,11 +184,16 @@ MarginCalculationLauncher::launch() {
       cleanResultDirectories(events);
       return;
     }
-  }  // if the loadIncrease failed, nothing to do, the next algorithm will try to find the right load level
+  }
   TraceInfo(logTag_) << Trace::endline;
 
+  // we force the dichotomie between 0 and 100 event if 100 is not working
+  maxVariation = 100.;
+  minVariation = 0.;
+
   if (marginCalculation->getCalculationType() == MarginCalculation::GLOBAL_MARGIN || events.size() == 1) {
-    double value = computeGlobalMargin(loadIncrease, baseJobsFile, events, maximumVariationPassing, marginCalculation->getAccuracy());
+    double value = computeGlobalMargin(loadIncrease, baseJobsFile, events, maximumVariationPassing,
+                                       marginCalculation->getAccuracy(), minVariation, maxVariation);
     if (value < marginCalculation->getAccuracy()) {
       results_.push_back(LoadIncreaseResult());
       idx = results_.size() - 1;
@@ -180,7 +202,7 @@ MarginCalculationLauncher::launch() {
       // step two : launch the loadIncrease and then all events with 0% of the load increase
       // if one event crash => no need to go further
       SimulationResult result0;
-      findOrLaunchLoadIncrease(loadIncrease, 0., marginCalculation->getAccuracy(), result0);
+      findOrLaunchLoadIncrease(loadIncrease, 0., 0., 0., marginCalculation->getAccuracy(), result0);
       results_[idx].setStatus(result0.getStatus());
       double variation0 = 0.;
       if (result0.getSuccess()) {
@@ -236,9 +258,9 @@ MarginCalculationLauncher::launch() {
   } else {
     assert(marginCalculation->getCalculationType() == MarginCalculation::LOCAL_MARGIN);
     std::vector<double> results(events.size(), 0.);
-    double value = computeLocalMargin(loadIncrease, baseJobsFile, events, marginCalculation->getAccuracy(), results);
-    if (result100.getSuccess()) {
-      value = 100.;
+    double value = computeLocalMargin(loadIncrease, baseJobsFile, events, marginCalculation->getAccuracy(), minVariation, maxVariation, results);
+    if (resultMaxVariation.getSuccess()) {
+      value = maxVariation;
     }
     std::vector <size_t> eventsIds;
     for (size_t i = 0; i < results.size(); ++i) {
@@ -252,7 +274,7 @@ MarginCalculationLauncher::launch() {
       results_[idx].resize(eventsIds.size());
       results_[idx].setLoadLevel(0.);
       SimulationResult result0;
-      findOrLaunchLoadIncrease(loadIncrease, 0., marginCalculation->getAccuracy(), result0);
+      findOrLaunchLoadIncrease(loadIncrease, 0., 0., 0., marginCalculation->getAccuracy(), result0);
       results_[idx].setStatus(result0.getStatus());
       if (result0.getSuccess()) {
         toRun = std::queue<task_t>();
@@ -286,9 +308,7 @@ MarginCalculationLauncher::launch() {
 double
 MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
     const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events,
-    std::vector<double >& maximumVariationPassing, double tolerance) {
-  double minVariation = 0.;
-  double maxVariation = 100.;
+    std::vector<double >& maximumVariationPassing, double tolerance, double minVariation, double maxVariation) {
 
   while ( maxVariation - minVariation > tolerance ) {
     double newVariation = round((minVariation + maxVariation)/2.);
@@ -297,7 +317,7 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
     results_[idx].resize(events.size());
     results_[idx].setLoadLevel(newVariation);
     SimulationResult result;
-    findOrLaunchLoadIncrease(loadIncrease, newVariation, tolerance, result);
+    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, result);
     results_[idx].setStatus(result.getStatus());
     // If at some point loadIncrease for 0. is launched and is not working no need to continue
     std::map<double, LoadIncreaseStatus, dynawoDoubleLess>::const_iterator itZero = loadIncreaseStatus_.find(0.);
@@ -382,7 +402,7 @@ MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const
 
 double
 MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-    const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events, double tolerance,
+    const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events, double tolerance, double minVariation, double maxVariation,
     std::vector<double>& results) {
   double maxLoadVarForLoadIncrease = 0.;
   std::queue< task_t > toRun;
@@ -402,7 +422,7 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
     results_[idx].resize(eventsId.size());
     results_[idx].setLoadLevel(newVariation);
     SimulationResult result;
-    findOrLaunchLoadIncrease(loadIncrease, newVariation, tolerance, result);
+    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, result);
     results_[idx].setStatus(result.getStatus());
     // If at some point loadIncrease for 0. is launched and is not working no need to continue
     std::map<double, LoadIncreaseStatus, dynawoDoubleLess>::const_iterator itZero = loadIncreaseStatus_.find(0.);
@@ -629,7 +649,8 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
 }
 
 std::vector<double>
-MarginCalculationLauncher::generateVariationsToLaunch(unsigned int maxNumber, double variation, double tolerance) const {
+MarginCalculationLauncher::generateVariationsToLaunch(unsigned int maxNumber, double variation,
+                                                      double minVariation, double maxVariation, double tolerance) const {
   std::set<double, dynawoDoubleLess> variationsToLaunch;
   variationsToLaunch.insert(variation);
 
@@ -638,8 +659,8 @@ MarginCalculationLauncher::generateVariationsToLaunch(unsigned int maxNumber, do
     variationsToLaunch.insert(0.);
   if (variationsToLaunch.size() < maxNumber) {
     std::queue< std::pair<double, double> > levels;
-    double closestVariationBelow = 0.;
-    double closestVariationAbove = 100.;
+    double closestVariationBelow = minVariation;
+    double closestVariationAbove = maxVariation;
     for (const auto& status : loadIncreaseStatus_) {
       if (closestVariationBelow < status.first && status.first < variation)
         closestVariationBelow = status.first;
@@ -693,7 +714,7 @@ MarginCalculationLauncher::synchronizeSuccesses(const std::vector<bool>& success
 
 void
 MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-    const double variation, const double tolerance, SimulationResult& result) {
+    const double variation, const double minVariation, const double maxVariation, const double tolerance, SimulationResult& result) {
   TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
 
   auto found = loadIncreaseStatus_.find(variation);
@@ -720,7 +741,7 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
 
   // Algo to generate variations to launch
   auto& context = mpi::context();
-  std::vector<double> variationsToLaunch = generateVariationsToLaunch(context.nbProcs(), variation, tolerance);
+  std::vector<double> variationsToLaunch = generateVariationsToLaunch(context.nbProcs(), variation, minVariation, maxVariation, tolerance);
 
   // Launch Simulations
   inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
