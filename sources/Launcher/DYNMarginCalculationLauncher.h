@@ -45,17 +45,9 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void launch();
 
- private:
   /**
-   * @brief create outputs file for each job
-   * @param mapData map associating a fileName and the data contained in the file
-   * @param zipIt true if we want to fill mapData to create a zip, false if we want to write the files on the disk
-   */
-  void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
-
-  /**
-   * @brief Description of a set of scenarios to run
-   */
+ * @brief Description of a set of scenarios to run
+ */
   struct task_t{
     double minVariation_;  ///< minimal variation that passes
     double maxVariation_;  ///< maximal variation that fails
@@ -88,6 +80,23 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
       maxVariation_ = maxVariation;
     }
   };
+
+  struct Pair {
+    Pair(size_t index, double variation);
+
+    bool operator==(const Pair& rhs) const { return this->index_ == rhs.index_ && DYN::doubleEquals(this->variation_, rhs.variation_);}
+
+    size_t index_;
+    double variation_;
+  };
+
+ private:
+  /**
+   * @brief create outputs file for each job
+   * @param mapData map associating a fileName and the data contained in the file
+   * @param zipIt true if we want to fill mapData to create a zip, false if we want to write the files on the disk
+   */
+  void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
 
   /**
    * @brief Research of the maximum variation value for which all the scenarios pass
@@ -174,7 +183,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void prepareEvents2Run(const task_t& requestedTask,
       std::queue< task_t >& toRun,
-      std::vector<std::pair<size_t, double> >& events2Run);
+      std::vector<Pair >& events2Run);
 
   /**
    * @brief launch the calculation of one scenario
