@@ -104,6 +104,22 @@ MarginCalculationLauncher::readTimes(const std::string& jobFileLoadIncrease, con
   tScenario_ = (*jobIt)->getSimulationEntry()->getStopTime() - (*jobIt)->getSimulationEntry()->getStartTime();
 }
 
+void printTask(std::queue< MarginCalculationLauncher::task_t >& toRun) {
+  if (mpi::context().isRootProc()) {
+    std::queue< MarginCalculationLauncher::task_t > tmp_q = toRun;
+    while (!tmp_q.empty()) {
+      MarginCalculationLauncher::task_t task = tmp_q.front();
+      std::cout << "task " << task.minVariation_ << " " << task.maxVariation_ << " ";
+      for (auto id : task.ids_) {
+        std::cout << id << " ";
+      }
+      std::cout << std::endl;
+      tmp_q.pop();
+    }
+  }
+  mpi::context().sync();
+}
+
 void
 MarginCalculationLauncher::launch() {
   assert(multipleJobs_);
@@ -144,7 +160,9 @@ MarginCalculationLauncher::launch() {
   std::vector<double > maximumVariationPassing(events.size(), 0.);
   if (result100.getSuccess()) {
     findAllLevelsBetween(0., 100., marginCalculation->getAccuracy(), allEvents, toRun);
-    findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+//    mpi::context().sync();
+//    printTask(toRun);
+    findOrLaunchScenarios(baseJobsFile, events, toRun, maximumVariationPassing, results_[idx]);
 
     // analyze results
     unsigned int nbSuccess = 0;
@@ -198,7 +216,7 @@ MarginCalculationLauncher::launch() {
           }
         }
         toRun.push(task_t(0., 0., eventsIds));
-        findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+        findOrLaunchScenarios(baseJobsFile, events, toRun, maximumVariationPassing, results_[idx]);
       } else {
         TraceInfo(logTag_) << "============================================================ " << Trace::endline;
         TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, 0.) << Trace::endline;
@@ -259,7 +277,7 @@ MarginCalculationLauncher::launch() {
         toRun.push(task_t(0., 0., eventsIds));
         LoadIncreaseResult liResultTmp;
         liResultTmp.resize(events.size());
-        findOrLaunchScenarios(baseJobsFile, events, toRun, liResultTmp);
+        findOrLaunchScenarios(baseJobsFile, events, toRun, maximumVariationPassing,  liResultTmp);
         for (size_t i = 0; i < eventsIds.size(); ++i) {
           results_[idx].getResult(i) = liResultTmp.getResult(eventsIds[i]);
         }
@@ -291,6 +309,11 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
   double maxVariation = 100.;
 
   while ( maxVariation - minVariation > tolerance ) {
+//    for (unsigned int i = 0; i < maximumVariationPassing.size(); ++i) {
+//      if (mpi::context().isRootProc())
+//        std::cout << i << " maximumVariationPassing " << maximumVariationPassing[i] << std::endl;
+//    }
+
     double newVariation = round((minVariation + maxVariation)/2.);
     results_.push_back(LoadIncreaseResult());
     size_t idx = results_.size() - 1;
@@ -318,7 +341,7 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
         }
       }
       findAllLevelsBetween(minVariation, maxVariation, tolerance, eventsIds, toRun);
-      findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+      findOrLaunchScenarios(baseJobsFile, events, toRun, maximumVariationPassing, results_[idx]);
 
       // analyze results
       unsigned int nbSuccess = 0;
@@ -362,9 +385,16 @@ MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const
   double newVariation = round((minVariation + maxVariation)/2.);
   std::queue< std::pair<double, double> > minMaxStack;
 
+//  if (mpi::context().isRootProc())
+//    std::cout << " findAllLevelsBetween " << minVariation << " " << maxVariation << std::endl;
+
   toRun.push(task_t(minVariation, maxVariation, eventIdxs));
   if (maxVariation - newVariation > tolerance)
     minMaxStack.push(std::make_pair(newVariation, maxVariation));
+//  if (mpi::context().isRootProc()) {
+//    std::cout << " toRun.size() " << toRun.size() << " nbMaxToAdd " << nbMaxToAdd << " nextVar " <<
+//    round((minMaxStack.front().first + minMaxStack.front().second)/2) << std ::endl;
+//  }
   while (toRun.size() < nbMaxToAdd && !minMaxStack.empty()) {
     double min = minMaxStack.front().first;
     double max = minMaxStack.front().second;
@@ -417,7 +447,7 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
         maxLoadVarForLoadIncrease = newVariation;
       LoadIncreaseResult liResultTmp;
       liResultTmp.resize(events.size());
-      findOrLaunchScenarios(baseJobsFile, events, toRunCopy, liResultTmp);
+      findOrLaunchScenarios(baseJobsFile, events, toRunCopy, results, liResultTmp);
 
       // analyze results
       task_t below(task.minVariation_, newVariation);
@@ -457,11 +487,16 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
 void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJobsFile,
     const std::vector<boost::shared_ptr<Scenario> >& events,
     std::queue< task_t >& toRun,
+    const std::vector<double >& maximumVariationPassing,
     LoadIncreaseResult& result) {
   if (toRun.empty()) return;
   task_t task = toRun.front();
   toRun.pop();
   const std::vector<size_t>& eventsId = task.ids_;
+  std::vector<size_t> eventsIdToComplete = task.ids_;
+//  for (const auto& eventId : eventsId) {
+//    if (mpi::context().isRootProc()) std::cout << " before eventId " << eventId << std::endl;
+//  }
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
   if (mpi::context().nbProcs() == 1) {
     std::string iidmFile = generateIDMFileNameForVariation(newVariation);
@@ -475,21 +510,48 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     return;
   }
 
+//  if (mpi::context().isRootProc())
+//    std::cout << "before prepareEvents2Run" << std::endl;
+//  printTask(toRun);
+
   auto found = scenarioStatus_.find(newVariation);
+  std::vector<size_t> eventsIdNotTreated;
   if (found != scenarioStatus_.end()) {
     TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << Trace::endline;
+    if (mpi::context().isRootProc()) std::cout << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << std::endl;
     for (const auto& eventId : eventsId) {
       auto resultId = SimulationResult::getUniqueScenarioId(events.at(eventId)->getId(), newVariation);
       result.getResult(eventId) = importResult(resultId);
+//      if (mpi::context().isRootProc()) std::cout << "resultId " << resultId << std::endl;
+//      if (mpi::context().isRootProc()) std::cout << "resultId status " << getStatusAsString(result.getResult(eventId).getStatus()) << std::endl;
+      if (result.getResult(eventId).getStatus() == NOT_TREATED)
+        eventsIdNotTreated.push_back(eventId);
     }
-    return;
+//    for (auto eventIdNoTreated : eventsIdNoTreated) {
+//      if (mpi::context().isRootProc())
+//        std::cout << "eventIdNoTreated " << eventIdNoTreated << std::endl;
+//    }
+    if (eventsIdNotTreated.empty())
+      return;
+    else
+      task.ids_ = eventsIdNotTreated;
   }
 
-  std::vector<std::pair<size_t, double> > events2Run;
-  prepareEvents2Run(task, toRun, events2Run);
+  std::vector<Pair > events2Run;
+  prepareEvents2Run(task, eventsIdToComplete, maximumVariationPassing, toRun, events2Run);
 
-  for (std::vector<std::pair<size_t, double> >::const_iterator itEvents = events2Run.begin(); itEvents != events2Run.end(); ++itEvents) {
-    double variation = itEvents->second;
+  int i = 0;
+  if (mpi::context().isRootProc()) {
+    std::cout << "events2Run" << std::endl;
+    for (auto& event : events2Run) {
+      std::cout << " " << i << " event " << event.index_ << " " << event.variation_ << std::endl;
+      ++i;
+    }
+  }
+  // mpi::context().sync();
+
+  for (std::vector<Pair >::const_iterator itEvents = events2Run.begin(); itEvents != events2Run.end(); ++itEvents) {
+    double variation = itEvents->variation_;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     if (inputsByIIDM_.count(iidmFile) == 0) {
       inputsByIIDM_[iidmFile].readInputs(workingDirectory_, baseJobsFile, iidmFile);
@@ -498,11 +560,12 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
 
   std::vector<bool> successes;
   mpi::forEach(0, events2Run.size(), [this, &events2Run, &events, &successes](unsigned int i){
-    double variation = events2Run[i].second;
+    double variation = events2Run[i].variation_;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
-    size_t eventIdx = events2Run[i].first;
+    size_t eventIdx = events2Run[i].index_;
     SimulationResult resultScenario;
     createScenarioWorkingDir(events.at(eventIdx)->getId(), variation);
+    // std::cout << "proc" << mpi::context().rank() << " Task :" << events.at(eventIdx)->getId() << std::endl;
     launchScenario(inputsByIIDM_.at(iidmFile), events.at(eventIdx), variation, resultScenario);
     successes.push_back(resultScenario.getSuccess());
     exportResult(resultScenario);
@@ -512,8 +575,8 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   for (unsigned int i = 0; i < events2Run.size(); i++) {
     auto& event = events2Run.at(i);
     // variation = event.second
-    scenarioStatus_[event.second].resize(events.size());
-    scenarioStatus_.at(event.second).at(event.first).success = allSuccesses.at(i);
+    scenarioStatus_[event.variation_].resize(events.size());
+    scenarioStatus_.at(event.variation_).at(event.index_).success = allSuccesses.at(i);
   }
   assert(scenarioStatus_.count(newVariation) > 0);
 
@@ -523,22 +586,38 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   }
 
   for (unsigned int i=0; i < events2Run.size(); i++) {
-    double variation = events2Run[i].second;
+    double variation = events2Run[i].variation_;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     inputsByIIDM_.erase(iidmFile);  // remove iidm file used for scenario to save RAM
   }
 }
 
+MarginCalculationLauncher::Pair::Pair(size_t index, double variation) : index_(index), variation_(variation) {
+}
+
 void
 MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
-    std::queue< task_t >& toRun,
-    std::vector<std::pair<size_t, double> >& events2Run) {
+                                             const std::vector<size_t>& eventsIdToComplete,
+                                             const std::vector<double >& maximumVariationPassing,
+                                             std::queue< task_t >& toRun,
+                                             std::vector<Pair >& events2Run) {
   const std::vector<size_t>& eventsId = requestedTask.ids_;
   double newVariation = round((requestedTask.minVariation_ + requestedTask.maxVariation_)/2.);
+
+//  printTask(toRun);
+//  if (mpi::context().isRootProc()) {
+//    std::cout << " requestedTask " << requestedTask.minVariation_ << " " << requestedTask.maxVariation_ << " newVariation " << newVariation << " events ";
+//    for (size_t i = 0; i < eventsId.size(); ++i) {
+//      std::cout << eventsId[i] << " ";
+//    }
+//    std::cout << std::endl;
+//  }
+//  mpi::context().sync();
+
   auto it = loadIncreaseStatus_.find(newVariation);
   if (it != loadIncreaseStatus_.end() && it->second.success) {
     for (size_t i = 0; i < eventsId.size(); ++i) {
-      events2Run.push_back(std::make_pair(eventsId[i], newVariation));
+      events2Run.push_back(Pair(eventsId[i], newVariation));
     }
   }
   while (events2Run.size() < mpi::context().nbProcs() && !toRun.empty()) {
@@ -550,9 +629,104 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
     if (it == loadIncreaseStatus_.end() || !it->second.success) continue;
     if (scenarioStatus_.find(variation) != scenarioStatus_.end()) continue;
     for (size_t i = 0, iEnd = newEventsId.size(); i < iEnd; ++i) {
-      events2Run.push_back(std::make_pair(newEventsId[i], variation));
+      events2Run.push_back(Pair(newEventsId[i], variation));
     }
   }
+
+//  for (const auto& loadIncrease : loadIncreaseStatus_) {
+//     if (mpi::context().isRootProc()) std::cout << "loadIncrease.first " << loadIncrease.first << std::endl;
+//  }
+//  for (const auto& eventId : eventsId) {
+//    if (mpi::context().isRootProc()) std::cout << "eventId " << eventId << std::endl;
+//  }
+//  for (const auto& eventId : eventsIdToComplete) {
+//    if (mpi::context().isRootProc()) std::cout << "eventIdToComplete " << eventId << std::endl;
+//  }
+
+  std::list<double> variationsList;
+  for (const auto& loadIncrease : loadIncreaseStatus_) {
+    variationsList.push_back(loadIncrease.first);
+  }
+
+  std::list<double>::iterator itVariationsList = variationsList.begin();
+  while (itVariationsList != variationsList.end()) {
+    double variation = variationsList.back();
+    if ((*loadIncreaseStatus_.find(variation)).second.success) {
+      auto found = scenarioStatus_.find(variation);
+      unsigned int eventIndex = 0;
+      while (events2Run.size() % mpi::context().nbProcs() != 0  && eventIndex < eventsIdToComplete.size() &&
+      (variation > maximumVariationPassing[eventsIdToComplete[eventIndex]] ||
+      DYN::doubleEquals(variation, maximumVariationPassing[eventsIdToComplete[eventIndex]]))) {
+        Pair event(eventsIdToComplete[eventIndex], variation);
+        if (std::find(events2Run.begin(), events2Run.end(), event) == events2Run.end() && found == scenarioStatus_.end()) {
+          // if (mpi::context().isRootProc()) std::cout << " add job loadIncrease.first " << loadIncrease.first << " " << eventIndex << std::endl;
+          events2Run.push_back(event);
+        }
+        ++eventIndex;
+      }
+    }
+
+    variationsList.pop_back();
+
+    variation = *itVariationsList;
+    if ((*loadIncreaseStatus_.find(variation)).second.success) {
+      auto found = scenarioStatus_.find(variation);
+      unsigned int eventIndex = 0;
+      while (events2Run.size() % mpi::context().nbProcs() != 0  && eventIndex < eventsIdToComplete.size() &&
+      (variation > maximumVariationPassing[eventsIdToComplete[eventIndex]] ||
+      DYN::doubleEquals(variation, maximumVariationPassing[eventsIdToComplete[eventIndex]]))) {
+        Pair event(eventsIdToComplete[eventIndex], variation);
+        if (std::find(events2Run.begin(), events2Run.end(), event) == events2Run.end() && found == scenarioStatus_.end()) {
+          // if (mpi::context().isRootProc()) std::cout << " add job loadIncrease.first " << loadIncrease.first << " " << eventIndex << std::endl;
+          events2Run.push_back(event);
+        }
+        ++eventIndex;
+      }
+    }
+
+    std::list<double>::iterator middle = variationsList.begin();
+    std::advance(middle, std::distance(variationsList.begin(), variationsList.end())/2);
+    if (middle != variationsList.end()) {
+      variation = *middle;
+      if ((*loadIncreaseStatus_.find(variation)).second.success) {
+        auto found = scenarioStatus_.find(variation);
+        unsigned int eventIndex = 0;
+        while (events2Run.size() % mpi::context().nbProcs() != 0  && eventIndex < eventsIdToComplete.size() &&
+          (variation > maximumVariationPassing[eventsIdToComplete[eventIndex]] ||
+           DYN::doubleEquals(variation, maximumVariationPassing[eventsIdToComplete[eventIndex]]))) {
+          Pair event(eventsIdToComplete[eventIndex], variation);
+          if (std::find(events2Run.begin(), events2Run.end(), event) == events2Run.end() && found == scenarioStatus_.end()) {
+            // if (mpi::context().isRootProc()) std::cout << " add job loadIncrease.first " << loadIncrease.first << " " << eventIndex << std::endl;
+            events2Run.push_back(event);
+          }
+          ++eventIndex;
+        }
+      }
+
+      variationsList.erase(middle);
+    }
+
+    if (itVariationsList != variationsList.end() && !variationsList.empty())
+      itVariationsList = variationsList.erase(itVariationsList);
+    else
+      itVariationsList = variationsList.end();
+  }
+
+//  for (const auto& loadIncrease : loadIncreaseStatus_) {
+//    // if (mpi::context().isRootProc()) std::cout << "loadIncrease.first " << loadIncrease.first << std::endl;
+//    if (loadIncrease.second.success) {
+//      auto found = scenarioStatus_.find(loadIncrease.first);
+//      unsigned int eventIndex = 0;
+//      while (events2Run.size() % mpi::context().nbProcs() != 0  && eventIndex < eventsId.size()) {
+//        Pair event(eventsId[eventIndex], loadIncrease.first);
+//        if (std::find(events2Run.begin(), events2Run.end(), event) == events2Run.end() && found == scenarioStatus_.end()) {
+//          // if (mpi::context().isRootProc()) std::cout << " add job loadIncrease.first " << loadIncrease.first << " " << eventIndex << std::endl;
+//          events2Run.push_back(event);
+//        }
+//        ++eventIndex;
+//      }
+//    }
+//  }
 }
 
 void
@@ -624,8 +798,10 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
     simulate(simulation, result);
   }
 
-  if (mpi::context().nbProcs() == 1)
-    std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
+//  if (mpi::context().nbProcs() == 1)
+//    std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
+  std::cout << "proc" << mpi::context().rank() << " End Task: variation " << variation
+  << " scenario " << scenario->getId() << " status = " << getStatusAsString(result.getStatus()) << std::endl;
 }
 
 std::vector<double>

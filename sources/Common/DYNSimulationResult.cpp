@@ -26,7 +26,7 @@ namespace DYNAlgorithms {
 SimulationResult::SimulationResult():
     variation_(-1.),
     success_(false),
-    status_(EXECUTION_PROBLEM_STATUS),
+    status_(NOT_TREATED),
     timelineFileExtension_("xml"),
     constraintsFileExtension_("xml") {
 }
