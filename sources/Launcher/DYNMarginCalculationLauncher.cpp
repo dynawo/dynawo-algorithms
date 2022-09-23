@@ -137,7 +137,7 @@ MarginCalculationLauncher::launch() {
       if (status.second.success && status.first > variation)
         variation = status.first;
     }
-    // No computation here as the load increase has already been launched, we only update resultMaxVariation for the right variation
+    // Unless no variation was ok at all, no computation here as the load increase has already been launched, we only update resultMaxVariation for the right variation
     findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
                              marginCalculation->getAccuracy(), resultMaxVariation);
     maxVariation = variation;
@@ -160,7 +160,7 @@ MarginCalculationLauncher::launch() {
   results_[idx].setStatus(resultMaxVariation.getStatus());
   std::vector<double > maximumVariationPassing(events.size(), 0.);
   if (resultMaxVariation.getSuccess()) {
-    findAllLevelsBetween(0., maxVariation, marginCalculation->getAccuracy(), allEvents, toRun);
+    findAllLevelsBetween(minVariation, maxVariation, marginCalculation->getAccuracy(), allEvents, toRun);
     findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
 
     // analyze results
@@ -174,7 +174,18 @@ MarginCalculationLauncher::launch() {
         maximumVariationPassing[id] = maxVariation;
       }
     }
-    if (nbSuccess == events.size()) {  // all events succeed
+    if (nbSuccess == events.size() &&
+      ((100. - maxVariation) < marginCalculation->getAccuracy() ||
+      DYN::doubleEquals(100. - maxVariation, marginCalculation->getAccuracy()))) {  // all events succeed and maxVariation is within tolerance
+      TraceInfo(logTag_) << "============================================================ " << Trace::endline;
+      TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, maxVariation) << Trace::endline;
+      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+      boost::posix_time::time_duration diff = t1 - t0;
+      TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
+      TraceInfo(logTag_) << "============================================================ " << Trace::endline;
+      cleanResultDirectories(events);
+      return;
+    } else if (DYN::doubleEquals(maxVariation, minVariation)) {  // a scenario is not working at 0.
       TraceInfo(logTag_) << "============================================================ " << Trace::endline;
       TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, maxVariation) << Trace::endline;
       boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
@@ -184,10 +195,19 @@ MarginCalculationLauncher::launch() {
       cleanResultDirectories(events);
       return;
     }
+  } else if (DYN::doubleEquals(maxVariation, minVariation)) {  // launch increase of 0. is not working
+    TraceInfo(logTag_) << "============================================================ " << Trace::endline;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, maxVariation) << Trace::endline;
+    boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+    boost::posix_time::time_duration diff = t1 - t0;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
+    TraceInfo(logTag_) << "============================================================ " << Trace::endline;
+    cleanResultDirectories(events);
+    return;
   }
   TraceInfo(logTag_) << Trace::endline;
 
-  // we force the dichotomie between 0 and 100 event if 100 is not working
+  // we force the dichotomie between 0 and 100 even if 100 is not working
   maxVariation = 100.;
   minVariation = 0.;
 
@@ -198,13 +218,13 @@ MarginCalculationLauncher::launch() {
       results_.push_back(LoadIncreaseResult());
       idx = results_.size() - 1;
       results_[idx].resize(events.size());
-      results_[idx].setLoadLevel(0.);
+      results_[idx].setLoadLevel(minVariation);
       // step two : launch the loadIncrease and then all events with 0% of the load increase
       // if one event crash => no need to go further
       SimulationResult result0;
-      findOrLaunchLoadIncrease(loadIncrease, 0., 0., 0., marginCalculation->getAccuracy(), result0);
+      findOrLaunchLoadIncrease(loadIncrease, minVariation, minVariation, minVariation, marginCalculation->getAccuracy(), result0);
       results_[idx].setStatus(result0.getStatus());
-      double variation0 = 0.;
+      double variation0 = minVariation;
       if (result0.getSuccess()) {
         toRun = std::queue< task_t >();
         std::vector<size_t> eventsIds;
@@ -214,7 +234,7 @@ MarginCalculationLauncher::launch() {
           } else {
             TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, events[i]->getId()) << Trace::endline;
             results_[idx].getResult(i).setScenarioId(events[i]->getId());
-            results_[idx].getResult(i).setVariation(0.);
+            results_[idx].getResult(i).setVariation(minVariation);
             results_[idx].getResult(i).setSuccess(true);
             results_[idx].getResult(i).setStatus(CONVERGENCE_STATUS);
           }
@@ -223,7 +243,7 @@ MarginCalculationLauncher::launch() {
         findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
       } else {
         TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-        TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, 0.) << Trace::endline;
+        TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, minVariation) << Trace::endline;
         boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
         boost::posix_time::time_duration diff = t1 - t0;
         TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
@@ -272,13 +292,13 @@ MarginCalculationLauncher::launch() {
       results_.push_back(LoadIncreaseResult());
       idx = results_.size() - 1;
       results_[idx].resize(eventsIds.size());
-      results_[idx].setLoadLevel(0.);
+      results_[idx].setLoadLevel(minVariation);
       SimulationResult result0;
-      findOrLaunchLoadIncrease(loadIncrease, 0., 0., 0., marginCalculation->getAccuracy(), result0);
+      findOrLaunchLoadIncrease(loadIncrease, minVariation, minVariation, minVariation, marginCalculation->getAccuracy(), result0);
       results_[idx].setStatus(result0.getStatus());
       if (result0.getSuccess()) {
         toRun = std::queue<task_t>();
-        toRun.push(task_t(0., 0., eventsIds));
+        toRun.push(task_t(minVariation, minVariation, eventsIds));
         LoadIncreaseResult liResultTmp;
         liResultTmp.resize(events.size());
         findOrLaunchScenarios(baseJobsFile, events, toRun, liResultTmp);
