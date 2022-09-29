@@ -34,6 +34,12 @@ job_file = os.path.join(os.path.dirname(__file__), "MC_file_div", "fic_MULTIPLE.
 
 test_cases.append((case_name, case_description, "MC", job_file, -1, 10, False, standardReturnCodeType, standardReturnCode))
 
+case_name = "IEEE14_MC_file_div_intermediate"
+case_description = "IEEE14 - Margin Calculation input file with divergence"
+job_file = os.path.join(os.path.dirname(__file__), "MC_file_div_intermediate", "fic_MULTIPLE.xml")
+
+test_cases.append((case_name, case_description, "MC", job_file, -1, 10, False, standardReturnCodeType, standardReturnCode))
+
 case_name = "IEEE14_MC_file"
 case_description = "IEEE14 - Margin Calculation input file"
 job_file = os.path.join(os.path.dirname(__file__), "MC_file", "fic_MULTIPLE.xml")

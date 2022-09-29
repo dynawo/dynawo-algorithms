@@ -137,7 +137,8 @@ MarginCalculationLauncher::launch() {
       if (status.second.success && status.first > variation)
         variation = status.first;
     }
-    // Unless no variation was ok at all, no computation here as the load increase has already been launched, we only update resultMaxVariation for the right variation
+    // Unless no variation was ok at all, no computation here as the load increase has already been launched,
+    // we only update resultMaxVariation for the right variation
     findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
                              marginCalculation->getAccuracy(), resultMaxVariation);
     maxVariation = variation;
@@ -160,7 +161,8 @@ MarginCalculationLauncher::launch() {
   results_[idx].setStatus(resultMaxVariation.getStatus());
   std::vector<double > maximumVariationPassing(events.size(), 0.);
   if (resultMaxVariation.getSuccess()) {
-    findAllLevelsBetween(minVariation, maxVariation, marginCalculation->getAccuracy(), allEvents, toRun);
+    if (!DYN::doubleEquals(minVariation, maxVariation))
+      findAllLevelsBetween(minVariation, maxVariation, marginCalculation->getAccuracy(), allEvents, toRun);
     findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
 
     // analyze results
@@ -185,7 +187,7 @@ MarginCalculationLauncher::launch() {
       TraceInfo(logTag_) << "============================================================ " << Trace::endline;
       cleanResultDirectories(events);
       return;
-    } else if (DYN::doubleEquals(maxVariation, minVariation)) {  // a scenario is not working at 0.
+    } else if (DYN::doubleEquals(maxVariation, minVariation) && nbSuccess != events.size()) {  // a scenario is not working at 0.
       TraceInfo(logTag_) << "============================================================ " << Trace::endline;
       TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, maxVariation) << Trace::endline;
       boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
