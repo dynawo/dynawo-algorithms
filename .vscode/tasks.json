@@ -4,22 +4,40 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Deploy DynawoAlgorithms",
+            "label": "Deploy DynawoAlgorithms Debug",
             "type": "shell",
             "command": "util/envDynawoAlgorithms.sh",
             "args": ["deploy"],
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "DYNAWO_HOME": "${workspaceFolder}/../dynawo/build-code/deploy",
+                    "DYNAWO_HOME": "${workspaceFolder}/../dynawo/build-code/deploy/Debug/dynawo",
                     "DYNAWO_ALGORITHMS_HOME": "${workspaceFolder}",
                     "DYNAWO_BUILD_TYPE": "Debug",
-                    "DYNAWO_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy",
-                    "DYNAWO_ALGORITHMS_INSTALL_DIR": "${workspaceFolder}/build-code/install/dynawo-algorithms",
-                    "DYNAWO_ALGORITHMS_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy",
-                    "DYNAWO_ALGORITHMS_BUILD_DIR": "${workspaceFolder}/build-code/dynawo-algorithms",
-                    "DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR": "${workspaceFolder}/build-code/3rdParty/build",
-                    "DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR": "${workspaceFolder}/build-code/install/3rdParty"
+                    "DYNAWO_ALGORITHMS_INSTALL_DIR": "${workspaceFolder}/build-code/install/dynawo-algorithms/Debug",
+                    "DYNAWO_ALGORITHMS_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy/Debug/dynawo-algorithms",
+                    "DYNAWO_ALGORITHMS_BUILD_DIR": "${workspaceFolder}/build-code/build/dynawo-algorithms/Debug",
+                    "DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR": "${workspaceFolder}/build-code/build/3rdParty/Debug/build",
+                    "DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR": "${workspaceFolder}/build-code/install/3rdParty/Debug"
+                }
+              }
+        },
+        {
+            "label": "Deploy DynawoAlgorithms Release",
+            "type": "shell",
+            "command": "util/envDynawoAlgorithms.sh",
+            "args": ["deploy"],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "DYNAWO_HOME": "${workspaceFolder}/../dynawo/build-code/deploy/Release/dynawo",
+                    "DYNAWO_ALGORITHMS_HOME": "${workspaceFolder}",
+                    "DYNAWO_BUILD_TYPE": "Release",
+                    "DYNAWO_ALGORITHMS_INSTALL_DIR": "${workspaceFolder}/build-code/install/dynawo-algorithms/Release",
+                    "DYNAWO_ALGORITHMS_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy/Release/dynawo-algorithms",
+                    "DYNAWO_ALGORITHMS_BUILD_DIR": "${workspaceFolder}/build-code/build/dynawo-algorithms/Release",
+                    "DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR": "${workspaceFolder}/build-code/build/3rdParty/Release/build",
+                    "DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR": "${workspaceFolder}/build-code/install/3rdParty/Release"
                 }
               }
         }
