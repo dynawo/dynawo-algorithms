@@ -9,29 +9,31 @@
 
     // uncomment this to compile 3rd parties
     // "cmake.sourceDirectory": "${workspaceFolder}/3rdParty",
-    // "cmake.buildDirectory": "${workspaceFolder}/build-code/3rdParty/build",
+    // "cmake.buildDirectory": "${workspaceFolder}/build-code/build/3rdParty/${buildType}/build",
 
     // uncomment this to compile dynamo after installing 3rd parties
     "cmake.sourceDirectory": "${workspaceFolder}",
-    "cmake.buildDirectory": "${workspaceFolder}/build-code/dynawo-algorithms",
+    "cmake.buildDirectory": "${workspaceFolder}/build-code/build/dynawo-algorithms/${buildType}",
 
     "cmake.configureSettings": {
-        "DYNAWO_HOME": "${workspaceFolder}/../dynawo/build-code/deploy",
+        "DYNAWO_HOME": "${workspaceFolder}/../dynawo/build-code/deploy/${buildType}/dynawo",
         "DYNAWO_ALGORITHMS_HOME": "${workspaceFolder}",
-        "DYNAWO_ALGORITHMS_THIRD_PARTY_DIR": "${workspaceFolder}/build-code/install/3rdParty",
+        "DYNAWO_ALGORITHMS_THIRD_PARTY_DIR": "${workspaceFolder}/build-code/install/3rdParty/${buildType}",
 
         // To compile 3rd parties
-        // "CMAKE_INSTALL_PREFIX": "${workspaceFolder}/build-code/install/3rdParty",
+        // "CMAKE_INSTALL_PREFIX": "${workspaceFolder}/build-code/install/3rdParty/${buildType}",
 
         // To compile dynamo after installing 3rd parties
-        "CMAKE_INSTALL_PREFIX": "${workspaceFolder}/build-code/install/dynawo-algorithms",
+        "CMAKE_INSTALL_PREFIX": "${workspaceFolder}/build-code/install/dynawo-algorithms/${buildType}",
 
         "FORCE_CXX11_ABI": "OFF",
         "BUILD_TESTS": "ON",
         "BUILD_TESTS_COVERAGE": "OFF",
         "BOOST_ROOT_DEFAULT": "true",
-        "TMP_DIR": "${workspaceFolder}/build-code/3rdParty/tmp",
-        "DOWNLOAD_DIR": "${workspaceFolder}/build-code/3rdParty/src"
+        "TMP_DIR": "${workspaceFolder}/build-code/build/3rdParty/${buildType}/tmp",
+        "DOWNLOAD_DIR": "${workspaceFolder}/build-code/build/3rdParty/${buildType}/src",
+        "GTEST_ROOT": "${workspaceFolder}/../dynawo/build-code/deploy/Debug/dynawo",
+        "GMOCK_HOME": "${workspaceFolder}/../dynawo/build-code/deploy/Debug/dynawo"
     },
 
     "files.exclude": {
@@ -42,6 +44,9 @@
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
         "build-code": true,
+        "build-clion": true,
+        "install-clion": true,
+        "deploy-clion": true,
         "build": true,
         "install": true,
         "deploy": true
