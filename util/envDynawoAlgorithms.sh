@@ -39,8 +39,12 @@ where [option] can be:
     distrib-omc                   create distribution of dynawo-algorithms with OpenModelica
     deploy                        deploy the current version of dynawo-algorithms binaries/libraries/includes to be used as a release by an another project
 
-    clean                         remove dynawo-algorithms objects
-    uninstall                     uninstall dynawo-algorithms
+    clean-3rd-party               remove all 3rd party softwares objects
+    clean-dynawo-algorithms       remove dynawo-algorithms objects
+    clean-all                     call clean-3rd-party, clean-dynawo-algorithms
+    uninstall-3rd-party           uninstall all 3rd party softwares
+    uninstall-dynawo-algorithms   uninstall dynawo-algorithms
+    uninstall-all                 call uninstall-3rd-party, uninstall-dynawo-algorithms
     clean-build                   clean, then configure and build dynawo-algorithms
 
     =========== dynawo-algorithms main launching options
@@ -675,14 +679,32 @@ unittest_gdb() {
   gdb -q --args $unittest_exe
 }
 
+clean_third_parties() {
+  rm -rf $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR
+}
+
 #clean dynawo-algorithms
 clean_dynawo_algorithms() {
   rm -rf $DYNAWO_ALGORITHMS_BUILD_DIR
 }
 
+clean_all() {
+  clean_third_parties
+  clean_dynawo_algorithms
+}
+
+uninstall_third_parties() {
+  rm -rf $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR
+}
+
 # uninstall dynawo-algorithms
 uninstall_dynawo_algorithms() {
   rm -rf $DYNAWO_ALGORITHMS_INSTALL_DIR
+}
+
+uninstall_all() {
+  uninstall_third_parties
+  uninstall_dynawo_algorithms
 }
 
 # Clean, then configure and build dynawo-algorithms
@@ -883,7 +905,7 @@ create_distrib_with_headers() {
 
   if [ "$with_omc" = "yes" ]; then
     ZIP_FILE=DynawoAlgorithms_omc_V$version.zip
-  else  
+  else
     ZIP_FILE=DynawoAlgorithms_headers_V$version.zip
   fi
 
@@ -1110,12 +1132,28 @@ case $MODE in
     deploy_dynawo_algorithms || error_exit "Error during the deployment of dynawo-algorithms"
     ;;
 
-  clean)
+  clean-3rd-party)
+    clean_third_parties || error_exit "Error while cleaning 3rd parties"
+    ;;
+
+  clean-dynawo-algorithms)
     clean_dynawo_algorithms || error_exit "Error while cleaning dynawo-algorithms"
     ;;
 
-  uninstall)
+  clean-all)
+    clean_all || error_exit "Error while cleaning all"
+    ;;
+
+  uninstall-3rd-party)
+    uninstall_third_parties || error_exit "Error while uninstalling 3rd parties"
+    ;;
+
+  uninstall-dynawo-algorithms)
     uninstall_dynawo_algorithms || error_exit "Error while uninstalling dynawo-algorithms"
+    ;;
+
+  uninstall-all)
+    uninstall_all || error_exit "Error while uninstalling all"
     ;;
 
   clean-build)
