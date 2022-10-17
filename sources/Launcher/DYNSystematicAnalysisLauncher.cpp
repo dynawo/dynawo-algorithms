@@ -117,7 +117,9 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
-
+  if (job->getOutputsEntry()->getTimelineEntry()) {
+    job->getOutputsEntry()->getTimelineEntry()->setMaxPriority(1);
+  }
   addDydFileToJob(job, scenario->getDydFile());
   setCriteriaFileForJob(job, scenario->getCriteriaFile());
 
