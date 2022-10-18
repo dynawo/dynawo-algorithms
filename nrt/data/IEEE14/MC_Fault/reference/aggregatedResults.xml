@@ -50,7 +50,7 @@
     <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
     <scenarioResults id="Fault" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 258.995MW &gt; 200MW (criteria id: Risque protection)" time="110.057322"/>
+      <criterionNonRespected id="total load power = 258.995MW &gt; 200MW (criteria id: Risque protection)" time="110.061418"/>
     </scenarioResults>
   </loadIncreaseResults>
 </aggregatedResults>
