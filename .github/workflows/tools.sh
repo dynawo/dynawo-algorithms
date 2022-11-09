@@ -39,7 +39,7 @@ download_asset() {
   local GH_API_REPO=$1
   local RELEASE_TAG=$2
   local ASSET_NAME=$3
-  local ASSET_URL=$($CURL_JSON $GH_API_REPO/releases/tags/$RELEASE_TAG | python3 -c \
+  local ASSET_URL=$($CURL_JSON $GH_API_REPO/releases/tags/$RELEASE_TAG | python -c \
     "import sys, json; assets = [a for a in json.load(sys.stdin)['assets'] if a['name'] == '$ASSET_NAME']; print(assets[0]['browser_download_url']) if assets else ''" \
     )
   echo "INFO. asset url:"
