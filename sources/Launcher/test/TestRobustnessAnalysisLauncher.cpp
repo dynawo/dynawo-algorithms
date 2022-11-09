@@ -78,7 +78,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
   }
 
   void launchCriticalTime() {
-    inputs_.readInputs(workingDirectory_, "MyJobs.jobs", 1);
+    inputs_.readInputs(workingDirectory_, "MyJobs.jobs");
     boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
 
     SimulationParameters params;
