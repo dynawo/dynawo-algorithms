@@ -220,9 +220,6 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncherWithCriticalTime) {
   launcher.setDirectory("MyDirectory");
   launcher.testDirectory("MyDirectory");
 
-  launcher.testNbThreads(1);
-  launcher.testNbThreads(1);
-
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::DirectoryDoesNotExist);
   launcher.testWorkingDirectory(createAbsolutePath("MyDirectory", current_path()));
 
