@@ -49,12 +49,12 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
    * @brief Launch the simulation with the new value calculted in the critical
    * time algorithm
    */
-  void SetParametersAndLaunchSimulation();
+  void setParametersAndLaunchSimulation();
 
   /**
    * @brief Update superior born to find the right critical time
    * and calcul the next time value we want to test.
-   * 
+   *
    * @param tPrevious previous value tested
    * @param curAccuracy current accuracy
    * @param multiplierRound value used to round results with accuracy
