@@ -12,5 +12,5 @@
     of simulation tools for power systems.
 -->
 <multipleJobs xmlns="http://www.rte-france.com/dynawo">
-	<criticalTimeCalculation accuracy="0.001" jobsFile="IEEE14.jobs" dydId="FAULT_GEN_1" endPar="fault_tEnd" minValue="1" maxValue="1.7"/>
+  <criticalTimeCalculation accuracy="0.001" jobsFile="IEEE14.jobs" dydId="FAULT_GEN_1" endPar="fault_tEnd" minValue="1" maxValue="1.7"/>
 </multipleJobs>

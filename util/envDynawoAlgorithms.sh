@@ -918,9 +918,9 @@ create_distrib_with_headers() {
   version=$(echo $DYNAWO_ALGORITHMS_VERSION | cut -f1 -d' ')
 
   if [ "$with_omc" = "yes" ]; then
-    ZIP_FILE=DynawoAlgorithms_omc_v$version.zip
+    ZIP_FILE=DynawoAlgorithms_omc_V$version.zip
   else
-    ZIP_FILE=DynawoAlgorithms_headers_v$version.zip
+    ZIP_FILE=DynawoAlgorithms_headers_V$version.zip
   fi
 
   deploy_dynawo_algorithms
@@ -1230,7 +1230,7 @@ case $MODE in
   CS-gdb)
     launch_CS_gdb ${ARGS} || error_exit "Dynawo simulation failed"
     ;;
-  
+
   CTC-gdb)
     launch_CTC_gdb ${ARGS} || error_exit "Critical time calculation failed"
     ;;

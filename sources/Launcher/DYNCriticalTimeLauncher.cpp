@@ -36,14 +36,14 @@ using multipleJobs::MultipleJobs;
 namespace DYNAlgorithms {
 
 void
-CriticalTimeLauncher::SetParametersAndLaunchSimulation() {
-  inputs_.readInputs(workingDirectory_, jobsFile_, 1);
+CriticalTimeLauncher::setParametersAndLaunchSimulation() {
+  inputs_.readInputs(workingDirectory_, jobsFile_);
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   SimulationParameters params;
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDirectory_, job, params, results_, inputs_);
 
   if (simulation) {
-    boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->model_);
+    boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
 
     const std::string& dydId = criticalTimeCalculation_->getDydId();
     const std::string& endPar = criticalTimeCalculation_->getEndPar();
@@ -78,23 +78,23 @@ CriticalTimeLauncher::launch() {
     throw DYNAlgorithmsError(CriticalTimeCalculationTaskNotFound);
 
   const double accuracy = criticalTimeCalculation_->getAccuracy();
-  double curAccuracy = 1;
-  const double multiplierRound = 1 / accuracy;
+  double curAccuracy = 1.;
+  const double multiplierRound = 1. / accuracy;
 
   tSup_ = criticalTimeCalculation_->getMaxValue();
   jobsFile_ = criticalTimeCalculation_->getJobsFile();
-  double tInf = criticalTimeCalculation_->getMinValue();
+  const double tInf = criticalTimeCalculation_->getMinValue();
   double tPrevious = tSup_;
 
   // First simulation case.
-  SetParametersAndLaunchSimulation();
+  setParametersAndLaunchSimulation();
   if (results_.getSuccess())
-    tSup_ += std::round(((tSup_ - tInf) / 2) * multiplierRound) / multiplierRound;
+    return;
   else
-    tSup_ -= std::round(((tSup_ - tInf) / 2) * multiplierRound) / multiplierRound;
+    tSup_ -= std::round(((tSup_ - tInf) / 2.) * multiplierRound) / multiplierRound;
 
   while (curAccuracy > accuracy) {
-    SetParametersAndLaunchSimulation();
+    setParametersAndLaunchSimulation();
     updateIndexes(tPrevious, curAccuracy, multiplierRound);
   }
 
