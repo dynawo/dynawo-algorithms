@@ -23,7 +23,7 @@ option(BUILD_TESTS_COVERAGE "Choose to build tests coverage")
 project(dynawo-algorithms)
 set(DYNAWO_ALGORITHMS_VERSION_MAJOR 1)
 set(DYNAWO_ALGORITHMS_VERSION_MINOR 3)
-set(DYNAWO_ALGORITHMS_VERSION_PATCH 1)
+set(DYNAWO_ALGORITHMS_VERSION_PATCH 2)
 set(DYNAWO_ALGORITHMS_VERSION_STRING ${DYNAWO_ALGORITHMS_VERSION_MAJOR}.${DYNAWO_ALGORITHMS_VERSION_MINOR}.${DYNAWO_ALGORITHMS_VERSION_PATCH})
 
 # Set repertory name
@@ -206,7 +206,7 @@ find_package(LibArchive 2.8.0 REQUIRED)
 find_package(ZLIB 1.2.3 REQUIRED)
 
 #DYNAWO
-find_package(Dynawo 1.3.1 REQUIRED)
+find_package(Dynawo 1.3.2 REQUIRED)
 
 # Hack until libxml is not thread-safe
 find_package(XercesC REQUIRED)
