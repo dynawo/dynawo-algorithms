@@ -23,7 +23,7 @@ It can be used with any tool of the Dyna&omega;o toolsuite (DynaFlow, DynaWaltz,
 
 It provides the following possibilities:
   - **Unitary simulations**: simulations of one or several power systems test cases described in a .jobs file 
-  (see [Dyna&omega;o documentation](https://github.com/dynawo/dynawo/releases/download/v1.3.0/DynawoDocumentation.pdf));
+  (see [Dyna&omega;o documentation](https://github.com/dynawo/dynawo/releases/download/v1.3.1/DynawoDocumentation.pdf));
   - **Systematic analysis**: simulations of a same base power system test case subject to different events to assess the global stability;
   - **Margin calculation**: simulations of a same base power system test case with a load variation and subject to different events to compute the maximum load increase in a specific region before the voltage collapses;
   - **Load increase**: simulation of a single load variation.
@@ -31,7 +31,7 @@ It provides the following possibilities:
 ## Dyna&omega;o algorithms Distribution
 
 You can download a pre-built Dyna&omega;o algorithms release to start testing it. Pre-built releases are available for **Linux**:
-- [Linux](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.0/DynawoAlgorithms_Linux_v1.3.0.zip)
+- [Linux](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.1/DynawoAlgorithms_Linux_v1.3.1.zip)
 
 ### Linux Requirements for Distribution
 
@@ -190,7 +190,7 @@ $> ./myEnvDynawoAlgorithms.sh distrib
 ```
 
 ## Dyna&omega;o-algorithms Documentation
-You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.0/DynawoAlgorithmsDocumentation.pdf).
+You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.1/DynawoAlgorithmsDocumentation.pdf).
 
 ## Get involved!
 
