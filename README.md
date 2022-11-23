@@ -198,12 +198,6 @@ $> ./myEnvDynawoAlgorithms.sh distrib
 ## Dyna&omega;o-algorithms Documentation
 You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.1/DynawoAlgorithmsDocumentation.pdf).
 
-## Get involved!
-
-Dyna&omega;o and Dyna&omega;o-algorithms are open-source projects and as such, questions, discussions, contributions and feedbacks are very welcome. They are also ongoing projects and we are actively working on improving them and making them better so we encourage you to regularly check the projects status and progresses.
-
-Regarding contributions, the final details, methodology and testing procedures for accepting a contribution is still under discussion. Until it is defined, we recommend to proceed in the following way: first report the problem or explain the planned modifications in an e-mail to [rte-dynawo@rte-france.com](mailto:rte-dynawo@rte-france.com) in order to get a first feedback from us (we will check if efforts are already conducted on the topic on our side and if your proposition is in phase with the project evolution) and then submit a pull-request that will serve as the basis for final discussions and review.
-
 ## Quoting Dyna&omega;o
 
 If you use Dyna&omega;o or Dyna&omega;o-algorithms in your work or research, it is not mandatory but we kindly ask you to quote the following paper in your publications or presentations:
