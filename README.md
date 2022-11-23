@@ -32,6 +32,8 @@ It provides the following possibilities:
 ## Get involved!
 
 Dyna&omega;o-algorithms is an open-source project and as such, questions, discussions, feedbacks and more generally any form of contribution are very welcome and greatly appreciated!
+
+For further informations about contributing guidelines, please refers to the [contributing documentation](https://github.com/dynawo/.github/blob/master/CONTRIBUTING.md).
 ## Dyna&omega;o algorithms Distribution
 
 You can download a pre-built Dyna&omega;o-algorithms release to start testing it. Pre-built releases are available for **Linux**:
