@@ -874,9 +874,9 @@ create_distrib() {
   mkdir -p dynawo-algorithms/examples/CS
   cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/IEEE14_BlackBoxModels/* dynawo-algorithms/examples/CS
   mkdir -p dynawo-algorithms/examples/SA
-  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/MC/files/* dynawo-algorithms/examples/SA
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/SA/files/* dynawo-algorithms/examples/SA
   mkdir -p dynawo-algorithms/examples/MC
-  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/SA/files/* dynawo-algorithms/examples/MC
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/MC/files/* dynawo-algorithms/examples/MC
 
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
@@ -941,9 +941,9 @@ create_distrib_with_headers() {
   mkdir -p dynawo-algorithms/examples/CS
   cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/IEEE14_BlackBoxModels/* dynawo-algorithms/examples/CS
   mkdir -p dynawo-algorithms/examples/SA
-  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/MC/files/* dynawo-algorithms/examples/SA
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/SA/files/* dynawo-algorithms/examples/SA
   mkdir -p dynawo-algorithms/examples/MC
-  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/SA/files/* dynawo-algorithms/examples/MC
+  cp $DYNAWO_ALGORITHMS_HOME/nrt/data/IEEE14/MC/files/* dynawo-algorithms/examples/MC
 
   # combines dictionaries mapping
   cat $DYNAWO_HOME/share/dictionaries_mapping.dic | grep -v -F // | grep -v -e '^$' >> dynawo-algorithms/share/dictionaries_mapping.dic
