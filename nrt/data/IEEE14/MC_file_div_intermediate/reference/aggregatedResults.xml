@@ -11,12 +11,12 @@
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="19" status="CONVERGENCE">
-    <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
-  </loadIncreaseResults>
-  <loadIncreaseResults loadLevel="16" status="CONVERGENCE">
-    <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
-  </loadIncreaseResults>
-  <loadIncreaseResults loadLevel="15" status="CONVERGENCE">
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="22" status="CONVERGENCE">
+    <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="21" status="CONVERGENCE">
+    <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
   </loadIncreaseResults>
 </aggregatedResults>
