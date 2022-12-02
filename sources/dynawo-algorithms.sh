@@ -40,8 +40,6 @@ export_var_env() {
   export $name="$value"
 }
 
-MPIRUN_PATH=$(which mpirun 2> /dev/null)
-
 usage="Usage: `basename $0` [option] -- program to launch Dynawo simulation
 
 where [option] can be:
@@ -89,10 +87,7 @@ setDynawoEnv() {
 setLibPath() {
   # set LD_LIBRARY_PATH
   export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
-
-  if [ -z "$MPIRUN_PATH" ]; then
-    MPIRUN_PATH="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/bin/mpirun"
-  fi
+  MPIRUN_PATH="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/bin/mpirun"
 }
 
 export_preload() {
@@ -164,7 +159,6 @@ algo_MC() {
 }
 
 algo_SA() {
-  LD_LIBRARY_PATH_BEFORE=$LD_LIBRARY_PATH
   setDynawoEnv
   setLibPath
   export_preload
