@@ -14,9 +14,9 @@
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="22" status="CONVERGENCE">
-    <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
   </loadIncreaseResults>
-  <loadIncreaseResults loadLevel="21" status="CONVERGENCE">
+  <loadIncreaseResults loadLevel="24" status="CONVERGENCE">
     <scenarioResults id="DisconnectGroup" status="DIVERGENCE"/>
   </loadIncreaseResults>
 </aggregatedResults>
