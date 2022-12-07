@@ -19,7 +19,7 @@ jobs:
       DYNAWO_BUILD_TYPE: ${{ matrix.build-type }}
       DYNAWO_NB_PROCESSORS_USED: 2
       DYNAWO_FORCE_CXX11_ABI: "true"
-      DYNAWO_VERSION: 1.4.0
+      DYNAWO_VERSION: 1.5.0
       GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
       CURL_JSON: 'curl --silent --header "Content-Type": "application/json"'
 
