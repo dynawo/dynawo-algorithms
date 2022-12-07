@@ -31,7 +31,7 @@ jobs:
 
           # TODO(Luma) avoid knowing the exact version in advance
           # Download the file with asset name "Dynawo_headers_V*.zip"
-          download_asset $GH_API_DYNAWO nightly Dynawo_headers_V1.4.0.zip
+          download_asset $GH_API_DYNAWO nightly Dynawo_headers_V1.5.0.zip
 
       - name: Unzip Dynawo
         run: |
