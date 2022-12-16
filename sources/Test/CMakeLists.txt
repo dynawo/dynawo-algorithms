@@ -20,7 +20,7 @@ target_link_libraries(dynawo_algorithms_Test_utils
     GTest::gmock_main
     GTest::gtest_main
     XMLSAXParser${LibXML_LINK_SUFFIX}
-    $<$<NOT:$<BOOL:${USE_LEGACY_IIDM}>>:LibXml2::LibXml2>
+    LibXml2::LibXml2
 )
 
 install(TARGETS dynawo_algorithms_Test_utils EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})
