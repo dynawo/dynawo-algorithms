@@ -23,7 +23,7 @@ install(FILES ${DYN_ALGO_INCLUDE_HEADERS} DESTINATION ${INCLUDEDIR_NAME})
 add_executable(dynawoAlgorithms ${DYN_ALGO_SOURCES})
 target_link_libraries(dynawoAlgorithms
   dynawo_algorithms_Launcher
-  $<$<NOT:$<BOOL:${USE_LEGACY_IIDM}>>:LibXml2::LibXml2>
+  LibXml2::LibXml2
   )
 
 install(PROGRAMS dynawo-algorithms.sh DESTINATION .)
