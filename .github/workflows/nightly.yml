@@ -21,7 +21,8 @@ jobs:
       DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_VERSION: 1.4.0
       GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
-      CURL_JSON: 'curl --silent --header "Content-Type": "application/json"'
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CURL_JSON: 'curl --silent -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --header "Content-Type: application/json"'
 
     steps:
       - name: Checkout sources
@@ -30,7 +31,7 @@ jobs:
       - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip
+          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
 
       - name: Unzip Dynawo
         run: |
