@@ -136,7 +136,7 @@ jobs:
             --data '{
                 "tag_name" : "nightly-release",
                 "target_commitish" : "'$MASTER_COMMIT_ID'",
-                "name" : "Nightly "'v${DYNAWO_VERSION_SHORT}'",
+                "name" : "Nightly "'v$DYNAWO_VERSION_SHORT'",
                 "body" : "Dynawo'"'"'s nightly release. Compiled on *release* settings.\n\n**Don'"'"'t use it for production**",
                 "draft" : false,
                 "prerelease" : true
