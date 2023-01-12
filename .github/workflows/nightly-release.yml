@@ -18,6 +18,7 @@ jobs:
       DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_NB_PROCESSORS_USED: 2
       DYNAWO_VERSION: 1.4.0
+      DYNAWO_VERSION_SHORT: 1.4
       GH_API: ${{ github.api_url }}/repos/${{ github.repository }}
       GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -86,28 +87,28 @@ jobs:
             --header "Content-Type: application/json"
 
           echo "Wait for tag to be deleted ..."
-          wait_for_http_code "$GH_API/git/refs/tags/nightly" 404 $GITHUB_TOKEN
+          wait_for_http_code "$GH_API/git/refs/tags/nightly-release" 404 $GITHUB_TOKEN
 
       - name: INFO. Nightly tag should not be found
         run: $CURL_JSON "$GH_API/git/refs/tags/nightly-release"
 
-      - name: Get last commit in master
+      - name: Get last commit in release branch
         run: |
-          echo "Obtaining refs/heads/v${DYNAWO_VERSION} ..."
-          HEAD_MASTER=$($CURL_JSON "$GH_API/git/refs/heads/v${DYNAWO_VERSION}")
-          echo "Head v${DYNAWO_VERSION}:"
+          echo "Obtaining refs/heads/v${DYNAWO_VERSION_SHORT} ..."
+          HEAD_MASTER=$($CURL_JSON "$GH_API/git/refs/heads/v${DYNAWO_VERSION_SHORT}")
+          echo "Head v${DYNAWO_VERSION_SHORT}:"
           echo $HEAD_MASTER
           SHA_HEAD_MASTER=$(echo $HEAD_MASTER | python3 -c 'import sys, json; print(json.load(sys.stdin)["object"]["sha"])')
           echo "Last commit in master has SHA = $SHA_HEAD_MASTER"
           echo "MASTER_COMMIT_ID=$SHA_HEAD_MASTER" >> $GITHUB_ENV
 
-      - name: INFO. Check last commit in master
-        run: echo "Last commit in master SHA = $MASTER_COMMIT_ID"
+      - name: INFO. Check last commit in release branch
+        run: echo "Last commit in release branch SHA = $MASTER_COMMIT_ID"
 
       - name: Create tag nightly-release
         run: |
           source .github/workflows/tools.sh
-          echo "Create tag nightly-release based on last commit in v${DYNAWO_VERSION} branch"
+          echo "Create tag nightly-release based on last commit in v${DYNAWO_VERSION_SHORT} branch"
           curl \
             --request POST \
             --url "$GH_API/git/refs" \
@@ -135,7 +136,7 @@ jobs:
             --data '{
                 "tag_name" : "nightly-release",
                 "target_commitish" : "'$MASTER_COMMIT_ID'",
-                "name" : "Nightly v${DYNAWO_VERSION}",
+                "name" : "Nightly "'v${DYNAWO_VERSION_SHORT}'",
                 "body" : "Dynawo'"'"'s nightly release. Compiled on *release* settings.\n\n**Don'"'"'t use it for production**",
                 "draft" : false,
                 "prerelease" : true
