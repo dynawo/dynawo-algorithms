@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<aggregatedResults xmlns="http://www.rte-france.com/dynawo" status="CRITERIA_NON_RESPECTED">
+  <scenarioResults id="DisconnectLine" status="CRITERIA_NON_RESPECTED">
+    <criterionNonRespected id="total load power = 259MW &gt; 4MW (criteria id: Risque protection)" time="100.000000"/>
+    <criterionNonRespected id="total load power = -272.39MW &lt; -4MW (criteria id: Risque protection)" time="100.000000"/>
+  </scenarioResults>
+</aggregatedResults>

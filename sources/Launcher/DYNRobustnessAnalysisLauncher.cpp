@@ -396,6 +396,9 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       } else if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR
           || e.type() == DYN::Error::NUMERICAL_ERROR) {
         result.setStatus(DIVERGENCE_STATUS);
+        std::vector<std::pair<double, std::string> > failingCriteria;
+        simulation->getFailingCriteria(failingCriteria);
+        result.setFailingCriteria(failingCriteria);
       } else {
         result.setStatus(EXECUTION_PROBLEM_STATUS);
       }
