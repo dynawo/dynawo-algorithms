@@ -17,7 +17,8 @@ jobs:
       DYNAWO_NB_PROCESSORS_USED: 2
       DYNAWO_VERSION: 1.4.0
       GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
-      CURL_JSON: 'curl --silent --header "Content-Type": "application/json"'
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CURL_JSON: 'curl --silent -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --header "Content-Type: application/json"'
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
@@ -25,7 +26,7 @@ jobs:
       - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_headers_V${DYNAWO_VERSION}.zip
+          download_asset $GH_API_DYNAWO nightly-release Dynawo_headers_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
 
       - name: Unzip Dynawo
         run: |
@@ -54,7 +55,8 @@ jobs:
       DYNAWO_NB_PROCESSORS_USED: 2
       DYNAWO_VERSION: 1.4.0
       GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
-      CURL_JSON: 'curl --silent --header "Content-Type": "application/json"'
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CURL_JSON: 'curl --silent -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --header "Content-Type: application/json"'
     steps:
       - name: Install Sonar wrapper
         working-directory: ${{ runner.workspace }}
@@ -81,7 +83,7 @@ jobs:
       - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip
+          download_asset $GH_API_DYNAWO nightly-release Dynawo_omc_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
 
       - name: Unzip Dynawo
         run: |
