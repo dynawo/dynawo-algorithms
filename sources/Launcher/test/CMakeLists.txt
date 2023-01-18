@@ -31,13 +31,16 @@ target_link_libraries(${MODULE_NAME}
   )
 
 add_custom_target(${MODULE_NAME}-pre-tests
+  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/res
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
-  )
+)
 
 add_custom_target(${MODULE_NAME}-tests
-  COMMAND ${CMAKE_COMMAND} -E env "${runtime_tests_PATH}" "${runtime_PATH}"
+  COMMAND ${CMAKE_COMMAND} -E env ${runtime_tests_ENV}
     "DYNAWO_RESOURCES_DIR=${DYNAWO_HOME}/share"
+    "DYNAWO_XSD_DIR=${DYNAWO_HOME}/share/xsd/"
     "DYNAWO_ALGORITHMS_LOCALE=en_GB"
+    "DYNAWO_ALGORITHMS_XSD_DIR=${CMAKE_SOURCE_DIR}/sources/API/multipleJobs/xsd"
     "DYNAWO_INSTALL_DIR=${DYNAWO_HOME}"
     "DYNAWO_SCRIPTS_DIR=${DYNAWO_HOME}/sbin"
     "DYNAWO_DICTIONARIES=dictionaries_mapping"

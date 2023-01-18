@@ -83,5 +83,11 @@ target_link_libraries(dynawo_algorithms_Common
   MPI::MPI_CXX
   )
 
-install(TARGETS dynawo_algorithms_Common EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})
+install(TARGETS dynawo_algorithms_Common
+  EXPORT dynawo_algorithms-targets
+  RUNTIME DESTINATION ${BINDIR_NAME}
+  LIBRARY DESTINATION ${LIBDIR_NAME}
+  ARCHIVE DESTINATION ${LIBDIR_NAME}
+  )
+
 install(FILES ${DICTIONARIES} ${DICTIONARIES_MAPPING} DESTINATION ${SHAREDIR_NAME})

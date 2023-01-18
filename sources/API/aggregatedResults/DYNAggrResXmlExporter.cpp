@@ -22,7 +22,7 @@
 #include "DYNMacrosMessage.h"
 #include "DYNResultCommon.h"
 
-using std::fstream;
+using std::ofstream;
 using std::ostream;
 using std::string;
 using std::vector;
@@ -37,8 +37,8 @@ using DYNAlgorithms::LoadIncreaseResult;
 namespace aggregatedResults {
 void
 XmlExporter::exportScenarioResultsToFile(const vector<SimulationResult>& results, const string& filePath) const {
-  fstream file;
-  file.open(filePath.c_str(), fstream::out);
+  ofstream file;
+  file.open(filePath.c_str(), std::ios::binary);
   if (!file.is_open()) {
     throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filePath.c_str());
   }
@@ -55,7 +55,7 @@ XmlExporter::exportScenarioResultsToStream(const vector<SimulationResult>& resul
   AttributeList attrs;
 
   DYNAlgorithms::status_t status = DYNAlgorithms::CONVERGENCE_STATUS;
-  for (unsigned int i=0, iEnd = results.size(); i < iEnd; i++) {
+  for (size_t i=0, iEnd = results.size(); i < iEnd; i++) {
     if (static_cast<int>(results[i].getStatus()) > static_cast<int>(status))
       status = results[i].getStatus();
   }
@@ -69,8 +69,8 @@ XmlExporter::exportScenarioResultsToStream(const vector<SimulationResult>& resul
 
 void
 XmlExporter::exportLoadIncreaseResultsToFile(const vector<LoadIncreaseResult>& results, const string& filePath) const {
-  fstream file;
-  file.open(filePath.c_str(), fstream::out);
+  ofstream file;
+  file.open(filePath.c_str(), std::ios::binary);
   if (!file.is_open()) {
     throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filePath.c_str());
   }
@@ -80,13 +80,13 @@ XmlExporter::exportLoadIncreaseResultsToFile(const vector<LoadIncreaseResult>& r
 }
 
 void
-XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>& results, std::ostream& stream) const {
+XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>& results, ostream& stream) const {
   FormatterPtr formatter = Formatter::createFormatter(stream, "http://www.rte-france.com/dynawo");
 
   formatter->startDocument();
   AttributeList attrs;
   formatter->startElement("aggregatedResults", attrs);
-  for (unsigned int i=0, iEnd = results.size(); i < iEnd; i++) {
+  for (size_t i=0, iEnd = results.size(); i < iEnd; i++) {
     attrs.clear();
     const DYNAlgorithms::LoadIncreaseResult& loadIncreaseRes = results[i];
     attrs.add("loadLevel", loadIncreaseRes.getLoadLevel());
@@ -104,7 +104,7 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
 void
 XmlExporter::appendScenarioResultsElement(const vector<SimulationResult>& results, FormatterPtr& formatter) const {
   AttributeList attrs;
-  for (unsigned int i=0; i < results.size(); i++) {
+  for (size_t i=0; i < results.size(); i++) {
     attrs.clear();
     const DYNAlgorithms::SimulationResult& result = results[i];
     attrs.add("id", result.getScenarioId());

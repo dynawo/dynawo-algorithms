@@ -30,11 +30,14 @@
 #include "MacrosMessage.h"
 #include "DYNMultipleJobs.h"
 #include "DYNMarginCalculation.h"
+#include "DYNMPIContext.h"
 
 testing::Environment* initXmlEnvironment();
 
 namespace DYNAlgorithms {
 testing::Environment* const env = initXmlEnvironment();
+
+mpi::Context mpiContext;
 
 class MyLauncher : public RobustnessAnalysisLauncher {
  public:
@@ -131,8 +134,9 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   MyLauncher launcher;
 
   launcher.testInputFile("");
-  launcher.setInputFile("/home/MyInputFile");
-  launcher.testInputFile("/home/MyInputFile");
+  std::string absoluteFile = createAbsolutePath("MyAbsoluteFile", current_path());
+  launcher.setInputFile(absoluteFile);
+  launcher.testInputFile(absoluteFile);
 
   launcher.testOutputFile("");
   launcher.setOutputFile("MyOutputFile");
@@ -145,13 +149,14 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::DirectoryDoesNotExist);
   launcher.testWorkingDirectory(createAbsolutePath("MyDirectory", current_path()));
 
-  launcher.setDirectory("/home/MyDirectory");
+  std::string absoluteDir = createAbsolutePath("MyAbsoluteDirectory", current_path());
+  launcher.setDirectory(absoluteDir);
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::DirectoryDoesNotExist);
-  launcher.testWorkingDirectory("/home/MyDirectory");
+  launcher.testWorkingDirectory(absoluteDir);
 
   launcher.setDirectory("");
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::FileDoesNotExist);
-  launcher.testWorkingDirectory(current_path()+"/");
+  launcher.testWorkingDirectory(current_path());
 
   launcher.setInputFile("res/MyDummyInputFile.xml");
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::FileDoesNotExist);
@@ -166,7 +171,7 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   launcher.setDirectory("res");
   launcher.setOutputFile("MyOutputFile.zip");
   ASSERT_NO_THROW(launcher.init());
-  launcher.testOutputFileFullPath(createAbsolutePath("res/MyOutputFile.zip", current_path()));
+  launcher.testOutputFileFullPath(createAbsolutePath("MyOutputFile.zip", createAbsolutePath("res", current_path())));
   launcher.testMultipleJobs();
   launcher.launch();
 }

@@ -42,5 +42,11 @@ target_link_libraries(dynawo_algorithms_API_MultipleJobs
   XMLSAXParser${LibXML_LINK_SUFFIX}
   )
 
-install(TARGETS dynawo_algorithms_API_MultipleJobs EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})
+install(TARGETS dynawo_algorithms_API_MultipleJobs
+  EXPORT dynawo_algorithms-targets
+  RUNTIME DESTINATION ${BINDIR_NAME}
+  LIBRARY DESTINATION ${LIBDIR_NAME}
+  ARCHIVE DESTINATION ${LIBDIR_NAME}
+  )
+
 install(FILES ${API_MULTIPLEJOBS_HEADERS} DESTINATION ${INCLUDEDIR_NAME})

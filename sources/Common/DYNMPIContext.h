@@ -16,6 +16,7 @@
 
 #include <functional>
 #include <mpi.h>
+#include <string>
 #include <vector>
 
 namespace DYNAlgorithms {
@@ -37,6 +38,14 @@ class Context {
    * @return the single instance of context
    */
   static Context& instance();
+
+  /**
+   * @brief Constructor
+   *
+   * Should only be used once per process in the main thread.
+   * RAII ensures proper initialization/finalization.
+   */
+  Context();
 
   /// @brief Destructor
   ~Context();
@@ -112,15 +121,10 @@ class Context {
 
  private:
   static constexpr int rootRank_ = 0;  ///< Root rank
+  static Context* instance_;  ///< Unique instance
+  static bool finalized_;  ///< Instance is already finalized
 
  private:
-  /**
-   * @brief Private constructor
-   *
-   * required to be private to work with the singleton pattern
-   */
-  Context();
-
   /**
    * @brief Gather implementation
    *

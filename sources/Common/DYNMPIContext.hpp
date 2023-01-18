@@ -85,7 +85,7 @@ Context::gatherImpl(Tag<T>, const T& data, std::vector<T>& recvData) const {
   if (isRootProc()) {
     recvData.resize(nbProcs_);
   }
-  MPI_Gather(&data, sizeof(T) / traits::MPIType<T>::ratio, traits::MPIType<T>::type, &recvData[0], sizeof(T), MPI_UNSIGNED_CHAR, rootRank_, MPI_COMM_WORLD);
+  MPI_Gather(&data, sizeof(T) / traits::MPIType<T>::ratio, traits::MPIType<T>::type, recvData.data(), sizeof(T), MPI_UNSIGNED_CHAR, rootRank_, MPI_COMM_WORLD);
 }
 
 template<class T>
@@ -96,10 +96,9 @@ Context::gatherImpl(Tag<std::vector<T> >, const std::vector<T>& data, std::vecto
   std::vector<int> displacements;
   if (isRootProc()) {
     sizes.resize(nbProcs_);
-    recvData.resize(nbProcs_);
   }
-  int size = data.size();
-  MPI_Gather(&size, 1, MPI_INT, &sizes[0], 1, MPI_INT, rootRank_, MPI_COMM_WORLD);
+  int size = static_cast<int>(data.size());
+  MPI_Gather(&size, 1, MPI_INT, sizes.data(), 1, MPI_INT, rootRank_, MPI_COMM_WORLD);
 
   // Update size
   if (isRootProc()) {
@@ -112,15 +111,16 @@ Context::gatherImpl(Tag<std::vector<T> >, const std::vector<T>& data, std::vecto
         displacements.at(i) = displacements.at(i - 1) + sizes.at(i - 1);
       }
     }
-    auto nbElem = std::accumulate(recvData.begin(), recvData.end(), 0, [](size_t sum, const std::vector<T>& dataLambda) { return sum + dataLambda.size(); });
+    auto nbElem = std::accumulate(recvData.begin(), recvData.end(), size_t{0},
+                                  [](size_t sum, const std::vector<T>& dataLambda) { return sum + dataLambda.size(); });
     total.resize(nbElem);
   }
 
   // Must take into account the case empty vector
-  const void* dataToSend = data.empty() ? nullptr : &data.at(0);
-
-  MPI_Gatherv(dataToSend, size * sizeof(T) / traits::MPIType<T>::ratio, traits::MPIType<T>::type, &total[0], &sizes[0], &displacements[0],
-              traits::MPIType<T>::type, rootRank_, MPI_COMM_WORLD);
+  if (!data.empty()) {
+    MPI_Gatherv(data.data(), size * sizeof(T) / traits::MPIType<T>::ratio, traits::MPIType<T>::type, total.data(), sizes.data(), displacements.data(),
+                traits::MPIType<T>::type, rootRank_, MPI_COMM_WORLD);
+  }
 
   if (isRootProc()) {
     auto it = total.begin();
@@ -140,7 +140,7 @@ Context::broadcastImpl(Tag<T>, T& data) const {
 template<class T>
 void
 Context::broadcastImpl(Tag<std::vector<T> >, std::vector<T>& data) const {
-  unsigned int size = data.size();
+  unsigned int size = static_cast<unsigned int>(data.size());
   broadcast(size);
   if (size == 0) {
     // nothing to broadcast

@@ -42,6 +42,7 @@ target_link_libraries(dynawo_algorithms_Launcher
   dynawo_algorithms_API_MultipleJobs
   dynawo_algorithms_API_AggregatedResults
   Dynawo::dynawo_Common
+  Dynawo::dynawo_DataInterfaceFactory
   Dynawo::dynawo_API_JOB
   Dynawo::dynawo_ModelerCommon
   Dynawo::dynawo_Simulation
@@ -50,4 +51,10 @@ target_link_libraries(dynawo_algorithms_Launcher
   Boost::program_options
   libZIP::libZIP
   )
-install(TARGETS dynawo_algorithms_Launcher EXPORT dynawo_algorithms-targets DESTINATION ${LIBDIR_NAME})
+
+install(TARGETS dynawo_algorithms_Launcher
+  EXPORT dynawo_algorithms-targets
+  RUNTIME DESTINATION ${BINDIR_NAME}
+  LIBRARY DESTINATION ${LIBDIR_NAME}
+  ARCHIVE DESTINATION ${LIBDIR_NAME}
+  )

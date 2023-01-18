@@ -19,37 +19,59 @@
 namespace DYNAlgorithms {
 namespace mpi {
 
+Context* Context::instance_ = nullptr;
+bool Context::finalized_ = false;
+
 Context&
 Context::instance() {
-  static Context context;
-  return context;
+  if (!instance_) {
+    std::cerr << "No MPI context has been instantiated" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
+  if (finalized_) {
+    std::cerr << "MPI context has already been finalized" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
+  return *instance_;
 }
 
 Context::Context() {
+  if (instance_) {
+    std::cerr << "MPI context should only be instantiated once per process in the main thread" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+
   int ret = MPI_Init(NULL, NULL);
   if (ret != MPI_SUCCESS) {
-    std::cerr << "Error initialization MPI" << std::endl;
+    std::cerr << "MPI initialization error" << std::endl;
     std::exit(EXIT_FAILURE);
   }
   ret = MPI_Comm_size(MPI_COMM_WORLD, &nbProcs_);
   if (ret != MPI_SUCCESS) {
-    std::cerr << "Error acquiring number of MPI process" << std::endl;
+    std::cerr << "Error acquiring MPI process count" << std::endl;
+    MPI_Finalize();
     std::exit(EXIT_FAILURE);
   }
   ret = MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
   if (ret != MPI_SUCCESS) {
-    std::cerr << "Error initialization MPI" << std::endl;
+    std::cerr << "Error while retrieving rank of current MPI process" << std::endl;
+    MPI_Finalize();
     std::exit(EXIT_FAILURE);
   }
+
+  instance_ = this;
 }
 
 Context::~Context() {
+  finalized_ = true;
   MPI_Finalize();
 }
 
 void
 forEach(unsigned int iStart, unsigned int size, const std::function<void(unsigned int)>& func) {
-  auto& context = Context::instance();
+  auto& context = mpi::context();
   for (unsigned int i = iStart; i < size; i++) {
     if (i % context.nbProcs() == context.rank()) {
       func(i);

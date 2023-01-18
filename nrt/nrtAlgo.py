@@ -17,10 +17,11 @@ import shutil
 import time
 from optparse import OptionParser
 import subprocess
-import signal
+from threading import Thread, Event
 import datetime
 from zipfile import ZipFile
 import contextlib
+import re
 
 nrt_dir = os.environ["DYNAWO_HOME"]
 sys.path.append(os.path.join(nrt_dir,"sbin","nrt"))
@@ -61,10 +62,6 @@ class TestCaseAlgo:
                     if ".dyd" in file or ".jobs" in file or ".par" in file or ".iidm" in file or ".crv" in file or "fic_MULTIPLE.xml" in file or ".crt" in file:
                         zipObj.write(os.path.join(path_to_zip, file), file)
 
-
-        if os.getenv("DYNAWO_ENV_DYNAWO") is None:
-            print("environment variable DYNAWO_ENV_DYNAWO needs to be defined")
-            sys.exit(1)
         env_dynawo = os.environ["DYNAWO_ENV_DYNAWO"]
 
         if self.job_type == "SA" or self.job_type == "MC":
@@ -73,7 +70,6 @@ class TestCaseAlgo:
                 output_file = os.path.join(directory,"result.zip")
             else:
                 output_file = os.path.join(directory,"aggregatedResults.xml")
-            variation = "-1"
             if self.variation > 0:
                 command = [env_dynawo, self.job_type, "--input", os.path.basename(self.jobs_file_), "--directory", directory, "--output", os.path.basename(output_file), "--variation", str(self.variation)]
             else:
@@ -85,20 +81,23 @@ class TestCaseAlgo:
         self.command_= commandStr
         print (self.name_)
 
-        if(timeout > 0):
-            signal.signal(signal.SIGALRM, alarm_handler)
-            signal.alarm(int(timeout)*60) # in seconds
-
-        code = 0
         errorTooLong = -150
+        done = Event()
         p = subprocess.Popen(commandStr, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        try:
-            output, errors = p.communicate()
-            signal.alarm(0)
-            code = p.wait()
-        except nrt.Alarm:
-            kill_subprocess(p.pid)
-            code = errorTooLong
+
+        if timeout > 0:
+            def kill_on_timeout(done, timeout, p):
+                if not done.wait(timeout*60):  # in seconds
+                    nrt.kill_subprocess(p.pid)
+                    p.returncode = errorTooLong
+
+            watcher = Thread(target=kill_on_timeout, args=(done, timeout, p))
+            watcher.daemon = True
+            watcher.start()
+
+        output, errors = p.communicate()
+        done.set()
+        code = p.wait()
 
         self.code_ = code
         if code == errorTooLong:
@@ -173,16 +172,16 @@ def main():
     log_message = "Running non-regression tests"
 
     timeout = 0
-    if options.timeout is not None and options.timeout > 0:
-        timeout = options.timeout
-        log_message += " with " + timeout + "s timeout"
+    if options.timeout is not None and int(options.timeout) > 0:
+        timeout = int(options.timeout)
+        log_message += " with " + options.timeout + "min timeout"
 
     with_directory_name = False
     directory_names = []
     if (options.directory_names is not None) and (len(options.directory_names) > 0):
         with_directory_name = True
         directory_names = options.directory_names
-        if options.timeout is not None and options.timeout > 0:
+        if timeout > 0:
             log_message += " and"
         else:
             log_message += " with"
@@ -195,7 +194,7 @@ def main():
     directory_patterns = []
     if (options.directory_patterns is not None) and  (len(options.directory_patterns) > 0):
         directory_patterns = options.directory_patterns
-        if options.timeout > 0 or with_directory_name:
+        if timeout > 0 or with_directory_name:
             log_message += " and"
         else:
             log_message += " with"
@@ -206,6 +205,10 @@ def main():
         log_message += " pattern filter"
 
     print (log_message)
+
+    if os.getenv("DYNAWO_ENV_DYNAWO") is None:
+        print("environment variable DYNAWO_ENV_DYNAWO needs to be defined")
+        sys.exit(1)
 
     # Create NRT structure
     NRT = nrt.NonRegressionTest(timeout)
