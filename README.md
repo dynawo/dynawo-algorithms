@@ -34,10 +34,12 @@ It provides the following possibilities:
 Dyna&omega;o-algorithms is an open-source project and as such, questions, discussions, feedbacks and more generally any form of contribution are very welcome and greatly appreciated!
 
 For further informations about contributing guidelines, please refers to the [contributing documentation](https://github.com/dynawo/.github/blob/master/CONTRIBUTING.md).
+
 ## Dyna&omega;o algorithms Distribution
 
-You can download a pre-built Dyna&omega;o-algorithms release to start testing it. Pre-built releases are available for **Linux**:
+You can download a pre-built Dyna&omega;o-algorithms release to start testing it. Pre-built releases are available for **Linux** and **Windows**:
 - [Linux](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.0/DynawoAlgorithms_Linux_v1.4.0.zip)
+- Windows  *Coming soon*
 
 ### Linux Requirements for Distribution
 
@@ -46,6 +48,14 @@ You can download a pre-built Dyna&omega;o-algorithms release to start testing it
 ``` bash
 $> apt install -y unzip curl
 $> dnf install -y unzip curl
+```
+
+### Windows Requirements for Distribution
+
+- Runtime to be installed as administrator [Microsoft MPI v10.1.2](https://www.microsoft.com/en-us/download/details.aspx?id=100593)
+
+``` batch
+> msmpisetup
 ```
 
 ### Using a distribution
@@ -64,7 +74,18 @@ $> ./dynawo-algorithms.sh SA --input fic_MULTIPLE.xml --output testSA.zip --dire
 $> ./dynawo-algorithms.sh MC --input fic_MULTIPLE.xml --output testMC.zip --directory examples/MC
 ```
 
-## Building Dyna&omega;o-algorithms
+#### Windows
+
+Download the zip of the distribution and unzip it somewhere. Then open either `Command Prompt` or `x64 Native Tools Command Prompt for VS2019` and use cd to go into the directory you previously unzipped. You should see a dynawo-algorithms.cmd file at the top of the folder. You can then launch:
+
+``` batch
+> dynawo-algorithms help
+> dynawo-algorithms CS --input examples/CS/IEEE14.jobs
+> dynawo-algorithms SA --input fic_MULTIPLE.xml --output testSA.zip --directory examples/SA
+> dynawo-algorithms MC --input fic_MULTIPLE.xml --output testMC.zip --directory examples/MC
+```
+
+## Build Dyna&omega;o-algorithms on Linux
 
 ### Optional requirements
 
@@ -151,6 +172,87 @@ To deploy Dyna&omega;o-algorithms, launch the following command after build:
 $> ./myEnvDynawoAlgorithms.sh deploy
 ```
 
+## Build and use Dyna&omega;o-algorithms on Windows
+
+### Requirements
+
+- SDK to be installed as administrator [Microsoft MPI v10.1.2](https://www.microsoft.com/en-us/download/details.aspx?id=100593)
+
+``` batch
+> msmpisdk.msi
+```
+
+### Build
+
+Open `x64 Native Tools Command Prompt for VS2019` and run the following commands (don't forget to adjust the path to the Dyna&omega;o deploy folder in the DYNAWO_HOME define):
+
+``` batch
+> git config --global core.eol lf
+> git config --global core.autocrlf input
+> md dynawo-project
+> cd dynawo-project
+> git clone https://github.com/dynawo/dynawo-algorithms.git
+> cd dynawo-algorithms
+> cmake -S . -B b -DCMAKE_INSTALL_PREFIX=../da-i -DDYNAWO_ALGORITHMS_HOME=. -DDYNAWO_HOME=../dynawo/deploy/dynawo -DDYNAWO_ALGORITHMS_THIRD_PARTY_DIR=. -G "NMake Makefiles"
+> cmake --build b --target install
+```
+
+**Warning** We try to limit as far as possible the name of the build and install folders (for example da-i instead of dynawo-algorithms-install) because of Windows limitation of length of path for folders. We know it causes problems and the only solution is to install Dyna&omega;o-algorithms in a shorter length directory path.
+
+**Warning** Only the build directory (b) can be located in the `dynawo-algorithms` folder, the install (da-i) folder should be located outside to avoid problems with CMake.
+
+### Command utility
+
+A command file `dynawo-algorithms.cmd` (similar to myEnvDynawoAlgorithms.sh or dynawo-algorithms.sh) is available:
+* from build environment: use `util\windows\dynawo-algorithms`
+* from installation or deploy or distribution folder: use `dynawo-algorithms`
+
+```
+usage: dynawo-algorithms [VERBOSE] [DEBUG] [HELP | <command>]
+
+HELP command displays this message.
+Add VERBOSE option to echo environment variables used.
+All commands are run in Release mode by default. Add DEBUG option to turn in Debug mode.
+
+These are commands used by end-user:
+  CS|SA|MC [<simulation_options>] Launch dynawoAlgorithms simulation (see simulation_options below)
+  [SHOW] nrt                      Launch dynawoAlgorithms Non Regressions Tests (option SHOW uses DYNAWO_BROWSER to show results)
+  version                         Print dynawoAlgorithms version
+
+where <simulation_options> are:
+  --simulationType arg  Set the simulation type to launch : MC (Margin
+                        calculation),  SA (systematic analysis) or CS (compute
+                        simulation)
+  --input arg           Set the input file of the simulation (*.zip or *.xml)
+  --output arg          Set the output file of the simulation (*.zip or *.xml)
+  --directory arg       Set the working directory of the simulation
+  --variation arg       Specify a specific load increase variation to launch
+
+These are commands used by developer only:
+  build [<install_dir>]           Build dynawoAlgorithms
+  [SHOW] tests [<unit_test>]      Build and run unit tests or a specific unit test (option SHOW lists available unit tests)
+  clean                           Clean build directory
+  deploy [<deploy_dir>]           Deploy the current version of dynawoAlgorithms binaries/libraries/includes
+                                  to be used as a release by an another project
+  distrib [<distrib_dir>]         Create distribution of dynawoAlgorithms
+  distrib-headers [<distrib_dir>] Create distribution of dynawoAlgorithms with headers
+  distrib-omc [<distrib_dir>]     Create distribution of dynawoAlgorithms with OpenModelica
+```
+
+Not all options are available depending on whether the utility is run from the build environment or the installation/deployment/distribution folder.
+
+The utility tries to guess some environment variables from context and set other to default values (please set it to another value if not correct):
+```
+  DYNAWO_HOME=<found_in_distribution_or_in_a_known_place_for_deployment>
+  DYNAWO_ALGORITHMS_HOME=<found_in_a_known_place_for_building_environment>
+  DYNAWO_ALGORITHMS_LOCALE=en
+  DYNAWO_USE_XSD_VALIDATION=false
+  DYNAWO_PYTHON_COMMAND=python
+  DYNAWO_BROWSER=<read_from_registry_with_default_to_iexplore>
+  DYNAWO_NB_PROCESSORS_USED=2
+```
+Then the utility automatically sets all other environment variables based on the commandline, above variables and context.
+
 ## Tests
 
 To launch Dyna&omega;o-algorithms unit tests, launch the following command:
@@ -209,8 +311,11 @@ A. Guironnet, M. Saugier, S. Petitrenaud, F. Xavier, and P. Panciatici, “Towar
 Dyna&omega;o-algorithms is licensed under the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at http://mozilla.org/MPL/2.0. You can also see the [LICENSE](LICENSE.txt) file for more information.
 
 Dyna&omega;o-algorithms is using some external libraries to run simulations:
-* [gperftools](https://github.com/gperftools/gperftools), a collection of a high-performance multi-threaded malloc implementations distributed under the BSD license. Dyna&omega;o-algorithms is currently using the version 2.6.1.
-* [MPICH](https://www.mpich.org/), an implementation of the Message Passing Interface (MPI) standard distributed under a BSD-like license. Dyna&omega;o-algorithms currently using the version 3.4.2.
+* on Linux:
+  * [gperftools](https://github.com/gperftools/gperftools), a collection of a high-performance multi-threaded malloc implementations distributed under the BSD license. Dyna&omega;o-algorithms is currently using the version 2.6.1.
+  * [MPICH](https://www.mpich.org/), an implementation of the Message Passing Interface (MPI) standard distributed under a BSD-like license. Dyna&omega;o-algorithms currently using the version 3.4.2.
+* on Windows:
+  * [MSMPI](https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi?redirectedfrom=MSDN), a Microsoft implementation of the Message Passing Interface standard distributed under a MIT license. Dyna&omega;o-algorithms currently using the version 10.1.2.
 
 ## Maintainers
 

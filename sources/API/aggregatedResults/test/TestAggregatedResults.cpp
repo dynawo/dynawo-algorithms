@@ -40,9 +40,16 @@ TEST(TestAggregatedResults, TestAggregatedResultsScenariosResults) {
   XmlExporter exporter;
   exporter.exportScenarioResultsToFile(results, "res/scenarioResults.xml");
   std::stringstream ssDiff;
-  executeCommand("diff res/scenarioResultsRef.xml res/scenarioResults.xml", ssDiff);
+#ifdef _WIN32
+  std::string cmd = "fc res/scenarioResultsRef.xml res/scenarioResults.xml >NUL || fc res/scenarioResultsRef.xml res/scenarioResults.xml";
+#else
+  std::string cmd = "diff res/scenarioResultsRef.xml res/scenarioResults.xml";
+#endif
+  executeCommand(cmd, ssDiff);
   std::cout << ssDiff.str() << std::endl;
-  ASSERT_EQ(ssDiff.str(), "Executing command : diff res/scenarioResultsRef.xml res/scenarioResults.xml\n");
+  std::stringstream ssCmd;
+  ssCmd << "Executing command : " << cmd << std::endl;
+  ASSERT_EQ(ssDiff.str(), ssCmd.str());
 }
 
 TEST(TestAggregatedResults, TestAggregatedResultsLoadIncreaseResults) {
@@ -85,8 +92,15 @@ TEST(TestAggregatedResults, TestAggregatedResultsLoadIncreaseResults) {
   XmlExporter exporter;
   exporter.exportLoadIncreaseResultsToFile(liResults, "res/loadIncreaseResults.xml");
   std::stringstream ssDiff;
-  executeCommand("diff res/loadIncreaseResultsRef.xml res/loadIncreaseResults.xml", ssDiff);
+#ifdef _WIN32
+  std::string cmd = "fc res/loadIncreaseResultsRef.xml res/loadIncreaseResults.xml >NUL || fc res/loadIncreaseResultsRef.xml res/loadIncreaseResults.xml";
+#else
+  std::string cmd = "diff res/loadIncreaseResultsRef.xml res/loadIncreaseResults.xml";
+#endif
+  executeCommand(cmd, ssDiff);
   std::cout << ssDiff.str() << std::endl;
-  ASSERT_EQ(ssDiff.str(), "Executing command : diff res/loadIncreaseResultsRef.xml res/loadIncreaseResults.xml\n");
+  std::stringstream ssCmd;
+  ssCmd << "Executing command : " << cmd << std::endl;
+  ASSERT_EQ(ssDiff.str(), ssCmd.str());
 }
 }  // namespace aggregatedResults

@@ -21,6 +21,7 @@
 
 #include <fstream>
 #include <limits>
+#include <set>
 
 #include <xml/sax/parser/ParserFactory.h>
 #include <xml/sax/parser/ParserException.h>
@@ -109,7 +110,6 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
 
   if ( !is_directory(workingDirectory_) )
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
-  workingDirectory_ += '/';  // to be sure to have an '/' at the end of the path
 
   if (doInitLog && mpi::context().isRootProc())
     initLog();
@@ -167,7 +167,7 @@ RobustnessAnalysisLauncher::initLog() {
   std::string outputPath(createAbsolutePath("dynawo.log", workingDirectory_));
 
   appender.setFilePath(outputPath);
-#if _DEBUG_
+#ifndef NDEBUG
   appender.setLvlFilter(DYN::DEBUG);
 #else
   appender.setLvlFilter(DYN::INFO);
@@ -233,8 +233,8 @@ RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& i
         itE != archive->getEntries().end(); ++itE) {
       std::string nom = itE->first;
       std::string data(itE->second->getData());
-      std::fstream file;
-      file.open((workingDirectory_ + nom).c_str(), std::ios::out);
+      std::ofstream file;
+      file.open(createAbsolutePath(nom, workingDirectory_).c_str(), std::ios::binary);
       file << data;
       file.close();
     }
@@ -478,9 +478,9 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
   if (!is_directory(logPath))
     create_directory(logPath);
   if (!result.getConstraintsStreamStr().empty()) {
-    std::fstream file;
+    std::ofstream file;
     std::string filepath = createAbsolutePath("constraints_" + result.getUniqueScenarioId() + "." + result.getConstraintsFileExtension(), constraintPath);
-    file.open(filepath.c_str(), std::fstream::out);
+    file.open(filepath.c_str(), std::ios::binary);
     if (!file.is_open()) {
       throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filepath.c_str());
     }
@@ -490,8 +490,8 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
 
   if (!result.getTimelineStreamStr().empty()) {
     std::string filepath = createAbsolutePath("timeline_" + result.getUniqueScenarioId() + "." + result.getTimelineFileExtension(), timelinePath);
-    std::fstream file;
-    file.open(filepath.c_str(), std::fstream::out);
+    std::ofstream file;
+    file.open(filepath.c_str(), std::ios::binary);
     if (!file.is_open()) {
       throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filepath.c_str());
     }
@@ -697,7 +697,7 @@ void
 RobustnessAnalysisLauncher::exportResult(const SimulationResult& result) const {
   auto filepath = computeResultFile(result.getUniqueScenarioId());
 
-  std::ofstream file(filepath.generic_string());
+  std::ofstream file(filepath.generic_string(), std::ios::binary);
   file.precision(precisionResultFile_);
   file << "scenario:" << result.getScenarioId() << std::endl;
   file << "timeline:" << std::endl << result.getTimelineStreamStr() << std::endl;
@@ -725,7 +725,7 @@ RobustnessAnalysisLauncher::cleanResult(const std::string& id) const {
     remove(computeResultFile(id));
     fs::path ret(createAbsolutePath(id, workingDirectory_));
     if (fs::is_empty(ret))
-      remove(ret.c_str());
+      remove(ret);
   }
 }
 

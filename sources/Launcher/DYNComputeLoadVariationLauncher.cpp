@@ -42,8 +42,8 @@ ComputeLoadVariationLauncher::launch() {
   boost::shared_ptr<MarginCalculation> marginCalculation = multipleJobs_->getMarginCalculation();
   const boost::shared_ptr<LoadIncrease>& loadIncrease = marginCalculation->getLoadIncrease();
   std::stringstream subDir;
-  subDir << "step-" << variation_ << "/" << loadIncrease->getId();
-  std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
+  subDir << "step-" << variation_;
+  std::string workingDir = createAbsolutePath(loadIncrease->getId(), createAbsolutePath(subDir.str(), workingDirectory_));
   if (!exists(workingDir))
     create_directory(workingDir);
   else if (!is_directory(workingDir))
@@ -57,11 +57,11 @@ ComputeLoadVariationLauncher::launch() {
   params.activateDumpFinalState_ = true;
   params.activateExportIIDM_ = true;
   std::stringstream iidmFile;
-  iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation_ << ".iidm";
-  params.exportIIDMFile_ = iidmFile.str();
+  iidmFile << "loadIncreaseFinalState-" << variation_ << ".iidm";
+  params.exportIIDMFile_ = createAbsolutePath(iidmFile.str(), workingDirectory_);
   std::stringstream dumpFile;
-  dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation_ << ".dmp";
-  params.dumpFinalStateFile_ = dumpFile.str();
+  dumpFile << "loadIncreaseFinalState-" << variation_ << ".dmp";
+  params.dumpFinalStateFile_ = createAbsolutePath(dumpFile.str(), workingDirectory_);
 
   std::string DDBDir = getMandatoryEnvVar("DYNAWO_DDB_DIR");
   std::stringstream scenarioId;
@@ -72,7 +72,7 @@ ComputeLoadVariationLauncher::launch() {
 
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
-    std::vector<boost::shared_ptr<DYN::SubModel> > subModels = modelMulti->findSubModelByLib(DDBDir + "/DYNModelVariationArea" + DYN::sharedLibraryExtension());
+    auto subModels = modelMulti->findSubModelByLib(createAbsolutePath(std::string("DYNModelVariationArea") + DYN::sharedLibraryExtension(), DDBDir));
     double duration = 0;
     for (unsigned int i=0; i < subModels.size(); i++) {
       double startTime = subModels[i]->findParameterDynamic("startTime").getValue<double>();

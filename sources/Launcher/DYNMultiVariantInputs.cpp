@@ -32,7 +32,7 @@ void
 MultiVariantInputs::readInputs(const std::string& workingDirectory, const std::string& jobFile, const std::string& iidmFile) {
   // job
   job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory + "/" + jobFile);
+  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(jobFile, workingDirectory));
   //  implicit : only one job per file
   jobEntry_ = *jobsCollection->begin();
 

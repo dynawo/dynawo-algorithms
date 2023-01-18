@@ -25,12 +25,11 @@ target_include_directories(${MODULE_NAME}
 
 target_link_libraries(${MODULE_NAME}
         dynawo_algorithms_Common
-        Dynawo::dynawo_Common
         dynawo_algorithms_Test
         Boost::system)
 
 add_custom_target(${MODULE_NAME}-tests
-  COMMAND ${CMAKE_COMMAND} -E env "${runtime_tests_PATH}" $<TARGET_FILE:${MODULE_NAME}>
+  COMMAND ${CMAKE_COMMAND} -E env ${runtime_tests_ENV} $<TARGET_FILE:${MODULE_NAME}>
   DEPENDS
     ${MODULE_NAME}
   COMMENT "Running ${MODULE_NAME}...")

@@ -6,7 +6,7 @@
 # license. All rights reserved.
 
 folders=(introduction installation configuringDynawoAlgorithms advancedDoc
-licenses/dynawo licenses/dynawo-algorithms licenses/dynawo-algorithms-documentation licenses/gperftools licenses/mpich licenses/cpplint)
+licenses/dynawo licenses/dynawo-algorithms licenses/dynawo-algorithms-documentation licenses/gperftools licenses/mpich licenses/msmpi licenses/cpplint)
 pdflatex_options="-halt-on-error -interaction=nonstopmode"
 
 for folder in ${folders[*]}; do

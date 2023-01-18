@@ -68,8 +68,8 @@ static DYN::TraceStream TraceInfo(const std::string& tag = "") {
 void
 MarginCalculationLauncher::createScenarioWorkingDir(const std::string& scenarioId, double variation) const {
   std::stringstream subDir;
-  subDir << "step-" << variation << "/" << scenarioId;
-  std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
+  subDir << "step-" << variation;
+  std::string workingDir = createAbsolutePath(scenarioId, createAbsolutePath(subDir.str(), workingDirectory_));
   if (!exists(workingDir))
     create_directory(workingDir);
   else if (!is_directory(workingDir))
@@ -94,12 +94,12 @@ void
 MarginCalculationLauncher::readTimes(const std::string& jobFileLoadIncrease, const std::string& jobFileScenario) {
   // job
   job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFileLoadIncrease);
+  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(jobFileLoadIncrease, workingDirectory_));
   //  implicit : only one job per file
   job::job_iterator jobIt = jobsCollection->begin();
   tLoadIncrease_ = (*jobIt)->getSimulationEntry()->getStopTime();
 
-  jobsCollection = importer.importFromFile(workingDirectory_ + "/" + jobFileScenario);
+  jobsCollection = importer.importFromFile(createAbsolutePath(jobFileScenario, workingDirectory_));
   jobIt = jobsCollection->begin();
   tScenario_ = (*jobIt)->getSimulationEntry()->getStopTime() - (*jobIt)->getSimulationEntry()->getStartTime();
 }
@@ -604,8 +604,8 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
               << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
   std::stringstream subDir;
-  subDir << "step-" << variation << "/" << scenario->getId();
-  std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
+  subDir << "step-" << variation;
+  std::string workingDir = createAbsolutePath(scenario->getId(), createAbsolutePath(subDir.str(), workingDirectory_));
   boost::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
 
   addDydFileToJob(job, scenario->getDydFile());
@@ -614,9 +614,9 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
   SimulationParameters params;
   initParametersWithJob(job, params);
   std::stringstream dumpFile;
-  dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".dmp";
+  dumpFile << "loadIncreaseFinalState-" << variation << ".dmp";
   //  force simulation to load previous dump and to use final values
-  params.InitialStateFile_ = dumpFile.str();
+  params.InitialStateFile_ = createAbsolutePath(dumpFile.str(), workingDirectory_);
   params.iidmFile_ = generateIDMFileNameForVariation(variation);
 
   // startTime and stopTime are adapted depending on the variation length
@@ -634,29 +634,22 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
     // The event time should be adapted (the list of events models supported currently corresponds to events really used)
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
     std::string DDBDir = getEnvVar("DYNAWO_DDB_DIR");
-    std::vector<boost::shared_ptr<DYN::SubModel> > subModels = modelMulti->findSubModelByLib(DDBDir + "/EventQuadripoleDisconnection"
-      + DYN::sharedLibraryExtension());
-    std::vector<boost::shared_ptr<DYN::SubModel> > subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventConnectedStatus"
-      + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointBoolean" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/SetPoint" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointReal" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointDoubleReal" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointGenerator" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventSetPointLoad" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/LineTrippingEvent" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/TfoTrippingEvent" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
-    subModelsToAdd = modelMulti->findSubModelByLib(DDBDir + "/EventQuadripoleConnection" + DYN::sharedLibraryExtension());
-    subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    decltype(modelMulti->findSubModelByLib("")) subModels;
+    auto addSubModelsByLib = [&](const std::string& libName) {
+      auto subModelsToAdd = modelMulti->findSubModelByLib(createAbsolutePath(libName + DYN::sharedLibraryExtension(), DDBDir));
+      subModels.insert(subModels.end(), subModelsToAdd.begin(), subModelsToAdd.end());
+    };
+    addSubModelsByLib("EventQuadripoleDisconnection");
+    addSubModelsByLib("EventConnectedStatus");
+    addSubModelsByLib("EventSetPointBoolean");
+    addSubModelsByLib("SetPoint");
+    addSubModelsByLib("EventSetPointReal");
+    addSubModelsByLib("EventSetPointDoubleReal");
+    addSubModelsByLib("EventSetPointGenerator");
+    addSubModelsByLib("EventSetPointLoad");
+    addSubModelsByLib("LineTrippingEvent");
+    addSubModelsByLib("TfoTrippingEvent");
+    addSubModelsByLib("EventQuadripoleConnection");
     for (std::vector<boost::shared_ptr<DYN::SubModel> >::const_iterator it = subModels.begin(); it != subModels.end(); ++it) {
       double tEvent = (*it)->findParameterDynamic("event_tEvent").getValue<double>();
       (*it)->setParameterValue("event_tEvent", DYN::PAR, tEvent - (100. - variation) * inputs_.getTLoadIncreaseVariationMax() / 100., false);
@@ -794,8 +787,8 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
     std::cout << "Launch loadIncrease of " << variation << "%" <<std::endl;
 
   std::stringstream subDir;
-  subDir << "step-" << variation << "/" << loadIncrease->getId();
-  std::string workingDir = createAbsolutePath(subDir.str(), workingDirectory_);
+  subDir << "step-" << variation;
+  std::string workingDir = createAbsolutePath(loadIncrease->getId(), createAbsolutePath(subDir.str(), workingDirectory_));
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   job->getOutputsEntry()->setTimelineEntry(boost::shared_ptr<job::TimelineEntry>());
   job->getOutputsEntry()->setConstraintsEntry(boost::shared_ptr<job::ConstraintsEntry>());
@@ -805,11 +798,11 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   params.activateDumpFinalState_ = true;
   params.activateExportIIDM_ = true;
   std::stringstream iidmFile;
-  iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".iidm";
-  params.exportIIDMFile_ = iidmFile.str();
+  iidmFile << "loadIncreaseFinalState-" << variation << ".iidm";
+  params.exportIIDMFile_ = createAbsolutePath(iidmFile.str(), workingDirectory_);
   std::stringstream dumpFile;
-  dumpFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".dmp";
-  params.dumpFinalStateFile_ = dumpFile.str();
+  dumpFile << "loadIncreaseFinalState-" << variation << ".dmp";
+  params.dumpFinalStateFile_ = createAbsolutePath(dumpFile.str(), workingDirectory_);
 
   result.setScenarioId(computeLoadIncreaseScenarioId(variation));
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
@@ -817,7 +810,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
     std::string DDBDir = getMandatoryEnvVar("DYNAWO_DDB_DIR");
-    std::vector<boost::shared_ptr<DYN::SubModel> > subModels = modelMulti->findSubModelByLib(DDBDir + "/DYNModelVariationArea" + DYN::sharedLibraryExtension());
+    auto subModels = modelMulti->findSubModelByLib(createAbsolutePath(std::string("DYNModelVariationArea") + DYN::sharedLibraryExtension(), DDBDir));
     for (std::vector<boost::shared_ptr<DYN::SubModel> >::const_iterator it = subModels.begin(); it != subModels.end(); ++it) {
       double startTime = (*it)->findParameterDynamic("startTime").getValue<double>();
       double stopTime = (*it)->findParameterDynamic("stopTime").getValue<double>();
@@ -911,8 +904,8 @@ MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& map
 std::string
 MarginCalculationLauncher::generateIDMFileNameForVariation(double variation) const {
   std::stringstream iidmFile;
-  iidmFile << workingDirectory_ << "/loadIncreaseFinalState-" << variation << ".iidm";
-  return iidmFile.str();
+  iidmFile << "loadIncreaseFinalState-" << variation << ".iidm";
+  return createAbsolutePath(iidmFile.str(), workingDirectory_);
 }
 
 }  // namespace DYNAlgorithms

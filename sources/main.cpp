@@ -45,7 +45,7 @@ static void launchSystematicAnalysis(const std::string& inputFile, const std::st
 static void launchLoadVariationCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int variation);
 
 int main(int argc, char** argv) {
-  DYNAlgorithms::mpi::Context& mpiContext = DYNAlgorithms::mpi::context();
+  DYNAlgorithms::mpi::Context mpiContext;  // Should only be used once per process in the main thread
   static_cast<void>(mpiContext);  // we don't use directly the MPI context here but call the MPI to initialize the context here
   std::string simulationType = "";
   std::string inputFile = "";

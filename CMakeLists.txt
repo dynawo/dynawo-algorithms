@@ -19,6 +19,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DYNAWO_ALGORITHMS_CMAKE_MODULE_PATH
 option(BUILD_TESTS "Choose to build unit tests")
 option(BUILD_TESTS_COVERAGE "Choose to build tests coverage")
 
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel (CMake defaults)")
+
 # Project dynawo-algorithms
 project(dynawo-algorithms)
 set(DYNAWO_ALGORITHMS_VERSION_MAJOR 1)
@@ -26,14 +28,16 @@ set(DYNAWO_ALGORITHMS_VERSION_MINOR 5)
 set(DYNAWO_ALGORITHMS_VERSION_PATCH 0)
 set(DYNAWO_ALGORITHMS_VERSION_STRING ${DYNAWO_ALGORITHMS_VERSION_MAJOR}.${DYNAWO_ALGORITHMS_VERSION_MINOR}.${DYNAWO_ALGORITHMS_VERSION_PATCH})
 
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)    # export all symbols from dll on Windows
+set(CMAKE_ENABLE_EXPORTS ON)                # export all symbols from exe on Windows
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)     # set -fPIC on Linux
+
 # Set repertory name
 set(BINDIR_NAME bin)
 set(SHAREDIR_NAME share)
 set(INCLUDEDIR_NAME include)
 set(LIBDIR_NAME lib)
 set(DOCDIR_NAME doxygen)
-
-get_filename_component(libdir ${CMAKE_INSTALL_PREFIX}/${LIBDIR_NAME} ABSOLUTE)
 
 get_filename_component(DYNAWO_HOME ${DYNAWO_HOME} ABSOLUTE)
 get_filename_component(DYNAWO_ALGORITHMS_HOME ${DYNAWO_ALGORITHMS_HOME} ABSOLUTE)
@@ -45,10 +49,14 @@ list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}/share/cmake")
 list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}/share")
 list(APPEND CMAKE_PREFIX_PATH "${DYNAWO_HOME}")
 
-set(FORCE_CXX11_ABI OFF CACHE BOOL "Choose either ON or OFF.")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-if(FORCE_CXX11_ABI)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
+if(MSVC)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_WIN32_WINNT=0x0601)
+else()
+  set(FORCE_CXX11_ABI OFF CACHE BOOL "Choose either ON or OFF.")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  if(FORCE_CXX11_ABI)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
+  endif()
 endif()
 
 # Add specific options for compiler
@@ -116,6 +124,10 @@ else()
   # Use Boost_NO_BOOST_CMAKE to ensure that find_package uses MODULE mode and takes Boost_NO_SYSTEM_PATHS into account, instead of CONFIG mode
   set(Boost_NO_BOOST_CMAKE ON)
 endif()
+
+set(BUILD_SHARED_LIBS ON)
+set(Boost_USE_STATIC_RUNTIME False)
+add_definitions(-DBOOST_ALL_DYN_LINK)
 # Tell BOOST to disable auto linking
 add_definitions(-DBOOST_ALL_NO_LIB)
 
@@ -194,43 +206,6 @@ if(BUILD_TESTS)
   include(UnitTest)
 endif()
 
-if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
-  find_package(GTest REQUIRED)
-
-  if(NOT TARGET GTest::gtest AND TARGET GTest::GTest)
-    add_library(GTest::gtest UNKNOWN IMPORTED)
-    if(EXISTS "${GTEST_LIBRARY_DEBUG}")
-      set_target_properties(GTest::gtest PROPERTIES
-              IMPORTED_LOCATION "${GTEST_LIBRARY_DEBUG}")
-    elseif(EXISTS "${GTEST_LIBRARY}")
-      set_target_properties(GTest::gtest PROPERTIES
-        IMPORTED_LOCATION "${GTEST_LIBRARY}")
-    endif()
-  endif()
-  if(NOT TARGET GTest::gtest_main AND TARGET GTest::Main)
-    add_library(GTest::gtest_main UNKNOWN IMPORTED)
-    if(EXISTS "${GTEST_MAIN_LIBRARY_DEBUG}")
-      set_target_properties(GTest::gtest_main PROPERTIES
-              IMPORTED_LOCATION "${GTEST_MAIN_LIBRARY_DEBUG}")
-    elseif(EXISTS "${GTEST_MAIN_LIBRARY}")
-      set_target_properties(GTest::gtest_main PROPERTIES
-        IMPORTED_LOCATION "${GTEST_MAIN_LIBRARY}")
-    endif()
-  endif()
-  find_package(GMock REQUIRED)
-
-  add_library(dynawo_algorithms_Test INTERFACE)
-  target_link_libraries(dynawo_algorithms_Test
-    INTERFACE
-      Dynawo::dynawo_Common
-      dynawo_algorithms_Test_utils
-      GTest::gmock_main
-      GTest::gtest_main
-      Boost::iostreams
-      Boost::filesystem
-    )
-endif()
-
 set(CMAKE_SKIP_RPATH TRUE)
 
 install(EXPORT dynawo_algorithms-targets
@@ -251,19 +226,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dynawoalgorithms-config-version.cmake
   )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/sources/config_algorithms.h.in ${CMAKE_CURRENT_SOURCE_DIR}/sources/config_algorithms.h @ONLY)
-
-if(MSVC)
-  set(runtime_PATH "PATH=${DYNAWO_HOME}/bin;${DYNAWO_HOME}/OpenModelica/bin;${libdir};$ENV{PATH}")
-  if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
-    set(runtime_tests_PATH "PATH=${GTEST_ROOT}/bin;${DYNAWO_HOME}/bin;${DYNAWO_HOME}/OpenModelica/bin;${libdir};$ENV{PATH}")
-  endif()
-else() # Linux
-  set(runtime_LD_LIBRARY_PATH "LD_LIBRARY_PATH=\"${DYNAWO_HOME}/lib:${libdir}:$ENV{LD_LIBRARY_PATH}\"")
-  set(runtime_PATH "PATH=\"${DYNAWO_HOME}/OpenModelica/bin:$ENV{PATH}\"")
-  if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
-    set(runtime_tests_PATH "LD_LIBRARY_PATH=${GTEST_ROOT}/lib:${DYNAWO_HOME}/lib:${libdir}:$ENV{LD_LIBRARY_PATH}")
-  endif()
-endif()
 
 include(cpplint/cpplint.cmake)
 

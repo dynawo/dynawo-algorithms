@@ -118,13 +118,19 @@ This command launches a simple simulation on the IEEE 14-bus network that should
 
 \section{Third parties}
 
-To run a simulation, \Dynawo-algorithms uses several external libraries that are downloaded and compiled during the building process:
+To run a simulation on Linux, \Dynawo-algorithms uses several external libraries that are downloaded and compiled during the building process:
 \begin{itemize}
 \item \href{https://github.com/gperftools/gperftools} {\underline{gperftools}}, a collection of a high-performance multi-threaded
 malloc implementations distributed under the BSD license. \Dynawo-algorithms is currently using the version 2.6.1.
 
 \item \href{https://www.mpich.org/}{\underline{MPICH}}, an implementation of the Message Passing Interface (MPI) standard distributed under a BSD-like license. 
 \Dynawo-algorithms is currently using the version 3.4.2.
+\end{itemize}
+
+To run a simulation on Windows, \Dynawo-algorithms uses an external librarie that has to be installed before the building process:
+\begin{itemize}
+\item \href{https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi?redirectedfrom=MSDN}{\underline{MSMPI}}, a Microsoft implementation of the Message Passing Interface standard distributed under a MIT license.
+\Dynawo-algorithms is currently using the version 10.1.2.
 \end{itemize}
 
 In addition to these libraries needed for the simulation process, \Dynawo-algorithms downloads the code for one other library:

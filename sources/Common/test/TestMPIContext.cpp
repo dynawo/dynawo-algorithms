@@ -17,6 +17,8 @@
 
 namespace DYNAlgorithms {
 
+mpi::Context mpiContext;
+
 TEST(MPIContext, gatherBase) {
   auto& context = mpi::context();
 
@@ -71,6 +73,7 @@ TEST(MPIContext, gatherVectEmpty) {
   std::vector<std::vector<unsigned int> > gathered;
 
   context.gather(test, gathered);
+  ASSERT_EQ(gathered.size(), 1);
 }
 
 TEST(MPIContext, broadcast) {
