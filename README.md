@@ -23,7 +23,7 @@ It can be used with any tool of the Dyna&omega;o toolsuite (DynaFlow, DynaWaltz,
 
 It provides the following possibilities:
   - **Unitary simulations**: simulations of one or several power systems test cases described in a .jobs file 
-  (see [Dyna&omega;o documentation](https://github.com/dynawo/dynawo/releases/download/v1.3.2/DynawoDocumentation.pdf));
+  (see [Dyna&omega;o documentation](https://github.com/dynawo/dynawo/releases/download/v1.4.0/DynawoDocumentation.pdf));
   - **Systematic analysis**: simulations of a same base power system test case subject to different events to assess the global stability;
   - **Margin calculation**: simulations of a same base power system test case with a load variation and subject to different events to compute the maximum load increase in a specific region before the voltage collapses;
   - **Load increase**: simulation of a single load variation.
@@ -37,7 +37,7 @@ For further informations about contributing guidelines, please refers to the [co
 ## Dyna&omega;o algorithms Distribution
 
 You can download a pre-built Dyna&omega;o-algorithms release to start testing it. Pre-built releases are available for **Linux**:
-- [Linux](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.2/DynawoAlgorithms_Linux_v1.3.2.zip)
+- [Linux](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.0/DynawoAlgorithms_Linux_v1.4.0.zip)
 
 ### Linux Requirements for Distribution
 
@@ -196,7 +196,7 @@ $> ./myEnvDynawoAlgorithms.sh distrib
 ```
 
 ## Dyna&omega;o-algorithms Documentation
-You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.2/DynawoAlgorithmsDocumentation.pdf).
+You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.0/DynawoAlgorithmsDocumentation.pdf).
 
 ## Quoting Dyna&omega;o
 
@@ -216,7 +216,6 @@ Dyna&omega;o-algorithms is using some external libraries to run simulations:
 
 Dyna&omega;o-algorithms is currently maintained by the following people in RTE:
 
-* Mathilde Bongrain, [mathilde.bongrain@rte-france.com](mailto:mathilde.bongrain@rte-france.com)
 * Gautier Bureau, [gautier.bureau@rte-france.com](mailto:gautier.bureau@rte-france.com)
 * Marco Chiaramello, [marco.chiaramello@rte-france.com](mailto:marco.chiaramello@rte-france.com)
 * Quentin Cossart, [quentin.cossart@rte-france.com](mailto:quentin.cossart@rte-france.com)
