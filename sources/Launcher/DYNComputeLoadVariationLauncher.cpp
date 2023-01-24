@@ -73,9 +73,11 @@ ComputeLoadVariationLauncher::launch() {
   if (simulation) {
     boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
     std::vector<boost::shared_ptr<DYN::SubModel> > subModels = modelMulti->findSubModelByLib(DDBDir + "/DYNModelVariationArea" + DYN::sharedLibraryExtension());
+    double duration = 0;
     for (unsigned int i=0; i < subModels.size(); i++) {
       double startTime = subModels[i]->findParameterDynamic("startTime").getValue<double>();
       double stopTime = subModels[i]->findParameterDynamic("stopTime").getValue<double>();
+      duration = stopTime - startTime;
       int nbLoads = subModels[i]->findParameterDynamic("nbLoads").getValue<int>();
       for (int k = 0; k < nbLoads; ++k) {
         std::stringstream deltaPName;
@@ -94,6 +96,7 @@ ComputeLoadVariationLauncher::launch() {
       subModels[i]->setParameterValue("stopTime", DYN::PAR, newStopTime, false);
       subModels[i]->setSubModelParameters();  // update values stored in subModel
     }
+    simulation->setStopTime(job->getSimulationEntry()->getStopTime() - (100. - variation_)/100. * duration);
     simulate(simulation, result);
   }
   LoadIncreaseResult loadResult;
