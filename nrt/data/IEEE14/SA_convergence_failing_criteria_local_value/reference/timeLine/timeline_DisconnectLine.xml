@@ -12,22 +12,22 @@
   <event time="0.8259022194309058" modelName="GEN____3_SM" message="PMIN : deactivation"/>
   <event time="0.97098813259555627" modelName="GEN____8_SM" message="PMIN : activation"/>
   <event time="1.016730414374712" modelName="GEN____6_SM" message="PMIN : deactivation"/>
-  <event time="1.4485609123611269" modelName="GEN____8_SM" message="PMIN : deactivation"/>
-  <event time="1.9308625884130242" modelName="GEN____3_SM" message="PMIN : activation"/>
-  <event time="2.4444896750977971" modelName="GEN____3_SM" message="PMIN : deactivation"/>
-  <event time="9.9999980000001649" modelName="_BUS____1-BUS____5-1_AC" message="LINE : opening on side 2"/>
-  <event time="10.44610803178977" modelName="GEN____6_SM" message="PMIN : activation"/>
-  <event time="10.565351015650151" modelName="GEN____8_SM" message="PMIN : activation"/>
-  <event time="10.886402010650851" modelName="GEN____6_SM" message="PMIN : deactivation"/>
-  <event time="10.932779152506209" modelName="GEN____3_SM" message="PMIN : activation"/>
-  <event time="11.065544258981832" modelName="GEN____8_SM" message="PMIN : deactivation"/>
-  <event time="11.4972749102511" modelName="GEN____3_SM" message="PMIN : deactivation"/>
-  <event time="11.632821058493173" modelName="GEN____8_SM" message="PMIN : activation"/>
-  <event time="12.078692491768836" modelName="GEN____8_SM" message="PMIN : deactivation"/>
-  <event time="12.738567812532052" modelName="GEN____8_SM" message="PMIN : activation"/>
-  <event time="12.925633015947975" modelName="GEN____6_SM" message="PMIN : activation"/>
-  <event time="13.046730141278871" modelName="GEN____8_SM" message="PMIN : deactivation"/>
-  <event time="13.075926425529541" modelName="GEN____6_SM" message="PMIN : deactivation"/>
+  <event time="1.4485609123614207" modelName="GEN____8_SM" message="PMIN : deactivation"/>
+  <event time="1.9308625884128483" modelName="GEN____3_SM" message="PMIN : activation"/>
+  <event time="2.444489675092838" modelName="GEN____3_SM" message="PMIN : deactivation"/>
+  <event time="9.9999980000002395" modelName="_BUS____1-BUS____5-1_AC" message="LINE : opening on side 2"/>
+  <event time="10.446108031789844" modelName="GEN____6_SM" message="PMIN : activation"/>
+  <event time="10.565351015650348" modelName="GEN____8_SM" message="PMIN : activation"/>
+  <event time="10.886402010650098" modelName="GEN____6_SM" message="PMIN : deactivation"/>
+  <event time="10.932779152505098" modelName="GEN____3_SM" message="PMIN : activation"/>
+  <event time="11.065544258983063" modelName="GEN____8_SM" message="PMIN : deactivation"/>
+  <event time="11.497274910252987" modelName="GEN____3_SM" message="PMIN : deactivation"/>
+  <event time="11.632821058491658" modelName="GEN____8_SM" message="PMIN : activation"/>
+  <event time="12.078692491770378" modelName="GEN____8_SM" message="PMIN : deactivation"/>
+  <event time="12.738567812524948" modelName="GEN____8_SM" message="PMIN : activation"/>
+  <event time="12.925633015947076" modelName="GEN____6_SM" message="PMIN : activation"/>
+  <event time="13.046730141273255" modelName="GEN____8_SM" message="PMIN : deactivation"/>
+  <event time="13.075926425513789" modelName="GEN____6_SM" message="PMIN : deactivation"/>
   <event time="100" modelName="Simulation" message="node: _LOAD___3_EC has a power 94.2MW &gt; 4MW (criteria id: Risque protection)"/>
   <event time="100" modelName="Simulation" message="node: _LOAD___4_EC has a power 47.8MW &gt; 4MW (criteria id: Risque protection)"/>
   <event time="100" modelName="Simulation" message="node: _LOAD___9_EC has a power 29.5MW &gt; 4MW (criteria id: Risque protection)"/>

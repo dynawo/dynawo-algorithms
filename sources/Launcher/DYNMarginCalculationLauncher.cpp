@@ -553,7 +553,6 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   std::vector<bool> allSuccesses = synchronizeSuccesses(successes);
   for (unsigned int i = 0; i < events2Run.size(); i++) {
     auto& event = events2Run.at(i);
-    // variation = event.second
     scenarioStatus_[event.second].resize(events.size());
     scenarioStatus_.at(event.second).at(event.first).success = allSuccesses.at(i);
   }
