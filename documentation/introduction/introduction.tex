@@ -28,7 +28,7 @@ It can be used with any tool of the \Dynawo toolsuite (DynaFlow, DynaWaltz, Dyna
 It provides the following possibilities:
 \begin{itemize}
   \item \textbf{Unitary simulations}: simulations of one or several power systems described in a \textbf{.jobs} file 
-  (see \href{https://github.com/dynawo/dynawo-algorithms/releases/download/v1.3.2/DynawoAlgorithmsDocumentation.pdf}{\underline{\Dynawo documentation}});
+  (see \href{https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.0/DynawoAlgorithmsDocumentation.pdf}{\underline{\Dynawo documentation}});
   \item \textbf{Systematic analysis}: simulations of a same base power system subject to different events to assess the global stability;
   \item \textbf{Margin calculation}: simulations of a same base power system with a load variation and subject to different events to compute 
   the maximum load increase in a specific region before the voltage collapses;
@@ -39,6 +39,18 @@ It provides the following possibilities:
 The source code is hosted into a \href{https://github.com/dynawo/dynawo-algorithms} {\underline{GitHub repository}}. \\
 
 \section{Changes from previous versions}
+
+\subsection{Changes from v1.4.0}
+
+\underline{New features:}
+\begin{itemize}
+\item Margin calculation: to avoid running all scenarios when the 100\% load increase fail we now launch the maximum load increase passing before continuing the dichotomy
+\end{itemize}
+
+\underline{Bug fix:}
+\begin{itemize}
+\item Margin calculation with variation: properly recompute the end time of the simulation
+\end{itemize}
 
 \subsection{Changes from v1.3.1}
 Minor fixes.

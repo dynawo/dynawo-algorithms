@@ -92,6 +92,30 @@ job_file = os.path.join(os.path.dirname(__file__), "SA", "IEEE14_SA.zip")
 
 test_cases.append((case_name, case_description, "SA", job_file, -1, 5, True, standardReturnCodeType, standardReturnCode))
 
+case_name = "IEEE14_SA convergence and local value failing criteria"
+case_description = "IEEE14 - Systematic Analysis (with convergence and local value failing criteria)"
+job_file = os.path.join(os.path.dirname(__file__), "SA_convergence_failing_criteria_local_value", "IEEE14_SA_convergence_failing_criteria_local_value.zip")
+
+test_cases.append((case_name, case_description, "SA", job_file, -1, 5, True, standardReturnCodeType, standardReturnCode))
+
+case_name = "IEEE14_SA convergence and sum failing criteria"
+case_description = "IEEE14 - Systematic Analysis (with convergence and sum failing criteria)"
+job_file = os.path.join(os.path.dirname(__file__), "SA_convergence_failing_criteria_sum", "IEEE14_SA_convergence_failing_criteria_sum.zip")
+
+test_cases.append((case_name, case_description, "SA", job_file, -1, 5, True, standardReturnCodeType, standardReturnCode))
+
+case_name = "IEEE14_SA divergence and local value failing criteria"
+case_description = "IEEE14 - Systematic Analysis (with divergence and local value failing criteria)"
+job_file = os.path.join(os.path.dirname(__file__), "SA_divergence_failing_criteria_local_value", "IEEE14_SA_divergence_failing_criteria_local_value.zip")
+
+test_cases.append((case_name, case_description, "SA", job_file, -1, 5, True, standardReturnCodeType, standardReturnCode))
+
+case_name = "IEEE14_SA divergence and sum failing criteria"
+case_description = "IEEE14 - Systematic Analysis (with divergence and sum failing criteria)"
+job_file = os.path.join(os.path.dirname(__file__), "SA_divergence_failing_criteria_sum", "IEEE14_SA_divergence_failing_criteria_sum.zip")
+
+test_cases.append((case_name, case_description, "SA", job_file, -1, 5, True, standardReturnCodeType, standardReturnCode))
+
 #########################################
 #        IEEE14 - Simulation            #
 #########################################
