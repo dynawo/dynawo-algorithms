@@ -6,38 +6,38 @@
   <event time="0" modelName="GEN____3_SM" message="PMIN : activation"/>
   <event time="0" modelName="GEN____6_SM" message="PMIN : activation"/>
   <event time="0" modelName="GEN____8_SM" message="PMIN : activation"/>
-  <event time="0.0051619999999999999" modelName="GEN____6_SM" message="PMIN : deactivation"/>
-  <event time="0.331287" modelName="GEN____8_SM" message="PMIN : deactivation"/>
-  <event time="0.63419099999999995" modelName="GEN____6_SM" message="PMIN : activation"/>
-  <event time="0.82590199999999991" modelName="GEN____3_SM" message="PMIN : deactivation"/>
-  <event time="0.97098799999999996" modelName="GEN____8_SM" message="PMIN : activation"/>
-  <event time="1.0167299999999999" modelName="GEN____6_SM" message="PMIN : deactivation"/>
-  <event time="1.448561" modelName="GEN____8_SM" message="PMIN : deactivation"/>
-  <event time="1.930863" modelName="GEN____3_SM" message="PMIN : activation"/>
-  <event time="2.4444900000000001" modelName="GEN____3_SM" message="PMIN : deactivation"/>
-  <event time="9.9999979999999997" modelName="_BUS____1-BUS____5-1_AC" message="LINE : opening on side 2"/>
-  <event time="9.9999979999999997" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.9999979999999997" modelName="Simulation" message="node: _LOAD___3_EC has a power 94.2MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="9.9999979999999997" modelName="Simulation" message="node: _LOAD___4_EC has a power 47.8MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="9.9999979999999997" modelName="Simulation" message="node: _LOAD___9_EC has a power 29.5MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="9.9999979999999997" modelName="Simulation" message="node: _LOAD___2_EC has a power 21.7MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="9.9999979999999997" modelName="Simulation" message="node: _LOAD__14_EC has a power 14.9MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="9.9999979999999997" modelName="Simulation" message="node: _GEN____1_SM has a power -232.39MW &lt; -4MW (criteria id: Risque protection)"/>
-  <event time="9.9999979999999997" modelName="Simulation" message="node: _GEN____2_SM has a power -40MW &lt; -4MW (criteria id: Risque protection)"/>
-  <event time="9.9999979999999997" modelName="Simulation" message="Simulation stopped : one criteria is not respected"/>
+  <event time="0.0051621794059414517" modelName="GEN____6_SM" message="PMIN : deactivation"/>
+  <event time="0.33128727832384647" modelName="GEN____8_SM" message="PMIN : deactivation"/>
+  <event time="0.63419138417592757" modelName="GEN____6_SM" message="PMIN : activation"/>
+  <event time="0.8259022194309058" modelName="GEN____3_SM" message="PMIN : deactivation"/>
+  <event time="0.97098813259555627" modelName="GEN____8_SM" message="PMIN : activation"/>
+  <event time="1.016730414374712" modelName="GEN____6_SM" message="PMIN : deactivation"/>
+  <event time="1.4485609123611269" modelName="GEN____8_SM" message="PMIN : deactivation"/>
+  <event time="1.9308625884130242" modelName="GEN____3_SM" message="PMIN : activation"/>
+  <event time="2.4444896750977971" modelName="GEN____3_SM" message="PMIN : deactivation"/>
+  <event time="9.9999980000001649" modelName="_BUS____1-BUS____5-1_AC" message="LINE : opening on side 2"/>
+  <event time="9.9999980000001649" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
+  <event time="9.9999980000001649" modelName="Simulation" message="node: _LOAD___3_EC has a power 94.2MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="9.9999980000001649" modelName="Simulation" message="node: _LOAD___4_EC has a power 47.8MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="9.9999980000001649" modelName="Simulation" message="node: _LOAD___9_EC has a power 29.5MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="9.9999980000001649" modelName="Simulation" message="node: _LOAD___2_EC has a power 21.7MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="9.9999980000001649" modelName="Simulation" message="node: _LOAD__14_EC has a power 14.9MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="9.9999980000001649" modelName="Simulation" message="node: _GEN____1_SM has a power -232.39MW &lt; -4MW (criteria id: Risque protection)"/>
+  <event time="9.9999980000001649" modelName="Simulation" message="node: _GEN____2_SM has a power -40MW &lt; -4MW (criteria id: Risque protection)"/>
+  <event time="9.9999980000001649" modelName="Simulation" message="Simulation stopped : one criteria is not respected"/>
 </timeline>
