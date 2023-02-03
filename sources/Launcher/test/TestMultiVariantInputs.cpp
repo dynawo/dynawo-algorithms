@@ -15,10 +15,8 @@
 #include <boost/filesystem.hpp>
 #include <gtest_dynawo.h>
 
-#ifdef USE_POWSYBL
 #include <powsybl/PowsyblException.hpp>
 #include <thread>
-#endif
 
 testing::Environment* initXmlEnvironment();
 

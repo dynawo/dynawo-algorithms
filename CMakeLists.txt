@@ -162,44 +162,9 @@ find_package(XercesC 3.2.2 REQUIRED)
 find_package(libXML 0.2.4 REQUIRED)
 
 #libIIDM
-file(STRINGS ${DYNAWO_HOME}/dynawoEnv.txt DYNAWO_ENV REGEX "^[ ]*DYNAWO_USE_LEGACY_IIDM[ ]*=")
-string(REGEX REPLACE "^[ ]*DYNAWO_USE_LEGACY_IIDM[ ]*=[ ]*\"([^\"]*)\"" "\\1" USE_LEGACY_IIDM ${DYNAWO_ENV})
-unset(DYNAWO_ENV)
-
-if(NOT USE_LEGACY_IIDM)
-  set(DYNAWO_USE_LIBXML2 "Y")
-  find_package(LibXml2 "2.9" REQUIRED)
-  find_package(LibIIDM "1.4.0" REQUIRED)
-else()
-  set(DYNAWO_USE_LIBXML2 "N")
-  find_package(libIIDM 0.2.8 REQUIRED
-    COMPONENTS
-      core
-      xml
-      ext-activeseason
-      ext-activeseason-xml
-      ext-busbarsectionposition
-      ext-busbarsectionposition-xml
-      ext-connectableposition
-      ext-connectableposition-xml
-      ext-currentlimitsperseason
-      ext-currentlimitsperseason-xml
-      ext-generatoractivepowercontrol
-      ext-generatoractivepowercontrol-xml
-      ext-hvdcangledroopactivepowercontrol
-      ext-hvdcangledroopactivepowercontrol-xml
-      ext-hvdcoperatoractivepowerrange
-      ext-hvdcoperatoractivepowerrange-xml
-      ext-generatorentsoecategory
-      ext-generatorentsoecategory-xml
-      ext-generatorstartup
-      ext-generatorstartup-xml
-      ext-loaddetail
-      ext-loaddetail-xml
-      ext-standbyautomaton
-      ext-standbyautomaton-xml
-    )
-endif()
+set(DYNAWO_USE_LIBXML2 "Y")
+find_package(LibXml2 "2.9" REQUIRED)
+find_package(LibIIDM "1.4.0" REQUIRED)
 
 #LibArchive
 find_package(LibArchive 2.8.0 REQUIRED)
