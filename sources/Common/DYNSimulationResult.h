@@ -108,6 +108,18 @@ class SimulationResult {
   std::string getConstraintsStreamStr() const;
 
   /**
+   * @brief getter of the lost equipments stream associated to the scenario
+   * @return lost equipments stream associated to the scenario
+   */
+  std::stringstream& getLostEquipementsStream();
+
+  /**
+   * @brief getter of the lost equipments associated to the scenario
+   * @return lost equipments associated to the scenario
+   */
+  std::string getLostEquipementsStreamStr() const;
+
+  /**
    * @brief getter of the scenario id associated to the simulation
    * @return the scenario id associated to the simulation
    */
@@ -168,13 +180,13 @@ class SimulationResult {
    * @brief setter of the constraints file extension based on constraints export mode from the job
    * @param constraintsExportMode constraints export mode
    */
-  void setConstraintsFileExtensionFromExportMode(const std::string &constraintsExportMode);
+  void setConstraintsFileExtensionFromExportMode(const std::string& constraintsExportMode);
 
   /**
    * @brief setter of the constraints file extension
    * @param constraintsFileExtension constraints export mode
    */
-  void setConstraintsFileExtension(const std::string &constraintsFileExtension);
+  void setConstraintsFileExtension(const std::string& constraintsFileExtension);
 
   /**
    * @brief getter of the timeline file extension
@@ -195,6 +207,24 @@ class SimulationResult {
   void setTimelineFileExtension(const std::string &timelineFileExtension);
 
   /**
+   * @brief getter of the lost equipments file extension
+   * @return lost equipments file extension
+   */
+  const std::string& getLostEquipmentsFileExtension() const;
+
+  /**
+   * @brief setter of the lost equipments file extension based on lost equipments export mode from the job
+   * @param lostEquipmentsExportMode lost equipments export mode
+   */
+  void setLostEquipmentsFileExtensionFromExportMode(const std::string& lostEquipmentsExportMode);
+
+  /**
+   * @brief setter of the lost equipments file extension
+   * @param constraintsFileExtension lost equipments export mode
+   */
+  void setLostEquipmentsFileExtension(const std::string& lostEquipmentsFileExtension);
+
+  /**
    * @brief getter of the general dynawo log path
    * @return general dynawo log path
    */
@@ -209,6 +239,7 @@ class SimulationResult {
  private:
   std::stringstream timelineStream_;  ///< stream for the timeline associated to the scenario
   std::stringstream constraintsStream_;  ///< stream for the constraints associated to the scenario
+  std::stringstream lostEquipmentsStream_;  ///< stream for the lost equipments associated to the scenario
   std::string scenarioId_;  ///< id of the scenario
   double variation_;  ///< variation of the scenario (aka loadLevel when associated to a load increase)
   bool success_;  ///< @b true if the simulation reached its end, @b false otherwise
@@ -216,6 +247,7 @@ class SimulationResult {
   std::vector<std::pair<double, std::string> > failingCriteria_;  ///< failing criteria ids
   std::string timelineFileExtension_;  ///< timeline export mode for this result
   std::string constraintsFileExtension_;  ///< constraints export mode for this result
+  std::string lostEquipmentsFileExtension_;  ///< lost equipments export mode for this result
   std::string logPath_;   ///< Path to the general dynawo log file associated to this result
 };
 

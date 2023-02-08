@@ -357,6 +357,8 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     result.setTimelineFileExtensionFromExportMode(job->getOutputsEntry()->getTimelineEntry()->getExportMode());
   if (job->getOutputsEntry() && job->getOutputsEntry()->getConstraintsEntry())
     result.setConstraintsFileExtensionFromExportMode(job->getOutputsEntry()->getConstraintsEntry()->getExportMode());
+  if (job->getOutputsEntry() && job->getOutputsEntry()->getLostEquipmentsEntry())
+    result.setLostEquipmentsFileExtensionFromExportMode("XML");
 
   if (job->getOutputsEntry() && job->getOutputsEntry()->getLogsEntry()) {
     std::vector<boost::shared_ptr<job::AppenderEntry> > appendersEntry = job->getOutputsEntry()->getLogsEntry()->getAppenderEntries();
@@ -423,6 +425,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
     }
     simulation->printTimeline(result.getTimelineStream());
     simulation->printConstraints(result.getConstraintsStream());
+    simulation->printLostEquipments(result.getLostEquipementsStream());
     return result.getStatus();
 }
 
@@ -440,6 +443,12 @@ RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::ma
     std::stringstream constraintsName;
     constraintsName << "constraints/constraints_" << result.getUniqueScenarioId() << "." << result.getConstraintsFileExtension();
     mapData[constraintsName.str()] = result.getConstraintsStreamStr();
+  }
+
+  if (!result.getLostEquipementsStreamStr().empty()) {
+    std::stringstream lostEquipmentsName;
+    lostEquipmentsName << "lostEquipments/lostEquipments_" << result.getUniqueScenarioId() << "." << result.getLostEquipmentsFileExtension();
+    mapData[lostEquipmentsName.str()] = result.getLostEquipementsStreamStr();
   }
 
   if (!result.getLogPath().empty()) {
@@ -462,6 +471,9 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
   std::string timelinePath = createAbsolutePath("timeLine", workingDirectory_);
   if (!is_directory(timelinePath))
     create_directory(timelinePath);
+  std::string lostEquipmentsPath = createAbsolutePath("lostEquipments", workingDirectory_);
+  if (!is_directory(lostEquipmentsPath))
+    create_directory(lostEquipmentsPath);
   std::string logPath = createAbsolutePath("logs", workingDirectory_);
   if (!is_directory(logPath))
     create_directory(logPath);
@@ -484,6 +496,18 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
       throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filepath.c_str());
     }
     file << result.getTimelineStreamStr();
+    file.close();
+  }
+
+  if (!result.getLostEquipementsStreamStr().empty()) {
+    std::string filepath = createAbsolutePath("lostEquipments_" + result.getUniqueScenarioId() + "." + result.getLostEquipmentsFileExtension(),
+                                              lostEquipmentsPath);
+    std::fstream file;
+    file.open(filepath.c_str(), std::fstream::out);
+    if (!file.is_open()) {
+      throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filepath.c_str());
+    }
+    file << result.getLostEquipementsStreamStr();
     file.close();
   }
 
@@ -575,13 +599,24 @@ RobustnessAnalysisLauncher::importResult(const std::string& id) const {
 
   // constraints
   auto& constraints = ret.getConstraintsStream();
-  while (tmpStr.find("variation:") != 0) {
+  while (tmpStr.find("lostEquipments:") != 0) {
     file >> tmpStr;
-    if (tmpStr.find("variation:") == 0) {
+    if (tmpStr.find("lostEquipments:") == 0) {
       // case no constraints
       break;
     }
     constraints << tmpStr << std::endl;
+  }
+
+  // lost equipments
+  auto& lostEquipments = ret.getLostEquipementsStream();
+  while (tmpStr.find("variation:") != 0) {
+    file >> tmpStr;
+    if (tmpStr.find("variation:") == 0) {
+      // case no lost equipments
+      break;
+    }
+    lostEquipments << tmpStr << std::endl;
   }
 
   // variation
@@ -623,6 +658,12 @@ RobustnessAnalysisLauncher::importResult(const std::string& id) const {
   cstrExtension = cstrExtension.substr(cstrExtension.find(delimiter)+1);
   ret.setConstraintsFileExtension(cstrExtension);
 
+  // lost equipments extension:
+  std::string lostEquipmentsExtension;
+  file >> lostEquipmentsExtension;
+  lostEquipmentsExtension = lostEquipmentsExtension.substr(cstrExtension.find(delimiter)+1);
+  ret.setLostEquipmentsFileExtension(lostEquipmentsExtension);
+
   // log:
   std::string logPath;
   file >> logPath;
@@ -661,11 +702,13 @@ RobustnessAnalysisLauncher::exportResult(const SimulationResult& result) const {
   file << "scenario:" << result.getScenarioId() << std::endl;
   file << "timeline:" << std::endl << result.getTimelineStreamStr() << std::endl;
   file << "constraints:" << std::endl << result.getConstraintsStreamStr() << std::endl;
+  file << "lostEquipments:" << std::endl << result.getLostEquipementsStreamStr() << std::endl;
   file << "variation:" <<result.getVariation() << std::endl;
   file << "success:" << std::boolalpha << result.getSuccess() << std::endl;
   file << "status:" << static_cast<unsigned int>(result.getStatus()) << std::endl;
   file << "timeline extension:" << result.getTimelineFileExtension() << std::endl;
   file << "constraints extension:" << result.getConstraintsFileExtension() << std::endl;
+  file << "lostEquipments extension:" << result.getLostEquipmentsFileExtension() << std::endl;
   file << "log:" << result.getLogPath() << std::endl;
   file << "criteria:" << std::endl;
   for (const auto& criteria : result.getFailingCriteria()) {

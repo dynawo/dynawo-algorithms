@@ -28,7 +28,8 @@ SimulationResult::SimulationResult():
     success_(false),
     status_(EXECUTION_PROBLEM_STATUS),
     timelineFileExtension_("xml"),
-    constraintsFileExtension_("xml") {
+    constraintsFileExtension_("xml"),
+    lostEquipmentsFileExtension_("xml") {
 }
 
 SimulationResult::~SimulationResult() {
@@ -42,9 +43,11 @@ SimulationResult::SimulationResult(const SimulationResult& result):
     failingCriteria_(result.failingCriteria_),
     timelineFileExtension_(result.timelineFileExtension_),
     constraintsFileExtension_(result.constraintsFileExtension_),
+    lostEquipmentsFileExtension_(result.lostEquipmentsFileExtension_),
     logPath_(result.logPath_) {
   timelineStream_ << result.timelineStream_.str();
   constraintsStream_ << result.constraintsStream_.str();
+  lostEquipmentsStream_ << result.lostEquipmentsStream_.str();
 }
 
 SimulationResult&
@@ -60,6 +63,9 @@ SimulationResult::operator=(const SimulationResult& result) {
   constraintsStream_.str("");
   constraintsStream_.clear();
   constraintsStream_ << result.constraintsStream_.str();
+  lostEquipmentsStream_.str("");
+  lostEquipmentsStream_.clear();
+  lostEquipmentsStream_ << result.lostEquipmentsStream_.str();
   failingCriteria_ = result.failingCriteria_;
   timelineFileExtension_ = result.timelineFileExtension_;
   constraintsFileExtension_ =  result.constraintsFileExtension_;
@@ -106,6 +112,16 @@ SimulationResult::getConstraintsStream() {
 std::string
 SimulationResult::getConstraintsStreamStr() const {
   return constraintsStream_.str();
+}
+
+std::stringstream&
+SimulationResult::getLostEquipementsStream() {
+  return lostEquipmentsStream_;
+}
+
+std::string
+SimulationResult::getLostEquipementsStreamStr() const {
+  return lostEquipmentsStream_.str();
 }
 
 std::string
@@ -160,7 +176,7 @@ SimulationResult::getConstraintsFileExtension() const {
 }
 
 void
-SimulationResult::setConstraintsFileExtensionFromExportMode(const std::string &constraintsExportMode) {
+SimulationResult::setConstraintsFileExtensionFromExportMode(const std::string& constraintsExportMode) {
   if (constraintsExportMode == "XML")
     constraintsFileExtension_ = "xml";
   else if (constraintsExportMode == "TXT")
@@ -168,7 +184,7 @@ SimulationResult::setConstraintsFileExtensionFromExportMode(const std::string &c
 }
 
 void
-SimulationResult::setConstraintsFileExtension(const std::string &constraintsFileExtension) {
+SimulationResult::setConstraintsFileExtension(const std::string& constraintsFileExtension) {
   constraintsFileExtension_ = constraintsFileExtension;
 }
 
@@ -178,7 +194,7 @@ SimulationResult::getTimelineFileExtension() const {
 }
 
 void
-SimulationResult::setTimelineFileExtensionFromExportMode(const std::string &timelineExportMode) {
+SimulationResult::setTimelineFileExtensionFromExportMode(const std::string& timelineExportMode) {
   if (timelineExportMode == "XML")
     timelineFileExtension_ = "xml";
   else if (timelineExportMode == "TXT")
@@ -190,6 +206,22 @@ SimulationResult::setTimelineFileExtensionFromExportMode(const std::string &time
 void
 SimulationResult::setTimelineFileExtension(const std::string &timelineFileExtension) {
   timelineFileExtension_ = timelineFileExtension;
+}
+
+const std::string&
+SimulationResult::getLostEquipmentsFileExtension() const {
+  return lostEquipmentsFileExtension_;
+}
+
+void
+SimulationResult::setLostEquipmentsFileExtensionFromExportMode(const std::string& lostEquipmentsExportMode) {
+  if (lostEquipmentsExportMode == "XML")
+    timelineFileExtension_ = "xml";
+}
+
+void
+SimulationResult::setLostEquipmentsFileExtension(const std::string& lostEquipmentsFileExtension) {
+  lostEquipmentsFileExtension_ = lostEquipmentsFileExtension;
 }
 
 const std::string&
