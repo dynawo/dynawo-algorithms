@@ -220,7 +220,7 @@ class SimulationResult {
 
   /**
    * @brief setter of the lost equipments file extension
-   * @param constraintsFileExtension lost equipments export mode
+   * @param lostEquipmentsFileExtension lost equipments export mode
    */
   void setLostEquipmentsFileExtension(const std::string& lostEquipmentsFileExtension);
 
