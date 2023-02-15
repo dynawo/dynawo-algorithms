@@ -180,7 +180,7 @@ SimulationResult::setConstraintsFileExtensionFromExportMode(const std::string& c
   if (constraintsExportMode == "XML")
     constraintsFileExtension_ = "xml";
   else if (constraintsExportMode == "TXT")
-    constraintsFileExtension_ = "txt";
+    constraintsFileExtension_ = "log";
 }
 
 void
@@ -198,7 +198,7 @@ SimulationResult::setTimelineFileExtensionFromExportMode(const std::string& time
   if (timelineExportMode == "XML")
     timelineFileExtension_ = "xml";
   else if (timelineExportMode == "TXT")
-    timelineFileExtension_ = "txt";
+    timelineFileExtension_ = "log";
   else if (timelineExportMode == "CSV")
     timelineFileExtension_ = "csv";
 }
@@ -216,7 +216,7 @@ SimulationResult::getLostEquipmentsFileExtension() const {
 void
 SimulationResult::setLostEquipmentsFileExtensionFromExportMode(const std::string& lostEquipmentsExportMode) {
   if (lostEquipmentsExportMode == "XML")
-    timelineFileExtension_ = "xml";
+    lostEquipmentsFileExtension_ = "xml";
 }
 
 void

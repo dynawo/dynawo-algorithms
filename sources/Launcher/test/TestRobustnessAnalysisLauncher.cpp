@@ -61,7 +61,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     writeResults();
     ASSERT_TRUE(exists("res/MyOutputFile.zip"));
     ASSERT_FALSE(exists("res/constraints/constraints_MyScenario.xml"));
-    ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.txt"));
+    ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.log"));
     ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.xml"));
     ASSERT_TRUE(exists("res/logs/log_MyScenario.log"));
 
@@ -71,7 +71,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     writeResults();
     ASSERT_TRUE(exists("res/MyOutputFile.zip"));
     ASSERT_TRUE(exists("res/constraints/constraints_MyScenario.xml"));
-    ASSERT_TRUE(exists("res/timeLine/timeline_MyScenario.txt"));
+    ASSERT_TRUE(exists("res/timeLine/timeline_MyScenario.log"));
     ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.xml"));
     ASSERT_TRUE(exists("res/logs/log_MyScenario.log"));
   }
