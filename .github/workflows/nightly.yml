@@ -31,7 +31,7 @@ jobs:
       - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
+          download_asset $GH_API_DYNAWO nightly-release Dynawo_omc_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
 
       - name: Unzip Dynawo
         run: |
