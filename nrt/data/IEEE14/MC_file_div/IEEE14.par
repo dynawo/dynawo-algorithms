@@ -28,6 +28,7 @@
     <par type="DOUBLE" name="generator_nq" value="0"/>
     <par type="DOUBLE" name="generator_MdPuEfd" value="0"/>
     <par type="DOUBLE" name="generator_DPu" value="0"/>
+    <par type="BOOL" name="generator_UseApproximation" value="true"/>
     <par type="DOUBLE" name="generator_H" value="5.4000000000000004"/>
     <par type="DOUBLE" name="generator_RaPu" value="0.0027959999999999999"/>
     <par type="DOUBLE" name="generator_XlPu" value="0.20200000000000001"/>
@@ -78,6 +79,7 @@
     <par type="DOUBLE" name="generator_nq" value="0"/>
     <par type="DOUBLE" name="generator_MdPuEfd" value="0"/>
     <par type="DOUBLE" name="generator_DPu" value="0"/>
+    <par type="BOOL" name="generator_UseApproximation" value="true"/>
     <par type="DOUBLE" name="generator_H" value="6.2999999999999998"/>
     <par type="DOUBLE" name="generator_RaPu" value="0.0035699999999999998"/>
     <par type="DOUBLE" name="generator_XlPu" value="0.219"/>
@@ -128,6 +130,7 @@
     <par type="DOUBLE" name="generator_nq" value="0"/>
     <par type="DOUBLE" name="generator_MdPuEfd" value="0"/>
     <par type="DOUBLE" name="generator_DPu" value="0"/>
+    <par type="BOOL" name="generator_UseApproximation" value="true"/>
     <par type="DOUBLE" name="generator_H" value="5.625"/>
     <par type="DOUBLE" name="generator_RaPu" value="0.00316"/>
     <par type="DOUBLE" name="generator_XlPu" value="0.25600000000000001"/>
@@ -178,6 +181,7 @@
     <par type="DOUBLE" name="generator_nq" value="0"/>
     <par type="DOUBLE" name="generator_MdPuEfd" value="0"/>
     <par type="DOUBLE" name="generator_DPu" value="0"/>
+    <par type="BOOL" name="generator_UseApproximation" value="true"/>
     <par type="DOUBLE" name="generator_H" value="4.9750000000000001"/>
     <par type="DOUBLE" name="generator_RaPu" value="0.004"/>
     <par type="DOUBLE" name="generator_XlPu" value="0.102"/>
@@ -226,6 +230,7 @@
     <par type="DOUBLE" name="generator_nq" value="0"/>
     <par type="DOUBLE" name="generator_MdPuEfd" value="0"/>
     <par type="DOUBLE" name="generator_DPu" value="0"/>
+    <par type="BOOL" name="generator_UseApproximation" value="true"/>
     <par type="DOUBLE" name="generator_H" value="2.748"/>
     <par type="DOUBLE" name="generator_RaPu" value="0.0040000000000000001"/>
     <par type="DOUBLE" name="generator_XlPu" value="0.11"/>
