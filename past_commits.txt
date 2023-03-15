@@ -1,0 +1,244 @@
+The following commits were made pursuant to the Developer Certificate of Origin, even though a Signed-off-by: was not included in the commit message.
+
+"ca1f3293e2bcf9335cc536c27c51458ad503aeee","#333 Update following OS 2818
+"5c236da320e0a1c0a6406122c02916191cac4d85","#327 Fix wrong attirbute set and harmonize extension for txt to log as it is in dynawo.
+"47356712412c2f9d2fe4990fbc3248f588792fe9","#327 Fix doxygen.
+"e129a697f72a38e9c9a8b424b63d61299edd97e6","#327 Avoid writing output files not used and harmonize lost equipments with other outputs.
+"8f4a5f74cec2d2e76b0f8aff263801779821e427","#325 NRT references update
+"cc60dc0cf21d8864764954a6c216fb594d8d38d8","Revert ""#325 NRT references update""
+This reverts commit 1e96b9ba8ba3ac76fbbc75127477cbf9cb2efe11.
+"bce6ecc79ca84721eaeb50e46c320af414a00c93","#325 NRT references update
+"1df8986a82701fbc846a5d14aa443eec5a2f7321","#294 remove legacy iidm library
+closes #294
+"9a22414b5ab7f39b12b378079eed50885417273f","#323 Fix timeline in nt
+"1eaeb4332e5d78655ee8ce546a4a69057153e567","#188 fix nrt references
+closes #188
+"35289cc22af65f48cfee8d330f0081b1d36f9a70","#188 Creation of 4 NRTs to test SA with divergent and convergent simulation and local_value criteria type and sum criteria type + get failingCriteria array from dynawo
+"bf51cf51b9037883b990a7e79f3e431acc6e026f","#318 update docupmentation links to v1.4.0 assets
+closes #318
+"d5864e27053198fd4b1d280ad950acb2ba97876a","#296 Update api to use token in workflow and avoid github limite rate 2.
+"a5479d8dc0f744aaba293e4b8920f56feaf505b2","#296 Update api to use token in workflow and avoid github limite rate.
+"de8e0c22df16be76305f2c1d485da6750bb5ad4e","#309 modify end time of simulation to keep the same stabilization time
+closes #309
+"da8caf16d44a38a9fa163ae09bc78927156b152e","#296 Fix workflow curl calls and add token.
+"ac711bb7a06b81102e08b2c4832f3e022e3bddaa","#288 revert
+closes #2888
+"ca55ead7ad6dd25ea9408b8136d0898648a88810","#288 revert to v1.4.0 version on v1.4 branch
+closes #288
+"10c4f35db1e4bc71e6a08faaa231abf3a0031189","#288 update workflows
+"57cad93b681593e8c270af875fe183fa92801c7a","#288 v1.3.2 release
+"25f0eb0f6a453659c21882e9c6b5e447db9670a9","#288 v1.5.0
+closes #288
+"523e5ca0a0cd59b51185bd4734297528440c2a9f","#289 Fix nrt following OS 2610
+"79284ac1114d9383b829e175a6ac128c6ad7c697","#285 always use embedded mpi binary
+Otherwise the library used (from the dyn-algo lib folder) does not match
+the system binary
+closes #285
+"a45b0118024246f4d3009a1608ba62dfa42432d5","#153 Update nrt.
+"9b8f0e7d331b5b0bf8e15becf511122987d6a6dc","#153 Add nrt to have intermediate result.
+"cb2fc788eff47d4bb4a8aea01d5a431f3ae1226f","#153 Fix after review. Add test if maxVariation is not in the accuracy to continue the computation.
+"2c98142b7b470d3b46d02cb64fcc74e28351a980","#153 In case 100 load increase fail we launch the scenarios for the maximum load increase passing.
+"fda99cba6a52fe87af3ebff37f5164c9b687fc67","#2 Reanable nightly release
+"5ecc4551b9607edb0fac3b4f6e69d174d23f9f92","#2 Swap SA and MC examples in distribution
+"f357214ca1a9532ec2cf873afbc0ae75f2fba3bf","Disable automatic nightly release
+"167b43d13f033c00094ef4b7cd98c18f6bac1ad6","#281 remove older section
+"2d531f1f7b1d8dcc6997e6c8af7fe0b39c614cc8","#281 small fix
+"86101adb81caec37eba228c04d2f360625103f4e","#281 update readme: get involved section
+"e6351bd546856845b61cae0de3e0c20e9755b375","#279 Update nrt references following loads model modification in OS 2342
+closes #279
+"5a536f1f66066b20db95b3b49b2db091667a9d87","#276 update links in documentation following release v1.3.1
+closes #276
+"80e3183e1aacfa7b52ad5d745507333b43003b23","#270 Fix release workflow 2.
+"7e19ab6d0513a42ce56af32b71d80df1629dbd22","#270 Fix release workflow.
+"3ef185ad8ab6039d6c2d4dcbbbc7bbce13347a76","#267 Revert nrt MC_file_div
+"9f018ff4487f3b2af8848d85b0b8629744969551","#267 Fix nrt
+"2bdcb1c86ed3be7a01dba2b7f8c4c8460a100018","#264 Add methods in envDynawoAlgorithms to clean and uninstall 3rd parties.
+"6ea2c486c7f6f77b80238086e47a85fd23dd3ed3","#171 Update vscode config.
+"d9079c257c4a51eb8c0212e361a00b29d96c1114","#256 Add configuration to launch unittests in vscode.
+"cd3f0e6d4a905b17c07744a11ca06cad2e7dc969","#196 add missing environment variable
+"04f24236686aba50a2c94d2e8f98d41ba48330c5","#196 remove hard-coded timeline maximum priority and call to
+filterTimeline.py in the scripts
+closes #196
+"df225e45885e22ff9584f3a58e3c2c929877dbb9","#250 Fix deploy for mpich. Fix environment definition, drop cxx98 and useless iidm extension env var.
+"af5f3743b89ca3ff0af81dcb4b8349f9cb4a357a","#171 Update vscode config.
+"e0b1c720aae81da93cfe6dfb4ec43810bea5582f","#246 update nrt
+closes #246
+Follows https://github.com/dynawo/dynawo/pull/2400
+"c08256eef4bf83262f0318b975c9926278910ec3","#243 Add centos7 distribution generation.
+"2eab30c6b8e4da53848fdda5957faaa0e3cf7655","#181 fix logs
+"1094e41d20ef9cbb038244af13997b5f44b98ad2","#230 displays wall-time only once
+closes #230
+"6a96ad429e5592f80f1491c2afd42df0651decb2","#228 Update README to show how to build with a nightly release.
+"627cf09dc6d563edff0390fe419b022a654a4c66","#228 corrections after review
+"bc2e0dea99e9182860f525f08e0e84cc15100b61","#228 update readme following v1.3.0 release
+closes #228
+"18bef5c40ff0abb2ac08b01d26013fed5d0d8e45","#157 Fix zip creation to include crt files if they are in the resources folder.
+"2c192615198ec825186aa9d5bd34ea3d81f0846c","#157 Add examples folder in distrib.
+"425b04f23528213a4d5ed92a1a36b3e6f97630e3","#225 Reset only local traces at the end of launchers to avoid resetting upper project traces
+closes #225
+"0549128dea5cafd45d54592c3306b00fd8755689","#222 Fix gtest target with debug.
+"45c56aad02881da0f4a50b531b0582b0ea2bc9a0","#187 modifications following review
+"35a919e473adfba189f0a194b4c5ff1f42f45e62","#187 remove useless generated files and add a target in envDynawoAlgorithms.sh to build/open/clean the doc
+"5f1721e7ddceb8690e6b8b669bef9757cae57d5b","#187 first version of user documentation
+closes #187
+"19da8c35e0381d6a35a79a85e20a73d54e5ede3e","#215 Update GMock to be the same as Dynawo.
+"7eef6e79bdc29917879cfc7b9c503dc23c28b7c0","#114 Add parallel on build of mpich.
+"fc6a1dfcc594fb251d4f161676fd85da28353aee","#209 update nightly
+closes #209
+"18c4359dce604afbb7f3db6e84b1398eba345b87","#209 update version to 1.4.0 on master
+closes #209
+"507db21406b81cc6c672d34ce14100fb44009f91","#211 add pull request template
+closes #211
+"dad57de0f550e96842bcf15785ebf5484cabd30d","#195 fix timeline and constraint extension with mpi
+closes #195
+"d66b5de9af3d2a519b2204fc99e08bdac06b7d22","#114 better handle if dynawo-algorithms.sh parameters have the format param=value
+closes #114
+"02a3086dd88b6eca64af95f81729fc243fcfdf20","#131 put back FORCE_CXX11_ABI
+closes #131
+"6ded62af03fb667e0a19b466ef04704fde84c581","#192 See numerical errors as divergence. Also fix a potential segfault
+closes #192
+"f75896d2af234d5ae04a0b20ca791a4fb48446ec","#114 add missing binary
+"b554ace71221fa23c481f8f0377208c9288ed231","#131 Remove cpp98 compatibility
+#131 remove last occurences
+"76e86a63eb52dcdc3a013e7eccc5e72323ca75ec","#114 Fix MPI find_package to find system one.
+"f23a31f6922d6cc7b14e4c9a99ecc55c97e03f35","#114 Add the possibility to specify customdownload paths for 3rd parties
+closes #114
+"011f4303e5f8c3482462b480d51fc329cce518ce","#114 fix deploy of mpi
+"5642ecbb2c64da0f35d4704081e8ee21cb9abdd1","#114 Use MPI in SA and MC
+closes #114
+Remove openMP use
+/!\ after this commit, it will not be possible to compile dynawo-algorithms in cpp03 anymore
+"ecd5a47c19703237c8a2e0c06e9dc058390c2ff0","#181 copy scenario logs into result folders
+closes #181
+"bd47733a3bda093d40fb1a1f5b4ec4f1fdbb0498","#109 remove cmake option not supported in all environments
+"ad9dd08c7aa7f8f8c370be18fe2b0359d4db1a0a","#195 Keep export mode from the jobs file when copying timeline and constraints in result folders
+closes #195
+"d6ed7297694db59d5fd32c87fbb4c7315d81e10a","#109 download gperftool as 3rd party and automatically use tcmalloc in case of multi-threading
+closes #109
+"1dacec3fedeb2d2ac225a6050b3bbffddbf4f57a","#190 use DYNAWO_PYTHON_COMMAND to define which python to use
+close #190
+"13387118d70150464b1e6b3add2e71b0cf552567","#174 make sure mono threading has the same behavior as multi-threading
+and add a testcase to avoid regressions
+closes #174
+"f088a1a54a4668102b95ac7c855766401a224241","#176 add a nrt to avoid regressions
+"19700d36a7715ce027c7a979592df9f493ec8a1f","#169 fix criteria file
+"51861b768d6b4011e172ca71adf1b42801ab90ad","#169 Update criteria file following 2114 OS
+"44aeea25cda76ed1b56b9adbf21b434efb1001cd","#178 avoid adding libxml from Dynawo into LD_LIBRARY_PATH before using python lxml
+closes #178
+"a4b41e9d365e5ef09b3b4fa4272764f1d3ccc921","#176 Fix crash with empty list of scenarios for MC
+closes #176
+"3e45255dd865fb19af0f8952af1140b4a8c514d2","#174 Fix load increase fails at zero
+closes #174
+"0fb5d071ea27e180f4abe86407a291b145ebe4e6","#117 Fix adapt start and stop time, event was added two times.
+"26cae0970e6990ade6a1df85de7515a26e7f498c","#171 Update vsconfig to add deploy task.
+"ae99995b9f6a762de99a99fa264c7ebb4fb35bdd","#171 Add vscode configuration.
+"68b53c6a60a90371e0e6d340e58642144d51aee1","#148 Fix github token.
+"949e403e63ad5ecf7053e2f73ede4c4977a63cbf","#160 Fix distrib.
+"cdfbe5b33e570e0b6d388cc9449a9b685d200e16","#148 Fix name of dynawo release used in release workflow.
+"4c12445ebf3b87986167f94b69876315fa5dc5ad","#146 Fix wrong name for unzip.
+"23c636fa518b88b09112701bfa85207bc14c3f5f","#146 Fix missing gtest and wrong dynawo version for nightly job.
+"708da311e95e149e52af940c479aa1e3c810d6ff","#146 Add nightly to test nrt and tests in release and debug.
+"78fba08fd2cebb28f6fae22c3c38c8bf09778bc0","#160 Rename execDynawoAlgorithms.sh in dynawo-algorithms.sh.
+"b42efa392ca7e1a4011e6d451e52eb314cb26162","#47 Add log of dynawo version to ease debug.
+"68eb8774f73e57c46230ea96892202b4beca3baa","#158 Fix sonar issues, align cpplint with dynawo core and make sure
+messages are displayed and add possibility to filter false positive
+doxygen warnings
+"d9f140d6fc26af8ab531d29703337857dd20ff6c","#154 Fix name of myEnvDynAlgo in error.
+"b01b47b800371bfdea5811f0889383b29cde04db","#154 Test if python interpreter works.
+"8ae9428a1ae5de5fc1443f9ba1e8d27ac47237a9","#47 Add cxx11 abi force.
+"bb81f64cd00e2156e22ea2c9e19b6aac7c2b346d","#148 Add release workflow.
+"856892548914e751d4a05559690c0ca57861a65a","#83 Remove useless env vars.
+"8d90a2afb2b5ae40aa9aa8de88235785a1130b4f","#47 Add badges.
+"bc0f27078372089a6a0b8aa93089fce1b0136712","#47 Add CI.
+"ef391fb2dbd02e488086399ee2f07b6515643c92","#141 Update API following 2012 in dynawo.
+"304846919e8f907fa20dc1967379b21bc93a283d","#83 Change time for nightly.
+"fe0b3e572910e7351a21b81e63e963393ca65787","#138 remove quoting for CMAKE_OPTIONAL
+"1283d3bea62d22c71552071c1bcf9079ceeab4c1","#83 build release for CI of dependant projects
+"bec03f043868367d37a1a277380ef57f9afcdfcb","#134 Launcher depends on revision tag
+"2bdae6b9a9431ea5c613c1ec955ed9d8e1aac481","#81 Fix -j option not working for old cmake.
+"19b5c37d3a1bb2638d258e849b49070501d1445f","#81 Fix quoted variables
+"5a0385bfad4bf6d83541e9cc3f6900aa96534a3e","#81 Use generic cmake generators
+"6114a03b13207e0499622570a556d868e9274f56","#127 Fix timeline entry set
+"e88adda538eb44f1986caefb20178889d3e6cdbc","#125 Use job to initialize simulations parameters
+"6bb6e56fabfd68a7de568e09649be9873697515d","#122 fix nrt
+"8b2bb964db7e6fd3be5238becad520eb56286b1e","#93 Fix local margin computation.
+"53213d568acb4cc9a0557cf73dcd89f2240ab634","#82 Add top directory for distrib
+"07e1ead2d853eb8d541476a5ba844d810b447bae","#82 Add directory in deploy to comply with dynawo
+"7e90b1f2e7052cc8fb15a08e7810e57abd21e25a","#106 Remove 0 loadIncrease and parallelize scenarios for 100 and other load increase. Add setTimelinePriority to 1.
+"176dd8e5e27e74f950480f170a921582bf9f2029","#117 Adapt start and stop time
+"58527af9de9d81e0dc823db329683a3a5e857a7b","#118 Fix typos
+"3f0481d21916f8e161e09866817ec905f28a55f1","#118 Improve readme
+"fbff64d176ffcd294f10a4b6c1b849c9a5064478","#92 Fix simulation launcher
+"a2b04f16a9cf3efb637b0ca641cd7186cf76fe47","#92 Use new simulation API
+"c02de4183040c939425b958b2ae0974da0ff79ef","#112 Remove timeline print in double. Remove timeline print in files for scenarios. Remove timeline for loadInrease.
+"4c823d32d998a5eae60377b37eba913aad06a2ea","#104 remove explicit uses of CMAKE_INSTALL_PREFIX in install paths
+"60621b76b6127a4361b4e07c5fd41d39936d9f33","#98 fix stringstream copy
+"1533f8bdd9fb959a7db6cfbf9ad1cc4b8833c341","#98 fix unit test
+"4e4564057b8149818a9bd6dd0187eb5621b6985a","#98 Keep only representative results for MC
+"608533805e53fe3873ac4293193a30da0c40ac26","#102 Fix RAM consumption
+"942b086826a3a6832da9082cc03a920cdf47f60b","#100 Fix double equals tests.
+"76e43a41ecac1785444d9882bca1b6444397e71f","#90 Update logs for MT confort
+"3803ac94ef7f722003f271501ba5a1503c7da18a","#93 Fix local margin in MT
+"6c516e16e4dc79f65501abcb8122c16836bc9027","#85 Remove virtual content from non base class
+"5db2a288cb0f119e278f63fa525c4819673d1ad9","#1928 Check load increase success before using cache
+"8abc9a06a2e195d62759d4a378d091328a4648dd","#78 Fix dictionnary mapping in distrib. Add dynawo.sh to distrib.
+"0590c1c52fd2cb03a7031f6cb6b42917a052d158","#48 Fix cpp03 unit tests
+"08eb303a3de984c6d65fd0344d40619331604842","#72 add possibility to differentiate criteria file per scenario
+"e71cba4d62662fc63195b5c923eb69e3b69d3c30","#48 Correct multithreading
+"9985eceb87baf42a450487b43c6c34e42df45d0e","#48 Correct use powsybl in cmake
+"645f70070c295f3f66d98f668442a60be0476026","#48 Improve performance when using powsybl
+"e3460e7adbe2e324ad7fdeb9c00ddf149f46ad11","#48 Test multi threading in powsybl and legacy
+"9ebf65e308d54a975ff236b227137ef6400d14d9","#48 Read IIDM file every time in case of legacy
+"a824a73318cd1fbff3faaf7fac082f07b7f703d1","#48 Remove unused include
+"28e7fc08876a2f971a1d266b6660dfe3ce134711","#48 Correct powsybl use flag
+"1a8677011ab3782cfe87296409470c31b245d305","#76 remove zip file from git
+"fb80dc3309c860c2b61869c7da46424ae3dce843","#74 Fix conflict between local and deploy boost
+"a20802cb7089ce8d2916d01366b02457d1993434","#70 Display error on catch in dynawo log
+"22e1a1e4d3d0a587d273af5c146cca0ddcabf927","#55 avoid infinite loop when calling timeline filter after simulation
+"973584d82d4dab1facce909f7bef64204949579a","#67 Catch and print dyn errors on standard output
+"70c3f74346ccffa424108a40807724cc30da0765","#34 Add an error when systematic analysis was not properly initialized
+"5273c46ef2438941f35190c423b3084a80454442","#45 Add error exit on wrong argument. Fix coding style of function naming.
+"c2604c33ad8fa830466b74eacd13699c0475e7cb","#55 Call timeline filter after simulation ended
+"971b13845db12aba64980a0ba24086103ea453db","#48 Correct compilation in cpp03
+"8508f8c140034fb50e1b1782ee98cd08b2211d6a","#48 Correct rebase
+"b357e98f33bd26b6614c1e3c616223fbbf96d39b","#48 Remove some print to be done in anotherPR
+"66274e6ceb1622013cd04af63c31f00092aa53a3","#48 Take remarks into account
+"86d02b9235fb78756f5242db2f53502338cdf347","#48 Minimize reading of IIDM files
+When a IIDM file is read multiple times, read it only once, especially during
+the multithreading run
+"720551fc18a984fcb15d3925dd7b59cf3f06a6ee","#47 fix nrt script following 1748 OS
+"835c8d08d0fbe7742ceb2b5619830b6edf8fdc88","#51 auto detect iidm library dependencies
+"7e5a4b0718ae39f5e6de3ee1e60b736c39b8058f","#32 Fix debug compilation
+"bba4f57bcf35daeb6097f4ebbc741c8085e2277d","#32 fix copyright and cmake
+"bb22b9353f50b046d5b479f4592167255387a809","#32 Add a launcher to dump the result of CS mode in a file
+"e39d9ece3a11463c3f7cc753cdb1a999f984b921","#39 add condition to init log
+"c9176bf36c9ff84de3af6e016aed275d62a03dc6","#39 fix naming convention
+"ee17bb81f5bd728a20c3361811e12f80b3d8877f","#39 log version and git revision
+"89d423422cd44fa4f8fa0743d8b226d42c1e403f","#18 clarify exec script
+"c0dfe43ae8c9f49a7072cd03d66462663f1502f1","#28 remove bad coverage dependencies
+"5363870699a5c847c9fd451324afe96ee243cf70","#41 Fix XML initialization for some unit tests
+"bd7de053fa94b8eeffd4584721b7b734b046c664","#37 fix algo_SA function name
+"f94efa039d0c300c6bc6635b32d2785d91ab54af","#35 Fix git comment char change.
+"180a1343f78ab11ea49cc36ed8f2c15ec12f1512","Use powsybl 1.4.0 (issue 1671 on dynawo core)
+"8547b70634742e1979395c2d2f39b1a774fd667a","#6 Remove darwin references
+"9c8bdadee1866288ad794ab44bad883f906dfd2a","#6 Use new dynawo API without static compilation
+"ff6c2053535ab724e58b9690ea840b51580af65d","#20 unzip input file method can be const
+"0759fd37ab574b7b7cda993a7356b447fba05c73","#20 unzip input file in separate method
+"9befb691017f9cd58a09d850bdb618bffba7f67b","#20 Create launcher from multiple jobs definition
+"3d4577d498de2bc8d64acc81a485687decf8df8a","#25 fix typo in DYNAWO_ALGORITHMS_PYTHON_COMMAND
+"06a8bbc742a9689a9b13ba4fd9daa6a295071add","#19 Fix missing header files in install
+"12e7dd450ecc1cdd2b5f393cf10cf660e2bc66f5","#16 check commentchar on dynawo algorithms home, not dynawo home
+"2e4b598f727d388d673b7e3048a3978d3c5aec81","#12 use dictionnaries mapping file
+"b5325835d213da83ce98964d15b1774715cdcca4","#9 Fix export target
+Fix case and indent
+"e7aa32eb1dc8f60f3063a09ce9db3cc4fff8ca85","Install more include files.
+Install files for find_package.
+"8163c72b5d8d54205043e4685ae88e0c0a730fd6","#7 Install hooks when using script
+"f5f52a3ac31501b5608729246698927fef6c1eb9","Remove pointless files from gitignore
+"cd12b9df2b7760257d3b73befbb592a5f3874840","Fix compilation
+"86aa59481054b2c3f2d5b6900d0742b67ab8cb95","Fix missing nrt files
+"3d979ca72c6afc9d0c6498969d08804ea2e1d73c","Fix 3rd party
+"e130ef9fd1eadc9a53068776ffcc77ff1bf0de0c","Use multi-threading to run scenarios with different levels whenever possible
+"f596ee458f24132325792c972ca5a467fb9104df","Fix 3rd party library versions (#1)
+"4f1c6025ba6c2622004eace22f0c75b6034d9caf","Fix copyright in README"
+"cbfe366a64206061c06a39c94b86647298ff7db8","Initial commit.
