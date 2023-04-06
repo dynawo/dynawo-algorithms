@@ -89,4 +89,16 @@ TEST(TestAggregatedResults, TestAggregatedResultsLoadIncreaseResults) {
   std::cout << ssDiff.str() << std::endl;
   ASSERT_EQ(ssDiff.str(), "Executing command : diff res/loadIncreaseResultsRef.xml res/loadIncreaseResults.xml\n");
 }
+
+TEST(TestAggregatedResults, TestAggregatedResultsCriticalTimeResults) {
+  const double& criticalTime = 1;
+  std::string messageCriticalTimeError = "MyMessage";
+
+  XmlExporter exporter;
+  exporter.exportCriticalTimeResultsToFile(criticalTime, messageCriticalTimeError, "res/criticalTimeResults.xml");
+  std::stringstream ssDiff;
+  executeCommand("diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml", ssDiff);
+  std::cout << ssDiff.str() << std::endl;
+  ASSERT_EQ(ssDiff.str(), "Executing command : diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml\n");
+}
 }  // namespace aggregatedResults

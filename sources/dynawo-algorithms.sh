@@ -47,6 +47,7 @@ where [option] can be:
                                         CS ([args])  call Dynawo's launcher with given arguments setting LD_LIBRARY_PATH correctly
                                         SA ([args])  call a dynamic systematic analysis
                                         MC ([args])  call a margin calculation
+                                        CTC ([args]) call a critical time calculation
     --version                  show Dynawo version
     --help                     show this message"
 
@@ -187,6 +188,33 @@ algo_SA() {
   RETURN_CODE=$?
   unset LD_PRELOAD
 
+  return ${RETURN_CODE}
+}
+
+algo_CTC() {
+  setEnv
+
+  # launch critical time calculation
+  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CTC $@
+  RETURN_CODE=$?
+  
+  while (($#)); do
+  case $1 in
+    --input)
+      if [ ! -z "$2" ]; then
+  	    if [ -f "$2" ]; then
+          filter_timeline `dirname $2`
+        fi
+      fi
+      break
+      ;;
+    *)
+      shift
+      break
+      ;;
+    esac
+  done
+  
   return ${RETURN_CODE}
 }
 
