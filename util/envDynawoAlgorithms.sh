@@ -113,7 +113,9 @@ export_var_env() {
   local value=${var#*=}
 
   if ! `expr $name : "DYNAWO_.*" > /dev/null`; then
-    error_exit "You must export variables with DYNAWO prefix for $name."
+    if [ "$name" != "OPENMODELICAHOME" ]; then
+      error_exit "You must export variables with DYNAWO prefix for $name."
+    fi
   fi
 
   if eval "[ \$$name ]"; then
@@ -291,6 +293,7 @@ set_environnement() {
   export_var_env_force DYNAWO_CURVES_TO_HTML_DIR=$DYNAWO_HOME/sbin/curvesToHtml
   export_var_env_force DYNAWO_INSTALL_DIR=$DYNAWO_HOME
   export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_HOME/OpenModelica
+  export_var_env OPENMODELICAHOME=$DYNAWO_INSTALL_OPENMODELICA
   export_var_env DYNAWO_DICTIONARIES=dictionaries_mapping
 
   export_var_env DYNAWO_CMAKE_BUILD_OPTION=""

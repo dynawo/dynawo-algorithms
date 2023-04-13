@@ -45,18 +45,10 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void launch();
 
- private:
   /**
-   * @brief create outputs file for each job
-   * @param mapData map associating a fileName and the data contained in the file
-   * @param zipIt true if we want to fill mapData to create a zip, false if we want to write the files on the disk
-   */
-  void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
-
-  /**
-   * @brief Description of a set of scenarios to run
-   */
-  struct task_t{
+ * @brief Description of a set of scenarios to run
+ */
+  struct task_t {
     double minVariation_;  ///< minimal variation that passes
     double maxVariation_;  ///< maximal variation that fails
     std::vector<size_t> ids_;  ///< indexes of the scenarios to run
@@ -88,6 +80,23 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
       maxVariation_ = maxVariation;
     }
   };
+
+  struct EventPair {
+    EventPair(size_t index, double variation);
+
+    bool operator==(const EventPair& rhs) const { return this->index_ == rhs.index_ && DYN::doubleEquals(this->variation_, rhs.variation_);}
+
+    size_t index_;
+    double variation_;
+  };
+
+ private:
+  /**
+   * @brief create outputs file for each job
+   * @param mapData map associating a fileName and the data contained in the file
+   * @param zipIt true if we want to fill mapData to create a zip, false if we want to write the files on the disk
+   */
+  void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
 
   /**
    * @brief Research of the maximum variation value for which all the scenarios pass
@@ -163,26 +172,46 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param baseJobsFile base jobs file
    * @param events complete list of scenarios
    * @param toRun scenarios that needs to be run
+   * @param maximumVariationPassing maximum variation passing found so far
    * @param result result of the load increase
    *
    */
   void findOrLaunchScenarios(const std::string& baseJobsFile,
-      const std::vector<boost::shared_ptr<Scenario> >& events,
-      std::queue< task_t >& toRun,
-      LoadIncreaseResult& result);
+                             const std::vector<boost::shared_ptr<Scenario> >& events,
+                             std::queue< task_t >& toRun,
+                             const std::vector<double >& maximumVariationPassing,
+                             LoadIncreaseResult& result);
 
+  /**
+   * @brief Find if the scenarios associated to this variation were already done
+   * otherwise, launch as many load scenarios as possible in multi-threading, including the variation one
+   *
+   * @param variation load increase variation to launch
+   * @param eventsIdNoFilter events to run in case number of events to run is not a multiple of procs
+   * @param maximumVariationPassing maximum variation passing found so far
+   * @param events2Run will be filled with the scenario index and the level that can be run
+   *
+   */
+  void addAvailableEvents(const double variation,
+                          const std::vector<size_t>& eventsIdNoFilter,
+                          const std::vector<double >& maximumVariationPassing,
+                          std::vector<EventPair >& events2Run);
 
   /**
    * @brief Fill the vector with as many levels of variation you can run based on the number of available threads
    *
    * @param requestedTask the level of reference
+   * @param eventsIdNoFilter events to run in case number of events to run is not a multiple of procs
+   * @param maximumVariationPassing maximum variation passing found so far
    * @param toRun scenarios that needs to be run
    * @param events2Run will be filled with the scenario index and the level that can be run
    *
    */
   void prepareEvents2Run(const task_t& requestedTask,
-      std::queue< task_t >& toRun,
-      std::vector<std::pair<size_t, double> >& events2Run);
+                         const std::vector<size_t>& eventsIdNoFilter,
+                         const std::vector<double >& maximumVariationPassing,
+                         std::queue< task_t >& toRun,
+                         std::vector<EventPair >& events2Run);
 
   /**
    * @brief launch the calculation of one scenario
