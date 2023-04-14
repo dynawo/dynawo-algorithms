@@ -1,0 +1,18 @@
+2023-04-13 11:44:57 | INFO |  ============================================================ 
+2023-04-13 11:44:57 | INFO |   Dynawo VERSION : 1.6.0
+2023-04-13 11:44:57 | INFO |   Dynawo REVISION: master-954c0ec
+2023-04-13 11:44:57 | INFO |   Dynawo-algorithms VERSION : 1.6.0
+2023-04-13 11:44:57 | INFO |   Dynawo-algorithms REVISION: -
+2023-04-13 11:44:57 | INFO |  ============================================================ 
+2023-04-13 11:44:57 | INFO | starting variation 100%
+2023-04-13 11:44:57 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:40 current variation:0.5
+2023-04-13 11:44:58 | INFO | load increase for variation 50% => CRITERIA_NON_RESPECTED
+2023-04-13 11:44:58 | INFO | load increase for variation 100% => CRITERIA_NON_RESPECTED
+2023-04-13 11:44:58 | INFO | starting variation 0%
+2023-04-13 11:44:58 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:10 current variation:0
+2023-04-13 11:44:58 | INFO | load increase for variation 0% => CRITERIA_NON_RESPECTED
+2023-04-13 11:44:58 | INFO | load increase for variation 25% => CRITERIA_NON_RESPECTED
+2023-04-13 11:44:58 | INFO | ============================================================ 
+2023-04-13 11:44:58 | INFO | maximal global variation is 0%
+2023-04-13 11:44:58 | INFO | Margin calculation finished in 1s
+2023-04-13 11:44:58 | INFO | ============================================================ 
