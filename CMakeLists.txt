@@ -24,7 +24,7 @@ set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options a
 # Project dynawo-algorithms
 project(dynawo-algorithms)
 set(DYNAWO_ALGORITHMS_VERSION_MAJOR 1)
-set(DYNAWO_ALGORITHMS_VERSION_MINOR 5)
+set(DYNAWO_ALGORITHMS_VERSION_MINOR 6)
 set(DYNAWO_ALGORITHMS_VERSION_PATCH 0)
 set(DYNAWO_ALGORITHMS_VERSION_STRING ${DYNAWO_ALGORITHMS_VERSION_MAJOR}.${DYNAWO_ALGORITHMS_VERSION_MINOR}.${DYNAWO_ALGORITHMS_VERSION_PATCH})
 
@@ -185,7 +185,7 @@ find_package(LibArchive 2.8.0 REQUIRED)
 find_package(ZLIB 1.2.3 REQUIRED)
 
 #DYNAWO
-find_package(Dynawo 1.5.0 REQUIRED)
+find_package(Dynawo 1.6.0 REQUIRED)
 
 # Hack until libxml is not thread-safe
 find_package(XercesC REQUIRED)
