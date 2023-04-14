@@ -1,0 +1,52 @@
+2023-04-13 11:44:26 | INFO |  ============================================================ 
+2023-04-13 11:44:26 | INFO |   Dynawo VERSION : 1.6.0
+2023-04-13 11:44:26 | INFO |   Dynawo REVISION: master-954c0ec
+2023-04-13 11:44:26 | INFO |   Dynawo-algorithms VERSION : 1.6.0
+2023-04-13 11:44:26 | INFO |   Dynawo-algorithms REVISION: -
+2023-04-13 11:44:26 | INFO |  ============================================================ 
+2023-04-13 11:44:26 | INFO | starting variation 100%
+2023-04-13 11:44:26 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:40 current variation:0.5
+2023-04-13 11:44:27 | INFO | load increase for variation 50% => CONVERGENCE
+2023-04-13 11:44:27 | INFO | load increase for variation 100% => CONVERGENCE
+2023-04-13 11:44:27 | INFO | scenario DisconnectLine-100 => CRITERIA_NON_RESPECTED
+2023-04-13 11:44:27 | INFO | scenario DisconnectGroup-100 => CRITERIA_NON_RESPECTED
+2023-04-13 11:44:27 | INFO | 
+2023-04-13 11:44:27 | INFO | starting variation 50%
+2023-04-13 11:44:27 | INFO | using existing results for variation 50%
+2023-04-13 11:44:27 | INFO | scenario DisconnectLine-50 => CONVERGENCE
+2023-04-13 11:44:27 | INFO | scenario DisconnectGroup-50 => CONVERGENCE
+2023-04-13 11:44:27 | INFO | 
+2023-04-13 11:44:27 | INFO | starting variation 75%
+2023-04-13 11:44:27 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:55 current variation:0.75
+2023-04-13 11:44:27 | INFO | load increase for variation 75% => CONVERGENCE
+2023-04-13 11:44:27 | INFO | load increase for variation 88% => CONVERGENCE
+2023-04-13 11:44:27 | INFO | scenario DisconnectLine-75 => CONVERGENCE
+2023-04-13 11:44:27 | INFO | scenario DisconnectGroup-75 => CONVERGENCE
+2023-04-13 11:44:27 | INFO | 
+2023-04-13 11:44:27 | INFO | starting variation 88%
+2023-04-13 11:44:27 | INFO | using existing results for variation 88%
+2023-04-13 11:44:27 | INFO | scenario DisconnectLine-88 => CONVERGENCE
+2023-04-13 11:44:27 | INFO | scenario DisconnectGroup-88 => CONVERGENCE
+2023-04-13 11:44:27 | INFO | 
+2023-04-13 11:44:27 | INFO | starting variation 94%
+2023-04-13 11:44:27 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:66.4 current variation:0.94
+2023-04-13 11:44:28 | INFO | load increase for variation 94% => CONVERGENCE
+2023-04-13 11:44:28 | INFO | load increase for variation 97% => CONVERGENCE
+2023-04-13 11:44:28 | INFO | scenario DisconnectLine-94 => CONVERGENCE
+2023-04-13 11:44:28 | INFO | scenario DisconnectGroup-94 => CONVERGENCE
+2023-04-13 11:44:28 | INFO | 
+2023-04-13 11:44:28 | INFO | starting variation 97%
+2023-04-13 11:44:28 | INFO | using existing results for variation 97%
+2023-04-13 11:44:28 | INFO | scenario DisconnectLine-97 => CRITERIA_NON_RESPECTED
+2023-04-13 11:44:28 | INFO | scenario DisconnectGroup-97 => CONVERGENCE
+2023-04-13 11:44:28 | INFO | 
+2023-04-13 11:44:28 | INFO | starting variation 96%
+2023-04-13 11:44:28 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:67.6 current variation:0.96
+2023-04-13 11:44:28 | INFO | load increase for variation 96% => CONVERGENCE
+2023-04-13 11:44:28 | INFO | scenario DisconnectLine-96 => CRITERIA_NON_RESPECTED
+2023-04-13 11:44:28 | INFO | scenario DisconnectGroup-96 => not simulated
+2023-04-13 11:44:28 | INFO | 
+2023-04-13 11:44:28 | INFO | ============================================================ 
+2023-04-13 11:44:28 | INFO | maximal global variation is 94%
+2023-04-13 11:44:28 | INFO | Margin calculation finished in 2s
+2023-04-13 11:44:28 | INFO | ============================================================ 
