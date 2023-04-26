@@ -23,7 +23,7 @@ It can be used with any tool of the Dyna&omega;o toolsuite (DynaFlow, DynaWaltz,
 
 It provides the following possibilities:
   - **Unitary simulations**: simulations of one or several power systems test cases described in a .jobs file 
-  (see [Dyna&omega;o documentation](https://github.com/dynawo/dynawo/releases/download/v1.4.0/DynawoDocumentation.pdf));
+  (see [Dyna&omega;o documentation](https://github.com/dynawo/dynawo/releases/download/v1.4.1/DynawoDocumentation.pdf));
   - **Systematic analysis**: simulations of a same base power system test case subject to different events to assess the global stability;
   - **Margin calculation**: simulations of a same base power system test case with a load variation and subject to different events to compute the maximum load increase in a specific region before the voltage collapses;
   - **Load increase**: simulation of a single load variation.
@@ -38,7 +38,7 @@ For further informations about contributing guidelines, please refers to the [co
 ## Dyna&omega;o algorithms Distribution
 
 You can download a pre-built Dyna&omega;o-algorithms release to start testing it. Pre-built releases are available for **Linux** and **Windows**:
-- [Linux](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.0/DynawoAlgorithms_Linux_v1.4.0.zip)
+- [Linux](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.1/DynawoAlgorithms_Linux_v1.4.1.zip)
 - Windows  *Coming soon*
 
 ### Linux Requirements for Distribution
@@ -105,8 +105,8 @@ You can either choose to build Dyna&omega;o-algorithms with a pre-built nightly 
 
 ``` bash
 $> cd dynawo-algorithms
-$> curl -LO https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_headers_V1.4.0.zip
-$> unzip Dynawo_headers_V1.4.0.zip
+$> curl -LO https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_headers_V1.4.1.zip
+$> unzip Dynawo_headers_V1.4.1.zip
 ```
 
 ``` bash
@@ -298,7 +298,7 @@ $> ./myEnvDynawoAlgorithms.sh distrib
 ```
 
 ## Dyna&omega;o-algorithms Documentation
-You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.0/DynawoAlgorithmsDocumentation.pdf).
+You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.1/DynawoAlgorithmsDocumentation.pdf).
 
 ## Quoting Dyna&omega;o
 
@@ -324,7 +324,9 @@ Dyna&omega;o-algorithms is currently maintained by the following people in RTE:
 * Gautier Bureau, [gautier.bureau@rte-france.com](mailto:gautier.bureau@rte-france.com)
 * Marco Chiaramello, [marco.chiaramello@rte-france.com](mailto:marco.chiaramello@rte-france.com)
 * Quentin Cossart, [quentin.cossart@rte-france.com](mailto:quentin.cossart@rte-france.com)
-* Adrien Guironnet, [adrien.guironnet@rte-france.com](mailto:adrien.guironnet@rte-france.com)
+* Joy El-Feghali, [joy.elfeghali@rte-france.com](mailto:joy.elfeghali@rte-france.com)
+* Baptiste Letellier, [baptiste.letellier@rte-france.com](mailto:baptiste.letellier@rte-france.com)
+* Ian Menezes, [ian.menezes@rte-france.com](mailto:ian.menezes@rte-france.com)
 * Florentine Rosiere, [florentine.rosiere@rte-france.com](mailto:florentine.rosiere@rte-france.com)
 
 In case of questions or issues, you can also send an e-mail to [rte-dynawo@rte-france.com](mailto:rte-dynawo@rte-france.com).
