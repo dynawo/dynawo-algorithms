@@ -32,7 +32,7 @@
   <event time="9.999998" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
   <event time="9.999998" modelName="GEN____1_SM" message="GENERATOR : disconnecting"/>
   <event time="9.999998" modelName="GEN____2_SM" message="GENERATOR : disconnecting"/>
-  <event time="9.999998" modelName="Simulation" message="total load power = 259MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="9.999998" modelName="Simulation" message="total load power = -272.39MW &lt; -4MW (criteria id: Risque protection)"/>
+  <event time="9.999998" modelName="Simulation" message="total load power = 258.996MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="9.999998" modelName="Simulation" message="total load power = -272.387MW &lt; -4MW (criteria id: Risque protection)"/>
   <event time="9.999998" modelName="Simulation" message="Simulation stopped : one criteria is not respected"/>
 </timeline>

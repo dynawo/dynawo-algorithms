@@ -2,10 +2,10 @@
 <aggregatedResults xmlns="http://www.rte-france.com/dynawo">
   <loadIncreaseResults loadLevel="100" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 219.242MW &gt; 200MW (criteria id: Risque QdE)" time="200.000000"/>
+      <criterionNonRespected id="total load power = 204.212MW &gt; 200MW (criteria id: Risque QdE)" time="200.000000"/>
     </scenarioResults>
     <scenarioResults id="DisconnectGroup" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 218.624MW &gt; 200MW (criteria id: Risque QdE)" time="200.000000"/>
+      <criterionNonRespected id="total load power = 208.951MW &gt; 200MW (criteria id: Risque QdE)" time="200.000000"/>
     </scenarioResults>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="50" status="CONVERGENCE">
@@ -26,13 +26,13 @@
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="97" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 217.44MW &gt; 200MW (criteria id: Risque QdE)" time="198.200000"/>
+      <criterionNonRespected id="total load power = 203.911MW &gt; 200MW (criteria id: Risque QdE)" time="198.200000"/>
     </scenarioResults>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
   </loadIncreaseResults>
   <loadIncreaseResults loadLevel="96" status="CONVERGENCE">
     <scenarioResults id="DisconnectLine" status="CRITERIA_NON_RESPECTED">
-      <criterionNonRespected id="total load power = 216.798MW &gt; 200MW (criteria id: Risque QdE)" time="197.600000"/>
+      <criterionNonRespected id="total load power = 203.709MW &gt; 200MW (criteria id: Risque QdE)" time="197.600000"/>
     </scenarioResults>
     <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
   </loadIncreaseResults>
