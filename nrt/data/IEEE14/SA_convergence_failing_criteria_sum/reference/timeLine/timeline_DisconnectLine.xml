@@ -28,7 +28,7 @@
   <event time="12.925633" modelName="GEN____6_SM" message="PMIN : activation"/>
   <event time="13.046730" modelName="GEN____8_SM" message="PMIN : deactivation"/>
   <event time="13.075926" modelName="GEN____6_SM" message="PMIN : deactivation"/>
-  <event time="100.000000" modelName="Simulation" message="total load power = 259MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="100.000000" modelName="Simulation" message="total load power = -272.39MW &lt; -4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="total load power = 257.291MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="total load power = -277.341MW &lt; -4MW (criteria id: Risque protection)"/>
   <event time="100.000000" modelName="Simulation" message="Simulation stopped : one criteria is not respected"/>
 </timeline>
