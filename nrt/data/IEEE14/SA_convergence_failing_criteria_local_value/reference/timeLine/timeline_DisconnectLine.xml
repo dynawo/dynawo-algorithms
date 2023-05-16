@@ -28,12 +28,12 @@
   <event time="12.925633" modelName="GEN____6_SM" message="PMIN : activation"/>
   <event time="13.046730" modelName="GEN____8_SM" message="PMIN : deactivation"/>
   <event time="13.075926" modelName="GEN____6_SM" message="PMIN : deactivation"/>
-  <event time="100.000000" modelName="Simulation" message="node: _LOAD___3_EC has a power 94.2MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="100.000000" modelName="Simulation" message="node: _LOAD___4_EC has a power 47.8MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="100.000000" modelName="Simulation" message="node: _LOAD___9_EC has a power 29.5MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="100.000000" modelName="Simulation" message="node: _LOAD___2_EC has a power 21.7MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="100.000000" modelName="Simulation" message="node: _LOAD__14_EC has a power 14.9MW &gt; 4MW (criteria id: Risque protection)"/>
-  <event time="100.000000" modelName="Simulation" message="node: _GEN____1_SM has a power -232.39MW &lt; -4MW (criteria id: Risque protection)"/>
-  <event time="100.000000" modelName="Simulation" message="node: _GEN____2_SM has a power -40MW &lt; -4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="node: _LOAD___3_EC has a power 94.0759MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="node: _LOAD___4_EC has a power 47.024MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="node: _LOAD___9_EC has a power 29.2872MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="node: _LOAD___2_EC has a power 21.5929MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="node: _LOAD__14_EC has a power 14.7883MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="node: _GEN____1_SM has a power -233.786MW &lt; -4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="node: _GEN____2_SM has a power -41.2871MW &lt; -4MW (criteria id: Risque protection)"/>
   <event time="100.000000" modelName="Simulation" message="Simulation stopped : one criteria is not respected"/>
 </timeline>

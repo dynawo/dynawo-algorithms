@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <aggregatedResults xmlns="http://www.rte-france.com/dynawo" status="DIVERGENCE">
   <scenarioResults id="DisconnectLine" status="DIVERGENCE">
-    <criterionNonRespected id="total load power = 259MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
-    <criterionNonRespected id="total load power = -272.39MW &lt; -4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="total load power = 258.996MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="total load power = -272.387MW &lt; -4MW (criteria id: Risque protection)" time="9.999998"/>
   </scenarioResults>
 </aggregatedResults>

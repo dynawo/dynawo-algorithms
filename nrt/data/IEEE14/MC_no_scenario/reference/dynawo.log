@@ -1,14 +1,42 @@
-2023-04-13 11:44:56 | INFO |  ============================================================ 
-2023-04-13 11:44:56 | INFO |   Dynawo VERSION : 1.6.0
-2023-04-13 11:44:56 | INFO |   Dynawo REVISION: master-954c0ec
-2023-04-13 11:44:56 | INFO |   Dynawo-algorithms VERSION : 1.6.0
-2023-04-13 11:44:56 | INFO |   Dynawo-algorithms REVISION: -
-2023-04-13 11:44:56 | INFO |  ============================================================ 
-2023-04-13 11:44:56 | INFO | starting variation 100%
-2023-04-13 11:44:56 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:40 current variation:0.5
-2023-04-13 11:44:56 | INFO | load increase for variation 50% => CONVERGENCE
-2023-04-13 11:44:56 | INFO | load increase for variation 100% => CONVERGENCE
-2023-04-13 11:44:56 | INFO | ============================================================ 
-2023-04-13 11:44:56 | INFO | maximal global variation is 100%
-2023-04-13 11:44:56 | INFO | Margin calculation finished in 0s
-2023-04-13 11:44:56 | INFO | ============================================================ 
+2023-05-16 08:47:01 | INFO |  ============================================================ 
+2023-05-16 08:47:01 | INFO |   Dynawo VERSION : 1.6.0
+2023-05-16 08:47:01 | INFO |   Dynawo REVISION: master-783db087bd
+2023-05-16 08:47:01 | INFO |   Dynawo-algorithms VERSION : 1.6.0
+2023-05-16 08:47:01 | INFO |   Dynawo-algorithms REVISION: master-93b5cf8
+2023-05-16 08:47:01 | INFO |  ============================================================ 
+2023-05-16 08:47:01 | INFO | starting variation 100%
+2023-05-16 08:47:01 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:40 current variation:0.5
+2023-05-16 08:47:01 | INFO | load increase for variation 50% => CONVERGENCE
+2023-05-16 08:47:01 | INFO | load increase for variation 100% => CRITERIA_NON_RESPECTED
+2023-05-16 08:47:01 | INFO | starting variation 50%
+2023-05-16 08:47:01 | INFO | using existing results for variation 50%
+2023-05-16 08:47:01 | INFO | 
+2023-05-16 08:47:01 | INFO | starting variation 50%
+2023-05-16 08:47:01 | INFO | using existing results for variation 50%
+2023-05-16 08:47:01 | INFO | 
+2023-05-16 08:47:01 | INFO | starting variation 75%
+2023-05-16 08:47:01 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:55 current variation:0.75
+2023-05-16 08:47:02 | INFO | load increase for variation 75% => CONVERGENCE
+2023-05-16 08:47:02 | INFO | load increase for variation 88% => CRITERIA_NON_RESPECTED
+2023-05-16 08:47:02 | INFO | 
+2023-05-16 08:47:02 | INFO | starting variation 88%
+2023-05-16 08:47:02 | INFO | using existing results for variation 88%
+2023-05-16 08:47:02 | INFO | 
+2023-05-16 08:47:02 | INFO | starting variation 82%
+2023-05-16 08:47:02 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:59.2 current variation:0.82
+2023-05-16 08:47:02 | INFO | load increase for variation 82% => CRITERIA_NON_RESPECTED
+2023-05-16 08:47:02 | INFO | load increase for variation 85% => CRITERIA_NON_RESPECTED
+2023-05-16 08:47:02 | INFO | 
+2023-05-16 08:47:02 | INFO | starting variation 79%
+2023-05-16 08:47:02 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:57.4 current variation:0.79
+2023-05-16 08:47:03 | INFO | load increase for variation 79% => CRITERIA_NON_RESPECTED
+2023-05-16 08:47:03 | INFO | load increase for variation 81% => CRITERIA_NON_RESPECTED
+2023-05-16 08:47:03 | INFO | 
+2023-05-16 08:47:03 | INFO | starting variation 77%
+2023-05-16 08:47:03 | INFO | model MODEL_LOAD_VARIATION_AREA: stop time:56.2 current variation:0.77
+2023-05-16 08:47:03 | INFO | load increase for variation 77% => CRITERIA_NON_RESPECTED
+2023-05-16 08:47:03 | INFO | 
+2023-05-16 08:47:03 | INFO | ============================================================ 
+2023-05-16 08:47:03 | INFO | maximal global variation is 75%
+2023-05-16 08:47:03 | INFO | Margin calculation finished in 2s
+2023-05-16 08:47:03 | INFO | ============================================================ 
