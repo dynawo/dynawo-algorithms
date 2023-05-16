@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <aggregatedResults xmlns="http://www.rte-france.com/dynawo" status="DIVERGENCE">
   <scenarioResults id="DisconnectLine" status="DIVERGENCE">
-    <criterionNonRespected id="node: _LOAD___3_EC has a power 94.2MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
-    <criterionNonRespected id="node: _LOAD___4_EC has a power 47.8MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
-    <criterionNonRespected id="node: _LOAD___9_EC has a power 29.5MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
-    <criterionNonRespected id="node: _LOAD___2_EC has a power 21.7MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
-    <criterionNonRespected id="node: _LOAD__14_EC has a power 14.9MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
-    <criterionNonRespected id="node: _GEN____1_SM has a power -232.39MW &lt; -4MW (criteria id: Risque protection)" time="9.999998"/>
-    <criterionNonRespected id="node: _GEN____2_SM has a power -40MW &lt; -4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="node: _LOAD___3_EC has a power 94.201MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="node: _LOAD___4_EC has a power 47.804MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="node: _LOAD___9_EC has a power 29.5034MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="node: _LOAD___2_EC has a power 21.6995MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="node: _LOAD__14_EC has a power 14.8791MW &gt; 4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="node: _GEN____1_SM has a power -232.387MW &lt; -4MW (criteria id: Risque protection)" time="9.999998"/>
+    <criterionNonRespected id="node: _GEN____2_SM has a power -40.0036MW &lt; -4MW (criteria id: Risque protection)" time="9.999998"/>
   </scenarioResults>
 </aggregatedResults>
