@@ -462,7 +462,10 @@ if /i not %~1==DISTRIB (
 xcopy "%DYNAWO_HOME%\lib" dynawo-algorithms\lib /e /i
 xcopy "%DYNAWO_HOME%\ddb" dynawo-algorithms\ddb /e /i
 echo n|xcopy "%DYNAWO_HOME%\share" dynawo-algorithms\share /e /i
-xcopy "%DYNAWO_HOME%\sbin" dynawo-algorithms\sbin /e /i
+set _exclude_tmp=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\~excludedfileslist.tmp
+echo \__pycache__\>%_exclude_tmp%
+xcopy "%DYNAWO_HOME%\sbin" dynawo-algorithms\sbin /e /i /exclude:%_exclude_tmp%
+del %_exclude_tmp%
 xcopy "%DYNAWO_HOME%\dynawo.cmd" dynawo-algorithms
 if /i %~1==DISTRIB-OMC (
   xcopy "%DYNAWO_HOME%\OpenModelica" dynawo-algorithms\OpenModelica /e /i
@@ -471,8 +474,11 @@ if /i %~1==DISTRIB-OMC (
 :: combine dictionaries mapping
 find /v "//" < "%DYNAWO_HOME%\share\dictionaries_mapping.dic" | findstr /v "^$">>dynawo-algorithms\share\dictionaries_mapping.dic
 
-:: retrieve version and create zipfile
+:: retrieve version
+call:SET_ENV
 for /f "tokens=1" %%G in ('"%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms" -v') do set _version=%%G
+
+:: set zipfile name
 set _distrib_zip=
 if /i %~1==DISTRIB (
   set _distrib_zip=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\DynawoAlgorithms_%DYNAWO_BUILD_TYPE%_V%_version%.zip
@@ -481,6 +487,8 @@ if /i %~1==DISTRIB (
 ) else if /i %~1==DISTRIB-OMC (
   set _distrib_zip=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\DynawoAlgorithms_omc_%DYNAWO_BUILD_TYPE%_V%_version%.zip
 )
+
+:: create zipfile
 if defined _distrib_zip (
   del "%_distrib_zip%" 2>NUL
   tar -a -c -f "%_distrib_zip%" dynawo-algorithms 2>NUL
