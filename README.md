@@ -105,8 +105,8 @@ You can either choose to build Dyna&omega;o-algorithms with a pre-built nightly 
 
 ``` bash
 $> cd dynawo-algorithms
-$> curl -LO https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_headers_V1.4.1.zip
-$> unzip Dynawo_headers_V1.4.1.zip
+$> curl -LO https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_headers_v1.6.0.zip
+$> unzip Dynawo_headers_v1.6.0.zip
 ```
 
 ``` bash

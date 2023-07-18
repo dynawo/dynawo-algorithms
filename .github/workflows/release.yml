@@ -40,8 +40,8 @@ jobs:
           util/envDynawoAlgorithms.sh distrib
           util/envDynawoAlgorithms.sh distrib-headers
           version=$(util/envDynawoAlgorithms.sh version | cut -f1 -d' ')
-          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_v${version}.zip --data-binary @distributions/DynawoAlgorithms_V${version}.zip
-          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_headers_v${version}.zip --data-binary @distributions/DynawoAlgorithms_headers_V${version}.zip
+          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_v${version}.zip --data-binary @distributions/DynawoAlgorithms_v${version}.zip
+          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_headers_v${version}.zip --data-binary @distributions/DynawoAlgorithms_headers_v${version}.zip
 
   distribution-centos7:
     name: Distribution Linux centos7
@@ -78,4 +78,4 @@ jobs:
           util/envDynawoAlgorithms.sh build
           util/envDynawoAlgorithms.sh distrib-headers
           version=$(util/envDynawoAlgorithms.sh version | cut -f1 -d' ')
-          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_headers_centos7_v${version}.zip --data-binary @distributions/DynawoAlgorithms_headers_V${version}.zip
+          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_headers_centos7_v${version}.zip --data-binary @distributions/DynawoAlgorithms_headers_v${version}.zip
