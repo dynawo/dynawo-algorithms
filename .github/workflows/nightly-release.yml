@@ -79,10 +79,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Fetch Dynawo's nightly release
-        run: curl -LOs https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_headers_V$DYNAWO_VERSION.zip
+        run: curl -LOs https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_headers_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
-        run: find . -name "Dynawo_headers_V*zip" -exec unzip -qq {} \;
+        run: unzip -qq "Dynawo_headers_v${DYNAWO_VERSION}.zip"
 
       - name: Build
         run: |
@@ -165,11 +165,11 @@ jobs:
 
       - name: Fetch Dynawo's nightly release
         shell: bash
-        run: curl -LOs https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_Windows_V$DYNAWO_VERSION.zip
+        run: curl -LOs https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_Windows_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
         shell: cmd
-        run: 7z x Dynawo_Windows_V%DYNAWO_VERSION%.zip -o..\deploy
+        run: 7z x Dynawo_Windows_v%DYNAWO_VERSION%.zip -o..\deploy
 
       - name: Dynawo version
         shell: cmd

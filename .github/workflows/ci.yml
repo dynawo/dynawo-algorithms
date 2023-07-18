@@ -28,11 +28,11 @@ jobs:
       - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_headers_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
+          download_asset $GH_API_DYNAWO nightly Dynawo_headers_v${DYNAWO_VERSION}.zip $GITHUB_TOKEN
 
       - name: Unzip Dynawo
         run: |
-          unzip "Dynawo_headers_V${DYNAWO_VERSION}.zip"
+          unzip "Dynawo_headers_v${DYNAWO_VERSION}.zip"
 
       - name: Dynawo version
         run: ./dynawo/dynawo.sh version
@@ -84,11 +84,11 @@ jobs:
       - name: Fetch Dynawo
         run: |
           source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
+          download_asset $GH_API_DYNAWO nightly Dynawo_omc_v${DYNAWO_VERSION}.zip $GITHUB_TOKEN
 
       - name: Unzip Dynawo
         run: |
-          unzip "Dynawo_omc_V${DYNAWO_VERSION}.zip"
+          unzip "Dynawo_omc_v${DYNAWO_VERSION}.zip"
 
       - name: Build
         env:

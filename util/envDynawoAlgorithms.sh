@@ -846,7 +846,7 @@ create_distrib() {
   DYNAWO_ALGORITHMS_VERSION=$(version)
   version=$(echo $DYNAWO_ALGORITHMS_VERSION | cut -f1 -d' ')
 
-  ZIP_FILE=DynawoAlgorithms_V$version.zip
+  ZIP_FILE=DynawoAlgorithms_v$version.zip
 
   deploy_dynawo_algorithms
 
@@ -904,9 +904,9 @@ create_distrib_with_headers() {
   version=$(echo $DYNAWO_ALGORITHMS_VERSION | cut -f1 -d' ')
 
   if [ "$with_omc" = "yes" ]; then
-    ZIP_FILE=DynawoAlgorithms_omc_V$version.zip
+    ZIP_FILE=DynawoAlgorithms_omc_v$version.zip
   else
-    ZIP_FILE=DynawoAlgorithms_headers_V$version.zip
+    ZIP_FILE=DynawoAlgorithms_headers_v$version.zip
   fi
 
   deploy_dynawo_algorithms
