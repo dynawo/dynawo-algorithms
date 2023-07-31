@@ -3,10 +3,32 @@ name: Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      release-id:
+        description: ID of the published release
+        type: string
+        required: true
+      perform-linux-cxx11:
+        description: Create assets for Linux cxx11
+        type: boolean
+        default: true
+      perform-linux-centos7:
+        description: Create assets for Linux centos7
+        type: boolean
+        default: true
+      perform-windows:
+        description: Create assets for Windows
+        type: boolean
+        default: true
+
+env:
+  DYNAWO_VERSION: 1.6.0
 
 jobs:
-  distribution:
-    name: Distribution Linux
+  distribution-cxx11:
+    if: github.event_name != 'workflow_dispatch' || inputs.perform-linux-cxx11
+    name: Distribution Linux cxx11
     runs-on: ubuntu-latest
     container: dynawo/dynawo-distribution-cxx11:latest
     env:
@@ -14,23 +36,16 @@ jobs:
       DYNAWO_BUILD_TYPE: Release
       DYNAWO_NB_PROCESSORS_USED: 2
       DYNAWO_FORCE_CXX11_ABI: "true"
-      DYNAWO_VERSION: 1.6.0
-      GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CURL_JSON: 'curl --silent -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Content-Type: application/json"'
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Fetch Dynawo
-        run: |
-          source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO v${DYNAWO_VERSION} Dynawo_Linux_v${DYNAWO_VERSION}.zip $GITHUB_TOKEN
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/v$DYNAWO_VERSION/Dynawo_Linux_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
-        run: |
-          unzip "Dynawo_Linux_v${DYNAWO_VERSION}.zip"
+        run: unzip -qq "Dynawo_Linux_v${DYNAWO_VERSION}.zip"
 
       - name: Build
         run: |
@@ -39,11 +54,31 @@ jobs:
           util/envDynawoAlgorithms.sh build
           util/envDynawoAlgorithms.sh distrib
           util/envDynawoAlgorithms.sh distrib-headers
-          version=$(util/envDynawoAlgorithms.sh version | cut -f1 -d' ')
-          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_v${version}.zip --data-binary @distributions/DynawoAlgorithms_v${version}.zip
-          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_headers_v${version}.zip --data-binary @distributions/DynawoAlgorithms_headers_v${version}.zip
+          for file in distributions/DynawoAlgorithms_v*.zip ; do mv $file ${file//_/_Linux_} ; done
+          for file in distributions/DynawoAlgorithms_headers_v*.zip ; do mv $file ${file//_headers_/_Linux_headers_} ; done
+
+      - name: Fetch release script
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository_owner }}/dynawo
+          sparse-checkout: .github/release.js
+          sparse-checkout-cone-mode: false
+          path: dynawo
+
+      - name: Upload assets
+        uses: actions/github-script@v6
+        env:
+          release_id: ${{ github.event_name != 'workflow_dispatch' && github.event.release.id || inputs.release-id }}
+          files: |
+            distributions/DynawoAlgorithms_*.zip
+        with:
+          retries: 3
+          script: |
+            const release = require('./dynawo/.github/release.js')
+            await release({github, context, core, glob})
 
   distribution-centos7:
+    if: github.event_name != 'workflow_dispatch' || inputs.perform-linux-centos7
     name: Distribution Linux centos7
     runs-on: ubuntu-latest
     container: dynawo/dynawo-distribution-centos7:latest
@@ -51,31 +86,110 @@ jobs:
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_BUILD_TYPE: Release
       DYNAWO_NB_PROCESSORS_USED: 2
-      DYNAWO_VERSION: 1.6.0
-      GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CURL_JSON: 'curl --silent -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Content-Type: application/json"'
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Fetch Dynawo
-        run: |
-          source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO v${DYNAWO_VERSION} Dynawo_Linux_centos7_v${DYNAWO_VERSION}.zip $GITHUB_TOKEN
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/v$DYNAWO_VERSION/Dynawo_Linux_centos7_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
-        run: |
-          unzip "Dynawo_Linux_centos7_v${DYNAWO_VERSION}.zip"
+        run: unzip -qq "Dynawo_Linux_centos7_v${DYNAWO_VERSION}.zip"
 
       - name: Build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export DYNAWO_HOME=$(pwd)/dynawo
           export DYNAWO_ALGORITHMS_HOME=$(pwd)
           util/envDynawoAlgorithms.sh build
           util/envDynawoAlgorithms.sh distrib-headers
-          version=$(util/envDynawoAlgorithms.sh version | cut -f1 -d' ')
-          curl -H "authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/zip" -X POST $(curl -s -H "authorization: Bearer $GITHUB_TOKEN" --request GET https://api.github.com/repos/dynawo/dynawo-algorithms/releases/latest | grep upload_url | cut -d '"' -f 4 | grep -o ".*assets")?name=DynawoAlgorithms_Linux_headers_centos7_v${version}.zip --data-binary @distributions/DynawoAlgorithms_headers_v${version}.zip
+          for file in distributions/DynawoAlgorithms_headers_v*.zip ; do mv $file ${file//_headers_/_Linux_headers_centos7_} ; done
+
+      - name: Fetch release script
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository_owner }}/dynawo
+          sparse-checkout: .github/release.js
+          sparse-checkout-cone-mode: false
+          path: dynawo
+
+      - name: Upload assets
+        uses: actions/github-script@v6
+        env:
+          release_id: ${{ github.event_name != 'workflow_dispatch' && github.event.release.id || inputs.release-id }}
+          files: |
+            distributions/DynawoAlgorithms_*.zip
+        with:
+          retries: 3
+          script: |
+            const release = require('./dynawo/.github/release.js')
+            await release({github, context, core, glob})
+
+  distribution-windows:
+    if: github.event_name != 'workflow_dispatch' || inputs.perform-windows
+    name: Distribution Windows
+    runs-on: windows-2019
+    steps:
+      - name: No LF to CRLF conversion
+        shell: cmd
+        run: git config --global core.autocrlf input
+
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Download MS-MPI
+        shell: bash
+        run: |
+          curl -Os https://download.microsoft.com/download/a/5/2/a5207ca5-1203-491a-8fb8-906fd68ae623/msmpisdk.msi
+          curl -Os https://download.microsoft.com/download/a/5/2/a5207ca5-1203-491a-8fb8-906fd68ae623/msmpisetup.exe
+
+      - name: Install MS-MPI
+        shell: cmd
+        run: |
+          msmpisdk.msi /passive
+          msmpisetup.exe /unattend
+
+      - name: Fetch Dynawo
+        shell: bash
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/v$DYNAWO_VERSION/Dynawo_Windows_v$DYNAWO_VERSION.zip
+
+      - name: Unzip Dynawo
+        shell: cmd
+        run: 7z x Dynawo_Windows_v%DYNAWO_VERSION%.zip -o..\deploy
+
+      # use a minimal PATH to avoid too long command lines and conflict with Strawberry pkg-config !
+      - name: Build and install
+        shell: cmd
+        env:
+          MSMPI_INC: C:\Program Files (x86)\Microsoft SDKs\MPI\Include\
+          MSMPI_LIB32: C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\
+          MSMPI_LIB64: C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\
+          PATH: C:\Windows\system32;C:\Program Files\Git\cmd;C:\hostedtoolcache\windows\Python\3.7.9\x64
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call util\windows\dynawo-algorithms verbose build || exit /b 1
+          call util\windows\dynawo-algorithms verbose distrib-headers distrib || exit /b 1
+
+      - name: Rename distribution
+        shell: bash
+        run: for file in distrib/DynawoAlgorithms_*.zip ; do mv $file ${file//headers_Release/Windows} ; done
+
+      - name: Fetch release script
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository_owner }}/dynawo
+          sparse-checkout: .github/release.js
+          sparse-checkout-cone-mode: false
+          path: dynawo
+
+      - name: Upload assets
+        uses: actions/github-script@v6
+        env:
+          release_id: ${{ github.event_name != 'workflow_dispatch' && github.event.release.id || inputs.release-id }}
+          files: |
+            distrib/DynawoAlgorithms_*.zip
+        with:
+          retries: 3
+          script: |
+            const release = require('./dynawo/.github/release.js')
+            await release({github, context, core, glob})
