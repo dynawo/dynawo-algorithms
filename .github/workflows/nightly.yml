@@ -32,7 +32,7 @@ jobs:
 
       - name: Unzip Dynawo
         run: |
-          unzip "Dynawo_omc_v${DYNAWO_VERSION}.zip"
+          unzip -qq "Dynawo_omc_v${DYNAWO_VERSION}.zip"
 
       - name: Dynawo version
         run: ./dynawo/dynawo.sh version
