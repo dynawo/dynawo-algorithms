@@ -10,7 +10,7 @@
 
 This directory contains LaTeX sources for Dyna&omega;o-algorithms documentation.
 
-You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.4.1/DynawoAlgorithmsDocumentation.pdf).
+You can download Dyna&omega;o-algorithms documentation [here](https://github.com/dynawo/dynawo-algorithms/releases/download/v1.5.0/DynawoAlgorithmsDocumentation.pdf).
 
 Scripts:
 * **compile.sh**: compile each separated LaTex document (except the licenses).
