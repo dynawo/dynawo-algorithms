@@ -2,8 +2,11 @@ name: Nightly
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron:  '0 1 * * 1-5'
+  repository_dispatch:
+    types: [nightly-linux]
+
+env:
+  DYNAWO_VERSION: 1.6.0
 
 jobs:
   fedora:
@@ -19,23 +22,17 @@ jobs:
       DYNAWO_BUILD_TYPE: ${{ matrix.build-type }}
       DYNAWO_NB_PROCESSORS_USED: 2
       DYNAWO_FORCE_CXX11_ABI: "true"
-      DYNAWO_VERSION: 1.6.0
-      GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CURL_JSON: 'curl --silent -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Content-Type: application/json"'
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Fetch Dynawo
-        run: |
-          source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_omc_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
         run: |
-          unzip "Dynawo_omc_V${DYNAWO_VERSION}.zip"
+          unzip -qq "Dynawo_omc_v${DYNAWO_VERSION}.zip"
 
       - name: Dynawo version
         run: ./dynawo/dynawo.sh version

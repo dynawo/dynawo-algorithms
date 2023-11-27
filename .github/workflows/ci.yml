@@ -18,21 +18,15 @@ jobs:
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_NB_PROCESSORS_USED: 2
-      GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CURL_JSON: 'curl --silent -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Content-Type: application/json"'
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Fetch Dynawo
-        run: |
-          source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_headers_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_headers_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
-        run: |
-          unzip "Dynawo_headers_V${DYNAWO_VERSION}.zip"
+        run: unzip -qq "Dynawo_headers_v${DYNAWO_VERSION}.zip"
 
       - name: Dynawo version
         run: ./dynawo/dynawo.sh version
@@ -55,9 +49,6 @@ jobs:
       DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_NB_PROCESSORS_USED: 2
-      GH_API_DYNAWO: ${{ github.api_url }}/repos/${{ github.repository_owner }}/dynawo
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CURL_JSON: 'curl --silent -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" --header "Content-Type: application/json"'
     steps:
       - name: Install Sonar wrapper
         working-directory: ${{ runner.workspace }}
@@ -79,16 +70,13 @@ jobs:
           dnf install -y java-11-openjdk
 
       - name: Checkout sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Fetch Dynawo
-        run: |
-          source .github/workflows/tools.sh
-          download_asset $GH_API_DYNAWO nightly Dynawo_omc_V${DYNAWO_VERSION}.zip $GITHUB_TOKEN
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_omc_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
-        run: |
-          unzip "Dynawo_omc_V${DYNAWO_VERSION}.zip"
+        run: unzip -qq "Dynawo_omc_v${DYNAWO_VERSION}.zip"
 
       - name: Build
         env:
@@ -134,7 +122,7 @@ jobs:
 
       - name: Fetch Dynawo
         shell: bash
-        run: curl -LOs https://github.com/dynawo/dynawo/releases/download/nightly/Dynawo_Windows_v$DYNAWO_VERSION.zip
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_Windows_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
         shell: cmd

@@ -481,11 +481,11 @@ for /f "tokens=1" %%G in ('"%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms
 :: set zipfile name
 set _distrib_zip=
 if /i %~1==DISTRIB (
-  set _distrib_zip=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\DynawoAlgorithms_%DYNAWO_BUILD_TYPE%_V%_version%.zip
+  set _distrib_zip=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\DynawoAlgorithms_%DYNAWO_BUILD_TYPE%_v%_version%.zip
 ) else if /i %~1==DISTRIB-HEADERS (
-  set _distrib_zip=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\DynawoAlgorithms_headers_%DYNAWO_BUILD_TYPE%_V%_version%.zip
+  set _distrib_zip=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\DynawoAlgorithms_headers_%DYNAWO_BUILD_TYPE%_v%_version%.zip
 ) else if /i %~1==DISTRIB-OMC (
-  set _distrib_zip=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\DynawoAlgorithms_omc_%DYNAWO_BUILD_TYPE%_V%_version%.zip
+  set _distrib_zip=%DYNAWO_ALGORITHMS_DISTRIB_DIR%\DynawoAlgorithms_omc_%DYNAWO_BUILD_TYPE%_v%_version%.zip
 )
 
 :: create zipfile
