@@ -256,7 +256,6 @@ set_environnement() {
   export_var_env_force DYNAWO_ADEPT_HOME=$DYNAWO_HOME
   export_var_env_force DYNAWO_SUNDIALS_HOME=$DYNAWO_HOME
   export_var_env_force DYNAWO_SUITESPARSE_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_NICSLU_HOME=$DYNAWO_HOME
   export_var_env DYNAWO_GTEST_HOME=$DYNAWO_HOME
   export_var_env DYNAWO_GMOCK_HOME=$DYNAWO_HOME
 
@@ -266,7 +265,6 @@ set_environnement() {
   export_var_env_force DYNAWO_ADEPT_INSTALL_DIR=$DYNAWO_ADEPT_HOME
   export_var_env_force DYNAWO_SUITESPARSE_INSTALL_DIR=$DYNAWO_SUITESPARSE_HOME
   export_var_env_force DYNAWO_SUNDIALS_INSTALL_DIR=$DYNAWO_SUNDIALS_HOME
-  export_var_env_force DYNAWO_NICSLU_INSTALL_DIR=$DYNAWO_NICSLU_HOME
   export_var_env_force DYNAWO_XERCESC_INSTALL_DIR=$DYNAWO_XERCESC_HOME
 
   export_var_env DYNAWO_DDB_DIR=$DYNAWO_HOME/ddb
