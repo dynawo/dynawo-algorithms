@@ -158,9 +158,6 @@ endif()
 # KLU
 find_package(SuiteSparse REQUIRED)
 
-# NICSLU
-find_package(NICSLU)
-
 # Sundials
 find_package(Sundials REQUIRED)
 
