@@ -308,10 +308,10 @@
     <par type="DOUBLE" name="stopTime" value="70"/>
     <par type="DOUBLE" name="deltaP_load_0" value="10"/>
     <par type="DOUBLE" name="deltaQ_load_0" value="1"/>
-    <par type="DOUBLE" name="deltaP_load_1" value="15"/>
-    <par type="DOUBLE" name="deltaQ_load_1" value="1.5"/>
-    <par type="DOUBLE" name="deltaP_load_2" value="5"/>
-    <par type="DOUBLE" name="deltaQ_load_2" value="0.5"/>
+    <par type="DOUBLE" name="deltaP_load_1" value="10"/>
+    <par type="DOUBLE" name="deltaQ_load_1" value="1"/>
+    <par type="DOUBLE" name="deltaP_load_2" value="10"/>
+    <par type="DOUBLE" name="deltaQ_load_2" value="1"/>
   </set>
   <set id="10">
     <par type="DOUBLE" name="event_tEvent" value="110"/>
