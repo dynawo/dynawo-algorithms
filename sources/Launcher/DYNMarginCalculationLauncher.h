@@ -143,7 +143,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
                                 const double minVariation,
                                 const double maxVariation,
                                 const double tolerance,
-                                SimulationResult& result);
+                                LoadIncreaseResult& result);
 
   /**
    * @brief launch the load increase scenario

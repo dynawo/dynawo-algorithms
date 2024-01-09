@@ -144,34 +144,32 @@ TEST(TestBaseClasses, testSimulationResult) {
 }
 
 TEST(TestBaseClasses, testLoadIncreaseResult) {
-  LoadIncreaseResult lir;
-  ASSERT_TRUE(lir.begin() == lir.end());
-  ASSERT_EQ(lir.getStatus(), EXECUTION_PROBLEM_STATUS);
-  ASSERT_DOUBLE_EQUALS_DYNAWO(lir.getLoadLevel(), -1.);
-  lir.setStatus(CONVERGENCE_STATUS);
-  lir.resize(2);
-  SimulationResult& sr = lir.getResult(0);
-  sr.setScenarioId("MyId");
-  sr.setSuccess(true);
-  sr.setStatus(CONVERGENCE_STATUS);
-  SimulationResult& sr2 = lir.getResult(1);
-  sr2.setScenarioId("MyId2");
+  LoadIncreaseResult lir(2);
+  lir.getResult().setScenarioId("MyId1");
+  lir.getResult().setVariation(82.);
+  lir.getResult().setSuccess(true);
+  lir.getResult().setStatus(CONVERGENCE_STATUS);
+  SimulationResult& sr1 = lir.getScenarioResult(0);
+  sr1.setScenarioId("MyId2");
+  sr1.setSuccess(true);
+  sr1.setStatus(CONVERGENCE_STATUS);
+  SimulationResult& sr2 = lir.getScenarioResult(1);
+  sr2.setScenarioId("MyId3");
   sr2.setVariation(65.2);
   sr2.setSuccess(false);
   sr2.setStatus(CRITERIA_NON_RESPECTED_STATUS);
-  lir.setLoadLevel(10.);
-  ASSERT_EQ(lir.getStatus(), CONVERGENCE_STATUS);
-  ASSERT_DOUBLE_EQUALS_DYNAWO(lir.getLoadLevel(), 10.);
-  SimulationResult test = *lir.begin();
-  ASSERT_EQ(test.getScenarioId(), "MyId");
-  ASSERT_EQ(test.getUniqueScenarioId(), "MyId");
-  ASSERT_TRUE(test.getSuccess());
-  ASSERT_EQ(test.getStatus(), CONVERGENCE_STATUS);
-  SimulationResult& test2 = lir.getResult(1);
-  ASSERT_EQ(test2.getScenarioId(), "MyId2");
-  ASSERT_EQ(test2.getUniqueScenarioId(), "MyId2-65.2");
-  ASSERT_FALSE(test2.getSuccess());
-  ASSERT_EQ(test2.getStatus(), CRITERIA_NON_RESPECTED_STATUS);
+  ASSERT_EQ(lir.getResult().getScenarioId(), "MyId1");
+  ASSERT_EQ(lir.getResult().getUniqueScenarioId(), "MyId1-82");
+  ASSERT_TRUE(lir.getResult().getSuccess());
+  ASSERT_EQ(lir.getResult().getStatus(), CONVERGENCE_STATUS);
+  ASSERT_EQ(sr1.getScenarioId(), "MyId2");
+  ASSERT_EQ(sr1.getUniqueScenarioId(), "MyId2");
+  ASSERT_TRUE(sr1.getSuccess());
+  ASSERT_EQ(sr1.getStatus(), CONVERGENCE_STATUS);
+  ASSERT_EQ(sr2.getScenarioId(), "MyId3");
+  ASSERT_EQ(sr2.getUniqueScenarioId(), "MyId3-65.2");
+  ASSERT_FALSE(sr2.getSuccess());
+  ASSERT_EQ(sr2.getStatus(), CRITERIA_NON_RESPECTED_STATUS);
 }
 
 }  // namespace DYNAlgorithms
