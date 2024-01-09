@@ -86,14 +86,14 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
   formatter->startDocument();
   AttributeList attrs;
   formatter->startElement("aggregatedResults", attrs);
-  for (size_t i=0, iEnd = results.size(); i < iEnd; i++) {
+
+  for (auto loadIncreaseResultIt = results.cbegin(); loadIncreaseResultIt != results.cend(); ++loadIncreaseResultIt) {
     attrs.clear();
-    const DYNAlgorithms::LoadIncreaseResult& loadIncreaseRes = results[i];
-    attrs.add("loadLevel", loadIncreaseRes.getLoadLevel());
-    attrs.add("status", getStatusAsString(loadIncreaseRes.getStatus()));
+    attrs.add("loadLevel", loadIncreaseResultIt->getResult().getVariation());
+    attrs.add("status", getStatusAsString(loadIncreaseResultIt->getResult().getStatus()));
     formatter->startElement("loadIncreaseResults", attrs);
-    if (loadIncreaseRes.getStatus() == DYNAlgorithms::CONVERGENCE_STATUS) {
-      appendScenarioResultsElement(loadIncreaseRes.getResults(), formatter);
+    if (loadIncreaseResultIt->getResult().getStatus() == DYNAlgorithms::CONVERGENCE_STATUS) {
+      appendScenarioResultsElement(loadIncreaseResultIt->getScenariosResults(), formatter);
     }
     formatter->endElement();  // loadIncreaseResults
   }

@@ -99,11 +99,11 @@ ComputeLoadVariationLauncher::launch() {
     simulation->setStopTime(job->getSimulationEntry()->getStopTime() - (100. - variation_)/100. * duration);
     simulate(simulation, result);
   }
-  LoadIncreaseResult loadResult;
-  loadResult.setLoadLevel(variation_);
-  loadResult.setStatus(result.getStatus());
+  LoadIncreaseResult loadIncreaseResult(0);
+  loadIncreaseResult.getResult().setVariation(variation_);
+  loadIncreaseResult.getResult().setStatus(result.getStatus());
   std::vector<LoadIncreaseResult> results;
-  results.push_back(loadResult);
+  results.push_back(loadIncreaseResult);
   aggregatedResults::XmlExporter exporter;
   exporter.exportLoadIncreaseResultsToFile(results, outputFileFullPath_);
   std::cout << "End of load increase simulation status: " + getStatusAsString(result.getStatus()) << std::endl;
