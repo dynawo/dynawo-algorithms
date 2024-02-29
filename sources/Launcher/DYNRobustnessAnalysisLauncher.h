@@ -52,7 +52,7 @@ class RobustnessAnalysisLauncher {
   /**
    * @brief default destructor
    */
-  virtual ~RobustnessAnalysisLauncher();
+  virtual ~RobustnessAnalysisLauncher() = default;
 
   /**
    * @brief set the inputFile of the analysis

@@ -41,11 +41,6 @@ class MultipleJobs {
   MultipleJobs();
 
   /**
-   * @brief default desctructor
-   */
-  ~MultipleJobs();
-
-  /**
    * @brief Set the scenarios description to launch
    * @param scenarios scenarios description to launch
    */

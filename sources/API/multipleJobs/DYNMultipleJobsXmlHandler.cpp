@@ -57,9 +57,6 @@ marginCalculationHandler_(parser::ElementName(multipleJobs_ns, "marginCalculatio
   marginCalculationHandler_.onEnd(lambda::bind(&XmlHandler::addMarginCalculation, lambda::ref(*this)));
 }
 
-XmlHandler::~XmlHandler() {
-}
-
 boost::shared_ptr<MultipleJobs>
 XmlHandler::getMultipleJobs() {
   return multipleJobsRead_;
@@ -85,9 +82,6 @@ loadIncreaseHandler_(parser::ElementName(multipleJobs_ns, "loadIncrease")) {
 
   scenariosHandler_.onEnd(lambda::bind(&MarginCalculationHandler::addScenarios, lambda::ref(*this)));
   loadIncreaseHandler_.onEnd(lambda::bind(&MarginCalculationHandler::setLoadIncrease, lambda::ref(*this)));
-}
-
-MarginCalculationHandler::~MarginCalculationHandler() {
 }
 
 void
@@ -127,9 +121,6 @@ scenarioHandler_(parser::ElementName(multipleJobs_ns, "scenario")) {
   scenarioHandler_.onEnd(lambda::bind(&ScenariosHandler::addScenario, lambda::ref(*this)));
 }
 
-ScenariosHandler::~ScenariosHandler() {
-}
-
 void
 ScenariosHandler::create(attributes_type const& attributes) {
   scenarios_ = boost::shared_ptr<Scenarios>(new Scenarios());
@@ -150,9 +141,6 @@ ScenarioHandler::ScenarioHandler(const elementName_type& root_element) {
   onStartElement(root_element, lambda::bind(&ScenarioHandler::create, lambda::ref(*this), lambda_args::arg2));
 }
 
-ScenarioHandler::~ScenarioHandler() {
-}
-
 void
 ScenarioHandler::create(attributes_type const& attributes) {
   scenario_ = boost::shared_ptr<Scenario>(new Scenario());
@@ -170,9 +158,6 @@ ScenarioHandler::get() const {
 
 LoadIncreaseHandler::LoadIncreaseHandler(const elementName_type& root_element) {
   onStartElement(root_element, lambda::bind(&LoadIncreaseHandler::create, lambda::ref(*this), lambda_args::arg2));
-}
-
-LoadIncreaseHandler::~LoadIncreaseHandler() {
 }
 
 void
