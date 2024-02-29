@@ -19,8 +19,6 @@ LoadIncreaseResult::LoadIncreaseResult():
 status_(EXECUTION_PROBLEM_STATUS),
 loadLevel_(-1.) { }
 
-LoadIncreaseResult::~LoadIncreaseResult() { }
-
 double
 LoadIncreaseResult::getLoadLevel() const {
   return loadLevel_;
