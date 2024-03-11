@@ -29,7 +29,7 @@ on:
   #   - cron:  "0 4 * * 2-6"  # 6 hours later after Dynawo nightly-release.yml
 
 env:
-  DYNAWO_VERSION: 1.6.0
+  DYNAWO_VERSION: 1.7.0
   DYNAWO_TAG: nightly
 
 jobs:
