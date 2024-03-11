@@ -107,7 +107,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   SimulationResult sr;
   ASSERT_TRUE(sr.getScenarioId().empty());
   ASSERT_FALSE(sr.getSuccess());
-  ASSERT_EQ(sr.getStatus(), EXECUTION_PROBLEM_STATUS);
+  ASSERT_EQ(sr.getStatus(), NOT_TREATED);
   ASSERT_TRUE(sr.getFailingCriteria().empty());
   sr.setScenarioId("MyId");
   sr.setVariation(50.);

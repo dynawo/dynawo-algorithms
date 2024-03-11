@@ -163,7 +163,7 @@ MarginCalculationLauncher::launch() {
   if (resultMaxVariation.getSuccess()) {
     if (!DYN::doubleEquals(minVariation, maxVariation))
       findAllLevelsBetween(minVariation, maxVariation, marginCalculation->getAccuracy(), allEvents, toRun);
-    findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+    findOrLaunchScenarios(baseJobsFile, events, toRun, maximumVariationPassing, results_[idx]);
 
     // analyze results
     unsigned int nbSuccess = 0;
@@ -242,7 +242,7 @@ MarginCalculationLauncher::launch() {
           }
         }
         toRun.push(task_t(0., 0., eventsIds));
-        findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+        findOrLaunchScenarios(baseJobsFile, events, toRun, maximumVariationPassing, results_[idx]);
       } else {
         TraceInfo(logTag_) << "============================================================ " << Trace::endline;
         TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, minVariation) << Trace::endline;
@@ -303,7 +303,7 @@ MarginCalculationLauncher::launch() {
         toRun.push(task_t(minVariation, minVariation, eventsIds));
         LoadIncreaseResult liResultTmp;
         liResultTmp.resize(events.size());
-        findOrLaunchScenarios(baseJobsFile, events, toRun, liResultTmp);
+        findOrLaunchScenarios(baseJobsFile, events, toRun, maximumVariationPassing,  liResultTmp);
         for (size_t i = 0; i < eventsIds.size(); ++i) {
           results_[idx].getResult(i) = liResultTmp.getResult(eventsIds[i]);
         }
@@ -360,7 +360,7 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
         }
       }
       findAllLevelsBetween(minVariation, maxVariation, tolerance, eventsIds, toRun);
-      findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+      findOrLaunchScenarios(baseJobsFile, events, toRun, maximumVariationPassing, results_[idx]);
 
       // analyze results
       unsigned int nbSuccess = 0;
@@ -407,6 +407,7 @@ MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const
   toRun.push(task_t(minVariation, maxVariation, eventIdxs));
   if (maxVariation - newVariation > tolerance)
     minMaxStack.push(std::make_pair(newVariation, maxVariation));
+
   while (toRun.size() < nbMaxToAdd && !minMaxStack.empty()) {
     double min = minMaxStack.front().first;
     double max = minMaxStack.front().second;
@@ -459,7 +460,7 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
         maxLoadVarForLoadIncrease = newVariation;
       LoadIncreaseResult liResultTmp;
       liResultTmp.resize(events.size());
-      findOrLaunchScenarios(baseJobsFile, events, toRunCopy, liResultTmp);
+      findOrLaunchScenarios(baseJobsFile, events, toRunCopy, results, liResultTmp);
 
       // analyze results
       task_t below(task.minVariation_, newVariation);
@@ -499,11 +500,13 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
 void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJobsFile,
     const std::vector<boost::shared_ptr<Scenario> >& events,
     std::queue< task_t >& toRun,
+    const std::vector<double >& maximumVariationPassing,
     LoadIncreaseResult& result) {
   if (toRun.empty()) return;
   task_t task = toRun.front();
   toRun.pop();
   const std::vector<size_t>& eventsId = task.ids_;
+  std::vector<size_t> eventsIdNoFilter = task.ids_;
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
   if (mpi::context().nbProcs() == 1) {
     std::string iidmFile = generateIDMFileNameForVariation(newVariation);
@@ -518,20 +521,26 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   }
 
   auto found = scenarioStatus_.find(newVariation);
+  std::vector<size_t> eventsIdNotTreated;
   if (found != scenarioStatus_.end()) {
     TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << Trace::endline;
     for (const auto& eventId : eventsId) {
       auto resultId = SimulationResult::getUniqueScenarioId(events.at(eventId)->getId(), newVariation);
       result.getResult(eventId) = importResult(resultId);
+      if (result.getResult(eventId).getStatus() == NOT_TREATED)
+        eventsIdNotTreated.push_back(eventId);
     }
-    return;
+    if (eventsIdNotTreated.empty())
+      return;
+    else
+      task.ids_ = eventsIdNotTreated;
   }
 
-  std::vector<std::pair<size_t, double> > events2Run;
-  prepareEvents2Run(task, toRun, events2Run);
+  std::vector<EventPair > events2Run;
+  prepareEvents2Run(task, eventsIdNoFilter, maximumVariationPassing, toRun, events2Run);
 
-  for (std::vector<std::pair<size_t, double> >::const_iterator itEvents = events2Run.begin(); itEvents != events2Run.end(); ++itEvents) {
-    double variation = itEvents->second;
+  for (std::vector<EventPair >::const_iterator itEvents = events2Run.begin(); itEvents != events2Run.end(); ++itEvents) {
+    double variation = itEvents->variation_;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     if (inputsByIIDM_.count(iidmFile) == 0) {
       inputsByIIDM_[iidmFile].readInputs(workingDirectory_, baseJobsFile, iidmFile);
@@ -540,9 +549,9 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
 
   std::vector<bool> successes;
   mpi::forEach(0, events2Run.size(), [this, &events2Run, &events, &successes](unsigned int i){
-    double variation = events2Run[i].second;
+    double variation = events2Run[i].variation_;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
-    size_t eventIdx = events2Run[i].first;
+    size_t eventIdx = events2Run[i].index_;
     SimulationResult resultScenario;
     createScenarioWorkingDir(events.at(eventIdx)->getId(), variation);
     launchScenario(inputsByIIDM_.at(iidmFile), events.at(eventIdx), variation, resultScenario);
@@ -553,8 +562,8 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   std::vector<bool> allSuccesses = synchronizeSuccesses(successes);
   for (unsigned int i = 0; i < events2Run.size(); i++) {
     auto& event = events2Run.at(i);
-    scenarioStatus_[event.second].resize(events.size());
-    scenarioStatus_.at(event.second).at(event.first).success = allSuccesses.at(i);
+    scenarioStatus_[event.variation_].resize(events.size());
+    scenarioStatus_.at(event.variation_).at(event.index_).success = allSuccesses.at(i);
   }
   assert(scenarioStatus_.count(newVariation) > 0);
 
@@ -564,24 +573,50 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   }
 
   for (unsigned int i=0; i < events2Run.size(); i++) {
-    double variation = events2Run[i].second;
+    double variation = events2Run[i].variation_;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     inputsByIIDM_.erase(iidmFile);  // remove iidm file used for scenario to save RAM
   }
 }
 
+MarginCalculationLauncher::EventPair::EventPair(size_t index, double variation) : index_(index), variation_(variation) {
+}
+
+void MarginCalculationLauncher::addAvailableEvents(const double variation,
+                                                   const std::vector<size_t>& eventsIdNoFilter,
+                                                   const std::vector<double >& maximumVariationPassing,
+                                                   std::vector<EventPair >& events2Run) {
+  if ((*loadIncreaseStatus_.find(variation)).second.success) {
+    auto found = scenarioStatus_.find(variation);
+    unsigned int eventIndex = 0;
+    while (events2Run.size() % mpi::context().nbProcs() != 0  && eventIndex < eventsIdNoFilter.size() &&
+           (variation > maximumVariationPassing[eventsIdNoFilter[eventIndex]] ||
+            DYN::doubleEquals(variation, maximumVariationPassing[eventsIdNoFilter[eventIndex]]))) {
+      EventPair event(eventsIdNoFilter[eventIndex], variation);
+      if (std::find(events2Run.begin(), events2Run.end(), event) == events2Run.end() && found == scenarioStatus_.end()) {
+        events2Run.push_back(event);
+      }
+      ++eventIndex;
+    }
+  }
+}
+
 void
 MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
-    std::queue< task_t >& toRun,
-    std::vector<std::pair<size_t, double> >& events2Run) {
+                                             const std::vector<size_t>& eventsIdNoFilter,
+                                             const std::vector<double >& maximumVariationPassing,
+                                             std::queue< task_t >& toRun,
+                                             std::vector<EventPair >& events2Run) {
   const std::vector<size_t>& eventsId = requestedTask.ids_;
   double newVariation = round((requestedTask.minVariation_ + requestedTask.maxVariation_)/2.);
+
   auto it = loadIncreaseStatus_.find(newVariation);
   if (it != loadIncreaseStatus_.end() && it->second.success) {
     for (size_t i = 0; i < eventsId.size(); ++i) {
-      events2Run.push_back(std::make_pair(eventsId[i], newVariation));
+      events2Run.push_back(EventPair(eventsId[i], newVariation));
     }
   }
+
   while (events2Run.size() < mpi::context().nbProcs() && !toRun.empty()) {
     task_t newTask = toRun.front();
     toRun.pop();
@@ -591,8 +626,41 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
     if (it == loadIncreaseStatus_.end() || !it->second.success) continue;
     if (scenarioStatus_.find(variation) != scenarioStatus_.end()) continue;
     for (size_t i = 0, iEnd = newEventsId.size(); i < iEnd; ++i) {
-      events2Run.push_back(std::make_pair(newEventsId[i], variation));
+      events2Run.push_back(EventPair(newEventsId[i], variation));
     }
+  }
+
+  std::list<double> variationsList;
+  for (const auto& loadIncrease : loadIncreaseStatus_) {
+    variationsList.push_back(loadIncrease.first);
+  }
+
+  // We try to add more scenarios to launch while number of events to run is not equal to a multiple of the number of procs
+  // We go through the available load increase with the same logic as they would be run through by the dichotomy,
+  // meaning 100 (back of the list) then 50 (front of the list) and 75 (middle of the list) for example.
+  std::list<double>::iterator itVariationsList = variationsList.begin();
+  while (itVariationsList != variationsList.end()) {
+    double variation = variationsList.back();
+    addAvailableEvents(variation, eventsIdNoFilter, maximumVariationPassing, events2Run);
+
+    variationsList.pop_back();
+
+    variation = *itVariationsList;
+    addAvailableEvents(variation, eventsIdNoFilter, maximumVariationPassing, events2Run);
+
+    std::list<double>::iterator middle = variationsList.begin();
+    std::advance(middle, std::distance(variationsList.begin(), variationsList.end())/2);
+    if (middle != variationsList.end()) {
+      variation = *middle;
+      addAvailableEvents(variation, eventsIdNoFilter, maximumVariationPassing, events2Run);
+
+      variationsList.erase(middle);
+    }
+
+    if (itVariationsList != variationsList.end() && !variationsList.empty())
+      itVariationsList = variationsList.erase(itVariationsList);
+    else
+      itVariationsList = variationsList.end();
   }
 }
 
