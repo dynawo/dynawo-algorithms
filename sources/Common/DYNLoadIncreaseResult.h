@@ -34,11 +34,6 @@ class LoadIncreaseResult {
   LoadIncreaseResult();
 
   /**
-   * @brief default destructor
-   */
-  ~LoadIncreaseResult();
-
-  /**
    * @brief get the load level of the load increase
    * @return load level of the load increase
    */

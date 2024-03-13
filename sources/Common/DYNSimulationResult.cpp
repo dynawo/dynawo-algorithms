@@ -32,9 +32,6 @@ SimulationResult::SimulationResult():
     lostEquipmentsFileExtension_("xml") {
 }
 
-SimulationResult::~SimulationResult() {
-}
-
 SimulationResult::SimulationResult(const SimulationResult& result):
     scenarioId_(result.scenarioId_),
     variation_(result.variation_),

@@ -30,9 +30,6 @@ namespace multipleJobs {
 MultipleJobs::MultipleJobs() {
 }
 
-MultipleJobs::~MultipleJobs() {
-}
-
 void
 MultipleJobs::setScenarios(const boost::shared_ptr<Scenarios>& scenarios) {
   scenarios_ = scenarios;

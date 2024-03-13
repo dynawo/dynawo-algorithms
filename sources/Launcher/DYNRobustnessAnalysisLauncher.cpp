@@ -73,9 +73,6 @@ RobustnessAnalysisLauncher::RobustnessAnalysisLauncher() :
 logTag_("DYN-ALGO") {
 }
 
-RobustnessAnalysisLauncher::~RobustnessAnalysisLauncher() {
-}
-
 void
 RobustnessAnalysisLauncher::setInputFile(const std::string& inputFile) {
   inputFile_ = inputFile;
