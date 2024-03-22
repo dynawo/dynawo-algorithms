@@ -60,8 +60,11 @@
 #include "../gitversion_algorithms.h"
 #include "DYNMultipleJobsXmlHandler.h"
 #include "DYNMultipleJobs.h"
+#include "DYNProcess.h"
 #include "MacrosMessage.h"
+#ifdef _MPI_
 #include "DYNMPIContext.h"
+#endif
 
 #include <boost/make_shared.hpp>
 using DYN::Trace;
@@ -108,8 +111,9 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
   if ( !is_directory(workingDirectory_) )
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
 
-  if (doInitLog && mpi::context().isRootProc())
+  if (doInitLog && isRootProcess()) {
     initLog();
+  }
 
   // build the name of the outputFile
   outputFileFullPath_ = createAbsolutePath(outputFile_, workingDirectory_);
@@ -221,8 +225,7 @@ RobustnessAnalysisLauncher::initLog() {
 
 std::string
 RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) const {
-  auto& context = mpi::context();
-  if (context.isRootProc()) {
+  if (isRootProcess()) {
     // Only the main proc should open the archive
     // Unzip the input file in the working directory
     boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
@@ -236,7 +239,9 @@ RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& i
       file.close();
     }
   }
+#ifdef _MPI_
   mpi::Context::sync();  // To ensure that all procs can access the file
+#endif
   // When input is given as a zip file we are assuming the multiple jobs definition is always in a file named fic_MULTIPLE.xml
   return createAbsolutePath("fic_MULTIPLE.xml", parentDirectory(inputFileFullPath));
 }
@@ -517,7 +522,7 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
 
 void
 RobustnessAnalysisLauncher::writeResults() const {
-  if (!mpi::context().isRootProc()) {
+  if (!isRootProcess()) {
     // only main proccessus is performing the archive
     return;
   }
@@ -717,8 +722,7 @@ RobustnessAnalysisLauncher::exportResult(const SimulationResult& result) const {
 void
 RobustnessAnalysisLauncher::cleanResult(const std::string& id) const {
   namespace fs = boost::filesystem;
-  auto& context = mpi::context();
-  if (context.isRootProc()) {
+  if (isRootProcess()) {
     remove(computeResultFile(id));
     fs::path ret(createAbsolutePath(id, workingDirectory_));
     if (fs::is_empty(ret))

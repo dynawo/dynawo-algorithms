@@ -133,17 +133,18 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    *
    * @param loadIncrease scenario to simulate the load increase
    * @param variation percentage of launch variation to perform
+   * @param result result of the load increase
    * @param minVariation minimum variation for dichotomie
    * @param maxVariation maximum variation for dichotomie
    * @param tolerance maximum difference between the real value of the maximum variation and the value returned
-   * @param result result of the load increase
    *
    */
-  void findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease, const double variation,
+  void findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
+                                const double variation,
+                                LoadIncreaseResult& result,
                                 const double minVariation,
                                 const double maxVariation,
-                                const double tolerance,
-                                LoadIncreaseResult& result);
+                                const double tolerance);
 
   /**
    * @brief launch the load increase scenario
@@ -170,19 +171,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
       const std::vector<boost::shared_ptr<Scenario> >& events,
       std::queue< task_t >& toRun,
       LoadIncreaseResult& result);
-
-
-  /**
-   * @brief Fill the vector with as many levels of variation you can run based on the number of available threads
-   *
-   * @param requestedTask the level of reference
-   * @param toRun scenarios that needs to be run
-   * @param events2Run will be filled with the scenario index and the level that can be run
-   *
-   */
-  void prepareEvents2Run(const task_t& requestedTask,
-      std::queue< task_t >& toRun,
-      std::vector<std::pair<size_t, double> >& events2Run);
 
   /**
    * @brief launch the calculation of one scenario
@@ -237,6 +225,19 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void readTimes(const std::string& jobFileLoadIncrease, const std::string& jobFileScenario);
 
+#ifdef _MPI_
+  /**
+   * @brief Fill the vector with as many levels of variation you can run based on the number of available threads
+   *
+   * @param requestedTask the level of reference
+   * @param toRun scenarios that needs to be run
+   * @param events2Run will be filled with the scenario index and the level that can be run
+   *
+   */
+  void prepareEvents2Run(const task_t& requestedTask,
+      std::queue< task_t >& toRun,
+      std::vector<std::pair<size_t, double> >& events2Run);
+
   /**
    * @brief Generate variations list to launch
    *
@@ -261,6 +262,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @return The list of successes for all procs
    */
   std::vector<bool> synchronizeSuccesses(const std::vector<bool>& successes);
+#endif
 
   /**
    * @brief Computes the load increase id used in the simulation and set into the simulation result

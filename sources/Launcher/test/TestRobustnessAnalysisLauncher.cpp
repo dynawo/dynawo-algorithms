@@ -30,14 +30,18 @@
 #include "MacrosMessage.h"
 #include "DYNMultipleJobs.h"
 #include "DYNMarginCalculation.h"
+#ifdef _MPI_
 #include "DYNMPIContext.h"
+#endif
 
 testing::Environment* initXmlEnvironment();
 
 namespace DYNAlgorithms {
 testing::Environment* const env = initXmlEnvironment();
 
+#ifdef _MPI_
 mpi::Context mpiContext;
+#endif
 
 class MyLauncher : public RobustnessAnalysisLauncher {
  public:

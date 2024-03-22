@@ -51,9 +51,14 @@ set(DYN_ALGO_COMMON_SOURCES
   DYNLoadIncrease.cpp
   DYNSimulationResult.cpp
   DYNLoadIncreaseResult.cpp
-  DYNMPIContext.cpp
+  DYNProcess.cpp
   ${CPP_KEYS}
   )
+
+if (USE_MPI STREQUAL "YES")
+  list(APPEND DYN_ALGO_COMMON_SOURCES
+        DYNMPIContext.cpp)
+endif()
 
 set(DYN_ALGO_COMMON_HEADERS
   DYNResultCommon.h
@@ -61,10 +66,15 @@ set(DYN_ALGO_COMMON_HEADERS
   DYNScenarios.h
   DYNSimulationResult.h
   DYNLoadIncreaseResult.h
-  DYNMPIContext.h
-  DYNMPIContext.hpp
+  DYNProcess.h
   ${INCLUDE_KEYS}
   )
+
+if (USE_MPI STREQUAL "YES")
+  list(APPEND DYN_ALGO_COMMON_HEADERS
+        DYNMPIContext.h
+        DYNMPIContext.hpp)
+endif()
 
 add_library(dynawo_algorithms_Common SHARED ${DYN_ALGO_COMMON_SOURCES})
 add_dependencies(dynawo_algorithms_Common create_keys_files)
@@ -80,7 +90,7 @@ target_include_directories(dynawo_algorithms_Common
 
 target_link_libraries(dynawo_algorithms_Common
   Dynawo::dynawo_Common
-  MPI::MPI_CXX
+  $<$<STREQUAL:${USE_MPI},YES>:MPI::MPI_CXX>
   )
 
 install(TARGETS dynawo_algorithms_Common
