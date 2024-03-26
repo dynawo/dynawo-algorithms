@@ -70,7 +70,7 @@ class XmlExporter {
   void appendScenarioResultsElement(const std::vector<DYNAlgorithms::SimulationResult>& results, xml::sax::formatter::FormatterPtr& formatter) const;
 
   /**
-   * @brief append to the formatter non-respected criterions
+   * @brief append to the formatter non-respected criteria
    *
    * @param result simulation result possibly containing failing criteria
    * @param formatter formatter to extend
