@@ -47,19 +47,22 @@
 #include <DYNTrace.h>
 
 #include "DYNMultipleJobs.h"
+#include "DYNProcess.h"
 #include "DYNScenarios.h"
 #include "DYNScenario.h"
 #include "DYNSimulationResult.h"
 #include "DYNAggrResXmlExporter.h"
 #include "MacrosMessage.h"
+#ifdef _MPI_
 #include "DYNMPIContext.h"
+#endif
 
 using DYN::Trace;
 
 namespace DYNAlgorithms {
 
 static DYN::TraceStream TraceInfo(const std::string& tag = "") {
-  return mpi::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
+  return isRootProcess() ? Trace::info(tag) : DYN::TraceStream();
 }
 
 void
@@ -72,32 +75,45 @@ SystematicAnalysisLauncher::launch() {
   const std::string& baseJobsFile = scenarios->getJobsFile();
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
 
-  auto& context = mpi::context();
-
-  if (context.isRootProc()) {
+  if (isRootProcess()) {
     // only required for root proc
     results_.resize(events.size());
   }
 
-  mpi::forEach(0, events.size(), [this, &events](unsigned int i){
+  auto createScenariosWorkingDir = [this, &events](unsigned int i) {
     std::string workingDir  = createAbsolutePath(events[i]->getId(), workingDirectory_);
     if (!exists(workingDir))
       create_directory(workingDir);
     else if (!is_directory(workingDir))
       throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
-  });
+  };
+
+#ifdef _MPI_
+  mpi::forEach(0, events.size(), createScenariosWorkingDir);
+#else
+  for (unsigned int idx1 = 0; idx1 < events.size(); idx1++) {
+    createScenariosWorkingDir(idx1);
+  }
+#endif
 
   inputs_.readInputs(workingDirectory_, baseJobsFile);
 
-  mpi::forEach(0, events.size(), [this, &events](unsigned int i){
-      auto result = launchScenario(events[i]);
-      exportResult(result);
-  });
+  auto launchScenarioAndExportResult = [this, &events](unsigned int i) {
+    auto result = launchScenario(events[i]);
+    exportResult(result);
+  };
 
+#ifdef _MPI_
+  mpi::forEach(0, events.size(), launchScenarioAndExportResult);
   mpi::Context::sync();
+#else
+  for (unsigned int idx2 = 0; idx2 < events.size(); idx2++) {
+    launchScenarioAndExportResult(idx2);
+  }
+#endif
 
   // Update results for root proc
-  if (context.isRootProc()) {
+  if (isRootProcess()) {
     for (unsigned int i = 0; i < events.size(); i++) {
       const auto& scenario = events.at(i);
       results_.at(i) = importResult(scenario->getId());
@@ -111,7 +127,9 @@ SystematicAnalysisLauncher::launch() {
 
 SimulationResult
 SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario) {
+#ifdef _MPI_
   if (mpi::context().nbProcs() == 1)
+#endif
     std::cout << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile()
               << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
@@ -135,7 +153,9 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
     simulate(simulation, result);
   }
 
+#ifdef _MPI_
   if (mpi::context().nbProcs() == 1)
+#endif
     std::cout << " scenario :" << scenario->getId() << " final status: " << getStatusAsString(result.getStatus()) << std::endl;
 
   return result;

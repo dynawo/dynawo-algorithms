@@ -52,9 +52,12 @@
 #include "DYNMarginCalculation.h"
 #include "DYNScenario.h"
 #include "MacrosMessage.h"
+#include "DYNProcess.h"
 #include "DYNScenarios.h"
 #include "DYNAggrResXmlExporter.h"
+#ifdef _MPI_
 #include "DYNMPIContext.h"
+#endif
 
 using multipleJobs::MultipleJobs;
 using DYN::Trace;
@@ -64,7 +67,7 @@ static const char LOAD_INCREASE[] = "loadIncrease";
 namespace DYNAlgorithms {
 
 static DYN::TraceStream TraceInfo(const std::string& tag = "") {
-  return mpi::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
+  return isRootProcess() ? Trace::info(tag) : DYN::TraceStream();
 }
 
 void
@@ -81,7 +84,9 @@ MarginCalculationLauncher::createScenarioWorkingDir(const std::string& scenarioI
 
 void
 MarginCalculationLauncher::cleanResultDirectories(const std::vector<boost::shared_ptr<Scenario> >& events) const {
+#ifdef _MPI_
   mpi::Context::sync();
+#endif
   for (auto loadIncrease : loadIncreaseStatus_) {
     cleanResult(computeLoadIncreaseScenarioId(loadIncrease.first));
   }
@@ -131,8 +136,12 @@ MarginCalculationLauncher::launch() {
   double variation = maxVariation;
   results_.emplace_back(events.size());
   const size_t loadIncreaseVariation100Index = results_.size() - 1;
-  findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
-                           marginCalculation->getAccuracy(), results_.at(loadIncreaseVariation100Index));
+  findOrLaunchLoadIncrease(loadIncrease,
+                            variation,
+                            results_.at(loadIncreaseVariation100Index),
+                            minVariation,
+                            maxVariation,
+                            marginCalculation->getAccuracy());
 
   if (!loadIncreaseStatus_.at(variation).success) {
     variation = minVariation;
@@ -144,8 +153,12 @@ MarginCalculationLauncher::launch() {
     // However if no variation was ok at all, we launch a 0% load increase and put it in the results_ array instead.
     results_.emplace_back(events.size());
     const size_t maxLoadIncreaseVariationIndex = results_.size() - 1;
-    findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
-                             marginCalculation->getAccuracy(), results_.at(maxLoadIncreaseVariationIndex));
+    findOrLaunchLoadIncrease(loadIncrease,
+                              variation,
+                              results_.at(maxLoadIncreaseVariationIndex),
+                              minVariation,
+                              maxVariation,
+                              marginCalculation->getAccuracy());
     maxVariation = variation;
   }
 
@@ -224,10 +237,10 @@ MarginCalculationLauncher::launch() {
       const size_t globalMarginMinLoadLevelIndex = results_.size() - 1;
       findOrLaunchLoadIncrease(loadIncrease,
                                 minVariation,
+                                results_.at(globalMarginMinLoadLevelIndex),
                                 minVariation,
                                 minVariation,
-                                marginCalculation->getAccuracy(),
-                                results_.at(globalMarginMinLoadLevelIndex));
+                                marginCalculation->getAccuracy());
       double variation0 = minVariation;
       if (results_.at(globalMarginMinLoadLevelIndex).getResult().getSuccess()) {
         toRun = std::queue< task_t >();
@@ -297,10 +310,10 @@ MarginCalculationLauncher::launch() {
       const size_t localMarginMinLoadLevelIndex = results_.size() - 1;
       findOrLaunchLoadIncrease(loadIncrease,
                                 minVariation,
+                                results_.at(localMarginMinLoadLevelIndex),
                                 minVariation,
                                 minVariation,
-                                marginCalculation->getAccuracy(),
-                                results_.at(localMarginMinLoadLevelIndex));
+                                marginCalculation->getAccuracy());
       if (results_.at(localMarginMinLoadLevelIndex).getResult().getSuccess()) {
         toRun = std::queue<task_t>();
         toRun.push(task_t(minVariation, minVariation, eventsIds));
@@ -338,7 +351,12 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
     double newVariation = round((minVariation + maxVariation)/2.);
     results_.emplace_back(events.size());
     const size_t loadIncreaseIndex = results_.size() - 1;
-    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, results_.at(loadIncreaseIndex));
+    findOrLaunchLoadIncrease(loadIncrease,
+                              newVariation,
+                              results_.at(loadIncreaseIndex),
+                              minVariation,
+                              maxVariation,
+                              tolerance);
     // If at some point loadIncrease for 0. is launched and is not working no need to continue
     std::map<double, LoadIncreaseStatus, dynawoDoubleLess>::const_iterator itZero = loadIncreaseStatus_.find(0.);
     if (itZero != loadIncreaseStatus_.end() && !itZero->second.success)
@@ -396,10 +414,14 @@ MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const
     toRun = std::queue< task_t >();
     return;
   }
+#ifdef _MPI_
   auto& context = mpi::context();
   unsigned nbMaxToAdd = context.nbProcs()/eventIdxs.size();
-
   if (nbMaxToAdd == 0) nbMaxToAdd = 1;
+#else
+  unsigned nbMaxToAdd = 1;
+#endif
+
   double newVariation = round((minVariation + maxVariation)/2.);
   std::queue< std::pair<double, double> > minMaxStack;
 
@@ -440,7 +462,12 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
     double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
     results_.emplace_back(eventsId.size());
     const size_t loadIncreaseIndex = results_.size() - 1;
-    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, results_.at(loadIncreaseIndex));
+    findOrLaunchLoadIncrease(loadIncrease,
+                              newVariation,
+                              results_.at(loadIncreaseIndex),
+                              minVariation,
+                              maxVariation,
+                              tolerance);
     // If at some point loadIncrease for 0. is launched and is not working no need to continue
     std::map<double, LoadIncreaseStatus, dynawoDoubleLess>::const_iterator itZero = loadIncreaseStatus_.find(0.);
     if (itZero != loadIncreaseStatus_.end() && !itZero->second.success) {
@@ -499,7 +526,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   toRun.pop();
   const std::vector<size_t>& eventsId = task.ids_;
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
-  if (mpi::context().nbProcs() == 1) {
+  if (isSingleProcess()) {
     std::string iidmFile = generateIDMFileNameForVariation(newVariation);
     if (inputsByIIDM_.count(iidmFile) == 0) {
       // read inputs only if not already existing with enough variants defined
@@ -511,6 +538,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     return;
   }
 
+#ifdef _MPI_
   auto found = scenarioStatus_.find(newVariation);
   if (found != scenarioStatus_.end()) {
     TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << Trace::endline;
@@ -562,38 +590,13 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     inputsByIIDM_.erase(iidmFile);  // remove iidm file used for scenario to save RAM
   }
-}
-
-void
-MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
-    std::queue< task_t >& toRun,
-    std::vector<std::pair<size_t, double> >& events2Run) {
-  const std::vector<size_t>& eventsId = requestedTask.ids_;
-  double newVariation = round((requestedTask.minVariation_ + requestedTask.maxVariation_)/2.);
-  auto it = loadIncreaseStatus_.find(newVariation);
-  if (it != loadIncreaseStatus_.end() && it->second.success) {
-    for (size_t i = 0; i < eventsId.size(); ++i) {
-      events2Run.push_back(std::make_pair(eventsId[i], newVariation));
-    }
-  }
-  while (events2Run.size() < mpi::context().nbProcs() && !toRun.empty()) {
-    task_t newTask = toRun.front();
-    toRun.pop();
-    const std::vector<size_t>& newEventsId = newTask.ids_;
-    double variation = round((newTask.minVariation_ + newTask.maxVariation_)/2.);
-    it = loadIncreaseStatus_.find(variation);
-    if (it == loadIncreaseStatus_.end() || !it->second.success) continue;
-    if (scenarioStatus_.find(variation) != scenarioStatus_.end()) continue;
-    for (size_t i = 0, iEnd = newEventsId.size(); i < iEnd; ++i) {
-      events2Run.push_back(std::make_pair(newEventsId[i], variation));
-    }
-  }
+#endif
 }
 
 void
 MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, const boost::shared_ptr<Scenario>& scenario,
     const double variation, SimulationResult& result) {
-  if (mpi::context().nbProcs() == 1)
+  if (isSingleProcess())
     std::cout << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile()
               << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
@@ -652,8 +655,35 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
     simulate(simulation, result);
   }
 
-  if (mpi::context().nbProcs() == 1)
+  if (isSingleProcess())
     std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
+}
+
+#ifdef _MPI_
+void
+MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
+    std::queue< task_t >& toRun,
+    std::vector<std::pair<size_t, double> >& events2Run) {
+  const std::vector<size_t>& eventsId = requestedTask.ids_;
+  double newVariation = round((requestedTask.minVariation_ + requestedTask.maxVariation_)/2.);
+  auto it = loadIncreaseStatus_.find(newVariation);
+  if (it != loadIncreaseStatus_.end() && it->second.success) {
+    for (size_t i = 0; i < eventsId.size(); ++i) {
+      events2Run.push_back(std::make_pair(eventsId[i], newVariation));
+    }
+  }
+  while (events2Run.size() < mpi::context().nbProcs() && !toRun.empty()) {
+    task_t newTask = toRun.front();
+    toRun.pop();
+    const std::vector<size_t>& newEventsId = newTask.ids_;
+    double variation = round((newTask.minVariation_ + newTask.maxVariation_)/2.);
+    it = loadIncreaseStatus_.find(variation);
+    if (it == loadIncreaseStatus_.end() || !it->second.success) continue;
+    if (scenarioStatus_.find(variation) != scenarioStatus_.end()) continue;
+    for (size_t i = 0, iEnd = newEventsId.size(); i < iEnd; ++i) {
+      events2Run.push_back(std::make_pair(newEventsId[i], variation));
+    }
+  }
 }
 
 std::vector<double>
@@ -691,13 +721,6 @@ MarginCalculationLauncher::generateVariationsToLaunch(unsigned int maxNumber, do
   return variationsToLaunchVector;
 }
 
-std::string
-MarginCalculationLauncher::computeLoadIncreaseScenarioId(double variation) {
-  std::stringstream ss;
-  ss << LOAD_INCREASE << "-" << variation;
-  return ss.str();
-}
-
 std::vector<bool>
 MarginCalculationLauncher::synchronizeSuccesses(const std::vector<bool>& successes) {
   auto& context = mpi::context();
@@ -719,14 +742,29 @@ MarginCalculationLauncher::synchronizeSuccesses(const std::vector<bool>& success
   context.broadcast(allSuccesses);
   return allSuccesses;
 }
+#endif
+
+std::string
+MarginCalculationLauncher::computeLoadIncreaseScenarioId(double variation) {
+  std::stringstream ss;
+  ss << LOAD_INCREASE << "-" << variation;
+  return ss.str();
+}
 
 void
 MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
                                                     const double variation,
+                                                    LoadIncreaseResult& loadIncreaseResult,
+#ifdef _MPI_
                                                     const double minVariation,
                                                     const double maxVariation,
-                                                    const double tolerance,
-                                                    LoadIncreaseResult& loadIncreaseResult) {
+                                                    const double tolerance
+#else
+                                                    const double,
+                                                    const double,
+                                                    const double
+#endif
+) {
   TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
 
   auto found = loadIncreaseStatus_.find(variation);
@@ -737,7 +775,7 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     return;
   }
 
-  if (mpi::context().nbProcs() == 1) {
+  if (isSingleProcess()) {
     inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
     SimulationResult& loadIncreaseSimulationResult = loadIncreaseResult.getResult();
     launchLoadIncrease(loadIncrease, variation, loadIncreaseSimulationResult);
@@ -754,6 +792,7 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     return;
   }
 
+#ifdef _MPI_
   // Algo to generate variations to launch
   auto& context = mpi::context();
   std::vector<double> variationsToLaunch = generateVariationsToLaunch(context.nbProcs(), variation, minVariation, maxVariation, tolerance);
@@ -780,12 +819,13 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
   assert(loadIncreaseStatus_.count(variation) > 0);
   const SimulationResult importedLoadIncreaseResult3 = importResult(computeLoadIncreaseScenarioId(variation));
   loadIncreaseResult.setResult(importedLoadIncreaseResult3);
+#endif
 }
 
 void
 MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
     const double variation, SimulationResult& result) {
-  if (mpi::context().nbProcs() == 1)
+  if (isSingleProcess())
     std::cout << "Launch loadIncrease of " << variation << "%" <<std::endl;
 
   std::stringstream subDir;

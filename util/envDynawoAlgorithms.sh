@@ -283,6 +283,7 @@ set_environnement() {
   export_var_env_force DYNAWO_ALGORITHMS_ENV_DYNAWO_ALGORITHMS=$SCRIPT
   export_var_env_force DYNAWO_ENV_DYNAWO=$SCRIPT
   export_var_env DYNAWO_PYTHON_COMMAND="python"
+  export_var_env DYNAWO_USE_MPI=YES
   if [ ! -x "$(command -v ${DYNAWO_PYTHON_COMMAND})" ]; then
     error_exit "Your python interpreter \"${DYNAWO_PYTHON_COMMAND}\" does not work. Use export DYNAWO_PYTHON_COMMAND=<Python Interpreter> in your myEnvDynawoAlgorithms.sh."
   fi
@@ -504,6 +505,7 @@ config_dynawo_algorithms() {
     -DBOOST_ROOT_DEFAULT:STRING=FALSE \
     -DLIBZIP_HOME=$DYNAWO_LIBZIP_HOME \
     -DDYNAWO_PYTHON_COMMAND="$DYNAWO_PYTHON_COMMAND" \
+    -DUSE_MPI=$DYNAWO_USE_MPI \
     $CMAKE_OPTIONAL \
     -G "$DYNAWO_CMAKE_GENERATOR" \
     $DYNAWO_ALGORITHMS_SRC_DIR
