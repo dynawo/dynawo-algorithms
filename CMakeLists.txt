@@ -173,7 +173,7 @@ find_package(libXML 0.2.4 REQUIRED)
 #libIIDM
 set(DYNAWO_USE_LIBXML2 "Y")
 find_package(LibXml2 "2.9" REQUIRED)
-find_package(LibIIDM "1.4.0" REQUIRED)
+find_package(LibIIDM "1.5.0" REQUIRED)
 
 #LibArchive
 find_package(LibArchive 2.8.0 REQUIRED)
