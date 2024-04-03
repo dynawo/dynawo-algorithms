@@ -11,13 +11,13 @@
 // of simulation tools for power systems.
 //
 
-#include "DYNMPIContext.h"
+#include "DYNMultiProcessingContext.h"
 
 #include <iostream>
 #include <numeric>
 
 namespace DYNAlgorithms {
-namespace mpi {
+namespace multiprocessing {
 
 Context* Context::instance_ = nullptr;
 bool Context::finalized_ = false;
@@ -25,12 +25,12 @@ bool Context::finalized_ = false;
 Context&
 Context::instance() {
   if (!instance_) {
-    std::cerr << "No MPI context has been instantiated" << std::endl;
+    std::cerr << "No multiprocessing context has been instantiated" << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
   if (finalized_) {
-    std::cerr << "MPI context has already been finalized" << std::endl;
+    std::cerr << "Multiprocessing context has already been finalized" << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
@@ -39,10 +39,11 @@ Context::instance() {
 
 Context::Context() {
   if (instance_) {
-    std::cerr << "MPI context should only be instantiated once per process in the main thread" << std::endl;
+    std::cerr << "Multiprocessing context should only be instantiated once per process in the main thread" << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
+#ifdef _MPI_
   int ret = MPI_Init(NULL, NULL);
   if (ret != MPI_SUCCESS) {
     std::cerr << "MPI initialization error" << std::endl;
@@ -60,25 +61,29 @@ Context::Context() {
     MPI_Finalize();
     std::exit(EXIT_FAILURE);
   }
+#endif
 
   instance_ = this;
 }
 
 Context::~Context() {
   finalized_ = true;
+#ifdef _MPI_
   MPI_Finalize();
+#endif
 }
 
 void
 forEach(unsigned int iStart, unsigned int size, const std::function<void(unsigned int)>& func) {
-  auto& context = mpi::context();
   for (unsigned int i = iStart; i < size; i++) {
-    if (i % context.nbProcs() == context.rank()) {
+#ifdef _MPI_
+    if (i % multiprocessing::context().nbProcs() == multiprocessing::context().rank())
+#endif
       func(i);
-    }
   }
 }
 
+#ifdef _MPI_
 template<>
 void
 Context::gatherImpl(Tag<bool>, const bool& data, std::vector<bool>& recvData) const {
@@ -150,7 +155,8 @@ Context::broadcastImpl(Tag<std::vector<bool> >, std::vector<bool>& data) const {
     std::transform(dataInt.begin(), dataInt.end(), std::back_inserter(data), [](unsigned int value) { return static_cast<bool>(value); });
   }
 }
+#endif
 
-}  // namespace mpi
+}  // namespace multiprocessing
 
 }  // namespace DYNAlgorithms
