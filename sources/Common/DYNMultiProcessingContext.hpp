@@ -11,15 +11,15 @@
 // of simulation tools for power systems.
 //
 
-#ifndef COMMON_DYNMPICONTEXT_HPP_
-#define COMMON_DYNMPICONTEXT_HPP_
+#ifndef COMMON_DYNMULTIPROCESSINGCONTEXT_HPP_
+#define COMMON_DYNMULTIPROCESSINGCONTEXT_HPP_
 
 #include <algorithm>
 #include <numeric>
 #include <type_traits>
 
 namespace DYNAlgorithms {
-namespace mpi {
+namespace multiprocessing {
 
 /**
  * @brief Traits to specialize the MPI data types according to the input c++ type
@@ -153,7 +153,7 @@ Context::broadcastImpl(Tag<std::vector<T> >, std::vector<T>& data) const {
   MPI_Bcast(data.data(), size * sizeof(T) / traits::MPIType<T>::ratio, traits::MPIType<T>::type, rootRank_, MPI_COMM_WORLD);
 }
 
-}  // namespace mpi
+}  // namespace multiprocessing
 }  // namespace DYNAlgorithms
 
-#endif  // COMMON_DYNMPICONTEXT_HPP_
+#endif  // COMMON_DYNMULTIPROCESSINGCONTEXT_HPP_

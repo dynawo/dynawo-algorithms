@@ -18,7 +18,8 @@
                     "DYNAWO_ALGORITHMS_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy/Debug/dynawo-algorithms",
                     "DYNAWO_ALGORITHMS_BUILD_DIR": "${workspaceFolder}/build-code/build/dynawo-algorithms/Debug",
                     "DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR": "${workspaceFolder}/build-code/build/3rdParty/Debug/build",
-                    "DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR": "${workspaceFolder}/build-code/install/3rdParty/Debug"
+                    "DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR": "${workspaceFolder}/build-code/install/3rdParty/Debug",
+                    "DYNAWO_USE_MPI": "YES"
                 }
               }
         },
@@ -37,7 +38,8 @@
                     "DYNAWO_ALGORITHMS_DEPLOY_DIR": "${workspaceFolder}/build-code/deploy/Release/dynawo-algorithms",
                     "DYNAWO_ALGORITHMS_BUILD_DIR": "${workspaceFolder}/build-code/build/dynawo-algorithms/Release",
                     "DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR": "${workspaceFolder}/build-code/build/3rdParty/Release/build",
-                    "DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR": "${workspaceFolder}/build-code/install/3rdParty/Release"
+                    "DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR": "${workspaceFolder}/build-code/install/3rdParty/Release",
+                    "DYNAWO_USE_MPI": "YES"
                 }
               }
         }
