@@ -51,6 +51,7 @@
   <xs:complexType name="LoadIncreaseResults">
     <xs:sequence>
       <xs:element name="scenarioResults" type="dyn:ScenarioResults" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="criterionNonRespected" minOccurs="0" maxOccurs="unbounded" type="dyn:CriterionNonRespected"/>
     </xs:sequence>
     <xs:attribute name="loadLevel" use="required" type="xs:double"/>
     <xs:attribute name="status" use="required" type="dyn:Status"/>
