@@ -183,6 +183,7 @@ jobs:
           MSMPI_LIB32: C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\
           MSMPI_LIB64: C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\
           PATH: C:\Windows\system32;C:\Program Files\Git\cmd;C:\hostedtoolcache\windows\Python\3.7.9\x64
+          USE_MPI: YES
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           call util\windows\dynawo-algorithms verbose build || exit /b 1

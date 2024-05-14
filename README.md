@@ -193,7 +193,7 @@ Open `x64 Native Tools Command Prompt for VS2019` and run the following commands
 > cd dynawo-project
 > git clone https://github.com/dynawo/dynawo-algorithms.git
 > cd dynawo-algorithms
-> cmake -S . -B b -DCMAKE_INSTALL_PREFIX=../da-i -DDYNAWO_ALGORITHMS_HOME=. -DDYNAWO_HOME=../dynawo/deploy/dynawo -DDYNAWO_ALGORITHMS_THIRD_PARTY_DIR=. -G "NMake Makefiles"
+> cmake -S . -B b -DUSE_MPI=YES -DCMAKE_INSTALL_PREFIX=../da-i -DDYNAWO_ALGORITHMS_HOME=. -DDYNAWO_HOME=../dynawo/deploy/dynawo -DDYNAWO_ALGORITHMS_THIRD_PARTY_DIR=. -G "NMake Makefiles"
 > cmake --build b --target install
 ```
 

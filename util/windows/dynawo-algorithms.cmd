@@ -158,6 +158,8 @@ if %ERRORLEVEL% neq 0 (
 )
 :PYTHON_UNUSED
 
+:: enable MPI
+if not defined DYNAWO_USE_MPI set DYNAWO_USE_MPI=YES
 
 :: check developper mode
 set _devmode=
@@ -245,11 +247,14 @@ set _args=MC
 
 :: check MPI runtime
 :IS_MPI
-mpiexec >NUL 2>&1
-if %ERRORLEVEL% neq 0 ( 
-  echo error: Microsoft MPI Runtime should be installed ! 1>&2
-  exit /B 1
+if %DYNAWO_USE_MPI%==YES (
+  mpiexec >NUL 2>&1
+  if %ERRORLEVEL% neq 0 ( 
+    echo error: Microsoft MPI Runtime should be installed ! 1>&2
+    exit /B 1
+  )
 )
+
 set _nbprocs=1
 
 :: scan arguments for nb procs to use with MPI
@@ -268,7 +273,11 @@ goto:NEXT_ARG
 
 :LAST_ARG
 call:SET_ENV
-mpiexec -n %_nbprocs% "%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms" --simulationType %_args% 
+if %DYNAWO_USE_MPI%==YES (
+  mpiexec -n %_nbprocs% "%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms" --simulationType %_args%
+) else (
+  "%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms" --simulationType %_args%
+)
 exit /B %ERRORLEVEL%
 
 
