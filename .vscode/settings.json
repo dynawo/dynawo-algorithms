@@ -33,7 +33,8 @@
         "TMP_DIR": "${workspaceFolder}/build-code/build/3rdParty/${buildType}/tmp",
         "DOWNLOAD_DIR": "${workspaceFolder}/build-code/build/3rdParty/${buildType}/src",
         "GTEST_ROOT": "${workspaceFolder}/../dynawo/build-code/deploy/Debug/dynawo",
-        "GMOCK_HOME": "${workspaceFolder}/../dynawo/build-code/deploy/Debug/dynawo"
+        "GMOCK_HOME": "${workspaceFolder}/../dynawo/build-code/deploy/Debug/dynawo",
+        "USE_MPI": "YES"
     },
 
     "files.exclude": {

@@ -30,7 +30,7 @@
 #include "DYNMarginCalculationLauncher.h"
 #include "DYNComputeLoadVariationLauncher.h"
 #include "DYNComputeSimulationLauncher.h"
-#include "DYNMPIContext.h"
+#include "DYNMultiProcessingContext.h"
 
 using DYNAlgorithms::ComputeSimulationLauncher;
 using DYNAlgorithms::SystematicAnalysisLauncher;
@@ -45,8 +45,8 @@ static void launchSystematicAnalysis(const std::string& inputFile, const std::st
 static void launchLoadVariationCalculation(const std::string& inputFile, const std::string& outputFile, const std::string& directory, int variation);
 
 int main(int argc, char** argv) {
-  DYNAlgorithms::mpi::Context mpiContext;  // Should only be used once per process in the main thread
-  static_cast<void>(mpiContext);  // we don't use directly the MPI context here but call the MPI to initialize the context here
+  DYNAlgorithms::multiprocessing::Context procContext;  // Should only be used once per process in the main thread
+  static_cast<void>(procContext);  // we initialize the multiprocessing context here
   std::string simulationType = "";
   std::string inputFile = "";
   std::string outputFile = "";

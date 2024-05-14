@@ -54,9 +54,8 @@
 #include "MacrosMessage.h"
 #include "DYNScenarios.h"
 #include "DYNAggrResXmlExporter.h"
-#include "DYNMPIContext.h"
+#include "DYNMultiProcessingContext.h"
 
-using multipleJobs::MultipleJobs;
 using DYN::Trace;
 
 static const char LOAD_INCREASE[] = "loadIncrease";
@@ -64,7 +63,7 @@ static const char LOAD_INCREASE[] = "loadIncrease";
 namespace DYNAlgorithms {
 
 static DYN::TraceStream TraceInfo(const std::string& tag = "") {
-  return mpi::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
+  return multiprocessing::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
 }
 
 void
@@ -81,7 +80,7 @@ MarginCalculationLauncher::createScenarioWorkingDir(const std::string& scenarioI
 
 void
 MarginCalculationLauncher::cleanResultDirectories(const std::vector<boost::shared_ptr<Scenario> >& events) const {
-  mpi::Context::sync();
+  multiprocessing::Context::sync();
   for (auto loadIncrease : loadIncreaseStatus_) {
     cleanResult(computeLoadIncreaseScenarioId(loadIncrease.first));
   }
@@ -396,7 +395,7 @@ MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const
     toRun = std::queue< task_t >();
     return;
   }
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
   unsigned nbMaxToAdd = context.nbProcs()/eventIdxs.size();
 
   if (nbMaxToAdd == 0) nbMaxToAdd = 1;
@@ -499,7 +498,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   toRun.pop();
   const std::vector<size_t>& eventsId = task.ids_;
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
-  if (mpi::context().nbProcs() == 1) {
+  if (multiprocessing::context().nbProcs() == 1) {
     std::string iidmFile = generateIDMFileNameForVariation(newVariation);
     if (inputsByIIDM_.count(iidmFile) == 0) {
       // read inputs only if not already existing with enough variants defined
@@ -511,6 +510,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     return;
   }
 
+#ifdef _MPI_
   auto found = scenarioStatus_.find(newVariation);
   if (found != scenarioStatus_.end()) {
     TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << Trace::endline;
@@ -533,7 +533,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   }
 
   std::vector<bool> successes;
-  mpi::forEach(0, events2Run.size(), [this, &events2Run, &events, &successes](unsigned int i){
+  multiprocessing::forEach(0, events2Run.size(), [this, &events2Run, &events, &successes](unsigned int i){
     double variation = events2Run[i].second;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     size_t eventIdx = events2Run[i].first;
@@ -562,6 +562,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     inputsByIIDM_.erase(iidmFile);  // remove iidm file used for scenario to save RAM
   }
+#endif
 }
 
 void
@@ -576,7 +577,7 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
       events2Run.push_back(std::make_pair(eventsId[i], newVariation));
     }
   }
-  while (events2Run.size() < mpi::context().nbProcs() && !toRun.empty()) {
+  while (events2Run.size() < multiprocessing::context().nbProcs() && !toRun.empty()) {
     task_t newTask = toRun.front();
     toRun.pop();
     const std::vector<size_t>& newEventsId = newTask.ids_;
@@ -593,7 +594,7 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
 void
 MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, const boost::shared_ptr<Scenario>& scenario,
     const double variation, SimulationResult& result) {
-  if (mpi::context().nbProcs() == 1)
+  if (multiprocessing::context().nbProcs() == 1)
     std::cout << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile()
               << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
@@ -652,7 +653,7 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
     simulate(simulation, result);
   }
 
-  if (mpi::context().nbProcs() == 1)
+  if (multiprocessing::context().nbProcs() == 1)
     std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
 }
 
@@ -691,16 +692,10 @@ MarginCalculationLauncher::generateVariationsToLaunch(unsigned int maxNumber, do
   return variationsToLaunchVector;
 }
 
-std::string
-MarginCalculationLauncher::computeLoadIncreaseScenarioId(double variation) {
-  std::stringstream ss;
-  ss << LOAD_INCREASE << "-" << variation;
-  return ss.str();
-}
-
+#ifdef _MPI_
 std::vector<bool>
 MarginCalculationLauncher::synchronizeSuccesses(const std::vector<bool>& successes) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
   std::vector<std::vector<bool>> gatheredSuccesses;
   context.gather(successes, gatheredSuccesses);
   std::vector<bool> allSuccesses;
@@ -719,6 +714,14 @@ MarginCalculationLauncher::synchronizeSuccesses(const std::vector<bool>& success
   context.broadcast(allSuccesses);
   return allSuccesses;
 }
+#endif
+
+std::string
+MarginCalculationLauncher::computeLoadIncreaseScenarioId(double variation) {
+  std::stringstream ss;
+  ss << LOAD_INCREASE << "-" << variation;
+  return ss.str();
+}
 
 void
 MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
@@ -727,6 +730,12 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
                                                     const double maxVariation,
                                                     const double tolerance,
                                                     LoadIncreaseResult& loadIncreaseResult) {
+#ifndef _MPI_
+  static_cast<void>(minVariation);
+  static_cast<void>(maxVariation);
+  static_cast<void>(tolerance);
+#endif
+
   TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
 
   auto found = loadIncreaseStatus_.find(variation);
@@ -737,7 +746,7 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     return;
   }
 
-  if (mpi::context().nbProcs() == 1) {
+  if (multiprocessing::context().nbProcs() == 1) {
     inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
     SimulationResult& loadIncreaseSimulationResult = loadIncreaseResult.getResult();
     launchLoadIncrease(loadIncrease, variation, loadIncreaseSimulationResult);
@@ -754,14 +763,15 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     return;
   }
 
+#ifdef _MPI_
   // Algo to generate variations to launch
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
   std::vector<double> variationsToLaunch = generateVariationsToLaunch(context.nbProcs(), variation, minVariation, maxVariation, tolerance);
 
   // Launch Simulations
   inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
   std::vector<bool> successes;
-  mpi::forEach(0, variationsToLaunch.size(), [this, &loadIncrease, &variationsToLaunch, &successes](unsigned int i){
+  multiprocessing::forEach(0, variationsToLaunch.size(), [this, &loadIncrease, &variationsToLaunch, &successes](unsigned int i){
     SimulationResult resultScenario;
     createScenarioWorkingDir(loadIncrease->getId(), variationsToLaunch.at(i));
     launchLoadIncrease(loadIncrease, variationsToLaunch.at(i), resultScenario);
@@ -780,12 +790,13 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
   assert(loadIncreaseStatus_.count(variation) > 0);
   const SimulationResult importedLoadIncreaseResult3 = importResult(computeLoadIncreaseScenarioId(variation));
   loadIncreaseResult.setResult(importedLoadIncreaseResult3);
+#endif
 }
 
 void
 MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
     const double variation, SimulationResult& result) {
-  if (mpi::context().nbProcs() == 1)
+  if (multiprocessing::context().nbProcs() == 1)
     std::cout << "Launch loadIncrease of " << variation << "%" <<std::endl;
 
   std::stringstream subDir;
