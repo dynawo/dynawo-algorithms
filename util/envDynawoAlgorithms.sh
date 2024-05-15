@@ -806,7 +806,12 @@ deploy_dynawo_algorithms() {
   mkdir -p share
 
   echo "deploying gperftools libraries"
-  cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/lib/libtcmalloc.so* lib/.
+  if [ -d $DYNAWO_TCMALLOC_INSTALL_DIR/lib ]; then
+    cp -r $DYNAWO_TCMALLOC_INSTALL_DIR/lib/libtcmalloc.so* lib/.
+  else
+    nativeTcMallocLib=$(ldconfig -p | grep -e libtcmalloc.so | cut -d ' ' -f4)
+    cp $nativeTcMallocLib lib/.
+  fi
 
   if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
     echo "deploying mpich libraries and binaries"
