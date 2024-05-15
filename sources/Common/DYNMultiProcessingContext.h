@@ -11,23 +11,26 @@
 // of simulation tools for power systems.
 //
 
-#ifndef COMMON_DYNMPICONTEXT_H_
-#define COMMON_DYNMPICONTEXT_H_
+#ifndef COMMON_DYNMULTIPROCESSINGCONTEXT_H_
+#define COMMON_DYNMULTIPROCESSINGCONTEXT_H_
 
 #include <functional>
-#include <mpi.h>
 #include <string>
 #include <vector>
 
+#ifdef _MPI_
+#include <mpi.h>
+#endif
+
 namespace DYNAlgorithms {
 
-/// @brief namespace for MPI wrapping
-namespace mpi {
+/// @brief namespace for multiprocessing wrapping
+namespace multiprocessing {
 
 /**
- * @brief MPI context
+ * @brief Multiprocessing Context
  *
- * Singleton MPI context to use MPI functions
+ * Singleton multiprocessing context to use multiprocessing functions
  *
  */
 class Context {
@@ -59,11 +62,46 @@ class Context {
   /// @brief no assignment
   Context& operator=(Context&&) = delete;
 
-  /// @brief Synchronize all process
-  static void sync() {
-    MPI_Barrier(MPI_COMM_WORLD);
+  /**
+   * @brief Retrieve the number of processes
+   *
+   * @return number of processes
+   */
+  unsigned int nbProcs() const {
+  #ifdef _MPI_
+    return static_cast<unsigned int>(nbProcs_);
+  #else
+    return 1;
+  #endif
   }
 
+  /**
+   * @brief Determines if the current process is the root process
+   *
+   * @return true if it is the root process, false if not
+   */
+  bool isRootProc() const {
+  #ifdef _MPI_
+    return rank_ == rootRank_;
+  #else
+    return true;
+  #endif
+  }
+
+  /// @brief Synchronize all process
+  static void sync() {
+#ifdef _MPI_
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+  }
+
+ private:
+  static Context* instance_;  ///< Unique instance
+  static bool finalized_;  ///< Instance is already finalized
+
+#ifdef _MPI_
+
+ public:
   /**
    * @brief Gather all data into root rank
    *
@@ -88,15 +126,6 @@ class Context {
   }
 
   /**
-   * @brief Retrieve the number of MPI process
-   *
-   * @return number of process
-   */
-  unsigned int nbProcs() const {
-    return static_cast<unsigned int>(nbProcs_);
-  }
-
-  /**
    * @brief Retrieve the rank of the current process
    *
    * @return unsigned int
@@ -105,24 +134,10 @@ class Context {
     return static_cast<unsigned int>(rank_);
   }
 
-  /**
-   * @brief Determines if the current process is the root process
-   *
-   * @return true if it is the root process, false if not
-   */
-  bool isRootProc() const {
-    return rank_ == rootRank_;
-  }
-
  private:
   /// @brief Private structure to allow specilization of mpi *_impl with std::vector<> as data input
   template<class T>
   struct Tag {};
-
- private:
-  static constexpr int rootRank_ = 0;  ///< Root rank
-  static Context* instance_;  ///< Unique instance
-  static bool finalized_;  ///< Instance is already finalized
 
  private:
   /**
@@ -168,10 +183,36 @@ class Context {
   void broadcastImpl(Tag<std::vector<T> > tag, std::vector<T>& data) const;
 
  private:
+  static constexpr int rootRank_ = 0;  ///< Root rank
+
+ private:
   int nbProcs_;  ///< number of process
   int rank_;     ///< Rank of the current process
+#endif
 };
 
+/**
+ * @brief Retrieve the context instance
+ *
+ * @return Multiprocessing context single instance
+ */
+inline Context&
+context() {
+  return Context::instance();
+}
+
+/**
+ * @brief Perform a operation by distributing into process
+ *
+ * For index range i in [ @a iStart, @a size [, a process will execute the function @a func if "i mod nbProcs == rank"
+ *
+ * @param iStart index range start index
+ * @param size index range size of range
+ * @param func functor to call for each index of the range according to the process
+ */
+void forEach(unsigned int iStart, unsigned int size, const std::function<void(unsigned int)>& func);
+
+#ifdef _MPI_
 /**
  * @brief Specialization for string (implemented as vector of unsigned char)
  *
@@ -225,32 +266,14 @@ void Context::broadcastImpl(Tag<bool> tag, bool& data) const;
  */
 template<>
 void Context::broadcastImpl(Tag<std::vector<bool> > tag, std::vector<bool>& data) const;
+#endif
 
-/**
- * @brief Retrieve the context instance
- *
- * @return MPI context single instance
- */
-inline Context&
-context() {
-  return Context::instance();
-}
-
-/**
- * @brief Perform a operation by distributing into process
- *
- * For index range i in [ @a iStart, @a size [, a process will execute the function @a func if "i mod nbProcs == rank"
- *
- * @param iStart index range start index
- * @param size index range size of range
- * @param func functor to call for each index of the range according to the process
- */
-void forEach(unsigned int iStart, unsigned int size, const std::function<void(unsigned int)>& func);
-
-}  // namespace mpi
+}  // namespace multiprocessing
 
 }  // namespace DYNAlgorithms
 
-#include "DYNMPIContext.hpp"
+#ifdef _MPI_
+#include "DYNMultiProcessingContext.hpp"
+#endif
 
-#endif  // COMMON_DYNMPICONTEXT_H_
+#endif  // COMMON_DYNMULTIPROCESSINGCONTEXT_H_

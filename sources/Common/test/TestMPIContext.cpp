@@ -11,16 +11,18 @@
 // of simulation tools for power systems.
 //
 
-#include "DYNMPIContext.h"
+#include "DYNMultiProcessingContext.h"
 
 #include <gtest_dynawo.h>
 
+// Since the purpose of this file is to test MPI, this file will only be generated if MPI is enabled
+
 namespace DYNAlgorithms {
 
-mpi::Context mpiContext;
+multiprocessing::Context multiProcessingContext;
 
 TEST(MPIContext, gatherBase) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   double test = 10.;
   std::vector<double> gathered;
@@ -31,7 +33,7 @@ TEST(MPIContext, gatherBase) {
 }
 
 TEST(MPIContext, gatherStr) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   std::string test = "Test gather";
   std::vector<std::string> gathered;
@@ -42,7 +44,7 @@ TEST(MPIContext, gatherStr) {
 }
 
 TEST(MPIContext, gatherBool) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   bool test = true;
   std::vector<bool> gathered;
@@ -53,7 +55,7 @@ TEST(MPIContext, gatherBool) {
 }
 
 TEST(MPIContext, gatherVectBool) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   std::vector<bool> test = {
       true,
@@ -67,7 +69,7 @@ TEST(MPIContext, gatherVectBool) {
 }
 
 TEST(MPIContext, gatherVectEmpty) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   std::vector<unsigned int> test;
   std::vector<std::vector<unsigned int> > gathered;
@@ -77,7 +79,7 @@ TEST(MPIContext, gatherVectEmpty) {
 }
 
 TEST(MPIContext, broadcast) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   unsigned int test = 1;
 
@@ -93,7 +95,7 @@ TEST(MPIContext, broadcast) {
 }
 
 TEST(MPIContext, broadcastBool) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   bool test = true;
 
@@ -109,7 +111,7 @@ TEST(MPIContext, broadcastBool) {
 }
 
 TEST(MPIContext, broadcastString) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   std::string test("Test broadcast");
 

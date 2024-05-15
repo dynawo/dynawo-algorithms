@@ -16,8 +16,6 @@
 
 class XmlEnvironment : public testing::Environment {
  public:
-  ~XmlEnvironment() {}
-
   // Override this to define how to set up the environment.
   void SetUp() {
     xercesc::XMLPlatformUtils::Initialize();

@@ -52,14 +52,14 @@
 #include "DYNSimulationResult.h"
 #include "DYNAggrResXmlExporter.h"
 #include "MacrosMessage.h"
-#include "DYNMPIContext.h"
+#include "DYNMultiProcessingContext.h"
 
 using DYN::Trace;
 
 namespace DYNAlgorithms {
 
 static DYN::TraceStream TraceInfo(const std::string& tag = "") {
-  return mpi::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
+  return multiprocessing::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
 }
 
 void
@@ -72,14 +72,14 @@ SystematicAnalysisLauncher::launch() {
   const std::string& baseJobsFile = scenarios->getJobsFile();
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
 
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
 
   if (context.isRootProc()) {
     // only required for root proc
     results_.resize(events.size());
   }
 
-  mpi::forEach(0, events.size(), [this, &events](unsigned int i){
+  multiprocessing::forEach(0, events.size(), [this, &events](unsigned int i){
     std::string workingDir  = createAbsolutePath(events[i]->getId(), workingDirectory_);
     if (!exists(workingDir))
       create_directory(workingDir);
@@ -89,12 +89,12 @@ SystematicAnalysisLauncher::launch() {
 
   inputs_.readInputs(workingDirectory_, baseJobsFile);
 
-  mpi::forEach(0, events.size(), [this, &events](unsigned int i){
+  multiprocessing::forEach(0, events.size(), [this, &events](unsigned int i){
       auto result = launchScenario(events[i]);
       exportResult(result);
   });
 
-  mpi::Context::sync();
+  multiprocessing::Context::sync();
 
   // Update results for root proc
   if (context.isRootProc()) {
@@ -111,7 +111,7 @@ SystematicAnalysisLauncher::launch() {
 
 SimulationResult
 SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario) {
-  if (mpi::context().nbProcs() == 1)
+  if (multiprocessing::context().nbProcs() == 1)
     std::cout << " Launch scenario :" << scenario->getId() << " dydFile =" << scenario->getDydFile()
               << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
@@ -135,7 +135,7 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
     simulate(simulation, result);
   }
 
-  if (mpi::context().nbProcs() == 1)
+  if (multiprocessing::context().nbProcs() == 1)
     std::cout << " scenario :" << scenario->getId() << " final status: " << getStatusAsString(result.getStatus()) << std::endl;
 
   return result;

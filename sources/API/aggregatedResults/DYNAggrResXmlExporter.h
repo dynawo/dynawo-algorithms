@@ -68,6 +68,15 @@ class XmlExporter {
    * @param formatter formatter to extend
    */
   void appendScenarioResultsElement(const std::vector<DYNAlgorithms::SimulationResult>& results, xml::sax::formatter::FormatterPtr& formatter) const;
+
+  /**
+   * @brief append to the formatter non-respected criteria
+   *
+   * @param result simulation result possibly containing failing criteria
+   * @param formatter formatter to extend
+   */
+  void appendCriteriaNonRespected(const DYNAlgorithms::SimulationResult& result,
+                                    xml::sax::formatter::FormatterPtr& formatter) const;
 };
 
 }  // namespace aggregatedResults

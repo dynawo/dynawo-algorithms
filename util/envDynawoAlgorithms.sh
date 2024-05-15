@@ -256,7 +256,6 @@ set_environnement() {
   export_var_env_force DYNAWO_ADEPT_HOME=$DYNAWO_HOME
   export_var_env_force DYNAWO_SUNDIALS_HOME=$DYNAWO_HOME
   export_var_env_force DYNAWO_SUITESPARSE_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_NICSLU_HOME=$DYNAWO_HOME
   export_var_env DYNAWO_GTEST_HOME=$DYNAWO_HOME
   export_var_env DYNAWO_GMOCK_HOME=$DYNAWO_HOME
 
@@ -266,7 +265,6 @@ set_environnement() {
   export_var_env_force DYNAWO_ADEPT_INSTALL_DIR=$DYNAWO_ADEPT_HOME
   export_var_env_force DYNAWO_SUITESPARSE_INSTALL_DIR=$DYNAWO_SUITESPARSE_HOME
   export_var_env_force DYNAWO_SUNDIALS_INSTALL_DIR=$DYNAWO_SUNDIALS_HOME
-  export_var_env_force DYNAWO_NICSLU_INSTALL_DIR=$DYNAWO_NICSLU_HOME
   export_var_env_force DYNAWO_XERCESC_INSTALL_DIR=$DYNAWO_XERCESC_HOME
 
   export_var_env DYNAWO_DDB_DIR=$DYNAWO_HOME/ddb
@@ -305,7 +303,9 @@ set_environnement() {
 
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
 
-  if [ -z "$MPIRUN_PATH" ]; then
+  # MPI
+  export_var_env DYNAWO_USE_MPI=YES
+  if [ "${DYNAWO_USE_MPI}" == "YES" -a -z "$MPIRUN_PATH" ]; then
     MPIRUN_PATH="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/mpirun"
   fi
 
@@ -463,6 +463,7 @@ config_dynawo_algorithms_3rdParties() {
     -DTMP_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/tmp \
     -DDYNAWO_HOME=$DYNAWO_HOME \
     -DMPI_HOME=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich \
+    -DUSE_MPI=$DYNAWO_USE_MPI \
     $DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR
   RETURN_CODE=$?
   return ${RETURN_CODE}
@@ -506,6 +507,7 @@ config_dynawo_algorithms() {
     -DBOOST_ROOT_DEFAULT:STRING=FALSE \
     -DLIBZIP_HOME=$DYNAWO_LIBZIP_HOME \
     -DDYNAWO_PYTHON_COMMAND="$DYNAWO_PYTHON_COMMAND" \
+    -DUSE_MPI=$DYNAWO_USE_MPI \
     $CMAKE_OPTIONAL \
     -G "$DYNAWO_CMAKE_GENERATOR" \
     $DYNAWO_ALGORITHMS_SRC_DIR
@@ -811,21 +813,23 @@ deploy_dynawo_algorithms() {
     cp $nativeTcMallocLib lib/.
   fi
 
-  echo "deploying mpich libraries and binaries"
-  cp $MPIRUN_PATH bin/.
-  if [ -d $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich ]; then
-    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpi.so* lib/.
-    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpicxx.so* lib/.
-    cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/hydra_pmi_proxy bin/.
-  else
-    if [ ! -f "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt" ]; then
-      error_exit "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR should not be deleted before deploy to be able to determine lib system paths used during compilation."
+  if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
+    echo "deploying mpich libraries and binaries"
+    cp $MPIRUN_PATH bin/.
+    if [ -d $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich ]; then
+      cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpi.so* lib/.
+      cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/lib/libmpicxx.so* lib/.
+      cp $DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/hydra_pmi_proxy bin/.
+    else
+      if [ ! -f "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt" ]; then
+        error_exit "$DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR should not be deleted before deploy to be able to determine lib system paths used during compilation."
+      fi
+      mpi_lib=$(cat $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt | grep "MPI_.*_LIBRARY:FILEPATH" | cut -d '=' -f 2)
+      for lib in ${mpi_lib}; do
+        cp ${lib}* lib/.
+      done
+      cp $(dirname $MPIRUN_PATH)/hydra_pmi_proxy bin/.
     fi
-    mpi_lib=$(cat $DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR/CMakeCache.txt | grep "MPI_.*_LIBRARY:FILEPATH" | cut -d '=' -f 2)
-    for lib in ${mpi_lib}; do
-      cp ${lib}* lib/.
-    done
-    cp $(dirname $MPIRUN_PATH)/hydra_pmi_proxy bin/.
   fi
 
   echo "deploying Dynawo-algorithms libraries"
@@ -1002,7 +1006,11 @@ launch_CS() {
 
 launch_SA() {
   export_preload
-  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+  if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
+    "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+  else
+    $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+  fi
   RETURN_CODE=$?
   unset LD_PRELOAD
   return ${RETURN_CODE}
@@ -1010,7 +1018,11 @@ launch_SA() {
 
 launch_MC() {
   export_preload
-  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+  if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
+    "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+  else
+    $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+  fi
   RETURN_CODE=$?
   unset LD_PRELOAD
   return ${RETURN_CODE}
@@ -1024,7 +1036,11 @@ launch_CS_gdb() {
 
 launch_SA_gdb() {
   export_preload
-  "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+  if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
+    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+  else
+    gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+  fi
   RETURN_CODE=$?
   unset LD_PRELOAD
   return ${RETURN_CODE}
@@ -1032,7 +1048,11 @@ launch_SA_gdb() {
 
 launch_MC_gdb() {
   export_preload
-  "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+  if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
+    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+  else
+    gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+  fi
   RETURN_CODE=$?
   unset LD_PRELOAD
   return ${RETURN_CODE}

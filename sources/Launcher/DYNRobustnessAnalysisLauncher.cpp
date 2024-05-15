@@ -61,7 +61,7 @@
 #include "DYNMultipleJobsXmlHandler.h"
 #include "DYNMultipleJobs.h"
 #include "MacrosMessage.h"
-#include "DYNMPIContext.h"
+#include "DYNMultiProcessingContext.h"
 
 #include <boost/make_shared.hpp>
 using DYN::Trace;
@@ -71,9 +71,6 @@ namespace DYNAlgorithms {
 
 RobustnessAnalysisLauncher::RobustnessAnalysisLauncher() :
 logTag_("DYN-ALGO") {
-}
-
-RobustnessAnalysisLauncher::~RobustnessAnalysisLauncher() {
 }
 
 void
@@ -111,7 +108,7 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
   if ( !is_directory(workingDirectory_) )
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
 
-  if (doInitLog && mpi::context().isRootProc())
+  if (doInitLog && multiprocessing::context().isRootProc())
     initLog();
 
   // build the name of the outputFile
@@ -224,7 +221,7 @@ RobustnessAnalysisLauncher::initLog() {
 
 std::string
 RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) const {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
   if (context.isRootProc()) {
     // Only the main proc should open the archive
     // Unzip the input file in the working directory
@@ -239,7 +236,7 @@ RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& i
       file.close();
     }
   }
-  mpi::Context::sync();  // To ensure that all procs can access the file
+  multiprocessing::Context::sync();  // To ensure that all procs can access the file
   // When input is given as a zip file we are assuming the multiple jobs definition is always in a file named fic_MULTIPLE.xml
   return createAbsolutePath("fic_MULTIPLE.xml", parentDirectory(inputFileFullPath));
 }
@@ -520,7 +517,7 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
 
 void
 RobustnessAnalysisLauncher::writeResults() const {
-  if (!mpi::context().isRootProc()) {
+  if (!multiprocessing::context().isRootProc()) {
     // only main proccessus is performing the archive
     return;
   }
@@ -720,7 +717,7 @@ RobustnessAnalysisLauncher::exportResult(const SimulationResult& result) const {
 void
 RobustnessAnalysisLauncher::cleanResult(const std::string& id) const {
   namespace fs = boost::filesystem;
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
   if (context.isRootProc()) {
     remove(computeResultFile(id));
     fs::path ret(createAbsolutePath(id, workingDirectory_));

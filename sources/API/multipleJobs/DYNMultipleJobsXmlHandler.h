@@ -46,11 +46,6 @@ class ScenarioHandler : public xml::sax::parser::ComposableElementHandler {
   explicit ScenarioHandler(elementName_type const& root_element);
 
   /**
-   * @brief default destructor
-   */
-  ~ScenarioHandler();
-
-  /**
    * @brief return the current scenario read in xml file
    * @return scenario object build thanks to infos read in xml file
    */
@@ -81,11 +76,6 @@ class LoadIncreaseHandler : public xml::sax::parser::ComposableElementHandler {
   explicit LoadIncreaseHandler(elementName_type const& root_element);
 
   /**
-   * @brief default destructor
-   */
-  ~LoadIncreaseHandler();
-
-  /**
    * @brief return the current load increase read in xml file
    * @return load increase object build thanks to infos read in xml file
    */
@@ -113,11 +103,6 @@ class ScenariosHandler : public xml::sax::parser::ComposableElementHandler {
    * @param root_element complete name of the element read by the handler
    */
   explicit ScenariosHandler(elementName_type const& root_element);
-
-  /**
-   * @brief default destructor
-   */
-  ~ScenariosHandler();
 
   /**
    * @brief add a scenario
@@ -153,11 +138,6 @@ class MarginCalculationHandler : public xml::sax::parser::ComposableElementHandl
    * @param root_element complete name of the element read by the handler
    */
   explicit MarginCalculationHandler(elementName_type const& root_element);
-
-  /**
-   * @brief default destructor
-   */
-  ~MarginCalculationHandler();
 
   /**
    * @brief add a scenario
@@ -201,11 +181,6 @@ class XmlHandler : public xml::sax::parser::ComposableDocumentHandler {
    * @brief Default constructor
    */
   XmlHandler();
-
-  /**
-   * @brief Destructor
-   */
-  ~XmlHandler();
 
   /**
    * @brief Parsed MultipleJobs instance getter
