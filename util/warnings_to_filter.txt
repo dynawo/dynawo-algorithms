@@ -3,4 +3,6 @@ warning: return type of member DYNAlgorithms::RobustnessAnalysisLauncher::create
 warning: return type of member DYNAlgorithms::RobustnessAnalysisLauncher::initParametersWithJob is not documented
 warning: return type of member DYNAlgorithms::multiprocessing::Context::sync is not documented
 warning: documented symbol 'void DYNAlgorithms::multiprocessing::Context::gatherImpl' was not declared or defined.
+warning: documented symbol `void DYNAlgorithms::multiprocessing::Context::gatherImpl' was not declared or defined.
 warning: documented symbol 'void DYNAlgorithms::multiprocessing::Context::broadcastImpl' was not declared or defined.
+warning: documented symbol `void DYNAlgorithms::multiprocessing::Context::broadcastImpl' was not declared or defined.
