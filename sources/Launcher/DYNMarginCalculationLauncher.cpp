@@ -54,15 +54,16 @@
 #include "MacrosMessage.h"
 #include "DYNScenarios.h"
 #include "DYNAggrResXmlExporter.h"
-#include "DYNMPIContext.h"
+#include "DYNMultiProcessingContext.h"
 
-using multipleJobs::MultipleJobs;
 using DYN::Trace;
+
+static const char LOAD_INCREASE[] = "loadIncrease";
 
 namespace DYNAlgorithms {
 
 static DYN::TraceStream TraceInfo(const std::string& tag = "") {
-  return mpi::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
+  return multiprocessing::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
 }
 
 void
@@ -79,7 +80,7 @@ MarginCalculationLauncher::createScenarioWorkingDir(const std::string& scenarioI
 
 void
 MarginCalculationLauncher::cleanResultDirectories(const std::vector<boost::shared_ptr<Scenario> >& events) const {
-  mpi::Context::sync();
+  multiprocessing::Context::sync();
   for (auto loadIncrease : loadIncreaseStatus_) {
     cleanResult(computeLoadIncreaseScenarioId(loadIncrease.first));
   }
@@ -127,20 +128,23 @@ MarginCalculationLauncher::launch() {
   double maxVariation = 100.;
   double minVariation = 0.;
   double variation = maxVariation;
-  SimulationResult resultMaxVariation;
+  results_.emplace_back(events.size());
+  const size_t loadIncreaseVariation100Index = results_.size() - 1;
   findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
-                           marginCalculation->getAccuracy(), resultMaxVariation);
+                           marginCalculation->getAccuracy(), results_.at(loadIncreaseVariation100Index));
 
-  if (!loadIncreaseStatus_[variation].success) {
+  if (!loadIncreaseStatus_.at(variation).success) {
     variation = minVariation;
     for (auto& status : loadIncreaseStatus_) {
       if (status.second.success && status.first > variation)
         variation = status.first;
     }
-    // Unless no variation was ok at all, no computation here as the load increase has already been launched,
-    // we only update resultMaxVariation for the right variation
+    // No computation here. We only update the second element in results_ with the maximum successful load increase.
+    // However if no variation was ok at all, we launch a 0% load increase and put it in the results_ array instead.
+    results_.emplace_back(events.size());
+    const size_t maxLoadIncreaseVariationIndex = results_.size() - 1;
     findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
-                             marginCalculation->getAccuracy(), resultMaxVariation);
+                             marginCalculation->getAccuracy(), results_.at(maxLoadIncreaseVariationIndex));
     maxVariation = variation;
   }
 
@@ -150,28 +154,24 @@ MarginCalculationLauncher::launch() {
     allEvents.push_back(i);
   toRun.push(task_t(maxVariation, maxVariation, allEvents));
 
-  results_.push_back(LoadIncreaseResult());
-  size_t idx = results_.size() - 1;
-  results_[idx].resize(events.size());
-  results_[idx].setLoadLevel(maxVariation);
-
   // step one : launch the loadIncrease and then all events with 100% of the load increase
   // if there is no crash => no need to go further
   // We start with 100% as it is the most common result of margin calculations on real large cases
-  results_[idx].setStatus(resultMaxVariation.getStatus());
   std::vector<double > maximumVariationPassing(events.size(), 0.);
-  if (resultMaxVariation.getSuccess()) {
+  const size_t maxLoadIncreaseVariationIndex = results_.size() - 1;
+  if (results_.at(maxLoadIncreaseVariationIndex).getResult().getSuccess()) {
     if (!DYN::doubleEquals(minVariation, maxVariation))
       findAllLevelsBetween(minVariation, maxVariation, marginCalculation->getAccuracy(), allEvents, toRun);
-    findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+    findOrLaunchScenarios(baseJobsFile, events, toRun, results_.at(maxLoadIncreaseVariationIndex));
 
     // analyze results
     unsigned int nbSuccess = 0;
     size_t id = 0;
-    for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
-        itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
-      TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
-      if (it->getStatus() == CONVERGENCE_STATUS) {  // event OK
+    for (auto simulationResultIt = results_.at(maxLoadIncreaseVariationIndex).getScenariosResults().cbegin();
+          simulationResultIt != results_.at(maxLoadIncreaseVariationIndex).getScenariosResults().cend(); ++simulationResultIt, ++id) {
+      TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd, simulationResultIt->getUniqueScenarioId(),
+                                                  getStatusAsString(simulationResultIt->getStatus())) << Trace::endline;
+      if (simulationResultIt->getStatus() == CONVERGENCE_STATUS) {  // event OK
         nbSuccess++;
         maximumVariationPassing[id] = maxVariation;
       }
@@ -217,17 +217,18 @@ MarginCalculationLauncher::launch() {
     double value = computeGlobalMargin(loadIncrease, baseJobsFile, events, maximumVariationPassing,
                                        marginCalculation->getAccuracy(), minVariation, maxVariation);
     if (value < marginCalculation->getAccuracy()) {
-      results_.push_back(LoadIncreaseResult());
-      idx = results_.size() - 1;
-      results_[idx].resize(events.size());
-      results_[idx].setLoadLevel(minVariation);
       // step two : launch the loadIncrease and then all events with 0% of the load increase
       // if one event crash => no need to go further
-      SimulationResult result0;
-      findOrLaunchLoadIncrease(loadIncrease, minVariation, minVariation, minVariation, marginCalculation->getAccuracy(), result0);
-      results_[idx].setStatus(result0.getStatus());
+      results_.emplace_back(events.size());
+      const size_t globalMarginMinLoadLevelIndex = results_.size() - 1;
+      findOrLaunchLoadIncrease(loadIncrease,
+                                minVariation,
+                                minVariation,
+                                minVariation,
+                                marginCalculation->getAccuracy(),
+                                results_.at(globalMarginMinLoadLevelIndex));
       double variation0 = minVariation;
-      if (result0.getSuccess()) {
+      if (results_.at(globalMarginMinLoadLevelIndex).getResult().getSuccess()) {
         toRun = std::queue< task_t >();
         std::vector<size_t> eventsIds;
         for (size_t i = 0; i < events.size() ; ++i) {
@@ -235,14 +236,14 @@ MarginCalculationLauncher::launch() {
             eventsIds.push_back(i);
           } else {
             TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, events[i]->getId()) << Trace::endline;
-            results_[idx].getResult(i).setScenarioId(events[i]->getId());
-            results_[idx].getResult(i).setVariation(minVariation);
-            results_[idx].getResult(i).setSuccess(true);
-            results_[idx].getResult(i).setStatus(CONVERGENCE_STATUS);
+            results_.at(globalMarginMinLoadLevelIndex).getScenarioResult(i).setScenarioId(events[i]->getId());
+            results_.at(globalMarginMinLoadLevelIndex).getScenarioResult(i).setVariation(minVariation);
+            results_.at(globalMarginMinLoadLevelIndex).getScenarioResult(i).setSuccess(true);
+            results_.at(globalMarginMinLoadLevelIndex).getScenarioResult(i).setStatus(CONVERGENCE_STATUS);
           }
         }
         toRun.push(task_t(0., 0., eventsIds));
-        findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+        findOrLaunchScenarios(baseJobsFile, events, toRun, results_.at(globalMarginMinLoadLevelIndex));
       } else {
         TraceInfo(logTag_) << "============================================================ " << Trace::endline;
         TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, minVariation) << Trace::endline;
@@ -255,8 +256,8 @@ MarginCalculationLauncher::launch() {
       }
 
       // analyze results
-      for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
-             itEnd = results_[idx].end(); it != itEnd; ++it) {
+      for (std::vector<SimulationResult>::const_iterator it = results_.at(globalMarginMinLoadLevelIndex).getScenariosResults().cbegin(),
+             itEnd = results_.at(globalMarginMinLoadLevelIndex).getScenariosResults().cend(); it != itEnd; ++it) {
         TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
         if (it->getStatus() != CONVERGENCE_STATUS) {  // one event crashes
           cleanResultDirectories(events);
@@ -281,7 +282,7 @@ MarginCalculationLauncher::launch() {
     assert(marginCalculation->getCalculationType() == MarginCalculation::LOCAL_MARGIN);
     std::vector<double> results(events.size(), 0.);
     double value = computeLocalMargin(loadIncrease, baseJobsFile, events, marginCalculation->getAccuracy(), minVariation, maxVariation, results);
-    if (resultMaxVariation.getSuccess()) {
+    if (results_.at(maxLoadIncreaseVariationIndex).getResult().getSuccess()) {
       value = maxVariation;
     }
     std::vector <size_t> eventsIds;
@@ -291,25 +292,25 @@ MarginCalculationLauncher::launch() {
       }
     }
     if (!eventsIds.empty()) {
-      results_.push_back(LoadIncreaseResult());
-      idx = results_.size() - 1;
-      results_[idx].resize(eventsIds.size());
-      results_[idx].setLoadLevel(minVariation);
-      SimulationResult result0;
-      findOrLaunchLoadIncrease(loadIncrease, minVariation, minVariation, minVariation, marginCalculation->getAccuracy(), result0);
-      results_[idx].setStatus(result0.getStatus());
-      if (result0.getSuccess()) {
+      results_.emplace_back(eventsIds.size());
+      const size_t localMarginMinLoadLevelIndex = results_.size() - 1;
+      findOrLaunchLoadIncrease(loadIncrease,
+                                minVariation,
+                                minVariation,
+                                minVariation,
+                                marginCalculation->getAccuracy(),
+                                results_.at(localMarginMinLoadLevelIndex));
+      if (results_.at(localMarginMinLoadLevelIndex).getResult().getSuccess()) {
         toRun = std::queue<task_t>();
         toRun.push(task_t(minVariation, minVariation, eventsIds));
-        LoadIncreaseResult liResultTmp;
-        liResultTmp.resize(events.size());
+        LoadIncreaseResult liResultTmp(events.size());
         findOrLaunchScenarios(baseJobsFile, events, toRun, liResultTmp);
         for (size_t i = 0; i < eventsIds.size(); ++i) {
-          results_[idx].getResult(i) = liResultTmp.getResult(eventsIds[i]);
+          results_.at(localMarginMinLoadLevelIndex).getScenarioResult(i) = liResultTmp.getScenarioResult(eventsIds[i]);
         }
         // analyze results
-        for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
-             itEnd = results_[idx].end(); it != itEnd; ++it) {
+        for (std::vector<SimulationResult>::const_iterator it = results_.at(localMarginMinLoadLevelIndex).getScenariosResults().cbegin(),
+             itEnd = results_.at(localMarginMinLoadLevelIndex).getScenariosResults().cend(); it != itEnd; ++it) {
           TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
         }
       }
@@ -334,44 +335,41 @@ MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncre
 
   while ( maxVariation - minVariation > tolerance ) {
     double newVariation = round((minVariation + maxVariation)/2.);
-    results_.push_back(LoadIncreaseResult());
-    size_t idx = results_.size() - 1;
-    results_[idx].resize(events.size());
-    results_[idx].setLoadLevel(newVariation);
-    SimulationResult result;
-    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, result);
-    results_[idx].setStatus(result.getStatus());
+    results_.emplace_back(events.size());
+    const size_t loadIncreaseIndex = results_.size() - 1;
+    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, results_.at(loadIncreaseIndex));
     // If at some point loadIncrease for 0. is launched and is not working no need to continue
     std::map<double, LoadIncreaseStatus, dynawoDoubleLess>::const_iterator itZero = loadIncreaseStatus_.find(0.);
     if (itZero != loadIncreaseStatus_.end() && !itZero->second.success)
       return 0.;
 
-    if (result.getSuccess()) {
+    if (results_.at(loadIncreaseIndex).getResult().getSuccess()) {
       std::queue< task_t > toRun;
       std::vector<size_t> eventsIds;
       for (size_t i=0; i < events.size() ; ++i) {
         if (newVariation > maximumVariationPassing[i]) {
           eventsIds.push_back(i);
         } else {
-          results_[idx].getResult(i).setScenarioId(events[i]->getId());
-          results_[idx].getResult(i).setVariation(newVariation);
-          results_[idx].getResult(i).setSuccess(true);
-          results_[idx].getResult(i).setStatus(CONVERGENCE_STATUS);
+          results_.at(loadIncreaseIndex).getScenarioResult(i).setScenarioId(events[i]->getId());
+          results_.at(loadIncreaseIndex).getScenarioResult(i).setVariation(newVariation);
+          results_.at(loadIncreaseIndex).getScenarioResult(i).setSuccess(true);
+          results_.at(loadIncreaseIndex).getScenarioResult(i).setStatus(CONVERGENCE_STATUS);
         }
       }
       findAllLevelsBetween(minVariation, maxVariation, tolerance, eventsIds, toRun);
-      findOrLaunchScenarios(baseJobsFile, events, toRun, results_[idx]);
+      findOrLaunchScenarios(baseJobsFile, events, toRun, results_.at(loadIncreaseIndex));
 
       // analyze results
       unsigned int nbSuccess = 0;
       size_t id = 0;
-      for (std::vector<SimulationResult>::const_iterator it = results_[idx].begin(),
-          itEnd = results_[idx].end(); it != itEnd; ++it, ++id) {
+      for (std::vector<SimulationResult>::const_iterator simulationResultIt = results_.at(loadIncreaseIndex).getScenariosResults().cbegin();
+            simulationResultIt != results_.at(loadIncreaseIndex).getScenariosResults().cend(); ++simulationResultIt, ++id) {
         if (newVariation < maximumVariationPassing[id] || DYN::doubleEquals(newVariation, maximumVariationPassing[id]))
-          TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, it->getUniqueScenarioId()) << Trace::endline;
+          TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, simulationResultIt->getUniqueScenarioId()) << Trace::endline;
         else
-          TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd, it->getUniqueScenarioId(), getStatusAsString(it->getStatus())) << Trace::endline;
-        if (it->getStatus() == CONVERGENCE_STATUS || newVariation < maximumVariationPassing[id] ||
+          TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd,
+              simulationResultIt->getUniqueScenarioId(), getStatusAsString(simulationResultIt->getStatus())) << Trace::endline;
+        if (simulationResultIt->getStatus() == CONVERGENCE_STATUS || newVariation < maximumVariationPassing[id] ||
           DYN::doubleEquals(newVariation, maximumVariationPassing[id])) {  // event OK
           nbSuccess++;
           if (newVariation > maximumVariationPassing[id])
@@ -397,7 +395,7 @@ MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const
     toRun = std::queue< task_t >();
     return;
   }
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
   unsigned nbMaxToAdd = context.nbProcs()/eventIdxs.size();
 
   if (nbMaxToAdd == 0) nbMaxToAdd = 1;
@@ -439,13 +437,9 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
     toRun.pop();
     const std::vector<size_t>& eventsId = task.ids_;
     double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
-    results_.push_back(LoadIncreaseResult());
-    size_t idx = results_.size() - 1;
-    results_[idx].resize(eventsId.size());
-    results_[idx].setLoadLevel(newVariation);
-    SimulationResult result;
-    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, result);
-    results_[idx].setStatus(result.getStatus());
+    results_.emplace_back(eventsId.size());
+    const size_t loadIncreaseIndex = results_.size() - 1;
+    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, results_.at(loadIncreaseIndex));
     // If at some point loadIncrease for 0. is launched and is not working no need to continue
     std::map<double, LoadIncreaseStatus, dynawoDoubleLess>::const_iterator itZero = loadIncreaseStatus_.find(0.);
     if (itZero != loadIncreaseStatus_.end() && !itZero->second.success) {
@@ -454,21 +448,20 @@ MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrea
       return 0.;
     }
 
-    if (result.getSuccess()) {
+    if (results_.at(loadIncreaseIndex).getResult().getSuccess()) {
       if (maxLoadVarForLoadIncrease < newVariation)
         maxLoadVarForLoadIncrease = newVariation;
-      LoadIncreaseResult liResultTmp;
-      liResultTmp.resize(events.size());
+      LoadIncreaseResult liResultTmp(events.size());
       findOrLaunchScenarios(baseJobsFile, events, toRunCopy, liResultTmp);
 
       // analyze results
       task_t below(task.minVariation_, newVariation);
       task_t above(newVariation, task.maxVariation_);
       for (size_t i = 0; i < eventsId.size(); ++i) {
-        results_[idx].getResult(i) = liResultTmp.getResult(eventsId[i]);
-        TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd,
-            results_[idx].getResult(i).getUniqueScenarioId(), getStatusAsString(results_[idx].getResult(i).getStatus())) << Trace::endline;
-        if (results_[idx].getResult(i).getStatus() == CONVERGENCE_STATUS) {  // event OK
+        results_.at(loadIncreaseIndex).getScenarioResult(i) = liResultTmp.getScenarioResult(eventsId[i]);
+        TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd, results_.at(loadIncreaseIndex).getScenarioResult(i).getUniqueScenarioId(),
+                                      getStatusAsString(results_.at(loadIncreaseIndex).getScenarioResult(i).getStatus())) << Trace::endline;
+        if (results_.at(loadIncreaseIndex).getScenarioResult(i).getStatus() == CONVERGENCE_STATUS) {  // event OK
           if (results[eventsId[i]] < newVariation)
             results[eventsId[i]] = newVariation;
           if ( task.maxVariation_ - newVariation > tolerance ) {
@@ -505,24 +498,25 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   toRun.pop();
   const std::vector<size_t>& eventsId = task.ids_;
   double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
-  if (mpi::context().nbProcs() == 1) {
+  if (multiprocessing::context().nbProcs() == 1) {
     std::string iidmFile = generateIDMFileNameForVariation(newVariation);
     if (inputsByIIDM_.count(iidmFile) == 0) {
       // read inputs only if not already existing with enough variants defined
       inputsByIIDM_[iidmFile].readInputs(workingDirectory_, baseJobsFile, iidmFile);
     }
     for (unsigned int i=0; i < eventsId.size(); ++i) {
-      launchScenario(inputsByIIDM_[iidmFile], events[eventsId[i]], newVariation, result.getResult(eventsId[i]));
+      launchScenario(inputsByIIDM_[iidmFile], events[eventsId[i]], newVariation, result.getScenarioResult(eventsId[i]));
     }
     return;
   }
 
+#ifdef _MPI_
   auto found = scenarioStatus_.find(newVariation);
   if (found != scenarioStatus_.end()) {
     TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << Trace::endline;
     for (const auto& eventId : eventsId) {
       auto resultId = SimulationResult::getUniqueScenarioId(events.at(eventId)->getId(), newVariation);
-      result.getResult(eventId) = importResult(resultId);
+      result.getScenarioResult(eventId) = importResult(resultId);
     }
     return;
   }
@@ -539,7 +533,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
   }
 
   std::vector<bool> successes;
-  mpi::forEach(0, events2Run.size(), [this, &events2Run, &events, &successes](unsigned int i){
+  multiprocessing::forEach(0, events2Run.size(), [this, &events2Run, &events, &successes](unsigned int i){
     double variation = events2Run[i].second;
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     size_t eventIdx = events2Run[i].first;
@@ -560,7 +554,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
 
   for (const auto& eventId : eventsId) {
     auto resultId = SimulationResult::getUniqueScenarioId(events.at(eventId)->getId(), newVariation);
-    result.getResult(eventId) = importResult(resultId);
+    result.getScenarioResult(eventId) = importResult(resultId);
   }
 
   for (unsigned int i=0; i < events2Run.size(); i++) {
@@ -568,6 +562,7 @@ void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJob
     std::string iidmFile = generateIDMFileNameForVariation(variation);
     inputsByIIDM_.erase(iidmFile);  // remove iidm file used for scenario to save RAM
   }
+#endif
 }
 
 void
@@ -582,7 +577,7 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
       events2Run.push_back(std::make_pair(eventsId[i], newVariation));
     }
   }
-  while (events2Run.size() < mpi::context().nbProcs() && !toRun.empty()) {
+  while (events2Run.size() < multiprocessing::context().nbProcs() && !toRun.empty()) {
     task_t newTask = toRun.front();
     toRun.pop();
     const std::vector<size_t>& newEventsId = newTask.ids_;
@@ -599,7 +594,7 @@ MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
 void
 MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, const boost::shared_ptr<Scenario>& scenario,
     const double variation, SimulationResult& result) {
-  if (mpi::context().nbProcs() == 1)
+  if (multiprocessing::context().nbProcs() == 1)
     std::cout << " Launch task :" << scenario->getId() << " dydFile =" << scenario->getDydFile()
               << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
@@ -658,7 +653,7 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
     simulate(simulation, result);
   }
 
-  if (mpi::context().nbProcs() == 1)
+  if (multiprocessing::context().nbProcs() == 1)
     std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
 }
 
@@ -697,16 +692,10 @@ MarginCalculationLauncher::generateVariationsToLaunch(unsigned int maxNumber, do
   return variationsToLaunchVector;
 }
 
-std::string
-MarginCalculationLauncher::computeLoadIncreaseScenarioId(double variation) {
-  std::stringstream ss;
-  ss << "loadIncrease-" << variation;
-  return ss.str();
-}
-
+#ifdef _MPI_
 std::vector<bool>
 MarginCalculationLauncher::synchronizeSuccesses(const std::vector<bool>& successes) {
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
   std::vector<std::vector<bool>> gatheredSuccesses;
   context.gather(successes, gatheredSuccesses);
   std::vector<bool> allSuccesses;
@@ -725,25 +714,46 @@ MarginCalculationLauncher::synchronizeSuccesses(const std::vector<bool>& success
   context.broadcast(allSuccesses);
   return allSuccesses;
 }
+#endif
+
+std::string
+MarginCalculationLauncher::computeLoadIncreaseScenarioId(double variation) {
+  std::stringstream ss;
+  ss << LOAD_INCREASE << "-" << variation;
+  return ss.str();
+}
 
 void
 MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-    const double variation, const double minVariation, const double maxVariation, const double tolerance, SimulationResult& result) {
+                                                    const double variation,
+                                                    const double minVariation,
+                                                    const double maxVariation,
+                                                    const double tolerance,
+                                                    LoadIncreaseResult& loadIncreaseResult) {
+#ifndef _MPI_
+  static_cast<void>(minVariation);
+  static_cast<void>(maxVariation);
+  static_cast<void>(tolerance);
+#endif
+
   TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
 
   auto found = loadIncreaseStatus_.find(variation);
   if (found != loadIncreaseStatus_.end()) {
-    result = importResult(computeLoadIncreaseScenarioId(variation));
+    const SimulationResult importedLoadIncreaseResult1 = importResult(computeLoadIncreaseScenarioId(variation));
+    loadIncreaseResult.setResult(importedLoadIncreaseResult1);
     TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseResultsFound, variation) << Trace::endline;
     return;
   }
 
-  if (mpi::context().nbProcs() == 1) {
+  if (multiprocessing::context().nbProcs() == 1) {
     inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
-    launchLoadIncrease(loadIncrease, variation, result);
+    SimulationResult& loadIncreaseSimulationResult = loadIncreaseResult.getResult();
+    launchLoadIncrease(loadIncrease, variation, loadIncreaseSimulationResult);
+    loadIncreaseStatus_.insert(std::make_pair(variation, LoadIncreaseStatus(loadIncreaseSimulationResult.getSuccess())));
 
     // Hack to add 0. if the load increase is below 50. as we know we never did 0. in the first place
-    if (variation < 50. && !result.getSuccess() && loadIncreaseStatus_.find(0.) == loadIncreaseStatus_.end()) {
+    if (variation < 50. && !loadIncreaseResult.getResult().getSuccess() && loadIncreaseStatus_.find(0.) == loadIncreaseStatus_.end()) {
       TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, 0.) << Trace::endline;
       SimulationResult result0;
       inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
@@ -753,14 +763,15 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
     return;
   }
 
+#ifdef _MPI_
   // Algo to generate variations to launch
-  auto& context = mpi::context();
+  auto& context = multiprocessing::context();
   std::vector<double> variationsToLaunch = generateVariationsToLaunch(context.nbProcs(), variation, minVariation, maxVariation, tolerance);
 
   // Launch Simulations
   inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
   std::vector<bool> successes;
-  mpi::forEach(0, variationsToLaunch.size(), [this, &loadIncrease, &variationsToLaunch, &successes](unsigned int i){
+  multiprocessing::forEach(0, variationsToLaunch.size(), [this, &loadIncrease, &variationsToLaunch, &successes](unsigned int i){
     SimulationResult resultScenario;
     createScenarioWorkingDir(loadIncrease->getId(), variationsToLaunch.at(i));
     launchLoadIncrease(loadIncrease, variationsToLaunch.at(i), resultScenario);
@@ -773,25 +784,25 @@ MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<Load
   for (unsigned int i = 0; i < variationsToLaunch.size(); i++) {
     auto currVariation = variationsToLaunch.at(i);
     loadIncreaseStatus_.insert(std::make_pair(currVariation, LoadIncreaseStatus(allSuccesses.at(i))));
-    auto loadIncreaseResult = importResult(computeLoadIncreaseScenarioId(currVariation));
-    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseEnd, currVariation, getStatusAsString(loadIncreaseResult.getStatus())) << Trace::endline;
+    const SimulationResult importedLoadIncreaseResult2 = importResult(computeLoadIncreaseScenarioId(currVariation));
+    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseEnd, currVariation, getStatusAsString(importedLoadIncreaseResult2.getStatus())) << Trace::endline;
   }
   assert(loadIncreaseStatus_.count(variation) > 0);
-  result = importResult(computeLoadIncreaseScenarioId(variation));
+  const SimulationResult importedLoadIncreaseResult3 = importResult(computeLoadIncreaseScenarioId(variation));
+  loadIncreaseResult.setResult(importedLoadIncreaseResult3);
+#endif
 }
 
 void
 MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
     const double variation, SimulationResult& result) {
-  if (mpi::context().nbProcs() == 1)
+  if (multiprocessing::context().nbProcs() == 1)
     std::cout << "Launch loadIncrease of " << variation << "%" <<std::endl;
 
   std::stringstream subDir;
   subDir << "step-" << variation;
   std::string workingDir = createAbsolutePath(loadIncrease->getId(), createAbsolutePath(subDir.str(), workingDirectory_));
   boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
-  job->getOutputsEntry()->setTimelineEntry(boost::shared_ptr<job::TimelineEntry>());
-  job->getOutputsEntry()->setConstraintsEntry(boost::shared_ptr<job::ConstraintsEntry>());
 
   SimulationParameters params;
   //  force simulation to dump final values (would be used as input to launch each event)
@@ -804,7 +815,8 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   dumpFile << "loadIncreaseFinalState-" << variation << ".dmp";
   params.dumpFinalStateFile_ = createAbsolutePath(dumpFile.str(), workingDirectory_);
 
-  result.setScenarioId(computeLoadIncreaseScenarioId(variation));
+  result.setScenarioId(LOAD_INCREASE);
+  result.setVariation(variation);
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
 
   if (simulation) {
@@ -865,20 +877,34 @@ MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& map
 
   std::map<std::string, SimulationResult> bestResults;
   std::map<std::string, SimulationResult> worstResults;
-  for (std::vector<LoadIncreaseResult>::const_iterator itLoadIncreaseResult = results_.begin();
-       itLoadIncreaseResult != results_.end(); ++itLoadIncreaseResult) {
-    double loadLevel = itLoadIncreaseResult->getLoadLevel();
-    for (std::vector<SimulationResult>::const_iterator itSimulationResult = itLoadIncreaseResult->begin();
-         itSimulationResult != itLoadIncreaseResult->end(); ++itSimulationResult) {
-      std::string scenarioId = itSimulationResult->getScenarioId();
-      if (itSimulationResult->getSuccess()) {
-        std::map<std::string, SimulationResult>::iterator itBest = bestResults.find(scenarioId);
+
+  for (std::vector<LoadIncreaseResult>::const_iterator loadIncreaseResultIt = results_.cbegin();
+        loadIncreaseResultIt != results_.cend(); ++loadIncreaseResultIt) {
+    const double loadLevel = loadIncreaseResultIt->getResult().getVariation();
+    const std::vector<SimulationResult>& allScenariosResults = loadIncreaseResultIt->getScenariosResults();
+    size_t numberOfSuccessfulScenarios = 0;
+    for (const SimulationResult& scenarioResult : allScenariosResults) {
+      const std::string& scenarioId = scenarioResult.getScenarioId();
+      if (scenarioResult.getSuccess()) {
+        ++numberOfSuccessfulScenarios;
+        const std::map<std::string, SimulationResult>::const_iterator itBest = bestResults.find(scenarioId);
         if (itBest == bestResults.end() || (loadLevel > itBest->second.getVariation()))
-          bestResults[scenarioId] = *itSimulationResult;
+          bestResults[scenarioId] = scenarioResult;
       } else {
-        std::map<std::string, SimulationResult>::iterator itWorst = worstResults.find(scenarioId);
+        const std::map<std::string, SimulationResult>::const_iterator itWorst = worstResults.find(scenarioId);
         if (itWorst == worstResults.end() || loadLevel < itWorst->second.getVariation())
-          worstResults[scenarioId] = *itSimulationResult;
+          worstResults[scenarioId] = scenarioResult;
+      }
+    }
+    if (numberOfSuccessfulScenarios == allScenariosResults.size()) {
+      const std::map<std::string, SimulationResult>::const_iterator loadIncreaseBestIt = bestResults.find(LOAD_INCREASE);
+      if (loadIncreaseBestIt == bestResults.end() || loadLevel > loadIncreaseBestIt->second.getVariation()) {
+        bestResults[LOAD_INCREASE] = loadIncreaseResultIt->getResult();
+      }
+    } else {
+      const std::map<std::string, SimulationResult>::const_iterator loadIncreaseWorstIt = worstResults.find(LOAD_INCREASE);
+      if (loadIncreaseWorstIt == worstResults.end() || loadLevel < loadIncreaseWorstIt->second.getVariation()) {
+        worstResults[LOAD_INCREASE] = loadIncreaseResultIt->getResult();
       }
     }
   }

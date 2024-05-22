@@ -28,7 +28,23 @@
   <event time="12.925633" modelName="GEN____6_SM" message="PMIN : activation"/>
   <event time="13.046730" modelName="GEN____8_SM" message="PMIN : deactivation"/>
   <event time="13.075926" modelName="GEN____6_SM" message="PMIN : deactivation"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD___3_EC was added into the total power sum (criteria id: Risque protection, power=94.0759, V=69.6288)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD___4_EC was added into the total power sum (criteria id: Risque protection, power=47.024, V=69.4573)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD___9_EC was added into the total power sum (criteria id: Risque protection, power=29.2872, V=14.5017)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD___2_EC was added into the total power sum (criteria id: Risque protection, power=21.5929, V=71.8726)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD__14_EC was added into the total power sum (criteria id: Risque protection, power=14.7883, V=14.2345)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD__13_EC was added into the total power sum (criteria id: Risque protection, power=13.443, V=14.4544)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD___6_EC was added into the total power sum (criteria id: Risque protection, power=11.1521, V=14.7278)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD__10_EC was added into the total power sum (criteria id: Risque protection, power=8.94144, V=14.4406)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD___5_EC was added into the total power sum (criteria id: Risque protection, power=7.42927, V=69.2889)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD__12_EC was added into the total power sum (criteria id: Risque protection, power=6.07439, V=14.5208)"/>
+  <event time="100.000000" modelName="Simulation" message="power of load _LOAD__11_EC was added into the total power sum (criteria id: Risque protection, power=3.48219, V=14.5358)"/>
   <event time="100.000000" modelName="Simulation" message="total load power = 257.291MW &gt; 4MW (criteria id: Risque protection)"/>
+  <event time="100.000000" modelName="Simulation" message="power of generator _GEN____1_SM was added into the total power sum (criteria id: Risque protection, power=-233.786, V=73.3032)"/>
+  <event time="100.000000" modelName="Simulation" message="power of generator _GEN____2_SM was added into the total power sum (criteria id: Risque protection, power=-41.2871, V=71.8726)"/>
+  <event time="100.000000" modelName="Simulation" message="power of generator _GEN____3_SM was added into the total power sum (criteria id: Risque protection, power=-1.9029, V=69.6288)"/>
+  <event time="100.000000" modelName="Simulation" message="power of generator _GEN____8_SM was added into the total power sum (criteria id: Risque protection, power=-0.287019, V=15.0184)"/>
+  <event time="100.000000" modelName="Simulation" message="power of generator _GEN____6_SM was added into the total power sum (criteria id: Risque protection, power=-0.0779287, V=14.7278)"/>
   <event time="100.000000" modelName="Simulation" message="total load power = -277.341MW &lt; -4MW (criteria id: Risque protection)"/>
   <event time="100.000000" modelName="Simulation" message="Simulation stopped : one criteria is not respected"/>
 </timeline>

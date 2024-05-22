@@ -158,6 +158,9 @@ if %ERRORLEVEL% neq 0 (
 )
 :PYTHON_UNUSED
 
+:: enable MPI
+if not defined DYNAWO_USE_MPI set DYNAWO_USE_MPI=YES
+if defined _verbose echo info: using DYNAWO_USE_MPI=%DYNAWO_USE_MPI% 1>&2
 
 :: check developper mode
 set _devmode=
@@ -245,11 +248,14 @@ set _args=MC
 
 :: check MPI runtime
 :IS_MPI
-mpiexec >NUL 2>&1
-if %ERRORLEVEL% neq 0 ( 
-  echo error: Microsoft MPI Runtime should be installed ! 1>&2
-  exit /B 1
+if %DYNAWO_USE_MPI%==YES (
+  mpiexec >NUL 2>&1
+  if %ERRORLEVEL% neq 0 ( 
+    echo error: Microsoft MPI Runtime should be installed ! 1>&2
+    exit /B 1
+  )
 )
+
 set _nbprocs=1
 
 :: scan arguments for nb procs to use with MPI
@@ -268,7 +274,11 @@ goto:NEXT_ARG
 
 :LAST_ARG
 call:SET_ENV
-mpiexec -n %_nbprocs% "%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms" --simulationType %_args% 
+if %DYNAWO_USE_MPI%==YES (
+  mpiexec -n %_nbprocs% "%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms" --simulationType %_args%
+) else (
+  "%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms" --simulationType %_args%
+)
 exit /B %ERRORLEVEL%
 
 
@@ -348,7 +358,7 @@ if not defined _devmode (
 cmake -E make_directory %DYNAWO_ALGORITHMS_INSTALL_DIR%
 set _build_tmp=%DYNAWO_ALGORITHMS_INSTALL_DIR%\~build.tmp.cmd
 (
-  echo cmake -S "%DYNAWO_ALGORITHMS_HOME%" -B "%DYNAWO_ALGORITHMS_BUILD_DIR%" -DCMAKE_INSTALL_PREFIX="%DYNAWO_ALGORITHMS_INSTALL_DIR%" -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=%DYNAWO_BUILD_TYPE% -DDYNAWO_ALGORITHMS_HOME=. -DDYNAWO_HOME="%DYNAWO_HOME%" -DDYNAWO_ALGORITHMS_THIRD_PARTY_DIR="%DYNAWO_ALGORITHMS_HOME%" -DDYNAWO_PYTHON_COMMAND="%DYNAWO_PYTHON_COMMAND%" -G "NMake Makefiles" -Wno-dev
+  echo cmake -S "%DYNAWO_ALGORITHMS_HOME%" -B "%DYNAWO_ALGORITHMS_BUILD_DIR%" -DUSE_MPI=%DYNAWO_USE_MPI% -DCMAKE_INSTALL_PREFIX="%DYNAWO_ALGORITHMS_INSTALL_DIR%" -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=%DYNAWO_BUILD_TYPE% -DDYNAWO_ALGORITHMS_HOME=. -DDYNAWO_HOME="%DYNAWO_HOME%" -DDYNAWO_ALGORITHMS_THIRD_PARTY_DIR="%DYNAWO_ALGORITHMS_HOME%" -DDYNAWO_PYTHON_COMMAND="%DYNAWO_PYTHON_COMMAND%" -G "NMake Makefiles" -Wno-dev
   echo cmake --build "%DYNAWO_ALGORITHMS_BUILD_DIR%" --target install
   echo %0 _EXIT_ "%_build_tmp%" %ERRORLEVEL%
 ) > "%_build_tmp%"
@@ -385,7 +395,7 @@ set DYNAWO_USE_XSD_VALIDATION=true
 :: build with GTest and run all tests or a specific test
 set _test=dynawo_algorithms_%~2_unittest-tests
 if "%~2"=="" set _test=tests
-cmake -S "%DYNAWO_ALGORITHMS_HOME%" -B "%DYNAWO_ALGORITHMS_BUILD_DIR%" -DCMAKE_INSTALL_PREFIX="%DYNAWO_ALGORITHMS_INSTALL_DIR%" -DBUILD_TESTS=ON -DGTEST_ROOT="%DYNAWO_GTEST_HOME%" -DGMOCK_HOME="%DYNAWO_GMOCK_HOME%" -DCMAKE_BUILD_TYPE=%DYNAWO_BUILD_TYPE% -DDYNAWO_ALGORITHMS_HOME=. -DDYNAWO_HOME="%DYNAWO_HOME%" -DDYNAWO_ALGORITHMS_THIRD_PARTY_DIR="%DYNAWO_ALGORITHMS_HOME%" -DDYNAWO_PYTHON_COMMAND="%DYNAWO_PYTHON_COMMAND%" -G "NMake Makefiles" -Wno-dev
+cmake -S "%DYNAWO_ALGORITHMS_HOME%" -B "%DYNAWO_ALGORITHMS_BUILD_DIR%" -DUSE_MPI=%DYNAWO_USE_MPI% -DCMAKE_INSTALL_PREFIX="%DYNAWO_ALGORITHMS_INSTALL_DIR%" -DBUILD_TESTS=ON -DGTEST_ROOT="%DYNAWO_GTEST_HOME%" -DGMOCK_HOME="%DYNAWO_GMOCK_HOME%" -DCMAKE_BUILD_TYPE=%DYNAWO_BUILD_TYPE% -DDYNAWO_ALGORITHMS_HOME=. -DDYNAWO_HOME="%DYNAWO_HOME%" -DDYNAWO_ALGORITHMS_THIRD_PARTY_DIR="%DYNAWO_ALGORITHMS_HOME%" -DDYNAWO_PYTHON_COMMAND="%DYNAWO_PYTHON_COMMAND%" -G "NMake Makefiles" -Wno-dev
 if defined _show goto:LIST_TESTS
 :: check if valid unit test
 cmake --build "%DYNAWO_ALGORITHMS_BUILD_DIR%" --target help | find "%_test%" >NUL || goto:INVALID_TEST

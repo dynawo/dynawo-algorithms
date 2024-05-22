@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <aggregatedResults xmlns="http://www.rte-france.com/dynawo">
+  <loadIncreaseResults loadLevel="100" status="CRITERIA_NON_RESPECTED">
+    <criterionNonRespected id="total load power = 295.381MW &gt; 100MW (criteria id: Risque protection)" time="70.000000"/>
+  </loadIncreaseResults>
   <loadIncreaseResults loadLevel="50" status="CONVERGENCE"/>
   <loadIncreaseResults loadLevel="50" status="CONVERGENCE"/>
   <loadIncreaseResults loadLevel="75" status="CONVERGENCE"/>
-  <loadIncreaseResults loadLevel="88" status="CRITERIA_NON_RESPECTED"/>
-  <loadIncreaseResults loadLevel="82" status="CRITERIA_NON_RESPECTED"/>
-  <loadIncreaseResults loadLevel="79" status="CRITERIA_NON_RESPECTED"/>
-  <loadIncreaseResults loadLevel="77" status="CRITERIA_NON_RESPECTED"/>
+  <loadIncreaseResults loadLevel="88" status="CRITERIA_NON_RESPECTED">
+    <criterionNonRespected id="total load power = 303.419MW &gt; 200MW (criteria id: Risque QdE)" time="98.490112"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="82" status="CRITERIA_NON_RESPECTED">
+    <criterionNonRespected id="total load power = 282.937MW &gt; 200MW (criteria id: Risque QdE)" time="94.890112"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="79" status="CRITERIA_NON_RESPECTED">
+    <criterionNonRespected id="total load power = 270.973MW &gt; 200MW (criteria id: Risque QdE)" time="93.090112"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="77" status="CRITERIA_NON_RESPECTED">
+    <criterionNonRespected id="total load power = 267.716MW &gt; 200MW (criteria id: Risque QdE)" time="91.890112"/>
+  </loadIncreaseResults>
 </aggregatedResults>

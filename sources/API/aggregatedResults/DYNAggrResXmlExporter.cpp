@@ -86,14 +86,16 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
   formatter->startDocument();
   AttributeList attrs;
   formatter->startElement("aggregatedResults", attrs);
-  for (size_t i=0, iEnd = results.size(); i < iEnd; i++) {
+
+  for (auto loadIncreaseResultIt = results.cbegin(); loadIncreaseResultIt != results.cend(); ++loadIncreaseResultIt) {
     attrs.clear();
-    const DYNAlgorithms::LoadIncreaseResult& loadIncreaseRes = results[i];
-    attrs.add("loadLevel", loadIncreaseRes.getLoadLevel());
-    attrs.add("status", getStatusAsString(loadIncreaseRes.getStatus()));
+    attrs.add("loadLevel", loadIncreaseResultIt->getResult().getVariation());
+    attrs.add("status", getStatusAsString(loadIncreaseResultIt->getResult().getStatus()));
     formatter->startElement("loadIncreaseResults", attrs);
-    if (loadIncreaseRes.getStatus() == DYNAlgorithms::CONVERGENCE_STATUS) {
-      appendScenarioResultsElement(loadIncreaseRes.getResults(), formatter);
+    if (loadIncreaseResultIt->getResult().getStatus() == DYNAlgorithms::CONVERGENCE_STATUS) {
+      appendScenarioResultsElement(loadIncreaseResultIt->getScenariosResults(), formatter);
+    } else if (loadIncreaseResultIt->getResult().getStatus() == DYNAlgorithms::CRITERIA_NON_RESPECTED_STATUS) {
+      appendCriteriaNonRespected(loadIncreaseResultIt->getResult(), formatter);
     }
     formatter->endElement();  // loadIncreaseResults
   }
@@ -110,18 +112,25 @@ XmlExporter::appendScenarioResultsElement(const vector<SimulationResult>& result
     attrs.add("id", result.getScenarioId());
     attrs.add("status", getStatusAsString(result.getStatus()));
     formatter->startElement("scenarioResults", attrs);
-    const std::vector<std::pair<double, std::string> >& failingCriteria = result.getFailingCriteria();
-    if (!failingCriteria.empty()) {
-      for (std::vector<std::pair<double, std::string> >::const_iterator it = failingCriteria.begin(), itEnd = failingCriteria.end();
-          it != itEnd; ++it) {
-        attrs.clear();
-        attrs.add("id", it->second);
-        attrs.add("time", DYN::double2String(it->first));
-        formatter->startElement("criterionNonRespected", attrs);
-        formatter->endElement();  // criterionNonRespected
-      }
-    }
+    appendCriteriaNonRespected(result, formatter);
     formatter->endElement();  // scenarioResults
+  }
+}
+
+void
+XmlExporter::appendCriteriaNonRespected(const DYNAlgorithms::SimulationResult& result,
+                                        xml::sax::formatter::FormatterPtr& formatter) const {
+  AttributeList attrs;
+  const std::vector<std::pair<double, std::string> >& failingCriteria = result.getFailingCriteria();
+  if (!failingCriteria.empty()) {
+    for (std::vector<std::pair<double, std::string> >::const_iterator it = failingCriteria.begin(), itEnd = failingCriteria.end();
+        it != itEnd; ++it) {
+      attrs.clear();
+      attrs.add("id", it->second);
+      attrs.add("time", DYN::double2String(it->first));
+      formatter->startElement("criterionNonRespected", attrs);
+      formatter->endElement();  // criterionNonRespected
+    }
   }
 }
 

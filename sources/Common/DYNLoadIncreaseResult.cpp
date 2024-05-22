@@ -15,52 +15,12 @@
 
 namespace DYNAlgorithms {
 
-LoadIncreaseResult::LoadIncreaseResult():
-status_(EXECUTION_PROBLEM_STATUS),
-loadLevel_(-1.) { }
-
-double
-LoadIncreaseResult::getLoadLevel() const {
-  return loadLevel_;
-}
-
-void
-LoadIncreaseResult::setLoadLevel(double loadLevel) {
-  loadLevel_ = loadLevel;
-}
-
-status_t
-LoadIncreaseResult::getStatus() const {
-  return status_;
-}
-
-void
-LoadIncreaseResult::setStatus(status_t status) {
-  status_ = status;
-}
-
-void
-LoadIncreaseResult::resize(size_t nbScenarios) {
-  results_.resize(nbScenarios);
+LoadIncreaseResult::LoadIncreaseResult(const size_t nbScenarios) {
+    scenariosResults_.resize(nbScenarios);
 }
 
 SimulationResult&
-LoadIncreaseResult::getResult(size_t idx) {
-  assert(idx < results_.size());
-  return results_[idx];
+LoadIncreaseResult::getScenarioResult(size_t idx) {
+  return scenariosResults_.at(idx);
 }
-
-const std::vector<SimulationResult>&
-LoadIncreaseResult::getResults() const {
-  return results_;
-}
-
-std::vector<SimulationResult>::const_iterator LoadIncreaseResult::begin() const {
-  return results_.begin();
-}
-
-std::vector<SimulationResult>::const_iterator LoadIncreaseResult::end() const {
-  return results_.end();
-}
-
 }  // namespace DYNAlgorithms

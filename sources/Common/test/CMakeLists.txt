@@ -13,8 +13,12 @@ set(MODULE_NAME dynawo_algorithms_Common_unittest)
 
 set(MODULE_SOURCES
     TestBaseClasses.cpp
-    TestMPIContext.cpp
 )
+
+if (USE_MPI STREQUAL "YES")
+  list(APPEND MODULE_SOURCES
+        TestMPIContext.cpp)
+endif()
 
 add_executable(${MODULE_NAME} ${MODULE_SOURCES})
 
