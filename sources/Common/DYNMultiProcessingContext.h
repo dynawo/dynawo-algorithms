@@ -68,11 +68,11 @@ class Context {
    * @return number of processes
    */
   unsigned int nbProcs() const {
-  #ifdef _MPI_
+#ifdef _MPI_
     return static_cast<unsigned int>(nbProcs_);
-  #else
+#else
     return 1;
-  #endif
+#endif
   }
 
   /**
@@ -81,11 +81,11 @@ class Context {
    * @return true if it is the root process, false if not
    */
   bool isRootProc() const {
-  #ifdef _MPI_
+#ifdef _MPI_
     return rank_ == rootRank_;
-  #else
+#else
     return true;
-  #endif
+#endif
   }
 
   /// @brief Synchronize all process
