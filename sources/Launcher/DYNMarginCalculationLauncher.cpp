@@ -896,7 +896,7 @@ MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& map
           worstResults[scenarioId] = scenarioResult;
       }
     }
-    if (numberOfSuccessfulScenarios == allScenariosResults.size()) {
+    if (loadIncreaseResultIt->getResult().getSuccess() && numberOfSuccessfulScenarios == allScenariosResults.size()) {
       const std::map<std::string, SimulationResult>::const_iterator loadIncreaseBestIt = bestResults.find(LOAD_INCREASE);
       if (loadIncreaseBestIt == bestResults.end() || loadLevel > loadIncreaseBestIt->second.getVariation()) {
         bestResults[LOAD_INCREASE] = loadIncreaseResultIt->getResult();
