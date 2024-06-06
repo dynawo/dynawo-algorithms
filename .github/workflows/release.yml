@@ -135,8 +135,15 @@ jobs:
 
   distribution-windows:
     if: github.event_name != 'workflow_dispatch' || inputs.perform-windows
-    name: Distribution Windows
+    name: Distribution Windows (${{ matrix.use-mpi.text }})
     runs-on: windows-2019
+    strategy:
+      matrix:
+        use-mpi:
+          - { value: YES, text: 'with MPI' }
+          - { value: NO, text: 'without MPI' }
+    env:
+      DYNAWO_USE_MPI: ${{ matrix.use-mpi.value }}
     steps:
       - name: No LF to CRLF conversion
         shell: cmd
@@ -146,12 +153,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download MS-MPI
+        if: ${{ matrix.use-mpi.value == 'YES' }}
         shell: bash
         run: |
           curl -Os https://download.microsoft.com/download/a/5/2/a5207ca5-1203-491a-8fb8-906fd68ae623/msmpisdk.msi
           curl -Os https://download.microsoft.com/download/a/5/2/a5207ca5-1203-491a-8fb8-906fd68ae623/msmpisetup.exe
 
       - name: Install MS-MPI
+        if: ${{ matrix.use-mpi.value == 'YES' }}
         shell: cmd
         run: |
           msmpisdk.msi /passive
@@ -169,18 +178,25 @@ jobs:
       - name: Build and install
         shell: cmd
         env:
-          MSMPI_INC: C:\Program Files (x86)\Microsoft SDKs\MPI\Include\
-          MSMPI_LIB32: C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\
-          MSMPI_LIB64: C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\
           PATH: C:\Windows\system32;C:\Program Files\Git\cmd;C:\hostedtoolcache\windows\Python\3.7.9\x64
         run: |
+          if "${{ matrix.use-mpi.value }}" == "YES" (
+            set "MSMPI_INC=C:\Program Files (x86)\Microsoft SDKs\MPI\Include\"
+            set "MSMPI_LIB32=C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\"
+            set "MSMPI_LIB64=C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\"
+          )
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           call util\windows\dynawo-algorithms verbose build || exit /b 1
           call util\windows\dynawo-algorithms verbose distrib-headers distrib || exit /b 1
 
       - name: Rename distribution
         shell: bash
-        run: for file in distrib/DynawoAlgorithms_*.zip ; do mv $file ${file//headers_Release/Windows} ; done
+        run: |
+          if [ "${{ matrix.use-mpi.value }}" == "YES" ]; then
+            for file in distrib/DynawoAlgorithms_*.zip ; do mv $file ${file//headers_Release/Windows} ; done
+          else
+            for file in distrib/DynawoAlgorithms_*.zip ; do mv $file ${file//headers_Release/Windows_without_mpi} ; done
+          fi
 
       - name: Fetch release script
         uses: actions/checkout@v4
