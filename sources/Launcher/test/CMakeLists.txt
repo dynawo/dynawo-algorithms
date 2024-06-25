@@ -46,6 +46,7 @@ add_custom_target(${MODULE_NAME}-tests
     "DYNAWO_DICTIONARIES=dictionaries_mapping"
     "DYNAWO_ADEPT_INSTALL_DIR=${DYNAWO_HOME}"
     "DYNAWO_INSTALL_OPENMODELICA=${DYNAWO_HOME}/OpenModelica"
+    "OPENMODELICAHOME=${DYNAWO_HOME}/OpenModelica"  # enable building models with pre-compiled OpenModelica
     "DYNAWO_XERCESC_INSTALL_DIR=${DYNAWO_HOME}"
     "DYNAWO_SUITESPARSE_INSTALL_DIR=${DYNAWO_HOME}"
     "DYNAWO_SUNDIALS_INSTALL_DIR=${DYNAWO_HOME}"
