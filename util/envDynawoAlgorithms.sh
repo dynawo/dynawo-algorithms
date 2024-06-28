@@ -829,7 +829,9 @@ deploy_dynawo_algorithms() {
       for lib in ${mpi_lib}; do
         cp ${lib}* lib/.
       done
-      cp $(dirname $MPIRUN_PATH)/hydra_pmi_proxy bin/.
+      if [ -n "$MPIRUN_PATH" ] && [ -n "$(readlink -f $MPIRUN_PATH | grep hydra)" ]; then
+        cp $(dirname $MPIRUN_PATH)/hydra_pmi_proxy bin/.
+      fi
     fi
   fi
 
