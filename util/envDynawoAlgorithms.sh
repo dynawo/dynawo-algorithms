@@ -1000,7 +1000,7 @@ nrt() {
 }
 
 nrt_clean() {
-  $DYNAWO_PYTHON_COMMAND $DYNAWO_ALGORITHMS_HOME/util/nrt-clean.py
+  $DYNAWO_PYTHON_COMMAND $DYNAWO_ALGORITHMS_HOME/util/nrtClean.py
 }
 
 launch_CS() {
