@@ -54,6 +54,7 @@ where [option] can be:
 
     =========== Tests
     nrt ([-p regex] [-n name_filter])     run (filtered) non-regression tests and open the result in chosen browser
+    nrt-clean                     clean non-regression tests
     version-validation            clean all built items, then build them all
     SA-gdb ([args])               launch a systematic analysis with gdb
     MC-gdb ([args])               launch a margin calculation with gdb
@@ -998,6 +999,10 @@ nrt() {
   fi
 }
 
+nrt_clean() {
+  $DYNAWO_PYTHON_COMMAND $DYNAWO_ALGORITHMS_HOME/util/nrt-clean.py
+}
+
 launch_CS() {
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CS $@
   RETURN_CODE=$?
@@ -1209,6 +1214,10 @@ case $MODE in
 
   nrt)
     nrt ${ARGS} || error_exit "Error during Dynawo's non regression tests execution"
+    ;;
+  
+  nrt-clean)
+    nrt_clean || error_exit "Error during Dynawo's non-regression tests clean"
     ;;
 
   display-environment)
