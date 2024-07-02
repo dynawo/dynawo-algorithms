@@ -24,21 +24,28 @@ if not os.getenv("DYNAWO_ALGORITHMS_NRT_DIR"):
     print("environment variable DYNAWO_ALGORITHMS_NRT_DIR needs to be defined")
     sys.exit(1)
 
+nrt_data_dir = os.path.join(os.getenv("DYNAWO_ALGORITHMS_NRT_DIR"), "data")
+
 
 def find_nrt_folders():
     zip_input_nrt_folders = list()
     fic_multiple_nrt_folders = list()
 
-    nrt_dir = os.path.join(os.getenv("DYNAWO_ALGORITHMS_NRT_DIR"), "data", "IEEE14")
-    for nrt_folder in os.listdir(nrt_dir):
-        nrt_folder_path = os.path.join(nrt_dir, nrt_folder)
-        if os.path.isdir(nrt_folder_path):
-            for nrt_subfolder in os.listdir(nrt_folder_path):
-                if nrt_subfolder == "files":
-                    zip_input_nrt_folders.append(nrt_folder_path)
-                    break
-            else:
-                fic_multiple_nrt_folders.append(nrt_folder_path)
+    for case_dir in os.listdir(nrt_data_dir):
+        case_path = os.path.join(nrt_data_dir, case_dir)
+        if os.path.isdir(case_path):
+            sys.path.append(case_path)
+            try:
+                import cases
+                sys.path.remove(case_path)  # Remove from path because all files share the same name
+                for _, _, _, job_file, _, _, zip_inputs, _, _ in cases.test_cases:
+                    nrt_folder_path = os.path.dirname(job_file)
+                    if zip_inputs:
+                        zip_input_nrt_folders.append(nrt_folder_path)
+                    else:
+                        fic_multiple_nrt_folders.append(nrt_folder_path)
+            except:
+                print("Error during loading case path " + case_path)
 
     return (zip_input_nrt_folders, fic_multiple_nrt_folders)
 
@@ -90,7 +97,6 @@ def delete_pyc_files():
     """
     Delete every .pyc files
     """
-    nrt_data_dir = os.path.join(os.getenv("DYNAWO_ALGORITHMS_NRT_DIR"), "data")
     for nrt_subdir, _, nrt_files in os.walk(nrt_data_dir):
         for nrt_file in nrt_files:
             if nrt_file.endswith(".pyc"):
@@ -101,7 +107,6 @@ def delete_empty_folders():
     """
     Delete every empty folders
     """
-    nrt_data_dir = os.path.join(os.getenv("DYNAWO_ALGORITHMS_NRT_DIR"), "data")
     for nrt_subdir, _, _ in os.walk(nrt_data_dir, topdown=False):
         if len(os.listdir(nrt_subdir)) == 0:
             os.rmdir(nrt_subdir)
