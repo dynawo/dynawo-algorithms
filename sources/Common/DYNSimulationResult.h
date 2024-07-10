@@ -42,11 +42,6 @@ class SimulationResult {
   SimulationResult();
 
   /**
-   * @brief default destructor
-   */
-  ~SimulationResult() = default;
-
-  /**
    * @brief copy constructor
    * @param result : result to copy
    */
