@@ -141,6 +141,45 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(getStatusAsString(srCopy2.getStatus()), "EXECUTION_PROBLEM");
   srCopy2.setStatus(CRITERIA_NON_RESPECTED_STATUS);
   ASSERT_EQ(getStatusAsString(srCopy2.getStatus()), "CRITERIA_NON_RESPECTED");
+
+  sr.getConstraintsStream() << "Test Constraints";
+  sr.getTimelineStream() << "Test Timeline";
+  sr.getLostEquipementsStream() << "Test LostEquipements";
+  sr.setConstraintsFileExtension("log");
+  sr.setTimelineFileExtension("log");
+  sr.setLostEquipmentsFileExtension("log");
+  sr.setLogPath("Test LogPath");
+
+  SimulationResult srMove(std::move(sr));
+  ASSERT_EQ(srMove.getScenarioId(), "MyId");
+  ASSERT_TRUE(srMove.getSuccess());
+  ASSERT_EQ(srMove.getStatus(), CONVERGENCE_STATUS);
+  ASSERT_EQ(srMove.getConstraintsStreamStr(), "Test Constraints");
+  ASSERT_EQ(srMove.getTimelineStreamStr(), "Test Timeline");
+  ASSERT_EQ(srMove.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(srMove.getVariation(), 50);
+  ASSERT_EQ(srMove.getConstraintsFileExtension(), "log");
+  ASSERT_EQ(srMove.getTimelineFileExtension(), "log");
+  ASSERT_EQ(srMove.getLostEquipmentsFileExtension(), "log");
+  ASSERT_EQ(srMove.getLogPath(), "Test LogPath");
+  ASSERT_EQ(srMove.getFailingCriteria()[0].first, 10);
+  ASSERT_EQ(srMove.getFailingCriteria()[0].second, "MyCriteria");
+
+  SimulationResult srMove2;
+  srMove2 = std::move(srMove);
+  ASSERT_EQ(srMove2.getScenarioId(), "MyId");
+  ASSERT_TRUE(srMove2.getSuccess());
+  ASSERT_EQ(srMove2.getStatus(), CONVERGENCE_STATUS);
+  ASSERT_EQ(srMove2.getConstraintsStreamStr(), "Test Constraints");
+  ASSERT_EQ(srMove2.getTimelineStreamStr(), "Test Timeline");
+  ASSERT_EQ(srMove2.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(srMove2.getVariation(), 50);
+  ASSERT_EQ(srMove2.getConstraintsFileExtension(), "log");
+  ASSERT_EQ(srMove2.getTimelineFileExtension(), "log");
+  ASSERT_EQ(srMove2.getLostEquipmentsFileExtension(), "log");
+  ASSERT_EQ(srMove2.getLogPath(), "Test LogPath");
+  ASSERT_EQ(srMove2.getFailingCriteria()[0].first, 10);
+  ASSERT_EQ(srMove2.getFailingCriteria()[0].second, "MyCriteria");
 }
 
 TEST(TestBaseClasses, testLoadIncreaseResult) {

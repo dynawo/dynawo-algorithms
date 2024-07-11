@@ -55,6 +55,19 @@ class SimulationResult {
   SimulationResult& operator=(const SimulationResult& result);
 
   /**
+   * @brief move constructor
+   * @param result : result to move
+   */
+  SimulationResult(SimulationResult&& result) = default;
+
+  /**
+   * @brief move operator
+   * @param result result to move
+   * @return new instance of simulationResult
+   */
+  SimulationResult& operator=(SimulationResult&& result) = default;
+
+  /**
    * @brief set the id of the scenario
    * @param id id of the scenario
    */
