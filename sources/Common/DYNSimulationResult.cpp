@@ -66,6 +66,7 @@ SimulationResult::operator=(const SimulationResult& result) {
   failingCriteria_ = result.failingCriteria_;
   timelineFileExtension_ = result.timelineFileExtension_;
   constraintsFileExtension_ =  result.constraintsFileExtension_;
+  lostEquipmentsFileExtension_ = result.lostEquipmentsFileExtension_;
   logPath_ = result.logPath_;
   return *this;
 }
