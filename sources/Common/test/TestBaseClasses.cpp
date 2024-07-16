@@ -109,10 +109,20 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_FALSE(sr.getSuccess());
   ASSERT_EQ(sr.getStatus(), EXECUTION_PROBLEM_STATUS);
   ASSERT_TRUE(sr.getFailingCriteria().empty());
+  ASSERT_EQ(sr.getConstraintsFileExtension(), "xml");
+  ASSERT_EQ(sr.getTimelineFileExtension(), "xml");
+  ASSERT_EQ(sr.getLostEquipmentsFileExtension(), "xml");
   sr.setScenarioId("MyId");
   sr.setVariation(50.);
   sr.setSuccess(true);
   sr.setStatus(CONVERGENCE_STATUS);
+  sr.getConstraintsStream() << "Test Constraints";
+  sr.getTimelineStream() << "Test Timeline";
+  sr.getLostEquipementsStream() << "Test LostEquipements";
+  sr.setConstraintsFileExtension("log");
+  sr.setTimelineFileExtension("log");
+  sr.setLostEquipmentsFileExtension("log");
+  sr.setLogPath("Test LogPath");
   std::vector<std::pair<double, std::string> > failingCriteria;
   failingCriteria.push_back(std::make_pair(10, "MyCriteria"));
   sr.setFailingCriteria(failingCriteria);
@@ -120,6 +130,14 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(sr.getUniqueScenarioId(), "MyId-50");
   ASSERT_TRUE(sr.getSuccess());
   ASSERT_EQ(sr.getStatus(), CONVERGENCE_STATUS);
+  ASSERT_EQ(sr.getConstraintsStreamStr(), "Test Constraints");
+  ASSERT_EQ(sr.getTimelineStreamStr(), "Test Timeline");
+  ASSERT_EQ(sr.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(sr.getVariation(), 50);
+  ASSERT_EQ(sr.getConstraintsFileExtension(), "log");
+  ASSERT_EQ(sr.getTimelineFileExtension(), "log");
+  ASSERT_EQ(sr.getLostEquipmentsFileExtension(), "log");
+  ASSERT_EQ(sr.getLogPath(), "Test LogPath");
   ASSERT_EQ(sr.getFailingCriteria().size(), 1);
   ASSERT_EQ(sr.getFailingCriteria()[0].second, "MyCriteria");
   ASSERT_EQ(sr.getFailingCriteria()[0].first, 10);
@@ -128,6 +146,17 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(srCopy.getScenarioId(), "MyId");
   ASSERT_TRUE(srCopy.getSuccess());
   ASSERT_EQ(srCopy.getStatus(), CONVERGENCE_STATUS);
+  ASSERT_EQ(srCopy.getConstraintsStreamStr(), "Test Constraints");
+  ASSERT_EQ(srCopy.getTimelineStreamStr(), "Test Timeline");
+  ASSERT_EQ(srCopy.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(srCopy.getVariation(), 50);
+  ASSERT_EQ(srCopy.getConstraintsFileExtension(), "log");
+  ASSERT_EQ(srCopy.getTimelineFileExtension(), "log");
+  ASSERT_EQ(srCopy.getLostEquipmentsFileExtension(), "log");
+  ASSERT_EQ(srCopy.getLogPath(), "Test LogPath");
+  ASSERT_EQ(srCopy.getFailingCriteria().size(), 1);
+  ASSERT_EQ(srCopy.getFailingCriteria()[0].first, 10);
+  ASSERT_EQ(srCopy.getFailingCriteria()[0].second, "MyCriteria");
 
   SimulationResult srCopy2;
   srCopy2 = sr;
@@ -141,14 +170,17 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(getStatusAsString(srCopy2.getStatus()), "EXECUTION_PROBLEM");
   srCopy2.setStatus(CRITERIA_NON_RESPECTED_STATUS);
   ASSERT_EQ(getStatusAsString(srCopy2.getStatus()), "CRITERIA_NON_RESPECTED");
-
-  sr.getConstraintsStream() << "Test Constraints";
-  sr.getTimelineStream() << "Test Timeline";
-  sr.getLostEquipementsStream() << "Test LostEquipements";
-  sr.setConstraintsFileExtension("log");
-  sr.setTimelineFileExtension("log");
-  sr.setLostEquipmentsFileExtension("log");
-  sr.setLogPath("Test LogPath");
+  ASSERT_EQ(srCopy2.getConstraintsStreamStr(), "Test Constraints");
+  ASSERT_EQ(srCopy2.getTimelineStreamStr(), "Test Timeline");
+  ASSERT_EQ(srCopy2.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(srCopy2.getVariation(), 50);
+  ASSERT_EQ(srCopy2.getConstraintsFileExtension(), "log");
+  ASSERT_EQ(srCopy2.getTimelineFileExtension(), "log");
+  ASSERT_EQ(srCopy2.getLostEquipmentsFileExtension(), "log");
+  ASSERT_EQ(srCopy2.getLogPath(), "Test LogPath");
+  ASSERT_EQ(srCopy2.getFailingCriteria().size(), 1);
+  ASSERT_EQ(srCopy2.getFailingCriteria()[0].first, 10);
+  ASSERT_EQ(srCopy2.getFailingCriteria()[0].second, "MyCriteria");
 
   SimulationResult srMove(std::move(sr));
   ASSERT_EQ(srMove.getScenarioId(), "MyId");
@@ -162,6 +194,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(srMove.getTimelineFileExtension(), "log");
   ASSERT_EQ(srMove.getLostEquipmentsFileExtension(), "log");
   ASSERT_EQ(srMove.getLogPath(), "Test LogPath");
+  ASSERT_EQ(srMove.getFailingCriteria().size(), 1);
   ASSERT_EQ(srMove.getFailingCriteria()[0].first, 10);
   ASSERT_EQ(srMove.getFailingCriteria()[0].second, "MyCriteria");
 
@@ -178,6 +211,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(srMove2.getTimelineFileExtension(), "log");
   ASSERT_EQ(srMove2.getLostEquipmentsFileExtension(), "log");
   ASSERT_EQ(srMove2.getLogPath(), "Test LogPath");
+  ASSERT_EQ(srMove2.getFailingCriteria().size(), 1);
   ASSERT_EQ(srMove2.getFailingCriteria()[0].first, 10);
   ASSERT_EQ(srMove2.getFailingCriteria()[0].second, "MyCriteria");
 }
