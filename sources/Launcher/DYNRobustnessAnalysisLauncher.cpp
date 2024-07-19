@@ -658,7 +658,7 @@ RobustnessAnalysisLauncher::importResult(const std::string& id) const {
   // lost equipments extension:
   std::string lostEquipmentsExtension;
   file >> lostEquipmentsExtension;
-  lostEquipmentsExtension = lostEquipmentsExtension.substr(cstrExtension.find(delimiter)+1);
+  lostEquipmentsExtension = lostEquipmentsExtension.substr(lostEquipmentsExtension.find(delimiter)+1);
   ret.setLostEquipmentsFileExtension(lostEquipmentsExtension);
 
   // log:

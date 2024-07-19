@@ -42,11 +42,6 @@ class SimulationResult {
   SimulationResult();
 
   /**
-   * @brief default destructor
-   */
-  ~SimulationResult() = default;
-
-  /**
    * @brief copy constructor
    * @param result : result to copy
    */
@@ -58,6 +53,19 @@ class SimulationResult {
    * @return new instance of simulationResult
    */
   SimulationResult& operator=(const SimulationResult& result);
+
+  /**
+   * @brief move constructor
+   * @param result : result to move
+   */
+  SimulationResult(SimulationResult&& result) = default;
+
+  /**
+   * @brief move operator
+   * @param result result to move
+   * @return new instance of simulationResult
+   */
+  SimulationResult& operator=(SimulationResult&& result) = default;
 
   /**
    * @brief set the id of the scenario
