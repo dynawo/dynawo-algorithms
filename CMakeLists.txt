@@ -18,6 +18,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${DYNAWO_ALGORITHMS_CMAKE_MODULE_PATH
 
 option(BUILD_TESTS "Choose to build unit tests")
 option(BUILD_TESTS_COVERAGE "Choose to build tests coverage")
+set(USE_MPI "YES" CACHE STRING "Use MPI")
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel (CMake defaults)")
 
@@ -58,6 +59,8 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
   endif()
 endif()
+
+set(CMAKE_CXX_FLAGS_DEBUG_INITIAL ${CMAKE_CXX_FLAGS_DEBUG})
 
 # Add specific options for compiler
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")

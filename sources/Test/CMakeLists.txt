@@ -13,6 +13,10 @@ cmake_minimum_required(VERSION 3.14)
 
 include(FetchContent)
 
+# Avoid custom flags warning to be used to compile googletest
+set(CMAKE_CXX_FLAGS_SAVE "${CMAKE_CXX_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG_INITIAL}")
+
 ## Googletest dependency
 set(GTEST_ROOT ${DYNAWO_HOME} CACHE PATH "Path where an installation of GoogleTest may already exist")
 set(GMOCK_HOME ${DYNAWO_HOME} CACHE PATH "Path where an installation of GoogleTest may already exist")
@@ -50,6 +54,8 @@ if (NOT GTEST_FOUND OR NOT GMOCK_FOUND)
   add_library(GTest::gtest_main ALIAS gtest_main)
   add_library(GTest::gmock_main ALIAS gmock_main)
 endif()
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_SAVE}")
 
 if(NOT TARGET GTest::gtest AND TARGET GTest::GTest)
   add_library(GTest::gtest UNKNOWN IMPORTED)
