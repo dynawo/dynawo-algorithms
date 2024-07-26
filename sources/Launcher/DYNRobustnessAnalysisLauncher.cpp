@@ -46,7 +46,6 @@
 #include <JOBDynModelsEntryFactory.h>
 #include <JOBModelerEntry.h>
 #include <JOBSimulationEntryFactory.h>
-#include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <DYNMacrosMessage.h>
 #include <DYNDataInterfaceFactory.h>
@@ -97,15 +96,15 @@ void
 RobustnessAnalysisLauncher::init(const bool doInitLog) {
   // check if directory exists, if directory is not set, workingDirectory is the current directory
   workingDirectory_ = "";
-  if ( directory_ == "" ) {
-    workingDirectory_ = current_path();
+  if (directory_.empty()) {
+    workingDirectory_ = currentPath();
   } else if (!isAbsolutePath(directory_)) {
-    workingDirectory_ = createAbsolutePath(directory_, current_path());
+    workingDirectory_ = createAbsolutePath(directory_, currentPath());
   } else {
     workingDirectory_ = directory_;
   }
 
-  if ( !is_directory(workingDirectory_) )
+  if (!isDirectory(workingDirectory_))
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
 
   if (doInitLog && multiprocessing::context().isRootProc())
@@ -146,7 +145,7 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
 
 struct Version {
   Version() {}
-  Version(std::string n, std::string v, std::string b, std::string h) :
+  Version(const std::string& n, const std::string& v, const std::string& b, const std::string& h) :
     projectName(n),
     versionString(v),
     gitBranch(b),
@@ -159,7 +158,7 @@ struct Version {
 };
 
 void
-RobustnessAnalysisLauncher::initLog() {
+RobustnessAnalysisLauncher::initLog() const {
   std::vector<Trace::TraceAppender> appenders;
   Trace::TraceAppender appender;
   std::string outputPath(createAbsolutePath("dynawo.log", workingDirectory_));
@@ -183,8 +182,8 @@ RobustnessAnalysisLauncher::initLog() {
 
   // known projects versions
   std::vector<Version> versions;
-  versions.push_back(Version("Dynawo", DYNAWO_VERSION_STRING, DYNAWO_GIT_BRANCH, DYNAWO_GIT_HASH));
-  versions.push_back(Version("Dynawo-algorithms", DYNAWO_ALGORITHMS_VERSION_STRING, DYNAWO_ALGORITHMS_GIT_BRANCH, DYNAWO_ALGORITHMS_GIT_HASH));
+  versions.emplace_back(Version("Dynawo", DYNAWO_VERSION_STRING, DYNAWO_GIT_BRANCH, DYNAWO_GIT_HASH));
+  versions.emplace_back(Version("Dynawo-algorithms", DYNAWO_ALGORITHMS_VERSION_STRING, DYNAWO_ALGORITHMS_GIT_BRANCH, DYNAWO_ALGORITHMS_GIT_HASH));
   std::set<std::string> projects;
   projects.insert("DYNAWO");
   projects.insert("DYNAWO-ALGORITHMS");
@@ -202,7 +201,7 @@ RobustnessAnalysisLauncher::initLog() {
         std::string gitHash = section.second.get("GIT_HASH", "0");
         std::string project = boost::algorithm::to_upper_copy(section.first);
         if (projects.count(project) == 0) {
-          versions.push_back(Version(section.first, versionString, gitBranch, gitHash));
+          versions.emplace_back(Version(section.first, versionString, gitBranch, gitHash));
           projects.insert(project);
         }
       }
@@ -227,10 +226,9 @@ RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& i
     // Only the main proc should open the archive
     // Unzip the input file in the working directory
     boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
-    for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();
-        itE != archive->getEntries().end(); ++itE) {
-      std::string nom = itE->first;
-      std::string data(itE->second->getData());
+    for (const auto& entry : archive->getEntries()) {
+      std::string nom = entry.first;
+      std::string data(entry.second->getData());
       std::ofstream file;
       file.open(createAbsolutePath(nom, workingDirectory_).c_str(), std::ios::binary);
       file << data;
@@ -358,13 +356,12 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     result.setLostEquipmentsFileExtensionFromExportMode("XML");
 
   if (job->getOutputsEntry() && job->getOutputsEntry()->getLogsEntry()) {
-    std::vector<std::shared_ptr<job::AppenderEntry> > appendersEntry = job->getOutputsEntry()->getLogsEntry()->getAppenderEntries();
-    for (std::vector<std::shared_ptr<job::AppenderEntry> >::iterator itApp = appendersEntry.begin(), itAppEnd = appendersEntry.end();
-        itApp != itAppEnd; ++itApp) {
-      if ((*itApp)->getTag() == "") {
+    const std::vector<std::shared_ptr<job::AppenderEntry> >& appendersEntry = job->getOutputsEntry()->getLogsEntry()->getAppenderEntries();
+    for (const auto& appenderEntry : appendersEntry) {
+      if (appenderEntry->getTag().empty()) {
         std::string file = createAbsolutePath(job->getOutputsEntry()->getOutputsDirectory(), workingDir);
         file = createAbsolutePath("logs", file);
-        file = createAbsolutePath((*itApp)->getFilePath(), file);
+        file = createAbsolutePath(appenderEntry->getFilePath(), file);
         result.setLogPath(file);
         break;
       }
@@ -487,20 +484,20 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
   Trace::resetPersistentCustomAppender(logTag_, DYN::INFO);  // to force flush
 #endif
   std::string constraintPath = createAbsolutePath("constraints", workingDirectory_);
-  if (!is_directory(constraintPath))
-    create_directory(constraintPath);
+  if (!isDirectory(constraintPath))
+    createDirectory(constraintPath);
   std::string timelinePath = createAbsolutePath("timeLine", workingDirectory_);
-  if (!is_directory(timelinePath))
-    create_directory(timelinePath);
+  if (!isDirectory(timelinePath))
+    createDirectory(timelinePath);
   std::string lostEquipmentsPath = createAbsolutePath("lostEquipments", workingDirectory_);
-  if (!is_directory(lostEquipmentsPath))
-    create_directory(lostEquipmentsPath);
+  if (!isDirectory(lostEquipmentsPath))
+    createDirectory(lostEquipmentsPath);
   std::string finalStatePath = createAbsolutePath("finalState", workingDirectory_);
-  if (!is_directory(finalStatePath))
-    create_directory(finalStatePath);
+  if (!isDirectory(finalStatePath))
+    createDirectory(finalStatePath);
   std::string logPath = createAbsolutePath("logs", workingDirectory_);
-  if (!is_directory(logPath))
-    create_directory(logPath);
+  if (!isDirectory(logPath))
+    createDirectory(logPath);
 
   if (!result.getConstraintsStreamStr().empty()) {
     std::ofstream file;
@@ -569,11 +566,8 @@ RobustnessAnalysisLauncher::writeResults() const {
   if (zipIt) {
     boost::shared_ptr<zip::ZipFile> archive = zip::ZipFileFactory::newInstance();
 
-    for (std::map<std::string, std::string>::const_iterator it = mapData.begin();
-        it != mapData.end();
-        it++) {
-      archive->addEntry(it->first, it->second);
-    }
+    for (const auto& mapPair : mapData)
+      archive->addEntry(mapPair.first, mapPair.second);
 
     zip::ZipOutputStream::write(outputFileFullPath_, archive);
   }
@@ -781,10 +775,10 @@ RobustnessAnalysisLauncher::cleanResult(const std::string& id) const {
 
 bool
 RobustnessAnalysisLauncher::findExportIIDM(const std::vector<std::shared_ptr<job::FinalStateEntry> >& finalStates) {
-  for (std::vector<std::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
-    if (!(*it)->getTimestamp()) {
+  for (const auto& finalState : finalStates) {
+    if (!finalState->getTimestamp()) {
       // one without timestamp : it means that it concerns the final state
-      return (*it)->getExportIIDMFile();
+      return finalState->getExportIIDMFile();
     }
   }
 
@@ -793,10 +787,10 @@ RobustnessAnalysisLauncher::findExportIIDM(const std::vector<std::shared_ptr<job
 
 bool
 RobustnessAnalysisLauncher::findExportDump(const std::vector<std::shared_ptr<job::FinalStateEntry> >& finalStates) {
-  for (std::vector<std::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
-    if (!(*it)->getTimestamp()) {
+  for (const auto& finalState : finalStates) {
+    if (!finalState->getTimestamp()) {
       // one without timestamp : it means that it concerns the final state
-      return (*it)->getExportDumpFile();
+      return finalState->getExportDumpFile();
     }
   }
 

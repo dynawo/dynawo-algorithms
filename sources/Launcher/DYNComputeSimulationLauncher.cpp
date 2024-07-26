@@ -23,7 +23,6 @@
 #include "MacrosMessage.h"
 
 #include <DYNFileSystemUtils.h>
-#include <JOBIterators.h>
 #include <JOBJobEntry.h>
 #include <JOBOutputsEntry.h>
 #include <JOBJobsCollection.h>
@@ -40,7 +39,7 @@ void
 ComputeSimulationLauncher::launch() {
   boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
   std::string outputFileFullPath = outputFile_;
-  std::string workingDir = absolute(remove_file_name(inputFile_));
+  std::string workingDir = absolute(removeFileName(inputFile_));
   workingDirectory_ = workingDir;
   initLog();
   if (outputFileFullPath.empty()) {
@@ -49,9 +48,8 @@ ComputeSimulationLauncher::launch() {
   job::XmlImporter importer;
   std::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(inputFile_);
   workingDirectory_ = workingDir;
-  for (job::job_iterator itJobEntry = jobsCollection->begin(); itJobEntry != jobsCollection->end(); ++itJobEntry) {
-    std::shared_ptr<job::JobEntry>& job = *itJobEntry;
-    std::cout << DYNLog(LaunchingJob, (*itJobEntry)->getName()) << std::endl;
+  for (auto& job : jobsCollection->getNonCstJobs()) {
+    std::cout << DYNLog(LaunchingJob, job->getName()) << std::endl;
     SimulationResult result;
     SimulationParameters params;
     initParametersWithJob(job, params);

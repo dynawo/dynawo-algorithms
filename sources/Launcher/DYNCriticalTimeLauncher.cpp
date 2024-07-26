@@ -116,8 +116,8 @@ CriticalTimeLauncher::launch() {
   multiprocessing::forEach(0, events.size(), [this, &events](unsigned int i) {
     std::string workingDir  = createAbsolutePath(events[i]->getId(), workingDirectory_);
     if (!exists(workingDir))
-      create_directory(workingDir);
-    else if (!is_directory(workingDir))
+      createDirectory(workingDir);
+    else if (!isDirectory(workingDir))
       throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
   });
 
