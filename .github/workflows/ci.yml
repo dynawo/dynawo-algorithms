@@ -20,7 +20,7 @@ jobs:
       DYNAWO_NB_PROCESSORS_USED: 2
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch Dynawo
         run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_headers_v$DYNAWO_VERSION.zip
@@ -72,7 +72,7 @@ jobs:
           tar xzf openjdk-17.0.2_linux-x64_bin.tar.gz
 
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch Dynawo
         run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_omc_v$DYNAWO_VERSION.zip
@@ -111,7 +111,7 @@ jobs:
         run: git config --global core.autocrlf input
 
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download MS-MPI
         shell: bash
