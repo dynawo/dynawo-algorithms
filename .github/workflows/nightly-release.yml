@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch release script
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/dynawo
           sparse-checkout: .github/release.js
@@ -50,7 +50,7 @@ jobs:
         env:
           body: |
             DynawoAlgorithms's nightly release. Compiled on *release* settings.
-            
+
             **Don't use it for production**
           draft: false
           prerelease: true
@@ -67,7 +67,6 @@ jobs:
     if: always() && !cancelled() && !failure() && (github.event.action == 'nightly-linux' || (github.event_name == 'workflow_dispatch' && inputs.perform-linux) || !endsWith(github.event_name, '_dispatch'))
     name: Linux Fedora (Release, GCC, cxx11)
     runs-on: ubuntu-latest
-    container: dynawo/dynawo-distribution-cxx11:latest
     needs: nightly
     env:
       DYNAWO_RESULTS_SHOW: "false"
@@ -76,7 +75,7 @@ jobs:
       DYNAWO_NB_PROCESSORS_USED: 2
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch Dynawo's nightly release
         run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_headers_v$DYNAWO_VERSION.zip
@@ -84,30 +83,25 @@ jobs:
       - name: Unzip Dynawo
         run: unzip -qq "Dynawo_headers_v${DYNAWO_VERSION}.zip"
 
-      - name: Build
-        run: |
-          export DYNAWO_HOME=$(pwd)/dynawo
-          export DYNAWO_ALGORITHMS_HOME=$(pwd)
-          util/envDynawoAlgorithms.sh build
-
-      - name: Build documentation
-        run: |
-          export DYNAWO_HOME=$(pwd)/dynawo
-          export DYNAWO_ALGORITHMS_HOME=$(pwd)
-          util/envDynawoAlgorithms.sh build-doc
-
-      - name: Prepare files for distribution
-        run: |
-          export DYNAWO_HOME=$(pwd)/dynawo
-          export DYNAWO_ALGORITHMS_HOME=$(pwd)
-          util/envDynawoAlgorithms.sh distrib
-          util/envDynawoAlgorithms.sh distrib-headers
+      - name: Build, Build documentation, Prepare files for distribution
+        uses: addnab/docker-run-action@v3
+        with:
+          image: dynawo/dynawo-distribution-cxx11:latest
+          options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_FORCE_CXX11_ABI -e DYNAWO_NB_PROCESSORS_USED
+          shell: bash
+          run: |
+            export DYNAWO_HOME=$(pwd)/dynawo
+            export DYNAWO_ALGORITHMS_HOME=$(pwd)
+            util/envDynawoAlgorithms.sh build
+            util/envDynawoAlgorithms.sh build-doc
+            util/envDynawoAlgorithms.sh distrib
+            util/envDynawoAlgorithms.sh distrib-headers
 
       - name: INFO. Files created in distributions folder
         run: du -hs distributions/*
 
       - name: Fetch release script
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/dynawo
           sparse-checkout: .github/release.js
@@ -149,7 +143,7 @@ jobs:
         run: git config --global core.autocrlf input
 
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download MS-MPI
         shell: bash
@@ -221,7 +215,7 @@ jobs:
           for file in distrib/DynawoAlgorithms_*.zip ; do mv $file ${file//headers_Release/Windows} ; done
 
       - name: Fetch release script
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/dynawo
           sparse-checkout: .github/release.js

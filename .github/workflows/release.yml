@@ -30,7 +30,6 @@ jobs:
     if: github.event_name != 'workflow_dispatch' || inputs.perform-linux-cxx11
     name: Distribution Linux cxx11
     runs-on: ubuntu-latest
-    container: dynawo/dynawo-distribution-cxx11:latest
     env:
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_BUILD_TYPE: Release
@@ -39,7 +38,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch Dynawo
         run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/v$DYNAWO_VERSION/Dynawo_Linux_v$DYNAWO_VERSION.zip
@@ -48,17 +47,22 @@ jobs:
         run: unzip -qq "Dynawo_Linux_v${DYNAWO_VERSION}.zip"
 
       - name: Build
-        run: |
-          export DYNAWO_HOME=$(pwd)/dynawo
-          export DYNAWO_ALGORITHMS_HOME=$(pwd)
-          util/envDynawoAlgorithms.sh build
-          util/envDynawoAlgorithms.sh distrib
-          util/envDynawoAlgorithms.sh distrib-headers
-          for file in distributions/DynawoAlgorithms_v*.zip ; do mv $file ${file//_/_Linux_} ; done
-          for file in distributions/DynawoAlgorithms_headers_v*.zip ; do mv $file ${file//_headers_/_Linux_headers_} ; done
+        uses: addnab/docker-run-action@v3
+        with:
+          image: dynawo/dynawo-distribution-cxx11:latest
+          options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_FORCE_CXX11_ABI -e DYNAWO_NB_PROCESSORS_USED
+          shell: bash
+          run: |
+            export DYNAWO_HOME=$(pwd)/dynawo
+            export DYNAWO_ALGORITHMS_HOME=$(pwd)
+            util/envDynawoAlgorithms.sh build
+            util/envDynawoAlgorithms.sh distrib
+            util/envDynawoAlgorithms.sh distrib-headers
+            for file in distributions/DynawoAlgorithms_v*.zip ; do mv $file ${file//_/_Linux_} ; done
+            for file in distributions/DynawoAlgorithms_headers_v*.zip ; do mv $file ${file//_headers_/_Linux_headers_} ; done
 
       - name: Fetch release script
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/dynawo
           sparse-checkout: .github/release.js
@@ -81,7 +85,6 @@ jobs:
     if: github.event_name != 'workflow_dispatch' || inputs.perform-linux-centos7
     name: Distribution Linux centos7
     runs-on: ubuntu-latest
-    container: dynawo/dynawo-distribution-centos7:latest
     env:
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_BUILD_TYPE: Release
@@ -89,7 +92,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch Dynawo
         run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/v$DYNAWO_VERSION/Dynawo_Linux_centos7_v$DYNAWO_VERSION.zip
@@ -98,12 +101,17 @@ jobs:
         run: unzip -qq "Dynawo_Linux_centos7_v${DYNAWO_VERSION}.zip"
 
       - name: Build
-        run: |
-          export DYNAWO_HOME=$(pwd)/dynawo
-          export DYNAWO_ALGORITHMS_HOME=$(pwd)
-          util/envDynawoAlgorithms.sh build
-          util/envDynawoAlgorithms.sh distrib-headers
-          for file in distributions/DynawoAlgorithms_headers_v*.zip ; do mv $file ${file//_headers_/_Linux_headers_centos7_} ; done
+        uses: addnab/docker-run-action@v3
+        with:
+          image: dynawo/dynawo-distribution-centos7:latest
+          options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_NB_PROCESSORS_USED
+          shell: bash
+          run: |
+            export DYNAWO_HOME=$(pwd)/dynawo
+            export DYNAWO_ALGORITHMS_HOME=$(pwd)
+            util/envDynawoAlgorithms.sh build
+            util/envDynawoAlgorithms.sh distrib-headers
+            for file in distributions/DynawoAlgorithms_headers_v*.zip ; do mv $file ${file//_headers_/_Linux_headers_centos7_} ; done
 
       - name: Fetch release script
         uses: actions/checkout@v3
@@ -135,7 +143,7 @@ jobs:
         run: git config --global core.autocrlf input
 
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download MS-MPI
         shell: bash
@@ -175,7 +183,7 @@ jobs:
         run: for file in distrib/DynawoAlgorithms_*.zip ; do mv $file ${file//headers_Release/Windows} ; done
 
       - name: Fetch release script
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/dynawo
           sparse-checkout: .github/release.js
