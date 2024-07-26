@@ -212,7 +212,7 @@ class RobustnessAnalysisLauncher {
   /**
    * @brief Initialize algorithm log
    */
-  void initLog();
+  void initLog() const;
 
   /**
    * @brief Computes the result save file from an id and the working directory

@@ -34,7 +34,7 @@ MultiVariantInputs::readInputs(const std::string& workingDirectory, const std::s
   job::XmlImporter importer;
   std::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(jobFile, workingDirectory));
   //  implicit : only one job per file
-  jobEntry_ = *jobsCollection->begin();
+  jobEntry_ = jobsCollection->getJobs()[0];
 
   // Compute the iidm file path according to the criteria:
   // - priority to the file given in parameter

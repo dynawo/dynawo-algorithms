@@ -13,7 +13,6 @@
 
 #include <DYNFileSystemUtils.h>
 #include <JOBXmlImporter.h>
-#include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <JOBJobEntry.h>
 #include <JOBModelerEntry.h>
@@ -137,7 +136,7 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   MyLauncher launcher;
 
   launcher.testInputFile("");
-  std::string absoluteFile = createAbsolutePath("MyAbsoluteFile", current_path());
+  std::string absoluteFile = createAbsolutePath("MyAbsoluteFile", currentPath());
   launcher.setInputFile(absoluteFile);
   launcher.testInputFile(absoluteFile);
 
@@ -150,16 +149,16 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   launcher.testDirectory("MyDirectory");
 
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::DirectoryDoesNotExist);
-  launcher.testWorkingDirectory(createAbsolutePath("MyDirectory", current_path()));
+  launcher.testWorkingDirectory(createAbsolutePath("MyDirectory", currentPath()));
 
-  std::string absoluteDir = createAbsolutePath("MyAbsoluteDirectory", current_path());
+  std::string absoluteDir = createAbsolutePath("MyAbsoluteDirectory", currentPath());
   launcher.setDirectory(absoluteDir);
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::DirectoryDoesNotExist);
   launcher.testWorkingDirectory(absoluteDir);
 
   launcher.setDirectory("");
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::FileDoesNotExist);
-  launcher.testWorkingDirectory(current_path());
+  launcher.testWorkingDirectory(currentPath());
 
   launcher.setInputFile("res/MyDummyInputFile.xml");
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::FileDoesNotExist);
@@ -174,7 +173,7 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   launcher.setDirectory("res");
   launcher.setOutputFile("MyOutputFile.zip");
   ASSERT_NO_THROW(launcher.init());
-  launcher.testOutputFileFullPath(createAbsolutePath("MyOutputFile.zip", createAbsolutePath("res", current_path())));
+  launcher.testOutputFileFullPath(createAbsolutePath("MyOutputFile.zip", createAbsolutePath("res", currentPath())));
   launcher.testMultipleJobs();
   launcher.launch();
 }
