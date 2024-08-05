@@ -26,7 +26,6 @@
 #include "DYNAggrResXmlExporter.h"
 
 #include <JOBXmlImporter.h>
-#include <JOBIterators.h>
 #include <JOBJobsCollection.h>
 #include <JOBJobEntry.h>
 #include <DYNFileSystemUtils.h>
@@ -45,8 +44,8 @@ ComputeLoadVariationLauncher::launch() {
   subDir << "step-" << variation_;
   std::string workingDir = createAbsolutePath(loadIncrease->getId(), createAbsolutePath(subDir.str(), workingDirectory_));
   if (!exists(workingDir))
-    create_directory(workingDir);
-  else if (!is_directory(workingDir))
+    createDirectory(workingDir);
+  else if (!isDirectory(workingDir))
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
 
   inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
