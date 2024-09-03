@@ -96,6 +96,7 @@ jobs:
           options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_FORCE_CXX11_ABI -e DYNAWO_NB_PROCESSORS_USED -e DYNAWO_USE_MPI
           shell: bash
           run: |
+            cd /dynawo-algorithms
             export DYNAWO_HOME=$(pwd)/dynawo
             export DYNAWO_ALGORITHMS_HOME=$(pwd)
             util/envDynawoAlgorithms.sh build
