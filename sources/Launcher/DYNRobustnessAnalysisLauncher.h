@@ -184,7 +184,7 @@ class RobustnessAnalysisLauncher {
    * @param job the job to use
    * @param params the parameters to update
    */
-  static void initParametersWithJob(boost::shared_ptr<job::JobEntry> job, SimulationParameters& params);
+  static void initParametersWithJob(const boost::shared_ptr<job::JobEntry>& job, SimulationParameters& params);
 
   /**
    * @brief Export a save result file
@@ -211,7 +211,7 @@ class RobustnessAnalysisLauncher {
   /**
    * @brief Initialize algorithm log
    */
-  void initLog();
+  void initLog() const;
 
  protected:
   const std::string logTag_;  ///< tag string in dynawo.log
