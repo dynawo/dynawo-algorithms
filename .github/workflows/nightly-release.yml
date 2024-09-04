@@ -46,7 +46,7 @@ jobs:
           sparse-checkout-cone-mode: false
 
       - name: Create nightly tag and release if necessary
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           body: |
             DynawoAlgorithms's nightly release. Compiled on *release* settings.
@@ -118,7 +118,7 @@ jobs:
 
       - name: Upload assets for release
         if: ${{ matrix.use-mpi.value == 'YES' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           tag_name: ${{ env.DYNAWO_TAG }}
           draft: false
@@ -135,7 +135,7 @@ jobs:
       # The secrets.DISPATCH_TOKEN should contain a fine-grained PAT with access to dynawo/dynaflow-launcher with Repository permissions 'Contents: Read and write'
       - name: Tell dynaflow-launcher the nightly release is ready
         if: matrix.use-mpi.value == 'YES' && (github.event_name != 'workflow_dispatch' || inputs.perform-dispatch)
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.DISPATCH_TOKEN }}
           script: |
@@ -247,7 +247,7 @@ jobs:
           path: dynawo
 
       - name: Upload distribution
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           tag_name: ${{ env.DYNAWO_TAG }}
           draft: false
@@ -262,7 +262,7 @@ jobs:
 
       - name: Tell dynaflow-launcher the nightly release is ready
         if: matrix.use-mpi.value == 'YES' && (github.event_name != 'workflow_dispatch' || inputs.perform-dispatch)
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.DISPATCH_TOKEN }}
           script: |
