@@ -856,9 +856,9 @@ void
 MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const {
   Trace::resetCustomAppenders();  // to force flush
 #ifndef NDEBUG
-  Trace::resetPersistantCustomAppender(logTag_, DYN::DEBUG);  // to force flush
+  Trace::resetPersistentCustomAppender(logTag_, DYN::DEBUG);  // to force flush
 #else
-  Trace::resetPersistantCustomAppender(logTag_, DYN::INFO);  // to force flush
+  Trace::resetPersistentCustomAppender(logTag_, DYN::INFO);  // to force flush
 #endif
 
   aggregatedResults::XmlExporter exporter;
