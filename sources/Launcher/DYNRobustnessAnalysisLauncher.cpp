@@ -174,7 +174,7 @@ RobustnessAnalysisLauncher::initLog() {
   appender.setSeparator(" | ");
   appender.setShowTimeStamp(true);
   appender.setTimeStampFormat("%Y-%m-%d %H:%M:%S");
-  appender.setPersistant(true);
+  appender.setPersistent(true);
 
   appenders.push_back(appender);
 
@@ -430,9 +430,9 @@ void
 RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::map<std::string, std::string>& mapData) const {
   Trace::resetCustomAppenders();  // to force flush
 #ifndef NDEBUG
-  Trace::resetPersistantCustomAppender(logTag_, DYN::DEBUG);  // to force flush
+  Trace::resetPersistentCustomAppender(logTag_, DYN::DEBUG);  // to force flush
 #else
-  Trace::resetPersistantCustomAppender(logTag_, DYN::INFO);  // to force flush
+  Trace::resetPersistentCustomAppender(logTag_, DYN::INFO);  // to force flush
 #endif
   if (!result.getTimelineStreamStr().empty()) {
     std::stringstream timelineName;
@@ -466,9 +466,9 @@ void
 RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
   Trace::resetCustomAppenders();  // to force flush
 #ifndef NDEBUG
-  Trace::resetPersistantCustomAppender(logTag_, DYN::DEBUG);  // to force flush
+  Trace::resetPersistentCustomAppender(logTag_, DYN::DEBUG);  // to force flush
 #else
-  Trace::resetPersistantCustomAppender(logTag_, DYN::INFO);  // to force flush
+  Trace::resetPersistentCustomAppender(logTag_, DYN::INFO);  // to force flush
 #endif
   std::string constraintPath = createAbsolutePath("constraints", workingDirectory_);
   if (!is_directory(constraintPath))
