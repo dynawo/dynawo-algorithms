@@ -178,7 +178,7 @@ RobustnessAnalysisLauncher::initLog() {
 
   appenders.push_back(appender);
 
-  Trace::addAppenders(appenders);
+  Trace::clearAndAddAppenders(appenders);
 
   // known projects versions
   std::vector<Version> versions;
