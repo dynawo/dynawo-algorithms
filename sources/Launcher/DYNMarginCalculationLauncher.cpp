@@ -627,7 +627,7 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
     simulation->setTimelineOutputFile("");
     simulation->setConstraintsOutputFile("");
     // The event time should be adapted (the list of events models supported currently corresponds to events really used)
-    boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
+    std::shared_ptr<DYN::ModelMulti> modelMulti = std::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
     std::string DDBDir = getEnvVar("DYNAWO_DDB_DIR");
     decltype(modelMulti->findSubModelByLib("")) subModels;
     auto addSubModelsByLib = [&](const std::string& libName) {
@@ -820,7 +820,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
 
   if (simulation) {
-    boost::shared_ptr<DYN::ModelMulti> modelMulti = boost::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
+    std::shared_ptr<DYN::ModelMulti> modelMulti = std::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
     std::string DDBDir = getMandatoryEnvVar("DYNAWO_DDB_DIR");
     auto subModels = modelMulti->findSubModelByLib(createAbsolutePath(std::string("DYNModelVariationArea") + DYN::sharedLibraryExtension(), DDBDir));
     for (std::vector<boost::shared_ptr<DYN::SubModel> >::const_iterator it = subModels.begin(); it != subModels.end(); ++it) {
