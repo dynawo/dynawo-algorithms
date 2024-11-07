@@ -127,11 +127,11 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
   SimulationResult result;
   result.setScenarioId(scenario->getId());
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
-  simulation->setTimelineOutputFile("");
-  simulation->setConstraintsOutputFile("");
-  simulation->setLostEquipmentsOutputFile("");
 
   if (simulation) {
+    simulation->setTimelineOutputFile("");
+    simulation->setConstraintsOutputFile("");
+    simulation->setLostEquipmentsOutputFile("");
     simulate(simulation, result);
   }
 
