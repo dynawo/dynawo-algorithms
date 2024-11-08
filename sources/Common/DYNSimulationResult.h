@@ -127,6 +127,10 @@ class SimulationResult {
    */
   std::string getLostEquipementsStreamStr() const;
 
+  std::stringstream& getOutputIIDMStream();
+
+  std::string getOutputIIDMStreamStr() const;
+
   /**
    * @brief getter of the scenario id associated to the simulation
    * @return the scenario id associated to the simulation
@@ -248,6 +252,7 @@ class SimulationResult {
   std::stringstream timelineStream_;  ///< stream for the timeline associated to the scenario
   std::stringstream constraintsStream_;  ///< stream for the constraints associated to the scenario
   std::stringstream lostEquipmentsStream_;  ///< stream for the lost equipments associated to the scenario
+  std::stringstream outputIIDMStream_;
   std::string scenarioId_;  ///< id of the scenario
   double variation_;  ///< variation of the scenario (aka loadLevel when associated to a load increase)
   bool success_;  ///< @b true if the simulation reached its end, @b false otherwise

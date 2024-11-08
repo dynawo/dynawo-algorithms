@@ -122,6 +122,16 @@ SimulationResult::getLostEquipementsStreamStr() const {
   return lostEquipmentsStream_.str();
 }
 
+std::stringstream&
+SimulationResult::getOutputIIDMStream() {
+  return outputIIDMStream_;
+}
+
+std::string
+SimulationResult::getOutputIIDMStreamStr() const {
+  return outputIIDMStream_.str();
+}
+
 std::string
 SimulationResult::getScenarioId() const {
   return scenarioId_;

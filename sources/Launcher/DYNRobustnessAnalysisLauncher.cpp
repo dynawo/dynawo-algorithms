@@ -380,6 +380,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       simulation->terminate();
       result.setSuccess(true);
       result.setStatus(CONVERGENCE_STATUS);
+      simulation->dumpIIDMFile(result.getOutputIIDMStream());
     } catch (const DYN::Error& e) {
       std::cerr << e.what() << std::endl;
       Trace::error() << e.what() << Trace::endline;
@@ -450,6 +451,12 @@ RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::ma
     std::stringstream lostEquipmentsName;
     lostEquipmentsName << "lostEquipments/lostEquipments_" << result.getUniqueScenarioId() << "." << result.getLostEquipmentsFileExtension();
     mapData[lostEquipmentsName.str()] = result.getLostEquipementsStreamStr();
+  }
+
+  if (!result.getOutputIIDMStreamStr().empty()) {
+    std::stringstream outputIIDMName;
+    outputIIDMName << "outputIIDM/outputIIDM_" << result.getUniqueScenarioId() << ".xml";
+    mapData[outputIIDMName.str()] = result.getOutputIIDMStreamStr();
   }
 
   if (!result.getLogPath().empty()) {
@@ -615,13 +622,24 @@ RobustnessAnalysisLauncher::importResult(const std::string& id) const {
 
   // lost equipments
   auto& lostEquipments = ret.getLostEquipementsStream();
-  while (tmpStr.find("variation:") != 0) {
+  while (tmpStr.find("outputIIDM:") != 0) {
     file >> tmpStr;
-    if (tmpStr.find("variation:") == 0) {
+    if (tmpStr.find("outputIIDM:") == 0) {
       // case no lost equipments
       break;
     }
     lostEquipments << tmpStr << std::endl;
+  }
+
+  // outputIIDM
+  auto& outputIIDM = ret.getOutputIIDMStream();
+  while (tmpStr.find("variation:") != 0) {
+    file >> tmpStr;
+    if (tmpStr.find("variation:") == 0) {
+      // case no output IIDM
+      break;
+    }
+    outputIIDM << tmpStr << std::endl;
   }
 
   // variation
@@ -708,6 +726,7 @@ RobustnessAnalysisLauncher::exportResult(const SimulationResult& result) const {
   file << "timeline:" << std::endl << result.getTimelineStreamStr() << std::endl;
   file << "constraints:" << std::endl << result.getConstraintsStreamStr() << std::endl;
   file << "lostEquipments:" << std::endl << result.getLostEquipementsStreamStr() << std::endl;
+  file << "outputIIDM:" << std::endl << result.getOutputIIDMStreamStr() << std::endl;
   file << "variation:" <<result.getVariation() << std::endl;
   file << "success:" << std::boolalpha << result.getSuccess() << std::endl;
   file << "status:" << static_cast<unsigned int>(result.getStatus()) << std::endl;
