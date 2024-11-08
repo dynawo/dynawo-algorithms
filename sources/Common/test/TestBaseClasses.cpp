@@ -119,6 +119,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   sr.getConstraintsStream() << "Test Constraints";
   sr.getTimelineStream() << "Test Timeline";
   sr.getLostEquipementsStream() << "Test LostEquipements";
+  sr.getOutputIIDMStream() << "Test OutputIIDM";
   sr.setConstraintsFileExtension("log");
   sr.setTimelineFileExtension("log");
   sr.setLostEquipmentsFileExtension("log");
@@ -133,6 +134,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(sr.getConstraintsStreamStr(), "Test Constraints");
   ASSERT_EQ(sr.getTimelineStreamStr(), "Test Timeline");
   ASSERT_EQ(sr.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(sr.getOutputIIDMStreamStr(), "Test OutputIIDM");
   ASSERT_EQ(sr.getVariation(), 50);
   ASSERT_EQ(sr.getConstraintsFileExtension(), "log");
   ASSERT_EQ(sr.getTimelineFileExtension(), "log");
@@ -149,6 +151,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(srCopy.getConstraintsStreamStr(), "Test Constraints");
   ASSERT_EQ(srCopy.getTimelineStreamStr(), "Test Timeline");
   ASSERT_EQ(srCopy.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(srCopy.getOutputIIDMStreamStr(), "Test OutputIIDM");
   ASSERT_EQ(srCopy.getVariation(), 50);
   ASSERT_EQ(srCopy.getConstraintsFileExtension(), "log");
   ASSERT_EQ(srCopy.getTimelineFileExtension(), "log");
@@ -173,6 +176,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(srCopy2.getConstraintsStreamStr(), "Test Constraints");
   ASSERT_EQ(srCopy2.getTimelineStreamStr(), "Test Timeline");
   ASSERT_EQ(srCopy2.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(srCopy2.getOutputIIDMStreamStr(), "Test OutputIIDM");
   ASSERT_EQ(srCopy2.getVariation(), 50);
   ASSERT_EQ(srCopy2.getConstraintsFileExtension(), "log");
   ASSERT_EQ(srCopy2.getTimelineFileExtension(), "log");
@@ -189,6 +193,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(srMove.getConstraintsStreamStr(), "Test Constraints");
   ASSERT_EQ(srMove.getTimelineStreamStr(), "Test Timeline");
   ASSERT_EQ(srMove.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(srMove.getOutputIIDMStreamStr(), "Test OutputIIDM");
   ASSERT_EQ(srMove.getVariation(), 50);
   ASSERT_EQ(srMove.getConstraintsFileExtension(), "log");
   ASSERT_EQ(srMove.getTimelineFileExtension(), "log");
@@ -206,6 +211,7 @@ TEST(TestBaseClasses, testSimulationResult) {
   ASSERT_EQ(srMove2.getConstraintsStreamStr(), "Test Constraints");
   ASSERT_EQ(srMove2.getTimelineStreamStr(), "Test Timeline");
   ASSERT_EQ(srMove2.getLostEquipementsStreamStr(), "Test LostEquipements");
+  ASSERT_EQ(srMove2.getOutputIIDMStreamStr(), "Test OutputIIDM");
   ASSERT_EQ(srMove2.getVariation(), 50);
   ASSERT_EQ(srMove2.getConstraintsFileExtension(), "log");
   ASSERT_EQ(srMove2.getTimelineFileExtension(), "log");

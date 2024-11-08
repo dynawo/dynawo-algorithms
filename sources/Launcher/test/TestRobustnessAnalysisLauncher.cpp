@@ -66,16 +66,19 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     ASSERT_FALSE(exists("res/constraints/constraints_MyScenario.xml"));
     ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.log"));
     ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.xml"));
+    ASSERT_FALSE(exists("res/finalState/outputIIDM_MyScenario.xml"));
     ASSERT_TRUE(exists("res/logs/log_MyScenario.log"));
 
     result_.getConstraintsStream() << "Test Constraints";
     result_.getTimelineStream() << "Test Timeline";
+    result_.getOutputIIDMStream() << "Test final state";
 
     writeResults();
     ASSERT_TRUE(exists("res/MyOutputFile.zip"));
     ASSERT_TRUE(exists("res/constraints/constraints_MyScenario.xml"));
     ASSERT_TRUE(exists("res/timeLine/timeline_MyScenario.log"));
     ASSERT_FALSE(exists("res/timeLine/timeline_MyScenario.xml"));
+    ASSERT_TRUE(exists("res/finalState/outputIIDM_MyScenario.xml"));
     ASSERT_TRUE(exists("res/logs/log_MyScenario.log"));
   }
 
