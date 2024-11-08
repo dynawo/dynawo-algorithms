@@ -47,6 +47,7 @@ nrt/data/IEEE14/MC*/timeLine
 nrt/data/IEEE14/MC*/timeline
 nrt/data/IEEE14/MC*/logs
 nrt/data/IEEE14/MC*/constraints
+nrt/data/IEEE14/MC*/finalState
 nrt/data/IEEE14/MC*/result.zip
 nrt/data/IEEE14/MC*/*.dyd
 nrt/data/IEEE14/MC*/criteria*

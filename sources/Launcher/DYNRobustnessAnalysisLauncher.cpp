@@ -423,6 +423,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
     simulation->printTimeline(result.getTimelineStream());
     simulation->printConstraints(result.getConstraintsStream());
     simulation->printLostEquipments(result.getLostEquipementsStream());
+    simulation->dumpIIDMFile(result.getOutputIIDMStream());
     return result.getStatus();
 }
 
@@ -452,6 +453,12 @@ RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::ma
     mapData[lostEquipmentsName.str()] = result.getLostEquipementsStreamStr();
   }
 
+  if (!result.getOutputIIDMStreamStr().empty()) {
+    std::stringstream outputIIDMName;
+    outputIIDMName << "finalState/outputIIDM_" << result.getUniqueScenarioId() << ".xml";
+    mapData[outputIIDMName.str()] = result.getOutputIIDMStreamStr();
+  }
+
   if (!result.getLogPath().empty()) {
     std::stringstream logName;
     logName << "logs/log_" << result.getUniqueScenarioId() << ".log";
@@ -479,9 +486,13 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
   std::string lostEquipmentsPath = createAbsolutePath("lostEquipments", workingDirectory_);
   if (!is_directory(lostEquipmentsPath))
     create_directory(lostEquipmentsPath);
+  std::string finalStatePath = createAbsolutePath("finalState", workingDirectory_);
+  if (!is_directory(finalStatePath))
+    create_directory(finalStatePath);
   std::string logPath = createAbsolutePath("logs", workingDirectory_);
   if (!is_directory(logPath))
     create_directory(logPath);
+
   if (!result.getConstraintsStreamStr().empty()) {
     std::ofstream file;
     std::string filepath = createAbsolutePath("constraints_" + result.getUniqueScenarioId() + "." + result.getConstraintsFileExtension(), constraintPath);
@@ -513,6 +524,17 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
       throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filepath.c_str());
     }
     file << result.getLostEquipementsStreamStr();
+    file.close();
+  }
+
+  if (!result.getOutputIIDMStreamStr().empty()) {
+    std::string filepath = createAbsolutePath("outputIIDM_" + result.getUniqueScenarioId() + ".xml", finalStatePath);
+    std::ofstream file;
+    file.open(filepath);
+    if (!file.is_open()) {
+      throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filepath);
+    }
+    file << result.getOutputIIDMStreamStr();
     file.close();
   }
 
@@ -615,13 +637,24 @@ RobustnessAnalysisLauncher::importResult(const std::string& id) const {
 
   // lost equipments
   auto& lostEquipments = ret.getLostEquipementsStream();
-  while (tmpStr.find("variation:") != 0) {
+  while (tmpStr.find("outputIIDM:") != 0) {
     file >> tmpStr;
-    if (tmpStr.find("variation:") == 0) {
+    if (tmpStr.find("outputIIDM:") == 0) {
       // case no lost equipments
       break;
     }
     lostEquipments << tmpStr << std::endl;
+  }
+
+  // outputIIDM
+  auto& outputIIDM = ret.getOutputIIDMStream();
+  while (tmpStr.find("variation:") != 0) {
+    file >> tmpStr;
+    if (tmpStr.find("variation:") == 0) {
+      // case no output IIDM
+      break;
+    }
+    outputIIDM << tmpStr << std::endl;
   }
 
   // variation
@@ -708,6 +741,7 @@ RobustnessAnalysisLauncher::exportResult(const SimulationResult& result) const {
   file << "timeline:" << std::endl << result.getTimelineStreamStr() << std::endl;
   file << "constraints:" << std::endl << result.getConstraintsStreamStr() << std::endl;
   file << "lostEquipments:" << std::endl << result.getLostEquipementsStreamStr() << std::endl;
+  file << "outputIIDM:" << std::endl << result.getOutputIIDMStreamStr() << std::endl;
   file << "variation:" <<result.getVariation() << std::endl;
   file << "success:" << std::boolalpha << result.getSuccess() << std::endl;
   file << "status:" << static_cast<unsigned int>(result.getStatus()) << std::endl;

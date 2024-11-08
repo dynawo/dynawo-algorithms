@@ -45,6 +45,7 @@ SimulationResult::SimulationResult(const SimulationResult& result):
   timelineStream_ << result.timelineStream_.str();
   constraintsStream_ << result.constraintsStream_.str();
   lostEquipmentsStream_ << result.lostEquipmentsStream_.str();
+  outputIIDMStream_ << result.outputIIDMStream_.str();
 }
 
 SimulationResult&
@@ -63,6 +64,9 @@ SimulationResult::operator=(const SimulationResult& result) {
   lostEquipmentsStream_.str("");
   lostEquipmentsStream_.clear();
   lostEquipmentsStream_ << result.lostEquipmentsStream_.str();
+  outputIIDMStream_.str("");
+  outputIIDMStream_.clear();
+  outputIIDMStream_ << result.outputIIDMStream_.str();
   failingCriteria_ = result.failingCriteria_;
   timelineFileExtension_ = result.timelineFileExtension_;
   constraintsFileExtension_ =  result.constraintsFileExtension_;
@@ -120,6 +124,16 @@ SimulationResult::getLostEquipementsStream() {
 std::string
 SimulationResult::getLostEquipementsStreamStr() const {
   return lostEquipmentsStream_.str();
+}
+
+std::stringstream&
+SimulationResult::getOutputIIDMStream() {
+  return outputIIDMStream_;
+}
+
+std::string
+SimulationResult::getOutputIIDMStreamStr() const {
+  return outputIIDMStream_.str();
 }
 
 std::string
