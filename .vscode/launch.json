@@ -47,7 +47,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build-code/build/dynawo-algorithms/Debug/sources/API/multipleJobs/test",
             "environment": [
-                { "name": "LD_LIBRARY_PATH", "value" : "${env:LD_LIBRARY_PATH}:${workspaceFolder}/build-code/install/3rdParty/Debug/gperftools/lib:${workspaceFolder}/build-code/install/3rdParty/Debug/mpich/lib:${workspaceFolder}/build-code/install/dynawo-algorithms/Debug/lib:${workspaceFolder}/../dynawo/build-code/deploy/Debug/dynawo/lib" }
+                { "name": "LD_LIBRARY_PATH", "value" : "${env:LD_LIBRARY_PATH}:${workspaceFolder}/build-code/install/3rdParty/Debug/gperftools/lib:${workspaceFolder}/build-code/install/3rdParty/Debug/mpich/lib:${workspaceFolder}/build-code/install/dynawo-algorithms/Debug/lib:${workspaceFolder}/build-code/build/dynawo-algorithms/Debug/sources/Test:${workspaceFolder}/../dynawo/build-code/deploy/Debug/dynawo/lib" }
             ],
             "externalConsole": false,
             "MIMode": "gdb",
