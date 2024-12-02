@@ -99,9 +99,8 @@ class Context {
   static Context* instance_;  ///< Unique instance
   static bool finalized_;  ///< Instance is already finalized
 
-#ifdef _MPI_
-
  public:
+#ifdef _MPI_
   /**
    * @brief Gather all data into root rank
    *
@@ -113,6 +112,7 @@ class Context {
   void gather(const T& data, std::vector<T>& recvData) const {
     gatherImpl(Tag<T>(), data, recvData);
   }
+#endif
 
   /**
    * @brief Broadcast data from root rank to all process
@@ -122,9 +122,12 @@ class Context {
    */
   template<class T>
   void broadcast(T& data) const {
+#ifdef _MPI_
     broadcastImpl(Tag<T>(), data);
+#endif
   }
 
+#ifdef _MPI_
   /**
    * @brief Retrieve the rank of the current process
    *
