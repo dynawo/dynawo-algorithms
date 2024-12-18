@@ -120,12 +120,17 @@ class Context {
    * @tparam T the data type to broadcast
    * @param data the data to broadcast
    */
+#ifdef _MPI_
   template<class T>
   void broadcast(T& data) const {
-#ifdef _MPI_
     broadcastImpl(Tag<T>(), data);
-#endif
   }
+#else
+  template<class T>
+  void broadcast(T&) const {
+    // do nothing
+  }
+#endif
 
 #ifdef _MPI_
   /**
