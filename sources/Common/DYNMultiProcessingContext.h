@@ -114,18 +114,25 @@ class Context {
   }
 #endif
 
+#ifdef _MPI_
   /**
    * @brief Broadcast data from root rank to all process
    *
    * @tparam T the data type to broadcast
    * @param data the data to broadcast
    */
-#ifdef _MPI_
   template<class T>
   void broadcast(T& data) const {
     broadcastImpl(Tag<T>(), data);
   }
 #else
+  /**
+   * @brief No-op broadcast function for builds without MPI
+   * 
+   * When MPI is not enabled, this function does nothing. It is provided to maintain interface compatibility.
+   *
+   * @tparam T the data type to broadcast
+   */
   template<class T>
   void broadcast(T&) const {
     // do nothing
