@@ -178,7 +178,7 @@ jobs:
       - name: Build and install
         shell: cmd
         env:
-          PATH: C:\Windows\system32;C:\Program Files\Git\cmd;C:\hostedtoolcache\windows\Python\3.7.9\x64
+          PATH: C:\Windows\system32;C:\Program Files\Git\cmd;C:\hostedtoolcache\windows\Python\3.9.13\x64
         run: |
           if "${{ matrix.use-mpi.value }}" == "YES" (
             set "MSMPI_INC=C:\Program Files (x86)\Microsoft SDKs\MPI\Include\"
