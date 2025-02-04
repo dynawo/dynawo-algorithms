@@ -22,7 +22,8 @@
 
 #include <JOBJobEntry.h>
 #include <boost/filesystem.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
+
 
 namespace DYNAlgorithms {
 
@@ -47,7 +48,7 @@ class MultiVariantInputs {
    * @brief Retrieve a copy of the job entry
    * @returns job entry copy or null pointer if empty
    */
-  boost::shared_ptr<job::JobEntry> cloneJobEntry() const;
+  std::shared_ptr<job::JobEntry> cloneJobEntry() const;
 
   /**
    * @brief Retrieve the IIDM path to use
@@ -75,9 +76,9 @@ class MultiVariantInputs {
   }
 
  private:
-  boost::shared_ptr<job::JobEntry> jobEntry_;  ///< job entry to use
-  boost::filesystem::path iidmPath_;           ///< IIDM path to use
-  double tLoadIncreaseVariationMax_;                                  ///< maximum time duration of the variation during the load increase part
+  std::shared_ptr<job::JobEntry> jobEntry_;  ///< job entry to use
+  boost::filesystem::path iidmPath_;         ///< IIDM path to use
+  double tLoadIncreaseVariationMax_;         ///< maximum time duration of the variation during the load increase part
 };
 }  // namespace DYNAlgorithms
 

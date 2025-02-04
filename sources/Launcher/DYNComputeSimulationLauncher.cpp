@@ -47,10 +47,10 @@ ComputeSimulationLauncher::launch() {
     outputFileFullPath = createAbsolutePath("results.xml", workingDir);
   }
   job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(inputFile_);
+  std::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(inputFile_);
   workingDirectory_ = workingDir;
   for (job::job_iterator itJobEntry = jobsCollection->begin(); itJobEntry != jobsCollection->end(); ++itJobEntry) {
-    boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
+    std::shared_ptr<job::JobEntry>& job = *itJobEntry;
     std::cout << DYNLog(LaunchingJob, (*itJobEntry)->getName()) << std::endl;
     SimulationResult result;
     SimulationParameters params;

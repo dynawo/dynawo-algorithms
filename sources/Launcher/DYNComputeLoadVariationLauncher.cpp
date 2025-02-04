@@ -50,7 +50,7 @@ ComputeLoadVariationLauncher::launch() {
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
 
   inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
-  boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+  std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
 
   SimulationParameters params;
   //  force simulation to dump final values (would be used as input to launch each events)

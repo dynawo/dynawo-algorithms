@@ -40,8 +40,8 @@ TEST(MultiVariant, base) {
   jobFile = "MyJobsWithIIDM.jobs";
   inputs.readInputs(workingDir, jobFile);
   ASSERT_EQ(inputs.iidmPath(), expectedIIDM);
-  boost::shared_ptr<job::JobEntry> job1 = inputs.cloneJobEntry();
-  boost::shared_ptr<job::JobEntry> job2 = inputs.cloneJobEntry();
+  std::shared_ptr<job::JobEntry> job1 = inputs.cloneJobEntry();
+  std::shared_ptr<job::JobEntry> job2 = inputs.cloneJobEntry();
   ASSERT_TRUE(job1);
   ASSERT_TRUE(job2);
   ASSERT_NE(job1, job2);
@@ -51,7 +51,7 @@ TEST(MultiVariant, base) {
   inputs.readInputs(workingDir, jobFile, iidmFile);
   ASSERT_EQ(inputs.iidmPath(), expectedIIDM);
 
-  boost::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
+  std::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
   ASSERT_TRUE(job);
   ASSERT_EQ(job->getName(), "My Jobs");
 }

@@ -24,7 +24,7 @@
 #include <DYNDataInterfaceFactory.h>
 #include <JOBJobsCollection.h>
 #include <JOBXmlImporter.h>
-#include <boost/make_shared.hpp>
+
 
 namespace DYNAlgorithms {
 
@@ -32,7 +32,7 @@ void
 MultiVariantInputs::readInputs(const std::string& workingDirectory, const std::string& jobFile, const std::string& iidmFile) {
   // job
   job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(jobFile, workingDirectory));
+  std::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(jobFile, workingDirectory));
   //  implicit : only one job per file
   jobEntry_ = *jobsCollection->begin();
 
@@ -56,9 +56,9 @@ MultiVariantInputs::readInputs(const std::string& workingDirectory, const std::s
   iidmPath_ = iidmFilePath;
 }
 
-boost::shared_ptr<job::JobEntry>
+std::shared_ptr<job::JobEntry>
 MultiVariantInputs::cloneJobEntry() const {
-  return jobEntry_ ? boost::make_shared<job::JobEntry>(*jobEntry_) : boost::shared_ptr<job::JobEntry>();
+  return jobEntry_ ? std::make_shared<job::JobEntry>(*jobEntry_) : std::shared_ptr<job::JobEntry>();
 }
 
 }  // namespace DYNAlgorithms
