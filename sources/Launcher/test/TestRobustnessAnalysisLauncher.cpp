@@ -43,7 +43,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
  public:
   void launch() {
     inputs_.readInputs(workingDirectory_, "MyJobs.jobs");
-    boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+    std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
     addDydFileToJob(job, "MyDydFile.dyd");
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries().size(), 2);
     ASSERT_EQ(job->getModelerEntry()->getDynModelsEntries()[0]->getDydFile(), "EmptyDydFile.dyd");

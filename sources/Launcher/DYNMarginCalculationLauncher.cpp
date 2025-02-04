@@ -95,7 +95,7 @@ void
 MarginCalculationLauncher::readTimes(const std::string& jobFileLoadIncrease, const std::string& jobFileScenario) {
   // job
   job::XmlImporter importer;
-  boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(jobFileLoadIncrease, workingDirectory_));
+  std::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(jobFileLoadIncrease, workingDirectory_));
   //  implicit : only one job per file
   job::job_iterator jobIt = jobsCollection->begin();
   tLoadIncrease_ = (*jobIt)->getSimulationEntry()->getStopTime();
@@ -601,7 +601,7 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
   std::stringstream subDir;
   subDir << "step-" << variation;
   std::string workingDir = createAbsolutePath(scenario->getId(), createAbsolutePath(subDir.str(), workingDirectory_));
-  boost::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
+  std::shared_ptr<job::JobEntry> job = inputs.cloneJobEntry();
 
   addDydFileToJob(job, scenario->getDydFile());
   setCriteriaFileForJob(job, scenario->getCriteriaFile());
@@ -802,7 +802,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
   std::stringstream subDir;
   subDir << "step-" << variation;
   std::string workingDir = createAbsolutePath(loadIncrease->getId(), createAbsolutePath(subDir.str(), workingDirectory_));
-  boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+  std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
 
   SimulationParameters params;
   //  force simulation to dump final values (would be used as input to launch each event)

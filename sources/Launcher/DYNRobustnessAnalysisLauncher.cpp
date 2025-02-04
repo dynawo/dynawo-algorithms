@@ -63,7 +63,7 @@
 #include "MacrosMessage.h"
 #include "DYNMultiProcessingContext.h"
 
-#include <boost/make_shared.hpp>
+
 using DYN::Trace;
 using multipleJobs::MultipleJobs;
 
@@ -262,18 +262,16 @@ RobustnessAnalysisLauncher::readInputData(const std::string& fileName) {
 }
 
 void
-RobustnessAnalysisLauncher::addDydFileToJob(boost::shared_ptr<job::JobEntry>& job,
-    const std::string& dydFile) {
+RobustnessAnalysisLauncher::addDydFileToJob(const std::shared_ptr<job::JobEntry>& job, const std::string& dydFile) {
   if (!dydFile.empty()) {
-    boost::shared_ptr<job::DynModelsEntry> dynModels = job::DynModelsEntryFactory::newInstance();
+    std::unique_ptr<job::DynModelsEntry> dynModels = job::DynModelsEntryFactory::newInstance();
     dynModels->setDydFile(dydFile);
-    job->getModelerEntry()->addDynModelsEntry(dynModels);
+    job->getModelerEntry()->addDynModelsEntry(std::move(dynModels));
   }
 }
 
 void
-RobustnessAnalysisLauncher::setCriteriaFileForJob(boost::shared_ptr<job::JobEntry>& job,
-    const std::string& criteriaFile) {
+RobustnessAnalysisLauncher::setCriteriaFileForJob(const std::shared_ptr<job::JobEntry>& job, const std::string& criteriaFile) {
   if (!criteriaFile.empty()) {
     job->getSimulationEntry()->setCriteriaFile(criteriaFile);
   }
@@ -281,8 +279,8 @@ RobustnessAnalysisLauncher::setCriteriaFileForJob(boost::shared_ptr<job::JobEntr
 
 boost::shared_ptr<DYN::Simulation>
 RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDir,
-    boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const MultiVariantInputs& analysisContext) {
-  boost::shared_ptr<DYN::SimulationContext> context = boost::shared_ptr<DYN::SimulationContext>(new DYN::SimulationContext());
+    const std::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const MultiVariantInputs& analysisContext) {
+  std::unique_ptr<DYN::SimulationContext> context = std::unique_ptr<DYN::SimulationContext>(new DYN::SimulationContext());
   context->setResourcesDirectory(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
   context->setLocale(getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
   context->setInputDirectory(workingDirectory_);
@@ -292,7 +290,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     ? DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, analysisContext.iidmPath().generic_string())
     : boost::shared_ptr<DYN::DataInterface>();
   boost::shared_ptr<DYN::Simulation> simulation =
-    boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, context, dataInterface));
+    boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, std::move(context), dataInterface));
 
   if (!params.InitialStateFile_.empty())
     simulation->setInitialStateFile(params.InitialStateFile_);
@@ -358,8 +356,8 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
     result.setLostEquipmentsFileExtensionFromExportMode("XML");
 
   if (job->getOutputsEntry() && job->getOutputsEntry()->getLogsEntry()) {
-    std::vector<boost::shared_ptr<job::AppenderEntry> > appendersEntry = job->getOutputsEntry()->getLogsEntry()->getAppenderEntries();
-    for (std::vector<boost::shared_ptr<job::AppenderEntry> >::iterator itApp = appendersEntry.begin(), itAppEnd = appendersEntry.end();
+    std::vector<std::shared_ptr<job::AppenderEntry> > appendersEntry = job->getOutputsEntry()->getLogsEntry()->getAppenderEntries();
+    for (std::vector<std::shared_ptr<job::AppenderEntry> >::iterator itApp = appendersEntry.begin(), itAppEnd = appendersEntry.end();
         itApp != itAppEnd; ++itApp) {
       if ((*itApp)->getTag() == "") {
         std::string file = createAbsolutePath(job->getOutputsEntry()->getOutputsDirectory(), workingDir);
@@ -769,8 +767,8 @@ RobustnessAnalysisLauncher::cleanResult(const std::string& id) const {
 }
 
 bool
-RobustnessAnalysisLauncher::findExportIIDM(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates) {
-  for (std::vector<boost::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
+RobustnessAnalysisLauncher::findExportIIDM(const std::vector<std::shared_ptr<job::FinalStateEntry> >& finalStates) {
+  for (std::vector<std::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
     if (!(*it)->getTimestamp()) {
       // one without timestamp : it means that it concerns the final state
       return (*it)->getExportIIDMFile();
@@ -781,8 +779,8 @@ RobustnessAnalysisLauncher::findExportIIDM(const std::vector<boost::shared_ptr<j
 }
 
 bool
-RobustnessAnalysisLauncher::findExportDump(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates) {
-  for (std::vector<boost::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
+RobustnessAnalysisLauncher::findExportDump(const std::vector<std::shared_ptr<job::FinalStateEntry> >& finalStates) {
+  for (std::vector<std::shared_ptr<job::FinalStateEntry> >::const_iterator it = finalStates.begin(); it != finalStates.end(); ++it) {
     if (!(*it)->getTimestamp()) {
       // one without timestamp : it means that it concerns the final state
       return (*it)->getExportDumpFile();
@@ -793,8 +791,8 @@ RobustnessAnalysisLauncher::findExportDump(const std::vector<boost::shared_ptr<j
 }
 
 void
-RobustnessAnalysisLauncher::initParametersWithJob(boost::shared_ptr<job::JobEntry> job, SimulationParameters& params) {
-  const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStateEntries = job->getOutputsEntry()->getFinalStateEntries();
+RobustnessAnalysisLauncher::initParametersWithJob(const std::shared_ptr<job::JobEntry>& job, SimulationParameters& params) {
+  const std::vector<std::shared_ptr<job::FinalStateEntry> >& finalStateEntries = job->getOutputsEntry()->getFinalStateEntries();
   // It is considered that only the first final entry is relevant for parameters for systematic analysis
   if (!finalStateEntries.empty()) {
     params.activateExportIIDM_ = findExportIIDM(finalStateEntries);

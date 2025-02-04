@@ -26,7 +26,6 @@
 #include <fstream>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 #include <libzip/ZipFile.h>
@@ -116,7 +115,7 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
               << " criteriaFile =" << scenario->getCriteriaFile() << std::endl;
 
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
-  boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+  std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
 
   addDydFileToJob(job, scenario->getDydFile());
   setCriteriaFileForJob(job, scenario->getCriteriaFile());

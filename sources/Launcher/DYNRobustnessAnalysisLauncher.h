@@ -22,6 +22,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
@@ -137,7 +138,7 @@ class RobustnessAnalysisLauncher {
    * @return Initialized simulation or a null pointer if initialization failed
    */
   boost::shared_ptr<DYN::Simulation> createAndInitSimulation(const std::string& workingDir,
-      boost::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
+      const std::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
       const MultiVariantInputs& analysisContext);
 
   /**
@@ -145,14 +146,14 @@ class RobustnessAnalysisLauncher {
    * @param job job to simulate
    * @param dydFile dyd file to add to the job, empty if none to add
    */
-  void addDydFileToJob(boost::shared_ptr<job::JobEntry>& job, const std::string& dydFile);
+  void addDydFileToJob(const std::shared_ptr<job::JobEntry>& job, const std::string& dydFile);
 
   /**
    * @brief replace the criteria file for the job
    * @param job job to simulate
    * @param criteriaFile criteria file to set for the job, empty if none to set
    */
-  void setCriteriaFileForJob(boost::shared_ptr<job::JobEntry>& job, const std::string& criteriaFile);
+  void setCriteriaFileForJob(const std::shared_ptr<job::JobEntry>& job, const std::string& criteriaFile);
 
   /**
    * @brief launch a simulation and collect results
@@ -184,7 +185,7 @@ class RobustnessAnalysisLauncher {
    * @param job the job to use
    * @param params the parameters to update
    */
-  static void initParametersWithJob(boost::shared_ptr<job::JobEntry> job, SimulationParameters& params);
+  static void initParametersWithJob(const std::shared_ptr<job::JobEntry>& job, SimulationParameters& params);
 
   /**
    * @brief Export a save result file
@@ -237,7 +238,7 @@ class RobustnessAnalysisLauncher {
    * @param finalStates the list of final state entries to check
    * @return true if IIDM export is required, false if not
    */
-  static bool findExportIIDM(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates);
+  static bool findExportIIDM(const std::vector<std::shared_ptr<job::FinalStateEntry> >& finalStates);
 
   /**
    * @brief Find in the final state entries if the final state dump export is required
@@ -248,7 +249,7 @@ class RobustnessAnalysisLauncher {
    * @param finalStates the list of final state entries to check
    * @return true if dump export is required, false if not
    */
-  static bool findExportDump(const std::vector<boost::shared_ptr<job::FinalStateEntry> >& finalStates);
+  static bool findExportDump(const std::vector<std::shared_ptr<job::FinalStateEntry> >& finalStates);
 
   /**
    * read the input data for launching the systematic analysis
