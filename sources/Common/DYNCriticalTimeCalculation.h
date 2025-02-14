@@ -22,16 +22,43 @@
 #define COMMON_DYNCRITICALTIMECALCULATION_H_
 
 #include <string>
+#include <DYNCommon.h>
+#include "DYNScenarios.h"
 
 namespace DYNAlgorithms {
 
 /**
- * @brief Margin calculation class
+ * @brief Critical Time calculation class
  *
- * Class for margin calculation element : input data
+ * Class for Critical Time calculation element : input data
  */
-class CriticalTimeCalculation {
+class CriticalTimeCalculation{
  public:
+   /**
+   * Mode of calculation
+   */
+  typedef enum {
+    SIMPLE = 0,  // Do a simple dichotomy
+    COMPLEX = 1,  // Do a dichotomy until it meets a solver issue. it Reduces the range based on previous range and continue the dichotomy
+  } mode_t;
+
+  /**
+   * constructor
+   */
+  CriticalTimeCalculation();
+
+  /**
+   * @brief set the scenarios of the margin calculation
+   * @param scenarios scenarios to associate to the margin calculation
+   */
+  void setScenarios(const boost::shared_ptr<Scenarios>& scenarios);
+
+  /**
+   * @brief get the scenarios associated to the margin calculation
+   * @return scenarios associated to the margin calculation
+   */
+  boost::shared_ptr<Scenarios> getScenarios() const;
+
   /**
    * @brief set the accuracy of the algorithm
    * @param accuracy accuracy of the algorithm
@@ -45,18 +72,6 @@ class CriticalTimeCalculation {
   double getAccuracy() const;
 
   /**
-   * @brief set the jobs file used for the simulation
-   * @param jobsFile jobs file used for the simulation
-   */
-  void setJobsFile(std::string jobsFile);
-
-  /**
-   * @brief get the jobs file used for the simulation
-   * @return jobs file used for the simulation
-   */
-  const std::string& getJobsFile() const;
-
-  /**
    * @brief set the id parameter from the Dyd file.
    * @param parSetId id parameter we will use
    */
@@ -66,19 +81,19 @@ class CriticalTimeCalculation {
    * @brief get the id parameter from the Dyd file.
    * @return id parameter we will use
    */
-  std::string getDydId() const;
+  const std::string& getDydId() const;
 
   /**
-   * @brief set the end parameter used for the simulation
-   * @param endPar end parameter used for the simulation
+   * @brief set the Name of end parameter used for the simulation
+   * @param parName end parameter used for the simulation
    */
-  void setEndPar(std::string endPar);
+  void setParName(const std::string& parName);
 
   /**
-   * @brief get the end parameter used for the simulation
+   * @brief get the Name of end parameter used for the simulation
    * @return end parameter used for the simulation
    */
-  std::string getEndPar() const;
+  const std::string& getParName() const;
 
   /**
    * @brief set the minimum value used for the simulation
@@ -104,13 +119,38 @@ class CriticalTimeCalculation {
    */
   double getMaxValue();
 
+  /**
+   * @brief set the mode used for the simulation
+   * @param minValue mode used for the simulation
+   */
+  void setMode(mode_t mode);
+
+  /**
+   * @brief get the mode used for the simulation
+   * @return mode used for the simulation
+   */
+  mode_t getMode() const;
+
+  /**
+   * @brief Check if MinValue is inferior of MaxValue. Throw an error otherwise.
+   */
+  void checkMinValueInferiorMaxValue();
+
+  /**
+   * @brief Check if the dydId_ is present the dydFile
+   * @param workingDir working directory
+   */
+  void checkDydIdInDydFiles(std::string workingDir);
+
  private:
+  boost::shared_ptr<Scenarios> scenarios_;  ///< description of the scenarios to apply after the load increase
   double accuracy_;  ///< accuracy of the algorithm
   std::string jobsFile_;  ///< jobs file used for the simulation
   std::string dydId_;  ///< dyd id in the dyd file
-  std::string endPar_;  ///< end parameter used for the simulation
+  std::string parName_;  ///< Name of end parameter used for the simulation
   double minValue_;  ///< minimum value for the critical time
   double maxValue_;  ///< maximum value for the critical time
+  mode_t mode_;   ///< mode for the calculation
 };
 
 }  // namespace DYNAlgorithms

@@ -131,10 +131,11 @@ TEST(TestMultipleJobs, TestMultipleJobsXmlHanderCriticalTime) {
   boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
   ct = mj->getCriticalTimeCalculation();
   ASSERT_EQ(ct->getAccuracy(), 0.001);
-  ASSERT_EQ(ct->getJobsFile(), "Myjobs.jobs");
+  ASSERT_EQ(ct->getScenarios()->getJobsFile(), "Myjobs.jobs");
   ASSERT_EQ(ct->getDydId(), "MyDydId");
-  ASSERT_EQ(ct->getEndPar(), "MyEndPar");
+  ASSERT_EQ(ct->getParName(), "MyParName");
   ASSERT_EQ(ct->getMinValue(), 0.1);
   ASSERT_EQ(ct->getMaxValue(), 1);
+  ASSERT_EQ(ct->getMode(), DYNAlgorithms::CriticalTimeCalculation::SIMPLE);
 }
 }  // namespace multipleJobs

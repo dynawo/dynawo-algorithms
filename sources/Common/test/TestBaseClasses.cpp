@@ -107,20 +107,33 @@ TEST(TestBaseClasses, testMarginCalculation) {
 TEST(TestBaseClasses, testCriticalTimeCalculation) {
   CriticalTimeCalculation ct;
   ct.setAccuracy(0.01);
-  ct.setJobsFile("Myjobs.jobs");
   ct.setDydId("MyDydId");
-  ct.setEndPar("MyEndPar");
+  ct.setParName("MyParName");
   ct.setMinValue(1);
   ct.setMaxValue(2);
+  ct.setMode(CriticalTimeCalculation::SIMPLE);
+  boost::shared_ptr<Scenario> t2(new Scenario());
+  t2->setId("MyId2");
+  t2->setDydFile("MyDydFile2");
+  boost::shared_ptr<Scenario> t3(new Scenario());
+  t3->setId("MyId3");
+  t3->setDydFile("MyDydFile3");
+  boost::shared_ptr<Scenarios> scenarios(new Scenarios());
+  scenarios->setJobsFile("Myjobs.jobs");
+  scenarios->addScenario(t2);
+  scenarios->addScenario(t3);
+  ct.setScenarios(scenarios);
   ASSERT_EQ(ct.getAccuracy(), 0.01);
-  ASSERT_EQ(ct.getJobsFile(), "Myjobs.jobs");
+  ASSERT_EQ(ct.getScenarios()->getJobsFile(), "Myjobs.jobs");
   ASSERT_EQ(ct.getDydId(), "MyDydId");
-  ASSERT_EQ(ct.getEndPar(), "MyEndPar");
+  ASSERT_EQ(ct.getParName(), "MyParName");
   ASSERT_EQ(ct.getMinValue(), 1);
   ASSERT_EQ(ct.getMaxValue(), 2);
+  ASSERT_EQ(ct.getMode(), CriticalTimeCalculation::SIMPLE);
 
   ASSERT_THROW_DYNAWO(ct.setAccuracy(-1), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
   ASSERT_THROW_DYNAWO(ct.setAccuracy(2), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
+  ASSERT_THROW_DYNAWO(ct.setMinValue(3), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentMinAndMaxValue);
 }
 
 TEST(TestBaseClasses, testSimulationResult) {

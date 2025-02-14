@@ -56,7 +56,6 @@ int main(int argc, char** argv) {
 
   std::string simulationMC_SA_CS_CTC = "Set the simulation type to launch : MC (Margin calculation), SA (systematic analysis), CS (compute simulation)"
   " or CTC (critical time calculation)";
-  const char* allSimulationsType = simulationMC_SA_CS_CTC.c_str();
 
   std::vector<std::string> directoryVec;
   int variation = -1;
@@ -67,7 +66,7 @@ int main(int argc, char** argv) {
     desc.add_options()
             ("help,h", "Produce help message")
             ("simulationType", po::value<std::string>(&simulationType)->required(),
-             allSimulationsType)
+             simulationMC_SA_CS_CTC.c_str())
             ("input", po::value<std::string>(&inputFile)->required(),
              "Set the input file of the simulation (*.zip or *.xml)")
             ("output", po::value<std::string>(&outputFile),

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
-    Copyright (c) 2021, RTE (http://www.rte-france.com)
+    Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
     See AUTHORS.txt
     All rights reserved.
     This Source Code Form is subject to the terms of the Mozilla Public
@@ -11,6 +11,7 @@
     This file is part of Dynawo, an hybrid C++/Modelica open source suite
     of simulation tools for power systems.
 -->
-<multipleJobs xmlns="http://www.rte-france.com/dynawo">
-	<criticalTimeCalculation accuracy="0.001" jobsFile="MyJobs.jobs" dydId="FAULT_GEN_1" parName="fault_tEnd" minValue="1" maxValue="1.620"/>
-</multipleJobs>
+<dyn:dynamicModelsArchitecture xmlns:dyn="http://www.rte-france.com/dynawo">
+  <dyn:blackBoxModel id="FAULT_GEN_1" lib="NodeFault" parFile="IEEE14.par" parId="Fault"/>
+  <dyn:connect id1="FAULT_GEN_1" var1="fault_terminal" id2="NETWORK" var2="_BUS____2_TN_ACPIN"/>
+</dyn:dynamicModelsArchitecture>

@@ -85,7 +85,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
 
   void launchCriticalTime() {
     inputs_.readInputs(workingDirectory_, "MyJobs.jobs");
-    boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+    std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
 
     SimulationParameters params;
     boost::shared_ptr<DYN::Simulation> simu = createAndInitSimulation("res/CriticalTime", job, params, result_, inputs_);
@@ -149,9 +149,9 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     assert(multipleJobs_->getCriticalTimeCalculation());
     boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct = multipleJobs_->getCriticalTimeCalculation();
     ASSERT_EQ(ct->getAccuracy(), 0.001);
-    ASSERT_EQ(ct->getJobsFile(), "MyJobs.jobs");
+    ASSERT_EQ(ct->getScenarios()->getJobsFile(), "MyJobs.jobs");
     ASSERT_EQ(ct->getDydId(), "FAULT_GEN_1");
-    ASSERT_EQ(ct->getEndPar(), "fault_tEnd");
+    ASSERT_EQ(ct->getParName(), "fault_tEnd");
     ASSERT_EQ(ct->getMinValue(), 1);
     ASSERT_EQ(ct->getMaxValue(), 1.620);
   }

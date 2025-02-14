@@ -104,32 +104,25 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
   } else {
     workingDirectory_ = directory_;
   }
-
   if ( !is_directory(workingDirectory_) )
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
-
   if (doInitLog && multiprocessing::context().isRootProc())
     initLog();
-
   // build the name of the outputFile
   outputFileFullPath_ = createAbsolutePath(outputFile_, workingDirectory_);
-
   // If we already have received a definition for multipleJobs we have finished
   if (multipleJobs_) {
     return;
   }
-
   // Build a definition of multipleJobs from input file
   std::string inputFileFullPath;
   if (!isAbsolutePath(inputFile_))
     inputFileFullPath = createAbsolutePath(inputFile_, workingDirectory_);
   else
     inputFileFullPath = inputFile_;
-
   if (!exists(inputFileFullPath)) {
     throw DYNAlgorithmsError(FileDoesNotExist, inputFileFullPath);
   }
-
   std::string fileName = "";
   if (extensionEquals(inputFileFullPath, ".zip")) {
     fileName = unzipAndGetMultipleJobsFileName(inputFileFullPath);
@@ -289,6 +282,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   boost::shared_ptr<DYN::DataInterface> dataInterface = !analysisContext.iidmPath().empty()
     ? DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, analysisContext.iidmPath().generic_string())
     : boost::shared_ptr<DYN::DataInterface>();
+
   boost::shared_ptr<DYN::Simulation> simulation =
     boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, std::move(context), dataInterface));
 
@@ -385,17 +379,22 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       simulation->disableExportIIDM();
       simulation->terminate();
       result.setSuccess(false);
-      if (e.type() == DYN::Error::SIMULATION) {
-        result.setStatus(CRITERIA_NON_RESPECTED_STATUS);
+
+      std::string e_str(e.what());
+      std::replace(e_str.begin(), e_str.end(), '\n', ' ');
+      result.setSimulationMessageError(e_str);
+
+      if (e.type() == DYN::Error::SIMULATION || e.type() == DYN::Error::SOLVER_ALGO
+          || e.type() == DYN::Error::SUNDIALS_ERROR || e.type() == DYN::Error::NUMERICAL_ERROR) {
+        if (e.type() == DYN::Error::SIMULATION)
+          result.setStatus(CRITERIA_NON_RESPECTED_STATUS);
+        else
+          result.setStatus(DIVERGENCE_STATUS);
+
         std::vector<std::pair<double, std::string> > failingCriteria;
         simulation->getFailingCriteria(failingCriteria);
         result.setFailingCriteria(failingCriteria);
-      } else if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR
-          || e.type() == DYN::Error::NUMERICAL_ERROR) {
-        result.setStatus(DIVERGENCE_STATUS);
-        std::vector<std::pair<double, std::string> > failingCriteria;
-        simulation->getFailingCriteria(failingCriteria);
-        result.setFailingCriteria(failingCriteria);
+
       } else {
         result.setStatus(EXECUTION_PROBLEM_STATUS);
       }
@@ -405,7 +404,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
 
       std::string m_str(m.what());
       std::replace(m_str.begin(), m_str.end(), '\n', ' ');
-      result.setCriticalTimeMessageError(m_str);
+      result.setSimulationMessageError(m_str);
 
       simulation->terminate();
       result.setSuccess(false);

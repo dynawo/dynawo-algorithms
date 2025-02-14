@@ -18,6 +18,7 @@
 #include <gtest_dynawo.h>
 
 #include "DYNSimulationResult.h"
+#include "DYNCriticalTimeResult.h"
 #include "DYNAggrResXmlExporter.h"
 
 namespace aggregatedResults {
@@ -108,11 +109,32 @@ TEST(TestAggregatedResults, TestAggregatedResultsLoadIncreaseResults) {
 }
 
 TEST(TestAggregatedResults, TestAggregatedResultsCriticalTimeResults) {
-  const double& criticalTime = 1;
-  std::string messageCriticalTimeError = "MyMessage";
+  std::string message = "MyMessage";
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult1;
+  criticalTimeResult1.setId("MyFirstScenario");
+  criticalTimeResult1.setStatus(DYNAlgorithms::RESULT_FOUND);
+  criticalTimeResult1.setCriticalTime(1);
+  criticalTimeResult1.getResult().setSimulationMessageError(message);
+
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult2;
+  criticalTimeResult2.setId("MySecondScenario");
+  criticalTimeResult2.setStatus(DYNAlgorithms::CT_BELOW_MIN_BOUND);
+  criticalTimeResult2.setCriticalTime(1);
+  criticalTimeResult2.getResult().setSimulationMessageError(message);
+
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult3;
+  criticalTimeResult3.setId("MyThirdScenario");
+  criticalTimeResult3.setStatus(DYNAlgorithms::CT_ABOVE_MAX_BOUND);
+  criticalTimeResult3.setCriticalTime(1);
+  criticalTimeResult3.getResult().setSimulationMessageError(message);
+
+  std::vector<DYNAlgorithms::CriticalTimeResult> results;
+  results.push_back(criticalTimeResult1);
+  results.push_back(criticalTimeResult2);
+  results.push_back(criticalTimeResult3);
 
   XmlExporter exporter;
-  exporter.exportCriticalTimeResultsToFile(criticalTime, messageCriticalTimeError, "res/criticalTimeResults.xml");
+  exporter.exportCriticalTimeResultsToFile(results, "res/criticalTimeResults.xml");
   std::stringstream ssDiff;
   executeCommand("diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml", ssDiff);
   std::cout << ssDiff.str() << std::endl;

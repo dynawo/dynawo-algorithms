@@ -178,6 +178,11 @@ class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElemen
   explicit CriticalTimeCalculationHandler(const elementName_type& root_element);
 
   /**
+   * @brief add a scenario
+   */
+  void addScenarios();
+
+  /**
    * @brief default destructor
    */
   ~CriticalTimeCalculationHandler();
@@ -196,7 +201,8 @@ class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElemen
   void create(attributes_type const& attributes);
 
  private:
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;  ///< current critical time calculation element
+  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;
+  ScenariosHandler scenariosHandler_;  ///< handler used to read scenarios element  ///< current critical time calculation element
 };
 
 /**
