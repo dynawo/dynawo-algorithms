@@ -12,7 +12,7 @@
 //
 
 /**
- * @file  DYNMarginCriticalimeLauncher.h
+ * @file  DYNCriticalTimeLauncher.h
  *
  * @brief CriticalTime algorithm launcher: header file
  *
@@ -46,10 +46,10 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
   void launch();
 
   /**
-   * @brief Launch the simulation with the new value calculted in the critical
-   * time algorithm
+   * @brief Launch the simulation with the new value calculted in the critical time algorithm
+   * @param nbSimulationsDone number of simulation done
    */
-  void setParametersAndLaunchSimulation();
+  void setParametersAndLaunchSimulation(boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation, int& nbSimulationsDone);
 
   /**
    * @brief Update superior born to find the right critical time
@@ -58,15 +58,13 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
    * @param tPrevious previous value tested
    * @param curAccuracy current accuracy
    * @param multiplierRound value used to round results with accuracy
+   * @param nbSimulationsFailed number of simulations failed
    */
-  void updateIndexes(double& tPrevious, double& curAccuracy, const double& multiplierRound);
+  void updateIndexes(double& tPrevious, double& curAccuracy, const double& multiplierRound, int& nbSimulationsFailed);
 
  protected:
   double tSup_;  ///< value that will be updated until we find the critical time
-  std::string jobsFile_;  ///< Job file of the simulation
   SimulationResult results_;  ///< results of the critical time calculation
-  boost::shared_ptr<DYN::SubModel> subModel_;  ///< submodel for each simulation
-  boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation_;  ///< critical time calculation
 
  private:
   /**

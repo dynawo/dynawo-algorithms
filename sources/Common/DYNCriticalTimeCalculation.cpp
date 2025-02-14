@@ -17,6 +17,7 @@
  *
  */
 
+#include <DYNCommon.h>
 #include "DYNCriticalTimeCalculation.h"
 #include "MacrosMessage.h"
 
@@ -24,7 +25,7 @@ namespace DYNAlgorithms {
 
 void
 CriticalTimeCalculation::setAccuracy(double accuracy) {
-  if (accuracy < 0 || accuracy > 1)
+  if (accuracy < 0 || accuracy > 1 || DYN::doubleIsZero(accuracy))
     throw DYNAlgorithmsError(IncoherentAccuracyCriticalTime, accuracy);
   accuracy_ = accuracy;
 }
@@ -35,7 +36,7 @@ CriticalTimeCalculation::getAccuracy() const {
 }
 
 void
-CriticalTimeCalculation::setJobsFile(std::string jobsFile) {
+CriticalTimeCalculation::setJobsFile(const std::string& jobsFile) {
   jobsFile_ = jobsFile;
 }
 
@@ -49,17 +50,17 @@ CriticalTimeCalculation::setDydId(const std::string& dydId) {
   dydId_ = dydId;
 }
 
-std::string
+const std::string&
 CriticalTimeCalculation::getDydId() const {
   return dydId_;
 }
 
 void
-CriticalTimeCalculation::setEndPar(std::string endPar) {
+CriticalTimeCalculation::setEndPar(const std::string& endPar) {
   endPar_ = endPar;
 }
 
-std::string
+const std::string&
 CriticalTimeCalculation::getEndPar() const {
   return endPar_;
 }
@@ -82,6 +83,12 @@ CriticalTimeCalculation::setMaxValue(double maxValue) {
 double
 CriticalTimeCalculation::getMaxValue() {
   return maxValue_;
+}
+
+void
+CriticalTimeCalculation::checkMinValueInferiorMaxValue() {
+  if (minValue_ > maxValue_)
+    throw DYNAlgorithmsError(IncoherentMinAndMaxValue, minValue_, maxValue_);
 }
 
 }  // namespace DYNAlgorithms

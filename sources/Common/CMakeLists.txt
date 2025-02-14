@@ -51,6 +51,7 @@ set(DYN_ALGO_COMMON_SOURCES
   DYNLoadIncrease.cpp
   DYNSimulationResult.cpp
   DYNLoadIncreaseResult.cpp
+  DYNCriticalTimeCalculation.cpp
   DYNMultiProcessingContext.cpp
   DYNCriticalTimeCalculation.cpp
   ${CPP_KEYS}
@@ -62,6 +63,7 @@ set(DYN_ALGO_COMMON_HEADERS
   DYNScenarios.h
   DYNSimulationResult.h
   DYNLoadIncreaseResult.h
+  DYNCriticalTimeCalculation.h
   DYNMultiProcessingContext.h
   DYNCriticalTimeCalculation.h
   ${INCLUDE_KEYS}
@@ -87,6 +89,7 @@ target_include_directories(dynawo_algorithms_Common
 target_link_libraries(dynawo_algorithms_Common
   Dynawo::dynawo_Common
   $<$<STREQUAL:${USE_MPI},YES>:MPI::MPI_CXX>
+  Boost::log
   )
 
 install(TARGETS dynawo_algorithms_Common

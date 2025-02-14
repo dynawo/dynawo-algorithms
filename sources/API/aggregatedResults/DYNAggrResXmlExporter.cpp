@@ -104,9 +104,9 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToFile(double criticalTime, const std::string& messageCriticalTimeError, std::string filePath) const {
-  fstream file;
-  file.open(filePath.c_str(), fstream::out);
+XmlExporter::exportCriticalTimeResultsToFile(double criticalTime, const std::string& messageCriticalTimeError, const std::string& filePath) const {
+  ofstream file;
+  file.open(filePath.c_str(), std::ios::binary);
   if (!file.is_open()) {
     throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filePath.c_str());
   }

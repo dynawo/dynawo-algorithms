@@ -22,6 +22,7 @@
 #define COMMON_DYNCRITICALTIMECALCULATION_H_
 
 #include <string>
+#include <DYNCommon.h>
 
 namespace DYNAlgorithms {
 
@@ -48,7 +49,7 @@ class CriticalTimeCalculation {
    * @brief set the jobs file used for the simulation
    * @param jobsFile jobs file used for the simulation
    */
-  void setJobsFile(std::string jobsFile);
+  void setJobsFile(const std::string& jobsFile);
 
   /**
    * @brief get the jobs file used for the simulation
@@ -66,19 +67,19 @@ class CriticalTimeCalculation {
    * @brief get the id parameter from the Dyd file.
    * @return id parameter we will use
    */
-  std::string getDydId() const;
+const std::string& getDydId() const;
 
   /**
    * @brief set the end parameter used for the simulation
    * @param endPar end parameter used for the simulation
    */
-  void setEndPar(std::string endPar);
+  void setEndPar(const std::string& endPar);
 
   /**
    * @brief get the end parameter used for the simulation
    * @return end parameter used for the simulation
    */
-  std::string getEndPar() const;
+  const std::string& getEndPar() const;
 
   /**
    * @brief set the minimum value used for the simulation
@@ -103,6 +104,11 @@ class CriticalTimeCalculation {
    * @return maximum value used for the simulation
    */
   double getMaxValue();
+
+  /**
+   * @brief Check if MinValue is inferior of MaxValue. Throw an error otherwise.
+   */
+  void checkMinValueInferiorMaxValue();
 
  private:
   double accuracy_;  ///< accuracy of the algorithm

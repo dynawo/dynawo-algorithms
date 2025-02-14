@@ -154,6 +154,8 @@ CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
 
   if (attributes.has("maxValue"))
     criticalTimeCalculation_->setMaxValue(attributes["maxValue"]);
+
+  criticalTimeCalculation_->checkMinValueInferiorMaxValue();
 }
 
 ScenariosHandler::ScenariosHandler(const elementName_type& root_element) :

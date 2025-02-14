@@ -12,7 +12,7 @@
     of simulation tools for power systems.
 -->
 <xs:schema xmlns:dyn="http://www.rte-france.com/dynawo" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.rte-france.com/dynawo" version="1.0">
-  <xs:element name="multipleJobs">
+  <xs:element name="multipleJobs" maxOccurs="1">
     <xs:complexType>
       <xs:choice minOccurs="0">
         <xs:element name="scenarios" type="dyn:Scenarios"/>
