@@ -64,7 +64,7 @@ class TestCaseAlgo:
 
         env_dynawo = os.environ["DYNAWO_ENV_DYNAWO"]
 
-        if self.job_type == "SA" or self.job_type == "MC":
+        if self.job_type in ["SA", "MC", "CTC"]:
             directory = os.path.dirname(self.jobs_file_)
             if ".zip" in self.jobs_file_:
                 output_file = os.path.join(directory,"result.zip")
@@ -112,7 +112,7 @@ class TestCaseAlgo:
             if (self.return_code_type_ == "ALLOWED") and (not self.code_ in self.process_return_codes_):
                 self.ok_ = False
 
-        if self.ok_ and ".zip" in self.jobs_file_ and (self.job_type == "SA" or self.job_type == "MC"):
+        if self.ok_ and ".zip" in self.jobs_file_ and (self.job_type in ["SA", "MC", "CTC"]):
             with contextlib.closing(ZipFile(output_file, 'r')) as zipObj:
                 zipObj.extractall(directory)
 

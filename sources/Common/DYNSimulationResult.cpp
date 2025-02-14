@@ -72,6 +72,7 @@ SimulationResult::operator=(const SimulationResult& result) {
   constraintsFileExtension_ =  result.constraintsFileExtension_;
   lostEquipmentsFileExtension_ = result.lostEquipmentsFileExtension_;
   logPath_ = result.logPath_;
+  simulationMessageError_ = result.simulationMessageError_;
   return *this;
 }
 
@@ -97,13 +98,13 @@ SimulationResult::setStatus(status_t status) {
 }
 
 void
-SimulationResult::setCriticalTimeMessageError(const std::string& messageCriticalTimeError) {
-  messageCriticalTimeError_ = messageCriticalTimeError;
+SimulationResult::setSimulationMessageError(const std::string& simulationMessageError) {
+  simulationMessageError_ = simulationMessageError;
 }
 
 const std::string&
-SimulationResult::getCriticalTimeMessageError() const {
-  return messageCriticalTimeError_;
+SimulationResult::getSimulationMessageError() const {
+  return simulationMessageError_;
 }
 
 std::stringstream&

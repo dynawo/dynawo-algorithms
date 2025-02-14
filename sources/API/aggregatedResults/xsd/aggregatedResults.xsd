@@ -59,8 +59,8 @@
   </xs:complexType>
 
   <xs:complexType name="CriticalTimeResults">
-    <xs:attribute name="criticalTime" use="required" type="xs:double"/>
-    <xs:attribute name="message" use="required" type="xs:string"/>
+    <xs:attribute name="status" use="required" type="dyn:Status"/>
+    <xs:attribute name="criticalTime" use="optional" type="xs:double"/>
   </xs:complexType>
 </xs:schema>
 

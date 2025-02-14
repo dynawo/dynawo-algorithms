@@ -11,12 +11,14 @@
 // of simulation tools for power systems.
 //
 
+CriticalTimeCalculationTaskNotFound    = criticalTimeCalculation task not found in input files
+DirectoryDoesNotExist            = directory : %1% does not exist
+DydIdNotInDydFile                = dyd id (%1%) not in dyd file (%2%)
 FileDoesNotExist                 = file : %1% does not exist
+IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)
+IncoherentAccuracyCriticalTime   = accuracy of critical time calculation should be a number above 0 (found : %1%)
+IncoherentMinAndMaxValue         = gap between min (%1%) and max (%2%) must be at least two times the accuracy with min < max
+InputFileFormatNotSupported      = input file should be either a zip or a xml file (found %1%)
 MarginCalculationTaskNotFound    = marginCalculation task not found in input files
 SystematicAnalysisTaskNotFound   = scenarios not found in input files
-DirectoryDoesNotExist            = directory : %1% does not exist
 XmlParsingError                  = error while parsing file %1% : %2%
-IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)
-InputFileFormatNotSupported      = input file should be either a zip or a xml file (found %1%)
-CriticalTimeCalculationTaskNotFound    = criticalTimeCalculation task not found in input files
-IncoherentAccuracyCriticalTime         = accuracy of critical time calculation should be a number between 0 and 1 (found : %1%)

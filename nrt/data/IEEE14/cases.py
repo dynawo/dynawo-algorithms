@@ -130,8 +130,8 @@ test_cases.append((case_name, case_description, "CS", job_file, -1, 5, False, st
 #  IEEE14 - Critical Time Calculation   #
 #########################################
 
-case_name = "IEEE14_CTC"
-case_description = "IEEE14 - Critical Time Calculation input file"
-job_file = os.path.join(os.path.dirname(__file__), "CTC", "fic_MULTIPLE.xml")
+# case_name = "IEEE14_CTC"
+# case_description = "IEEE14 - test of Critical Time Calculation with 3 scenarios"
+# job_file = os.path.join(os.path.dirname(__file__), "CTC", "IEEE14_CTC.zip")
 
-test_cases.append((case_name, case_description, "CTC", job_file, -1, 5, False, standardReturnCodeType, standardReturnCode))
+# test_cases.append((case_name, case_description, "CTC", job_file, -1, 10, True, standardReturnCodeType, standardReturnCode))

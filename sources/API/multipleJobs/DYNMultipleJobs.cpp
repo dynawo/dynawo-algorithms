@@ -43,7 +43,7 @@ MultipleJobs::setMarginCalculation(const boost::shared_ptr<MarginCalculation>& m
 }
 
 void
-MultipleJobs::setCriticalTimeCalculation(const boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation>& criticalTimeCalculation) {
+MultipleJobs::setCriticalTimeCalculation(const std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation>& criticalTimeCalculation) {
   criticalTimeCalculation_ = criticalTimeCalculation;
 }
 
@@ -57,8 +57,8 @@ MultipleJobs::getMarginCalculation() const {
   return marginCalculation_;
 }
 
-boost::shared_ptr<CriticalTimeCalculation>
-MultipleJobs::getCriticalTimeCalculation() const {
+const std::shared_ptr<CriticalTimeCalculation>&
+MultipleJobs::getCriticalTimeCalculation() {
   return criticalTimeCalculation_;
 }
 }  // namespace multipleJobs

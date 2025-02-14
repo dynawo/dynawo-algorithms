@@ -138,6 +138,7 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
   } else {
     throw DYNAlgorithmsError(InputFileFormatNotSupported, inputFileFullPath);
   }
+
   if (!exists(fileName))
     throw DYNAlgorithmsError(FileDoesNotExist, fileName);
   multipleJobs_ = readInputData(fileName);
@@ -289,6 +290,7 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
   boost::shared_ptr<DYN::DataInterface> dataInterface = !analysisContext.iidmPath().empty()
     ? DYN::DataInterfaceFactory::build(DYN::DataInterfaceFactory::DATAINTERFACE_IIDM, analysisContext.iidmPath().generic_string())
     : boost::shared_ptr<DYN::DataInterface>();
+
   boost::shared_ptr<DYN::Simulation> simulation =
     boost::shared_ptr<DYN::Simulation>(new DYN::Simulation(job, std::move(context), dataInterface));
 
@@ -385,6 +387,11 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       simulation->disableExportIIDM();
       simulation->terminate();
       result.setSuccess(false);
+
+      std::string e_str(e.what());
+      std::replace(e_str.begin(), e_str.end(), '\n', ' ');
+      result.setSimulationMessageError(e_str);
+
       if (e.type() == DYN::Error::SIMULATION) {
         result.setStatus(CRITERIA_NON_RESPECTED_STATUS);
         std::vector<std::pair<double, std::string> > failingCriteria;
@@ -405,7 +412,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
 
       std::string m_str(m.what());
       std::replace(m_str.begin(), m_str.end(), '\n', ' ');
-      result.setCriticalTimeMessageError(m_str);
+      result.setSimulationMessageError(m_str);
 
       simulation->terminate();
       result.setSuccess(false);

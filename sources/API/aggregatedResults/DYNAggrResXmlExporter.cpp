@@ -33,6 +33,7 @@ using xml::sax::formatter::FormatterPtr;
 
 using DYNAlgorithms::SimulationResult;
 using DYNAlgorithms::LoadIncreaseResult;
+using DYNAlgorithms::CriticalTimeResult;
 
 namespace aggregatedResults {
 void
@@ -104,28 +105,34 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToFile(double criticalTime, const std::string& messageCriticalTimeError, std::string filePath) const {
-  fstream file;
-  file.open(filePath.c_str(), fstream::out);
+XmlExporter::exportCriticalTimeResultsToFile(const vector<CriticalTimeResult>& results, const std::string& filePath) const {
+  ofstream file;
+  file.open(filePath.c_str(), std::ios::binary);
   if (!file.is_open()) {
     throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filePath.c_str());
   }
 
-  exportCriticalTimeResultsToStream(criticalTime, messageCriticalTimeError, file);
+  exportCriticalTimeResultsToStream(results, file);
   file.close();
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToStream(double criticalTime, const std::string& messageCriticalTimeError, std::ostream& stream) const {
+XmlExporter::exportCriticalTimeResultsToStream(const vector<CriticalTimeResult>& results, std::ostream& stream) const {
   FormatterPtr formatter = Formatter::createFormatter(stream, "http://www.rte-france.com/dynawo");
 
   formatter->startDocument();
   AttributeList attrs;
   formatter->startElement("aggregatedResults", attrs);
-  attrs.add("criticalTime", criticalTime);
-  attrs.add("message", messageCriticalTimeError);
-  formatter->startElement("criticalTimeResults", attrs);
-  formatter->endElement();
+  for (unsigned int i=0, iEnd = results.size(); i < iEnd; i++) {
+    attrs.clear();
+    attrs.add("id", results[i].getId());
+    attrs.add("status", getStatusAsString(results[i].getStatus()));
+    if (results[i].getStatus() == DYNAlgorithms::RESULT_FOUND_STATUS) {
+      attrs.add("criticalTime", results[i].getCriticicalTime());
+    }
+    formatter->startElement("scenarioResults", attrs);
+    formatter->endElement();  // scenarioResults
+  }
 
   formatter->endElement();  // aggregatedResults
   formatter->endDocument();

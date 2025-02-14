@@ -34,7 +34,7 @@ TEST(TestMultipleJobs, TestMultipleJobsClass) {
   MultipleJobs mj;
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> mc(new DYNAlgorithms::MarginCalculation());
   boost::shared_ptr<DYNAlgorithms::Scenarios> scenarios(new DYNAlgorithms::Scenarios());
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
   mj.setScenarios(scenarios);
   mj.setMarginCalculation(mc);
   mj.setCriticalTimeCalculation(ct);
@@ -47,7 +47,7 @@ TEST(TestMultipleJobs, TestMultipleJobsFactory) {
   boost::shared_ptr<MultipleJobs> mj = MultipleJobsFactory::newInstance();
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> mc(new DYNAlgorithms::MarginCalculation());
   boost::shared_ptr<DYNAlgorithms::Scenarios> scenarios(new DYNAlgorithms::Scenarios());
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
   mj->setScenarios(scenarios);
   mj->setMarginCalculation(mc);
   mj->setCriticalTimeCalculation(ct);
@@ -128,13 +128,20 @@ TEST(TestMultipleJobs, TestMultipleJobsXmlHanderCriticalTime) {
   assert(!mj->getScenarios());
   assert(!mj->getMarginCalculation());
   assert(mj->getCriticalTimeCalculation());
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
   ct = mj->getCriticalTimeCalculation();
   ASSERT_EQ(ct->getAccuracy(), 0.001);
-  ASSERT_EQ(ct->getJobsFile(), "Myjobs.jobs");
   ASSERT_EQ(ct->getDydId(), "MyDydId");
-  ASSERT_EQ(ct->getEndPar(), "MyEndPar");
+  ASSERT_EQ(ct->getParName(), "MyParName");
   ASSERT_EQ(ct->getMinValue(), 0.1);
   ASSERT_EQ(ct->getMaxValue(), 1);
+  ASSERT_EQ(ct->getMode(), DYNAlgorithms::CriticalTimeCalculation::SIMPLE);
+  boost::shared_ptr<DYNAlgorithms::Scenarios> scenarios = ct->getScenarios();
+  ASSERT_EQ(ct->getScenarios()->getJobsFile(), "Myjobs.jobs");
+  ASSERT_EQ(ct->getScenarios()->getScenarios().size(), 2);
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[0]->getId(), "MyScenarioId1");
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[0]->getDydFile(), "MyDydFile1.dyd");
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[1]->getId(), "MyScenarioId2");
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[1]->getDydFile(), "MyDydFile2.dyd");
 }
 }  // namespace multipleJobs

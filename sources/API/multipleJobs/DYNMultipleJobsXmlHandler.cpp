@@ -122,38 +122,40 @@ MarginCalculationHandler::get() const {
   return marginCalculation_;
 }
 
-CriticalTimeCalculationHandler::CriticalTimeCalculationHandler(const elementName_type& root_element) {
+CriticalTimeCalculationHandler::CriticalTimeCalculationHandler(const elementName_type& root_element) :
+scenariosHandler_(parser::ElementName(multipleJobs_ns, "scenarios")) {
   onStartElement(root_element, lambda::bind(&CriticalTimeCalculationHandler::create, lambda::ref(*this), lambda_args::arg2));
+
+  onElement(root_element + multipleJobs_ns("scenarios"), scenariosHandler_);
+
+  scenariosHandler_.onEnd(lambda::bind(&CriticalTimeCalculationHandler::addScenarios, lambda::ref(*this)));
+}
+
+void
+CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
+  criticalTimeCalculation_ = std::shared_ptr<CriticalTimeCalculation>(new CriticalTimeCalculation());
+  criticalTimeCalculation_->setAccuracy(attributes["accuracy"]);
+  criticalTimeCalculation_->setDydId(attributes["dydId"]);
+  criticalTimeCalculation_->setParName(attributes["parName"]);
+  criticalTimeCalculation_->setMinValue(attributes["minValue"]);
+  criticalTimeCalculation_->setMaxValue(attributes["maxValue"]);
+  if (attributes.has("mode") && attributes["mode"].as_string() == "COMPLEX")
+    criticalTimeCalculation_->setMode(CriticalTimeCalculation::COMPLEX);
+  else
+    criticalTimeCalculation_->setMode(CriticalTimeCalculation::SIMPLE);
+}
+
+void
+CriticalTimeCalculationHandler::addScenarios() {
+  criticalTimeCalculation_->setScenarios(scenariosHandler_.get());
 }
 
 CriticalTimeCalculationHandler::~CriticalTimeCalculationHandler() {
 }
 
-boost::shared_ptr<CriticalTimeCalculation>
-CriticalTimeCalculationHandler::get() const {
+std::shared_ptr<CriticalTimeCalculation>
+CriticalTimeCalculationHandler::get() {
   return criticalTimeCalculation_;
-}
-
-void
-CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
-  criticalTimeCalculation_ = boost::shared_ptr<CriticalTimeCalculation>(new CriticalTimeCalculation());
-  if (attributes.has("accuracy"))
-    criticalTimeCalculation_->setAccuracy(attributes["accuracy"]);
-
-  if (attributes.has("jobsFile"))
-    criticalTimeCalculation_->setJobsFile(attributes["jobsFile"]);
-
-  if (attributes.has("dydId"))
-    criticalTimeCalculation_->setDydId(attributes["dydId"]);
-
-  if (attributes.has("endPar"))
-    criticalTimeCalculation_->setEndPar(attributes["endPar"]);
-
-  if (attributes.has("minValue"))
-    criticalTimeCalculation_->setMinValue(attributes["minValue"]);
-
-  if (attributes.has("maxValue"))
-    criticalTimeCalculation_->setMaxValue(attributes["maxValue"]);
 }
 
 ScenariosHandler::ScenariosHandler(const elementName_type& root_element) :

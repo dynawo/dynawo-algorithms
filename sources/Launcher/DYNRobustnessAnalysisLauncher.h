@@ -214,6 +214,14 @@ class RobustnessAnalysisLauncher {
    */
   void initLog();
 
+  /**
+   * @brief Computes the result save file from an id and the working directory
+   *
+   * @param id the simulation id to use
+   * @return the filepath of the corresponding result file
+   */
+  boost::filesystem::path computeResultFile(const std::string& id) const;
+
  protected:
   const std::string logTag_;  ///< tag string in dynawo.log
   std::string inputFile_;  ///< input data for the analysis
@@ -225,7 +233,6 @@ class RobustnessAnalysisLauncher {
 
   MultiVariantInputs inputs_;  ///< basic analysis context, common to all
 
- private:
   static constexpr int precisionResultFile_ = std::numeric_limits<double>::max_digits10;  ///< precision of double in save results files
 
  private:
@@ -266,14 +273,6 @@ class RobustnessAnalysisLauncher {
    * @return the full path of the unzipped file containing the multiple jobs definition
    */
   std::string unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) const;
-
-  /**
-   * @brief Computes the result save file from an id and the working directory
-   *
-   * @param id the simulation id to use
-   * @return the filepath of the corresponding result file
-   */
-  boost::filesystem::path computeResultFile(const std::string& id) const;
 };
 
 }  // namespace DYNAlgorithms

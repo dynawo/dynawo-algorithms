@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <!--
-    Copyright (c) 2021, RTE (http://www.rte-france.com)
+    Copyright (c) 2025, RTE (http://www.rte-france.com)
     See AUTHORS.txt
     All rights reserved.
     This Source Code Form is subject to the terms of the Mozilla Public
@@ -12,5 +12,11 @@
     of simulation tools for power systems.
 -->
 <multipleJobs xmlns="http://www.rte-france.com/dynawo">
-	<criticalTimeCalculation accuracy="0.001" jobsFile="MyJobs.jobs" dydId="FAULT_GEN_1" endPar="fault_tEnd" minValue="1" maxValue="1.620"/>
+  <criticalTimeCalculation accuracy="0.001" dydId="FAULT_GEN_1" parName="fault_tEnd" minValue="2" maxValue="2.3" mode="SIMPLE">
+    <scenarios jobsFile="MyJobs.jobs">
+      <scenario id="MyScenario" dydFile="MyScenario.dyd"/>
+      <scenario id="MyScenario2" dydFile="MyScenario2.dyd"/>
+      <scenario id="MyScenario3" dydFile="MyScenario3.dyd"/>
+    </scenarios>
+  </criticalTimeCalculation>
 </multipleJobs>

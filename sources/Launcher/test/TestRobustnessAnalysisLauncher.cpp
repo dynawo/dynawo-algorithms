@@ -30,7 +30,6 @@
 #include "MacrosMessage.h"
 #include "DYNMultipleJobs.h"
 #include "DYNMarginCalculation.h"
-#include "DYNCriticalTimeCalculation.h"
 #include "DYNMultiProcessingContext.h"
 
 testing::Environment* initXmlEnvironment();
@@ -83,25 +82,6 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     ASSERT_TRUE(exists("res/logs/log_MyScenario.log"));
   }
 
-  void launchCriticalTime() {
-    inputs_.readInputs(workingDirectory_, "MyJobs.jobs");
-    boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
-
-    SimulationParameters params;
-    boost::shared_ptr<DYN::Simulation> simu = createAndInitSimulation("res/CriticalTime", job, params, result_, inputs_);
-    ASSERT_TRUE(simu);
-    status_t status = simulate(simu, result_);
-    ASSERT_EQ(status, CONVERGENCE_STATUS);
-    ASSERT_EQ(result_.getStatus(), CONVERGENCE_STATUS);
-    ASSERT_TRUE(result_.getSuccess());
-
-    writeResults();
-    ASSERT_TRUE(exists("res/CriticalTime/MyOutputFile.zip"));
-
-    writeResults();
-    ASSERT_TRUE(exists("res/CriticalTime/MyOutputFile.zip"));
-  }
-
   void testInputFile(const std::string& inputFile) {
     ASSERT_EQ(inputFile_, inputFile);
   }
@@ -140,20 +120,6 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getDydFile(), "MyScenario2.dyd");
     ASSERT_EQ(mc->getScenarios()->getScenarios()[1]->getCriteriaFile(), "MyScenario2.crt");
     ASSERT_EQ(mc->getScenarios()->getJobsFile(), "myScenarios.jobs");
-  }
-
-  void testMultipleJobsCriticalTime() {
-    assert(multipleJobs_);
-    assert(!multipleJobs_->getScenarios());
-    assert(!multipleJobs_->getMarginCalculation());
-    assert(multipleJobs_->getCriticalTimeCalculation());
-    boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct = multipleJobs_->getCriticalTimeCalculation();
-    ASSERT_EQ(ct->getAccuracy(), 0.001);
-    ASSERT_EQ(ct->getJobsFile(), "MyJobs.jobs");
-    ASSERT_EQ(ct->getDydId(), "FAULT_GEN_1");
-    ASSERT_EQ(ct->getEndPar(), "fault_tEnd");
-    ASSERT_EQ(ct->getMinValue(), 1);
-    ASSERT_EQ(ct->getMaxValue(), 1.620);
   }
 
  protected:
@@ -211,50 +177,6 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   launcher.testOutputFileFullPath(createAbsolutePath("MyOutputFile.zip", createAbsolutePath("res", current_path())));
   launcher.testMultipleJobs();
   launcher.launch();
-}
-
-TEST(TestLauncher, TestRobustnessAnalysisLauncherWithCriticalTime) {
-  MyLauncher launcher;
-
-  launcher.testInputFile("");
-  launcher.setInputFile("/home/MyInputFile");
-  launcher.testInputFile("/home/MyInputFile");
-
-  launcher.testOutputFile("");
-  launcher.setOutputFile("MyOutputFile");
-  launcher.testOutputFile("MyOutputFile");
-
-  launcher.testDirectory("");
-  launcher.setDirectory("MyDirectory");
-  launcher.testDirectory("MyDirectory");
-
-  ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::DirectoryDoesNotExist);
-  launcher.testWorkingDirectory(createAbsolutePath("MyDirectory", current_path()));
-
-  launcher.setDirectory("/home/MyDirectory");
-  ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::DirectoryDoesNotExist);
-  launcher.testWorkingDirectory("/home/MyDirectory");
-
-  launcher.setDirectory("");
-  ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::FileDoesNotExist);
-  launcher.testWorkingDirectory(current_path()+"/");
-
-  launcher.setInputFile("res/MyDummyInputFile.xml");
-  ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::FileDoesNotExist);
-
-  launcher.setInputFile("res/MyInputFile.txt");
-  ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::InputFileFormatNotSupported);
-
-  boost::shared_ptr<zip::ZipFile> archive = zip::ZipFileFactory::newInstance();
-  archive->addEntry("res/CriticalTime/fic_MULTIPLE.xml");
-  zip::ZipOutputStream::write("res/CriticalTime/MyInputFile.zip", archive);
-  launcher.setInputFile("MyInputFile.zip");
-  launcher.setDirectory("res/CriticalTime");
-  launcher.setOutputFile("MyOutputFile.zip");
-  ASSERT_NO_THROW(launcher.init());
-  launcher.testOutputFileFullPath(createAbsolutePath("res/CriticalTime/MyOutputFile.zip", current_path()));
-  launcher.testMultipleJobsCriticalTime();
-  launcher.launchCriticalTime();
 }
 
 }  // namespace DYNAlgorithms
