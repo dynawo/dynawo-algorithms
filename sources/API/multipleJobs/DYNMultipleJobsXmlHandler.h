@@ -169,6 +169,10 @@ class MarginCalculationHandler : public xml::sax::parser::ComposableElementHandl
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> marginCalculation_;  ///< current margin calculation element
 };
 
+/**
+ * @class CriticalTimeCalculationHandler
+ * @brief Handler used to parse critical time calculation element
+ */
 class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElementHandler {
  public:
   /**
@@ -176,6 +180,11 @@ class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElemen
    * @param root_element complete name of the element read by the handler
    */
   explicit CriticalTimeCalculationHandler(const elementName_type& root_element);
+
+  /**
+   * @brief add a scenario
+   */
+  void addScenarios();
 
   /**
    * @brief default destructor
@@ -186,7 +195,7 @@ class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElemen
    * @brief return the critical time calculation read in xml file
    * @return critical time calculation object build thanks to infos read in xml file
    */
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> get() const;
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> get();
 
  protected:
   /**
@@ -196,7 +205,8 @@ class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElemen
   void create(attributes_type const& attributes);
 
  private:
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;  ///< current critical time calculation element
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;  ///< current critical time calculation element
+  ScenariosHandler scenariosHandler_;  ///< handler used to read scenarios element
 };
 
 /**
@@ -246,4 +256,3 @@ class XmlHandler : public xml::sax::parser::ComposableDocumentHandler {
 }  // namespace multipleJobs
 
 #endif  // API_MULTIPLEJOBS_DYNMULTIPLEJOBSXMLHANDLER_H_
-

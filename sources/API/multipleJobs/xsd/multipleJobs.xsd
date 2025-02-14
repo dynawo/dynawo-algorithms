@@ -12,7 +12,7 @@
     of simulation tools for power systems.
 -->
 <xs:schema xmlns:dyn="http://www.rte-france.com/dynawo" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.rte-france.com/dynawo" version="1.0">
-  <xs:element name="multipleJobs">
+  <xs:element name="multipleJobs" maxOccurs="1">
     <xs:complexType>
       <xs:choice minOccurs="0">
         <xs:element name="scenarios" type="dyn:Scenarios"/>
@@ -56,12 +56,22 @@
     <xs:attribute name="accuracy" type="xs:integer" use="optional"/>
   </xs:complexType>
 
+  <xs:simpleType name="Mode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SIMPLE"/>
+      <xs:enumeration value="COMPLEX"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:complexType name="CriticalTimeCalculation">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="scenarios" type="dyn:Scenarios"/>
+    </xs:sequence>
     <xs:attribute name="accuracy" type="xs:double" use="required"/>
-    <xs:attribute name="jobsFile" type="xs:string" use="required"/>
     <xs:attribute name="dydId" type="xs:string" use="required"/>
-    <xs:attribute name="endPar" type="xs:string" use="required"/>
+    <xs:attribute name="parName" type="xs:string" use="required"/>
     <xs:attribute name="minValue" type="xs:double" use="required"/>
     <xs:attribute name="maxValue" type="xs:double" use="required"/>
+    <xs:attribute name="mode" type="dyn:Mode" use="optional"/>
   </xs:complexType>
 </xs:schema>

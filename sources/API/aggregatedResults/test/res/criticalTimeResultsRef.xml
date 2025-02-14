@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <aggregatedResults xmlns="http://www.rte-france.com/dynawo">
-  <criticalTimeResults criticalTime="1" message="MyMessage"/>
+  <scenarioResults id="MyFirstScenario" status="RESULT_FOUND" criticalTime="1"/>
+  <scenarioResults id="MySecondScenario" status="CT_BELOW_MIN_BOUND"/>
+  <scenarioResults id="MyThirdScenario" status="CT_ABOVE_MAX_BOUND"/>
 </aggregatedResults>

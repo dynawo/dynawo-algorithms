@@ -22,3 +22,5 @@ LoadIncreaseModelParameter     = model %1%: stop time:%2% current variation:%3%
 LoadIncreaseResultsFound       = using existing results for variation %1%%%
 ScenarioResultsFound           = using existing results for scenarios with variation %1%%%
 AlgorithmsWallTime             = %1% finished in %2%s
+ScenarioLaunch                 = launch scenario: %1%
+CriticalTimeValues             = iteration %1% ¦ tMin: %2% ¦ tMax: %3% ¦ time used: %4% ¦ status: %5%
