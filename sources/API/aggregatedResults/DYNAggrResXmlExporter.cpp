@@ -104,26 +104,33 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToFile(double criticalTime, const std::string& messageCriticalTimeError, const std::string& filePath) const {
+XmlExporter::exportCriticalTimeResultsToFile(DYNAlgorithms::status_t status, double criticalTime,
+   const std::string& messageCriticalTimeError, const std::string& filePath) const {
   ofstream file;
   file.open(filePath.c_str(), std::ios::binary);
   if (!file.is_open()) {
     throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filePath.c_str());
   }
 
-  exportCriticalTimeResultsToStream(criticalTime, messageCriticalTimeError, file);
+  exportCriticalTimeResultsToStream(status, criticalTime, messageCriticalTimeError, file);
   file.close();
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToStream(double criticalTime, const std::string& messageCriticalTimeError, std::ostream& stream) const {
+XmlExporter::exportCriticalTimeResultsToStream(DYNAlgorithms::status_t status, double criticalTime,
+   const std::string& messageCriticalTimeError, std::ostream& stream) const {
   FormatterPtr formatter = Formatter::createFormatter(stream, "http://www.rte-france.com/dynawo");
 
   formatter->startDocument();
   AttributeList attrs;
   formatter->startElement("aggregatedResults", attrs);
-  attrs.add("criticalTime", criticalTime);
-  attrs.add("message", messageCriticalTimeError);
+  attrs.add("status", getStatusAsString(status));
+  if (status == DYNAlgorithms::RESULT_FOUND) {
+    attrs.add("criticalTime", criticalTime);
+  } else {
+    if (messageCriticalTimeError != "")
+      attrs.add("lastMessageError", messageCriticalTimeError);
+  }
   formatter->startElement("criticalTimeResults", attrs);
   formatter->endElement();
 

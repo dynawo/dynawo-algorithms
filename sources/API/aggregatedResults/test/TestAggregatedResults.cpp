@@ -108,14 +108,27 @@ TEST(TestAggregatedResults, TestAggregatedResultsLoadIncreaseResults) {
 }
 
 TEST(TestAggregatedResults, TestAggregatedResultsCriticalTimeResults) {
+  DYNAlgorithms::status_t status = DYNAlgorithms::RESULT_FOUND;
   const double& criticalTime = 1;
   std::string messageCriticalTimeError = "MyMessage";
 
   XmlExporter exporter;
-  exporter.exportCriticalTimeResultsToFile(criticalTime, messageCriticalTimeError, "res/criticalTimeResults.xml");
+  exporter.exportCriticalTimeResultsToFile(status, criticalTime, messageCriticalTimeError, "res/criticalTimeResults.xml");
   std::stringstream ssDiff;
   executeCommand("diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml", ssDiff);
   std::cout << ssDiff.str() << std::endl;
   ASSERT_EQ(ssDiff.str(), "Executing command : diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml\n");
+
+  status = DYNAlgorithms::CT_BELOW_MIN_BOUND;
+  exporter.exportCriticalTimeResultsToFile(status, criticalTime, messageCriticalTimeError, "res/criticalTimeResultsMinBound.xml");
+  executeCommand("diff res/criticalTimeResultsMinBoundRef.xml res/criticalTimeResultsMinBound.xml", ssDiff);
+  std::cout << ssDiff.str() << std::endl;
+  ASSERT_EQ(ssDiff.str(), "Executing command : diff res/criticalTimeResultsRefMinBound.xml res/criticalTimeResultsMinBound.xml\n");
+
+  status = DYNAlgorithms::CT_ABOVE_MAX_BOUND;
+  exporter.exportCriticalTimeResultsToFile(status, criticalTime, messageCriticalTimeError, "res/criticalTimeResultsMaxBound.xml");
+  executeCommand("diff res/criticalTimeResultsMaxBoundRef.xml res/criticalTimeResultsMaxBound.xml", ssDiff);
+  std::cout << ssDiff.str() << std::endl;
+  ASSERT_EQ(ssDiff.str(), "Executing command : diff res/criticalTimeResultsRefMaxBound.xml res/criticalTimeResultsMaxBound.xml\n");
 }
 }  // namespace aggregatedResults

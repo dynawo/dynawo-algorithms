@@ -63,20 +63,24 @@ class XmlExporter {
   /**
    * @brief Export critical time calculation results into a file
    *
+   * @param status status of the critical time calculation
    * @param criticalTime critical time results to export
    * @param messageCriticalTimeError error message to export
    * @param filePath file where the results must be exported
    */
-  void exportCriticalTimeResultsToFile(double criticalTime, const std::string& messageCriticalTimeError, const std::string& filePath) const;
+  void exportCriticalTimeResultsToFile(DYNAlgorithms:: status_t status, double criticalTime,
+     const std::string& messageCriticalTimeError, const std::string& filePath) const;
 
   /**
    * @brief Export critical time calculation results into a stream
    *
+   * @param status status of the critical time calculation
    * @param criticalTime critical time results to export
    * @param messageCriticalTimeError error message to export
    * @param stream stream where the results must be exported
    */
-  void exportCriticalTimeResultsToStream(double criticalTime, const std::string& messageCriticalTimeError, std::ostream& stream) const;
+  void exportCriticalTimeResultsToStream(DYNAlgorithms::status_t status, double criticalTime,
+     const std::string& messageCriticalTimeError, std::ostream& stream) const;
 
  private:
   /**

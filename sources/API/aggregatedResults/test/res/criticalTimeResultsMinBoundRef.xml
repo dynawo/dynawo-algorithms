@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
 <aggregatedResults xmlns="http://www.rte-france.com/dynawo">
-  <criticalTimeResults status="RESULT_FOUND" criticalTime="1.6200000000000001"/>
+  <criticalTimeResults status="CT_BELOW_MIN_BOUND" lastMessageError="MyMessage"/>
 </aggregatedResults>

@@ -97,13 +97,13 @@ class SimulationResult {
   void setStatus(status_t status);
 
   /**
-   * @brief set the message error of the last simulation failed
+   * @brief set the message error of the last failed simulation
    * @param message the message error
   */
   void setSimulationMessageError(const std::string& simulationMessageError);
 
   /**
-   * @brief get the message error of the last simulation failed
+   * @brief get the message error of the last failed simulation
   */
   const std::string& getSimulationMessageError() const;
 

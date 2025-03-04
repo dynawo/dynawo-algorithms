@@ -121,6 +121,7 @@ TEST(TestBaseClasses, testCriticalTimeCalculation) {
 
   ASSERT_THROW_DYNAWO(ct.setAccuracy(-1), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
   ASSERT_THROW_DYNAWO(ct.setAccuracy(2), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
+  ASSERT_THROW_DYNAWO(ct.setMinValue(3), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentMinAndMaxValue);
 }
 
 TEST(TestBaseClasses, testSimulationResult) {

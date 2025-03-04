@@ -26,8 +26,8 @@ typedef enum {
   EXECUTION_PROBLEM_STATUS,  ///< something wrong happened during the simulation (solver error, data error, etc...)
   CRITERIA_NON_RESPECTED_STATUS,  ///< one criterion was not respected (0.8 Un, etc...)
   RESULT_FOUND,  ///< results found at the end of all simulations (ex: critical time)
-  BELOW_MIN_BOUND,  /// < critical time might be below the min bound
-  ABOVE_MAX_BOUND  /// < critical time might be above the max bound
+  CT_BELOW_MIN_BOUND,  /// < critical time might be below the min bound
+  CT_ABOVE_MAX_BOUND  /// < critical time might be above the max bound
 }status_t;
 
 static inline std::string getStatusAsString(status_t status) {
@@ -42,10 +42,10 @@ static inline std::string getStatusAsString(status_t status) {
       return "DIVERGENCE";
     case RESULT_FOUND:
       return "RESULT_FOUND";
-    case BELOW_MIN_BOUND:
-      return "BELOW_MIN_BOUND";
-    case ABOVE_MAX_BOUND:
-      return "ABOVE_MAX_BOUND";
+    case CT_BELOW_MIN_BOUND:
+      return "CT_BELOW_MIN_BOUND";
+    case CT_ABOVE_MAX_BOUND:
+      return "CT_ABOVE_MAX_BOUND";
     }
   return "";  // to avoid compiler warning, should not appear
 }

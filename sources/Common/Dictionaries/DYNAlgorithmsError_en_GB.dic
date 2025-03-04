@@ -12,8 +12,6 @@
 //
 
 CriticalTimeCalculationTaskNotFound    = criticalTimeCalculation task not found in input files
-CriticalTimeOutOfRangeMax        = first simulation succeeded, range's max value might be too low 
-CriticalTimeOutOfRangeMin        = all simulations failed, range's min value might be too high
 DirectoryDoesNotExist            = directory : %1% does not exist
 FileDoesNotExist                 = file : %1% does not exist
 IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)

@@ -380,6 +380,10 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       simulation->terminate();
       result.setSuccess(false);
 
+      std::string e_str(e.what());
+      std::replace(e_str.begin(), e_str.end(), '\n', ' ');
+      result.setSimulationMessageError(e_str);
+
       if (e.type() == DYN::Error::SIMULATION || e.type() == DYN::Error::SOLVER_ALGO
           || e.type() == DYN::Error::SUNDIALS_ERROR || e.type() == DYN::Error::NUMERICAL_ERROR) {
         if (e.type() == DYN::Error::SIMULATION)
@@ -390,6 +394,7 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
         std::vector<std::pair<double, std::string> > failingCriteria;
         simulation->getFailingCriteria(failingCriteria);
         result.setFailingCriteria(failingCriteria);
+
       } else {
         result.setStatus(EXECUTION_PROBLEM_STATUS);
       }
