@@ -146,14 +146,19 @@ CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
   if (attributes.has("dydId"))
     criticalTimeCalculation_->setDydId(attributes["dydId"]);
 
-  if (attributes.has("endPar"))
-    criticalTimeCalculation_->setEndPar(attributes["endPar"]);
+  if (attributes.has("parName"))
+    criticalTimeCalculation_->setParName(attributes["parName"]);
 
   if (attributes.has("minValue"))
     criticalTimeCalculation_->setMinValue(attributes["minValue"]);
 
   if (attributes.has("maxValue"))
     criticalTimeCalculation_->setMaxValue(attributes["maxValue"]);
+
+  if (attributes.has("mode") && attributes["mode"].as_string() == "COMPLEX")
+    criticalTimeCalculation_->setMode(CriticalTimeCalculation::COMPLEX);
+  else
+    criticalTimeCalculation_->setMode(CriticalTimeCalculation::SIMPLE);
 
   criticalTimeCalculation_->checkMinValueInferiorMaxValue();
 }

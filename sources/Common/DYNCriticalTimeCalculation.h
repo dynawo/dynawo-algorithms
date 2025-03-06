@@ -33,6 +33,14 @@ namespace DYNAlgorithms {
  */
 class CriticalTimeCalculation {
  public:
+   /**
+   * Mode of calculation
+   */
+  typedef enum {
+    SIMPLE = 0,  // Do a simple dichotomy
+    COMPLEX = 1,  // Do a dichotomy until it meets a solver issue. it Reduces the range based on previous range and continue the dichotomy
+  } mode_t;
+
   /**
    * @brief set the accuracy of the algorithm
    * @param accuracy accuracy of the algorithm
@@ -67,19 +75,19 @@ class CriticalTimeCalculation {
    * @brief get the id parameter from the Dyd file.
    * @return id parameter we will use
    */
-const std::string& getDydId() const;
+  const std::string& getDydId() const;
 
   /**
-   * @brief set the end parameter used for the simulation
-   * @param endPar end parameter used for the simulation
+   * @brief set the Name of end parameter used for the simulation
+   * @param parName end parameter used for the simulation
    */
-  void setEndPar(const std::string& endPar);
+  void setParName(const std::string& parName);
 
   /**
-   * @brief get the end parameter used for the simulation
+   * @brief get the Name of end parameter used for the simulation
    * @return end parameter used for the simulation
    */
-  const std::string& getEndPar() const;
+  const std::string& getParName() const;
 
   /**
    * @brief set the minimum value used for the simulation
@@ -106,6 +114,18 @@ const std::string& getDydId() const;
   double getMaxValue();
 
   /**
+   * @brief set the mode used for the simulation
+   * @param minValue mode used for the simulation
+   */
+  void setMode(mode_t mode);
+
+  /**
+   * @brief get the mode used for the simulation
+   * @return mode used for the simulation
+   */
+  mode_t getMode() const;
+
+  /**
    * @brief Check if MinValue is inferior of MaxValue. Throw an error otherwise.
    */
   void checkMinValueInferiorMaxValue();
@@ -114,9 +134,10 @@ const std::string& getDydId() const;
   double accuracy_;  ///< accuracy of the algorithm
   std::string jobsFile_;  ///< jobs file used for the simulation
   std::string dydId_;  ///< dyd id in the dyd file
-  std::string endPar_;  ///< end parameter used for the simulation
+  std::string parName_;  ///< Name of end parameter used for the simulation
   double minValue_;  ///< minimum value for the critical time
   double maxValue_;  ///< maximum value for the critical time
+  mode_t mode_;   ///< mode for the calculation
 };
 
 }  // namespace DYNAlgorithms

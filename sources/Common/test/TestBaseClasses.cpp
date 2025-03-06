@@ -109,15 +109,17 @@ TEST(TestBaseClasses, testCriticalTimeCalculation) {
   ct.setAccuracy(0.01);
   ct.setJobsFile("Myjobs.jobs");
   ct.setDydId("MyDydId");
-  ct.setEndPar("MyEndPar");
+  ct.setParName("MyParName");
   ct.setMinValue(1);
   ct.setMaxValue(2);
+  ct.setMode(CriticalTimeCalculation::SIMPLE);
   ASSERT_EQ(ct.getAccuracy(), 0.01);
   ASSERT_EQ(ct.getJobsFile(), "Myjobs.jobs");
   ASSERT_EQ(ct.getDydId(), "MyDydId");
-  ASSERT_EQ(ct.getEndPar(), "MyEndPar");
+  ASSERT_EQ(ct.getParName(), "MyParName");
   ASSERT_EQ(ct.getMinValue(), 1);
   ASSERT_EQ(ct.getMaxValue(), 2);
+  ASSERT_EQ(ct.getMode(), CriticalTimeCalculation::SIMPLE);
 
   ASSERT_THROW_DYNAWO(ct.setAccuracy(-1), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
   ASSERT_THROW_DYNAWO(ct.setAccuracy(2), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);

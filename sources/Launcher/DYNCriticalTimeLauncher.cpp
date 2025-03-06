@@ -34,16 +34,16 @@ namespace DYNAlgorithms {
 void
 CriticalTimeLauncher::setParametersAndLaunchSimulation(boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation) {
   inputs_.readInputs(workingDirectory_, criticalTimeCalculation->getJobsFile());
-  boost::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+  std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   SimulationParameters params;
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDirectory_, job, params, results_, inputs_);
   if (simulation) {
     std::shared_ptr<DYN::ModelMulti> modelMulti = std::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
     const std::string& dydId = criticalTimeCalculation->getDydId();
-    const std::string& endPar = criticalTimeCalculation->getEndPar();
+    const std::string& parName = criticalTimeCalculation->getParName();
     if (modelMulti->findSubModelByName(dydId) != NULL) {
       boost::shared_ptr<DYN::SubModel> subModel_ = modelMulti->findSubModelByName(dydId);
-      subModel_->setParameterValue(endPar, DYN::PAR, tSup_, false);
+      subModel_->setParameterValue(parName, DYN::PAR, tSup_, false);
       subModel_->setSubModelParameters();
     }
     std::cout << "tSup_ " << tSup_ << std::endl;
@@ -51,23 +51,9 @@ CriticalTimeLauncher::setParametersAndLaunchSimulation(boost::shared_ptr<Critica
   }
 }
 
-void
-CriticalTimeLauncher::updateIndexes(double& tPrevious, double& curAccuracy, const double& multiplierRound, int& nbSimulationsFailed) {
-  curAccuracy = std::abs(tSup_ - tPrevious);
-  double midDichotomy = std::round((std::abs(tSup_ - tPrevious) / 2) * multiplierRound) / multiplierRound;
-  double tmp = tSup_;
-
-  if (results_.getSuccess()) {
-    tSup_ += midDichotomy;
-  } else {
-    tSup_ -= midDichotomy;
-    nbSimulationsFailed++;
-  }
-
-  tPrevious = tmp;
-}
 double
-CriticalTimeLauncher::Round(double value, const double multiplierRound) {
+CriticalTimeLauncher::Round(double value) {
+  const double multiplierRound = 1. / accuracy_;
   if (std::abs(value * multiplierRound - std::floor(value * multiplierRound)-0.5) < 1e-9)
     return std::floor((value) * multiplierRound) / multiplierRound;
   else
@@ -80,116 +66,67 @@ CriticalTimeLauncher::launch() {
   if (!criticalTimeCalculation)
     throw DYNAlgorithmsError(CriticalTimeCalculationTaskNotFound);
 
-  const double accuracy = criticalTimeCalculation->getAccuracy();
-  const double multiplierRound = 1. / accuracy;
-  double curAccuracy = 1.;
-  tSup_ = criticalTimeCalculation->getMaxValue();
-  const double tInf = criticalTimeCalculation->getMinValue();
-  double tPrevious = tSup_;
-  int nbSimulationsDone = 0;
-  int nbSimulationsFailed = 0;
+  const mode_t mode = criticalTimeCalculation->getMode();
+  accuracy_ = criticalTimeCalculation->getAccuracy();
 
-  // First simulation case.
-  setParametersAndLaunchSimulation(criticalTimeCalculation);
-  nbSimulationsDone++;
-  if (results_.getSuccess()) {
-    status_ = DYNAlgorithms::CT_ABOVE_MAX_BOUND;
-    return;
-  } else {
-    tSup_ -= std::round(((tSup_ - tInf) / 2.) * multiplierRound) / multiplierRound;
-    nbSimulationsFailed++;
-  }
+  int nbSimulationsDone = 0, nbSimulationsFailed = 0;
+  tSup_ = criticalTimeCalculation->getMaxValue();  // time use in simulation
+  double tMax = criticalTimeCalculation->getMaxValue();  // time use in simulation
+  double tMin = criticalTimeCalculation->getMinValue();  // Bound min of the time
+  double gap;
+  double tLowestFailed = tSup_;  // min time where all times higher lead to a failed simulation
+  std::map<double, std::pair<bool, status_t>> tTestedValues;  // stores every tested tSup_
 
-  while (curAccuracy > accuracy) {
-    setParametersAndLaunchSimulation(criticalTimeCalculation);
+  // While difference between lowest time of fail and Highest time of Success (tMin) is higher than the accuracy then continue loop
+  while (std::abs((Round(tLowestFailed)-Round(tMin))-accuracy_) > 1e-9) {
+    std::cout<< "tMax: " << tMax << "; tMin: " << tMin << std::endl;
+
+    // Launch Simulation
+    if (tTestedValues.find(tSup_) == tTestedValues.end()) {
+      setParametersAndLaunchSimulation(criticalTimeCalculation);
+    } else {  // if tested values already detected, no need to launch the simulation
+      results_.setSuccess(tTestedValues[tSup_].first);
+      results_.setStatus(tTestedValues[tSup_].second);
+    }
     nbSimulationsDone++;
-    updateIndexes(tPrevious, curAccuracy, multiplierRound, nbSimulationsFailed);
-  }
+    tTestedValues[tSup_] = {results_.getSuccess(), results_.getStatus()};
 
-  // Check if the final result is calculated with a failed simulation
-  if (!results_.getSuccess())
-  tSup_ -= accuracy;
+    // Set tSup_, tMax et tMin
+    gap = tMax - tMin;
+    if (results_.getSuccess()) {
+      if (nbSimulationsDone == 1) {
+        status_ = DYNAlgorithms::CT_ABOVE_MAX_BOUND;
+        return;
+      }
+      tMin = tMax;
+      tMax = std::min(tLowestFailed, tMax + gap/2);
+    } else {
+      std::cout<< "Simulation Failed" << std::endl;
+      nbSimulationsFailed++;
+
+      if (mode == CriticalTimeCalculation::COMPLEX &&
+        (results_.getStatus() == CRITERIA_NON_RESPECTED_STATUS || results_.getStatus() == DIVERGENCE_STATUS)) {
+        // In case of solver issue, tMax become the previous lowest time with an issue minus the accuracy
+        if (tMax == tLowestFailed - accuracy_) {tLowestFailed = tMax;}
+        tMax = tLowestFailed - accuracy_;
+        if (tMin > tMax) {std::swap(tMin, tMax);}  // By lowering tMax this way, tMin might become greater than tMax
+      } else {
+        tLowestFailed = tMax;
+        tMax = tMax - gap/2;
+      }
+    }
+    tSup_ = Round(tMax);
+  }
 
   // Check if all simulations failed (if yes, min range might be the problem)
   if (nbSimulationsDone == nbSimulationsFailed) {
     status_ = DYNAlgorithms::CT_BELOW_MIN_BOUND;
     return;
   }
-
-  tSup_ = std::round(tSup_ * multiplierRound) / multiplierRound;
+  // Set final Status and Critical time
+  tSup_ = Round(tMin);
   status_ = DYNAlgorithms::RESULT_FOUND;
 }
-
-// void
-// CriticalTimeLauncher::launch() {
-//   boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation = multipleJobs_->getCriticalTimeCalculation();
-//   if (!criticalTimeCalculation)
-//     throw DYNAlgorithmsError(CriticalTimeCalculationTaskNotFound);
-
-//   const double accuracy = criticalTimeCalculation->getAccuracy();
-//   const double multiplierRound = 1. / accuracy;
-//   int nbSimulationsDone = 0;
-//   int nbSimulationsFailed = 0;
-//   tSup_ = criticalTimeCalculation->getMaxValue();  // time use in simulation
-//   double tMin = criticalTimeCalculation->getMinValue();  // Bound min of the time
-//   double tMax = criticalTimeCalculation->getMaxValue();  // bound max of the time
-//   double gap = tMax-tMin;
-//   double tLowestFailed = tMax;  // min time where all times higher lead to a failed simulation
-//   std::map<double, status_t> tFailedValues;  // stores every tested tSup_ which lead to a failed Simulation
-
-//   // While difference between lowest time of fail and Highest time of Success (tMin) is higher than the accuracy then continue loop
-//   while (std::abs(Round(tLowestFailed, multiplierRound)-Round(tMin, multiplierRound)-accuracy) > 1e-9) {
-//     // Set tMax et tMin
-//     if (nbSimulationsDone > 0) {
-//       if (results_.getSuccess()) {
-//         if (nbSimulationsDone == 1) {
-//           status_ = DYNAlgorithms::CT_ABOVE_MAX_BOUND;
-//           return;
-//         }
-//         tMin = tMax;
-//         tMax = std::min(tLowestFailed, tMax+gap/2);
-//       } else {
-//         std::cout<< "Simulation Failed" << std::endl;
-//         nbSimulationsFailed++;
-//         tFailedValues.insert({tSup_, results_.getStatus()});
-//         if (results_.getStatus() == CRITERIA_NON_RESPECTED_STATUS || results_.getStatus() == DIVERGENCE_STATUS) {
-//           // In case of solver issue, tMax become the previous value of tMax (before the issue) minus the accuracy
-//           if (tMax == tLowestFailed - accuracy) {
-//             tLowestFailed = tMax;
-//           }
-//           tMax = tLowestFailed - accuracy;
-//           if (tMin > tMax) {std::swap(tMin, tMax);}  // By lowering tMax this way, tMin might become greater than tMax
-//         } else {
-//           tLowestFailed = tMax;
-//           tMax -= gap/2;
-//         }
-//       }
-//     }
-//     std::cout<< "tMax: " << tMax << "; tMin: " << tMin << std::endl;
-
-//     // Set tSup_
-//     gap = tMax-tMin;
-//     tSup_ = Round(tMax, multiplierRound);
-
-//     // Launch Simulation
-//     if (tFailedValues.find(tSup_)== tFailedValues.end()) {
-//       setParametersAndLaunchSimulation(criticalTimeCalculation);
-//     } else {  // if failed values already detected, no need to launch the simulation
-//       results_.setSuccess(false);
-//       results_.setStatus(tFailedValues[tSup_]);
-//     }
-//     nbSimulationsDone++;
-//   }
-
-//   // Check if all simulations failed (if yes, min range might be the problem)
-//   if (nbSimulationsDone == nbSimulationsFailed) {
-//     status_ = DYNAlgorithms::CT_BELOW_MIN_BOUND;
-//     return;
-//   }
-//   // Set final tSup_
-//   tSup_ = std::floor(tMax * multiplierRound) / multiplierRound;
-//   status_ = DYNAlgorithms::RESULT_FOUND;
-// }
 
 void
 CriticalTimeLauncher::createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const {

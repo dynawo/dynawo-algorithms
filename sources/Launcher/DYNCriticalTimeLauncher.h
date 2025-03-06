@@ -52,20 +52,14 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
   void setParametersAndLaunchSimulation(boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation);
 
   /**
-   * @brief Update superior born to find the right critical time
-   * and calcul the next time value we want to test.
-   *
-   * @param tPrevious previous value tested
-   * @param curAccuracy current accuracy
-   * @param multiplierRound value used to round results with accuracy
-   * @param nbSimulationsFailed number of simulations failed
+   * @brief Round off the value with the same number of digits than the accuracy
+   * @param value value to round off
    */
-  void updateIndexes(double& tPrevious, double& curAccuracy, const double& multiplierRound, int& nbSimulationsFailed);
-
-  double Round(double value, const double multiplierRound);
+  double Round(double value);
 
  protected:
   double tSup_;  ///< value that will be updated until we find the critical time
+  double accuracy_;  ///< accuracy of the critical time calculation
   DYNAlgorithms::status_t status_;  ///< final status of the simulation
   SimulationResult results_;  ///< results of the critical time calculation
 

@@ -56,13 +56,13 @@ CriticalTimeCalculation::getDydId() const {
 }
 
 void
-CriticalTimeCalculation::setEndPar(const std::string& endPar) {
-  endPar_ = endPar;
+CriticalTimeCalculation::setParName(const std::string& parName) {
+  parName_ = parName;
 }
 
 const std::string&
-CriticalTimeCalculation::getEndPar() const {
-  return endPar_;
+CriticalTimeCalculation::getParName() const {
+  return parName_;
 }
 
 void
@@ -83,6 +83,16 @@ CriticalTimeCalculation::setMaxValue(double maxValue) {
 double
 CriticalTimeCalculation::getMaxValue() {
   return maxValue_;
+}
+
+void
+CriticalTimeCalculation::setMode(CriticalTimeCalculation::mode_t mode) {
+  mode_ = mode;
+}
+
+CriticalTimeCalculation::mode_t
+CriticalTimeCalculation::getMode() const {
+  return mode_;
 }
 
 void

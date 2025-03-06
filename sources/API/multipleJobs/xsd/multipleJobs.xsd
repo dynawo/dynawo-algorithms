@@ -56,12 +56,20 @@
     <xs:attribute name="accuracy" type="xs:integer" use="optional"/>
   </xs:complexType>
 
+  <xs:simpleType name="Mode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SIMPLE"/>
+      <xs:enumeration value="COMPLEX"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:complexType name="CriticalTimeCalculation">
     <xs:attribute name="accuracy" type="xs:double" use="required"/>
     <xs:attribute name="jobsFile" type="xs:string" use="required"/>
     <xs:attribute name="dydId" type="xs:string" use="required"/>
-    <xs:attribute name="endPar" type="xs:string" use="required"/>
+    <xs:attribute name="parName" type="xs:string" use="required"/>
     <xs:attribute name="minValue" type="xs:double" use="required"/>
     <xs:attribute name="maxValue" type="xs:double" use="required"/>
+    <xs:attribute name="mode" type="dyn:Mode" use="optional"/>
   </xs:complexType>
 </xs:schema>
