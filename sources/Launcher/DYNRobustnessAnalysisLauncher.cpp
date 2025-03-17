@@ -429,7 +429,6 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
 
 void
 RobustnessAnalysisLauncher::storeOutputs(const SimulationResult& result, std::map<std::string, std::string>& mapData) const {
-  Trace::resetCustomAppenders();  // to force flush
 #ifndef NDEBUG
   Trace::resetPersistentCustomAppender(logTag_, DYN::DEBUG);  // to force flush
 #else
@@ -547,6 +546,8 @@ RobustnessAnalysisLauncher::writeOutputs(const SimulationResult& result) const {
 
 void
 RobustnessAnalysisLauncher::writeResults() const {
+  multiprocessing::Context::sync();  // To ensure that all procs have finished
+  Trace::resetCustomAppenders();  // to force flush
   if (!multiprocessing::context().isRootProc()) {
     // only main proccessus is performing the archive
     return;
