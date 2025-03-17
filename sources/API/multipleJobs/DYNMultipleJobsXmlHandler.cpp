@@ -153,8 +153,6 @@ CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
     criticalTimeCalculation_->setMode(CriticalTimeCalculation::COMPLEX);
   else
     criticalTimeCalculation_->setMode(CriticalTimeCalculation::SIMPLE);
-
-  criticalTimeCalculation_->checkMinValueInferiorMaxValue();
 }
 
 void

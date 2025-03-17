@@ -24,9 +24,6 @@
 #include <DYNModelMulti.h>
 #include <DYNTrace.h>
 
-#include "DYNDynamicData.h"
-#include "DYNModelDescription.h"
-
 #include "DYNScenarios.h"
 #include "DYNScenario.h"
 #include "DYNCriticalTimeLauncher.h"
@@ -107,8 +104,12 @@ CriticalTimeLauncher::launch() {
   if (!scenarios) {
     throw DYNAlgorithmsError(SystematicAnalysisTaskNotFound);
   }
-
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
+
+  // Check Inputs
+  criticalTimeCalculation->checkMinValueInferiorMaxValue();
+  criticalTimeCalculation->checkDydIdInDydFiles(workingDirectory_);
+
   results_.clear();
   results_.resize(events.size());
   auto& context = multiprocessing::context();

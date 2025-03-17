@@ -13,6 +13,7 @@
 
 CriticalTimeCalculationTaskNotFound    = criticalTimeCalculation task not found in input files
 DirectoryDoesNotExist            = directory : %1% does not exist
+DydIdNotInDydFile                = dyd id (%1%) not in dyd file (%2%)
 FileDoesNotExist                 = file : %1% does not exist
 IncoherentAccuracy               = accuracy of margin calculation should be a number between 1 and 100 (found : %1%)
 IncoherentAccuracyCriticalTime   = accuracy of critical time calculation should be a number between 0 and 1 (found : %1%)

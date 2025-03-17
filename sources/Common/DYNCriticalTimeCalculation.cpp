@@ -18,8 +18,15 @@
  */
 
 #include <DYNCommon.h>
+#include <DYNFileSystemUtils.h>
 #include "DYNCriticalTimeCalculation.h"
 #include "MacrosMessage.h"
+#include "DYNDynamicData.h"
+#include "DYNModelDescription.h"
+#include <algorithm>
+
+using DYN::DynamicData;
+using DYN::ModelDescription;
 
 namespace DYNAlgorithms {
 CriticalTimeCalculation::CriticalTimeCalculation():
@@ -102,6 +109,33 @@ void
 CriticalTimeCalculation::checkMinValueInferiorMaxValue() {
   if (minValue_ > maxValue_)
     throw DYNAlgorithmsError(IncoherentMinAndMaxValue, minValue_, maxValue_);
+}
+
+void
+CriticalTimeCalculation::checkDydIdInDydFiles(std::string workingDir) {
+  const std::vector<boost::shared_ptr<Scenario> >& events = scenarios_->getScenarios();
+
+  std::for_each(events.begin(), events.end(), [this, workingDir](const boost::shared_ptr<Scenario>& scenario) {
+    std::string dydFile = scenario->getDydFile();
+    std::vector <std::string> dydFiles;
+    dydFiles.push_back(createAbsolutePath(dydFile, workingDir));
+    boost::shared_ptr<DYN::DynamicData> dyd(new DYN::DynamicData());
+    dyd->setRootDirectory(workingDir);
+    dyd->initFromDydFiles(dydFiles);
+
+    bool missingDyd = true;
+    std::map<std::string, std::shared_ptr<DYN::ModelDescription>> blackboxes = dyd->getBlackBoxModelDescriptions();
+    for (auto it = blackboxes.begin(); it != blackboxes.end(); ++it) {
+      std::shared_ptr<DYN::ModelDescription> blackBoxModelDescription = it->second;
+      std::shared_ptr<dynamicdata::BlackBoxModel> blackBoxModel = std::dynamic_pointer_cast<dynamicdata::BlackBoxModel>(blackBoxModelDescription->getModel());
+      if (it->first == dydId_) {
+        missingDyd = false;
+        break;
+      }
+    if (missingDyd)
+      throw DYNAlgorithmsError(DydIdNotInDydFile, dydId_, dydFile);
+    }
+  });
 }
 
 }  // namespace DYNAlgorithms

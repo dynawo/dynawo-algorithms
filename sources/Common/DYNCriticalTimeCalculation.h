@@ -136,6 +136,12 @@ class CriticalTimeCalculation{
    */
   void checkMinValueInferiorMaxValue();
 
+  /**
+   * @brief Check if the dydId_ is present the dydFile
+   * @param workingDir working directory
+   */
+  void checkDydIdInDydFiles(std::string workingDir);
+
  private:
   boost::shared_ptr<Scenarios> scenarios_;  ///< description of the scenarios to apply after the load increase
   double accuracy_;  ///< accuracy of the algorithm
