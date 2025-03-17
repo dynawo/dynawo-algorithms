@@ -18,6 +18,7 @@
 
 #include "DYNSimulationResult.h"
 #include "DYNLoadIncreaseResult.h"
+#include "DYNCriticalTimeResult.h"
 #include <xml/sax/formatter/Formatter.h>
 
 namespace aggregatedResults {
@@ -68,8 +69,7 @@ class XmlExporter {
    * @param messageCriticalTimeError error message to export
    * @param filePath file where the results must be exported
    */
-  void exportCriticalTimeResultsToFile(DYNAlgorithms:: status_t status, double criticalTime,
-     const std::string& messageCriticalTimeError, const std::string& filePath) const;
+  void exportCriticalTimeResultsToFile(const std::vector<DYNAlgorithms::CriticalTimeResult>& results, const std::string& filePath) const;
 
   /**
    * @brief Export critical time calculation results into a stream
@@ -79,8 +79,7 @@ class XmlExporter {
    * @param messageCriticalTimeError error message to export
    * @param stream stream where the results must be exported
    */
-  void exportCriticalTimeResultsToStream(DYNAlgorithms::status_t status, double criticalTime,
-     const std::string& messageCriticalTimeError, std::ostream& stream) const;
+  void exportCriticalTimeResultsToStream(const std::vector<DYNAlgorithms::CriticalTimeResult>& results, std::ostream& stream) const;
 
  private:
   /**

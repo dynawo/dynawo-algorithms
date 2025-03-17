@@ -149,7 +149,7 @@ class MyLauncher : public RobustnessAnalysisLauncher {
     assert(multipleJobs_->getCriticalTimeCalculation());
     boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct = multipleJobs_->getCriticalTimeCalculation();
     ASSERT_EQ(ct->getAccuracy(), 0.001);
-    ASSERT_EQ(ct->getJobsFile(), "MyJobs.jobs");
+    ASSERT_EQ(ct->getScenarios()->getJobsFile(), "MyJobs.jobs");
     ASSERT_EQ(ct->getDydId(), "FAULT_GEN_1");
     ASSERT_EQ(ct->getParName(), "fault_tEnd");
     ASSERT_EQ(ct->getMinValue(), 1);

@@ -23,15 +23,16 @@
 
 #include <string>
 #include <DYNCommon.h>
+#include "DYNScenarios.h"
 
 namespace DYNAlgorithms {
 
 /**
- * @brief Margin calculation class
+ * @brief Critical Time calculation class
  *
- * Class for margin calculation element : input data
+ * Class for Critical Time calculation element : input data
  */
-class CriticalTimeCalculation {
+class CriticalTimeCalculation{
  public:
    /**
    * Mode of calculation
@@ -40,6 +41,23 @@ class CriticalTimeCalculation {
     SIMPLE = 0,  // Do a simple dichotomy
     COMPLEX = 1,  // Do a dichotomy until it meets a solver issue. it Reduces the range based on previous range and continue the dichotomy
   } mode_t;
+
+  /**
+   * constructor
+   */
+  CriticalTimeCalculation();
+
+  /**
+   * @brief set the scenarios of the margin calculation
+   * @param scenarios scenarios to associate to the margin calculation
+   */
+  void setScenarios(const boost::shared_ptr<Scenarios>& scenarios);
+
+  /**
+   * @brief get the scenarios associated to the margin calculation
+   * @return scenarios associated to the margin calculation
+   */
+  boost::shared_ptr<Scenarios> getScenarios() const;
 
   /**
    * @brief set the accuracy of the algorithm
@@ -52,18 +70,6 @@ class CriticalTimeCalculation {
    * @return accuracy of the algorithm
    */
   double getAccuracy() const;
-
-  /**
-   * @brief set the jobs file used for the simulation
-   * @param jobsFile jobs file used for the simulation
-   */
-  void setJobsFile(const std::string& jobsFile);
-
-  /**
-   * @brief get the jobs file used for the simulation
-   * @return jobs file used for the simulation
-   */
-  const std::string& getJobsFile() const;
 
   /**
    * @brief set the id parameter from the Dyd file.
@@ -131,6 +137,7 @@ class CriticalTimeCalculation {
   void checkMinValueInferiorMaxValue();
 
  private:
+  boost::shared_ptr<Scenarios> scenarios_;  ///< description of the scenarios to apply after the load increase
   double accuracy_;  ///< accuracy of the algorithm
   std::string jobsFile_;  ///< jobs file used for the simulation
   std::string dydId_;  ///< dyd id in the dyd file

@@ -22,6 +22,19 @@
 #include "MacrosMessage.h"
 
 namespace DYNAlgorithms {
+CriticalTimeCalculation::CriticalTimeCalculation():
+mode_(SIMPLE) {
+}
+
+void
+CriticalTimeCalculation::setScenarios(const boost::shared_ptr<Scenarios>& scenarios) {
+  scenarios_ = scenarios;
+}
+
+boost::shared_ptr<Scenarios>
+CriticalTimeCalculation::getScenarios() const {
+  return scenarios_;
+}
 
 void
 CriticalTimeCalculation::setAccuracy(double accuracy) {
@@ -33,16 +46,6 @@ CriticalTimeCalculation::setAccuracy(double accuracy) {
 double
 CriticalTimeCalculation::getAccuracy() const {
   return accuracy_;
-}
-
-void
-CriticalTimeCalculation::setJobsFile(const std::string& jobsFile) {
-  jobsFile_ = jobsFile;
-}
-
-const std::string&
-CriticalTimeCalculation::getJobsFile() const {
-  return jobsFile_;
 }
 
 void

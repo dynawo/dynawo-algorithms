@@ -72,4 +72,18 @@
     <xs:attribute name="maxValue" type="xs:double" use="required"/>
     <xs:attribute name="mode" type="dyn:Mode" use="optional"/>
   </xs:complexType>
+
+  <xs:complexType name="CriticalTimeCalculation">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="scenarios" type="dyn:Scenarios"/>
+    </xs:sequence>
+    <xs:attribute name="accuracy" type="xs:double" use="required"/>
+    <xs:attribute name="dydId" type="xs:string" use="required"/>
+    <xs:attribute name="parName" type="xs:string" use="required"/>
+    <xs:attribute name="minValue" type="xs:double" use="required"/>
+    <xs:attribute name="maxValue" type="xs:double" use="required"/>
+    <xs:attribute name="mode" type="dyn:Mode" use="optional"/>
+  </xs:complexType>
 </xs:schema>
+
+

@@ -33,6 +33,7 @@ using xml::sax::formatter::FormatterPtr;
 
 using DYNAlgorithms::SimulationResult;
 using DYNAlgorithms::LoadIncreaseResult;
+using DYNAlgorithms::CriticalTimeResult;
 
 namespace aggregatedResults {
 void
@@ -104,35 +105,38 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToFile(DYNAlgorithms::status_t status, double criticalTime,
-   const std::string& messageCriticalTimeError, const std::string& filePath) const {
+XmlExporter::exportCriticalTimeResultsToFile(const vector<CriticalTimeResult>& results, const std::string& filePath) const {
   ofstream file;
   file.open(filePath.c_str(), std::ios::binary);
   if (!file.is_open()) {
     throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filePath.c_str());
   }
 
-  exportCriticalTimeResultsToStream(status, criticalTime, messageCriticalTimeError, file);
+  exportCriticalTimeResultsToStream(results, file);
   file.close();
 }
 
 void
-XmlExporter::exportCriticalTimeResultsToStream(DYNAlgorithms::status_t status, double criticalTime,
-   const std::string& messageCriticalTimeError, std::ostream& stream) const {
+XmlExporter::exportCriticalTimeResultsToStream(const vector<CriticalTimeResult>& results, std::ostream& stream) const {
   FormatterPtr formatter = Formatter::createFormatter(stream, "http://www.rte-france.com/dynawo");
 
   formatter->startDocument();
   AttributeList attrs;
   formatter->startElement("aggregatedResults", attrs);
-  attrs.add("status", getStatusAsString(status));
-  if (status == DYNAlgorithms::RESULT_FOUND) {
-    attrs.add("criticalTime", criticalTime);
-  } else {
-    if (messageCriticalTimeError != "")
-      attrs.add("lastMessageError", messageCriticalTimeError);
+  for (unsigned int i=0, iEnd = results.size(); i < iEnd; i++) {
+    attrs.clear();
+    CriticalTimeResult result = results.at(i);
+    attrs.add("id", result.getId());
+    attrs.add("status", getStatusAsString(result.getStatus()));
+    if (result.getStatus() == DYNAlgorithms::RESULT_FOUND) {
+      attrs.add("criticalTime", result.getCriticicalTime());
+    } else {
+      if (result.getResult().getSimulationMessageError() != "")
+        attrs.add("lastMessageError", result.getResult().getSimulationMessageError());
+    }
+    formatter->startElement("scenarioResults", attrs);
+    formatter->endElement();  // scenarioResults
   }
-  formatter->startElement("criticalTimeResults", attrs);
-  formatter->endElement();
 
   formatter->endElement();  // aggregatedResults
   formatter->endDocument();
