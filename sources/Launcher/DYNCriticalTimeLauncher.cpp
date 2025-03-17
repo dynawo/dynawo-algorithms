@@ -147,14 +147,17 @@ CriticalTimeLauncher::launch() {
 
   boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
   boost::posix_time::time_duration diff = t1 - t0;
+  TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
   TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Critical Time Calculation", diff.total_milliseconds()/1000) << DYN::Trace::endline;
+  TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
 }
 
 void
 CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
 CriticalTimeResult& criticalTimeResult) {
   if (multiprocessing::context().nbProcs() == 1)
-    std::cout << " Launch scenario: " << scenario->getId() << " - dydFile: " << scenario->getDydFile() << "\n" << std::endl;
+    std::cout << " Launch scenario: " << scenario->getId() << " - dydFile: " << scenario->getDydFile() << std::endl;
+  TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioLaunch, scenario->getId()) << DYN::Trace::endline;
 
   status_t status;
   SimulationResult result;
@@ -176,6 +179,7 @@ CriticalTimeResult& criticalTimeResult) {
   while (std::abs((Round(tLowestFailed, accuracy)-Round(tMin, accuracy))-accuracy) > 1e-9) {
     std::cout << "Iteration " << nbSimulationsDone  << " | tMin: " << tMin  << " | tMax: " << tMax
      << " | time used: " << tSup << std::endl;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(CriticalTimeValues, nbSimulationsDone, tMin, tMax, tSup) << DYN::Trace::endline;
 
     // Launch Simulation
     if (tTestedValues.find(tSup) == tTestedValues.end()) {
@@ -220,7 +224,7 @@ CriticalTimeResult& criticalTimeResult) {
   status = getFinalStatus(nbSimulationsDone, nbSimulationsFailed);
 
   if (multiprocessing::context().nbProcs() == 1)
-    std::cout << " scenario: " << scenario->getId() << " - final status: " << getStatusAsString(status) << std::endl;
+    std::cout << " scenario: " << scenario->getId() << " - final status: " << getStatusAsString(status) << "\n" << std::endl;
 
   criticalTimeResult.setCriticalTime(tSup);
   criticalTimeResult.setResult(result);
