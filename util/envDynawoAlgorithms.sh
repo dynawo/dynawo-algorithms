@@ -920,9 +920,9 @@ create_distrib_with_headers() {
   version=$(echo $DYNAWO_ALGORITHMS_VERSION | cut -f1 -d' ')
 
   if [ "$with_omc" = "yes" ]; then
-    ZIP_FILE=DynawoAlgorithms_omc_V$version.zip
+    ZIP_FILE=DynawoAlgorithms_omc_v$version.zip
   else
-    ZIP_FILE=DynawoAlgorithms_headers_V$version.zip
+    ZIP_FILE=DynawoAlgorithms_headers_v$version.zip
   fi
 
   deploy_dynawo_algorithms
@@ -1042,8 +1042,14 @@ launch_MC() {
 }
 
 launch_CTC() {
-  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+  export_preload
+  if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
+    "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+  else
+    $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+  fi
   RETURN_CODE=$?
+  unset LD_PRELOAD
   return ${RETURN_CODE}
 }
 
@@ -1078,8 +1084,14 @@ launch_MC_gdb() {
 }
 
 launch_CTC_gdb() {
-  gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+  export_preload
+  if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
+    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+  else
+    gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+  fi  
   RETURN_CODE=$?
+  unset LD_PRELOAD
   return ${RETURN_CODE}
 }
 

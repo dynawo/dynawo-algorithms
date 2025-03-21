@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -31,6 +31,37 @@ class CriticalTimeResult {
    * @brief constructor
    */
   CriticalTimeResult();
+
+  /**
+   * @brief default destructor
+   */
+  ~CriticalTimeResult() = default;
+
+  /**
+   * @brief copy constructor
+   * @param result : result to copy
+   */
+  CriticalTimeResult(const CriticalTimeResult& result);
+
+  /**
+   * @brief copy operator
+   * @param result result to copy
+   * @return new instance of criticalTimeResult
+   */
+  CriticalTimeResult& operator=(const CriticalTimeResult& result);
+
+  /**
+   * @brief move constructor
+   * @param result : result to move
+   */
+  CriticalTimeResult(CriticalTimeResult&& result) = default;
+
+  /**
+   * @brief move operator
+   * @param result result to move
+   * @return new instance of criticalTimeResult
+   */
+  CriticalTimeResult& operator=(CriticalTimeResult&& result) = default;
 
   /**
    * @brief Set Scenario id

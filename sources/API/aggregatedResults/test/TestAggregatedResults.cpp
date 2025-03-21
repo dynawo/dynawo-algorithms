@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -126,12 +126,12 @@ TEST(TestAggregatedResults, TestAggregatedResultsCriticalTimeResults) {
   criticalTimeResult3.setId("MyThirdScenario");
   criticalTimeResult3.setStatus(DYNAlgorithms::CT_ABOVE_MAX_BOUND);
   criticalTimeResult3.setCriticalTime(1);
-  criticalTimeResult3.getResult().setSimulationMessageError(message);
 
   std::vector<DYNAlgorithms::CriticalTimeResult> results;
-  results.push_back(criticalTimeResult1);
-  results.push_back(criticalTimeResult2);
-  results.push_back(criticalTimeResult3);
+  results.resize(3);
+  results.at(0) = criticalTimeResult1;
+  results.at(1) = criticalTimeResult2;
+  results.at(2) = criticalTimeResult3;
 
   XmlExporter exporter;
   exporter.exportCriticalTimeResultsToFile(results, "res/criticalTimeResults.xml");

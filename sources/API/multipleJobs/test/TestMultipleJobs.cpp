@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -131,11 +131,17 @@ TEST(TestMultipleJobs, TestMultipleJobsXmlHanderCriticalTime) {
   boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
   ct = mj->getCriticalTimeCalculation();
   ASSERT_EQ(ct->getAccuracy(), 0.001);
-  ASSERT_EQ(ct->getScenarios()->getJobsFile(), "Myjobs.jobs");
   ASSERT_EQ(ct->getDydId(), "MyDydId");
   ASSERT_EQ(ct->getParName(), "MyParName");
   ASSERT_EQ(ct->getMinValue(), 0.1);
   ASSERT_EQ(ct->getMaxValue(), 1);
   ASSERT_EQ(ct->getMode(), DYNAlgorithms::CriticalTimeCalculation::SIMPLE);
+  boost::shared_ptr<DYNAlgorithms::Scenarios> scenarios = ct->getScenarios();
+  ASSERT_EQ(ct->getScenarios()->getJobsFile(), "Myjobs.jobs");
+  ASSERT_EQ(ct->getScenarios()->getScenarios().size(), 2);
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[0]->getId(), "MyScenarioId1");
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[0]->getDydFile(), "MyDydFile1.dyd");
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[1]->getId(), "MyScenarioId2");
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[1]->getDydFile(), "MyDydFile2.dyd");
 }
 }  // namespace multipleJobs
