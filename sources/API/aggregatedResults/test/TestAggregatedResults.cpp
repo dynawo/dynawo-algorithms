@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -18,6 +18,7 @@
 #include <gtest_dynawo.h>
 
 #include "DYNSimulationResult.h"
+#include "DYNCriticalTimeResult.h"
 #include "DYNAggrResXmlExporter.h"
 
 namespace aggregatedResults {
@@ -105,5 +106,38 @@ TEST(TestAggregatedResults, TestAggregatedResultsLoadIncreaseResults) {
   std::stringstream ssCmd;
   ssCmd << "Executing command : " << cmd << std::endl;
   ASSERT_EQ(ssDiff.str(), ssCmd.str());
+}
+
+TEST(TestAggregatedResults, TestAggregatedResultsCriticalTimeResults) {
+  std::string message = "MyMessage";
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult1;
+  criticalTimeResult1.setId("MyFirstScenario");
+  criticalTimeResult1.setStatus(DYNAlgorithms::RESULT_FOUND);
+  criticalTimeResult1.setCriticalTime(1);
+  criticalTimeResult1.getResult().setSimulationMessageError(message);
+
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult2;
+  criticalTimeResult2.setId("MySecondScenario");
+  criticalTimeResult2.setStatus(DYNAlgorithms::CT_BELOW_MIN_BOUND);
+  criticalTimeResult2.setCriticalTime(1);
+  criticalTimeResult2.getResult().setSimulationMessageError(message);
+
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult3;
+  criticalTimeResult3.setId("MyThirdScenario");
+  criticalTimeResult3.setStatus(DYNAlgorithms::CT_ABOVE_MAX_BOUND);
+  criticalTimeResult3.setCriticalTime(1);
+
+  std::vector<DYNAlgorithms::CriticalTimeResult> results;
+  results.resize(3);
+  results.at(0) = criticalTimeResult1;
+  results.at(1) = criticalTimeResult2;
+  results.at(2) = criticalTimeResult3;
+
+  XmlExporter exporter;
+  exporter.exportCriticalTimeResultsToFile(results, "res/criticalTimeResults.xml");
+  std::stringstream ssDiff;
+  executeCommand("diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml", ssDiff);
+  std::cout << ssDiff.str() << std::endl;
+  ASSERT_EQ(ssDiff.str(), "Executing command : diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml\n");
 }
 }  // namespace aggregatedResults

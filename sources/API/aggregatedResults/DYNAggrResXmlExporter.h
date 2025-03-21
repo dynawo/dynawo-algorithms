@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -18,6 +18,7 @@
 
 #include "DYNSimulationResult.h"
 #include "DYNLoadIncreaseResult.h"
+#include "DYNCriticalTimeResult.h"
 #include <xml/sax/formatter/Formatter.h>
 
 namespace aggregatedResults {
@@ -59,6 +60,26 @@ class XmlExporter {
    * @param stream stream where the results must be exported
    */
   void exportLoadIncreaseResultsToStream(const std::vector<DYNAlgorithms::LoadIncreaseResult>& results, std::ostream& stream) const;
+
+  /**
+   * @brief Export critical time calculation results into a file
+   *
+   * @param status status of the critical time calculation
+   * @param criticalTime critical time results to export
+   * @param messageCriticalTimeError error message to export
+   * @param filePath file where the results must be exported
+   */
+  void exportCriticalTimeResultsToFile(const std::vector<DYNAlgorithms::CriticalTimeResult>& results, const std::string& filePath) const;
+
+  /**
+   * @brief Export critical time calculation results into a stream
+   *
+   * @param status status of the critical time calculation
+   * @param criticalTime critical time results to export
+   * @param messageCriticalTimeError error message to export
+   * @param stream stream where the results must be exported
+   */
+  void exportCriticalTimeResultsToStream(const std::vector<DYNAlgorithms::CriticalTimeResult>& results, std::ostream& stream) const;
 
  private:
   /**
