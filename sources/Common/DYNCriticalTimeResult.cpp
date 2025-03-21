@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -12,10 +12,27 @@
 //
 
 #include "DYNCriticalTimeResult.h"
+#include <iostream>
 
 namespace DYNAlgorithms {
 
 CriticalTimeResult::CriticalTimeResult() {}
+
+CriticalTimeResult::CriticalTimeResult(const CriticalTimeResult& result):
+  id_(result.id_),
+  criticalTime_(result.criticalTime_),
+  status_(result.status_),
+  result_(result.result_) {}
+
+CriticalTimeResult&
+CriticalTimeResult::operator=(const CriticalTimeResult& result) {
+  if (this == &result) return *this;
+  id_ = result.id_;
+  criticalTime_ = result.criticalTime_;
+  status_ = result.status_;
+  result_ = result.result_;
+  return *this;
+}
 
 void
 CriticalTimeResult::setId(const std::string& id) {

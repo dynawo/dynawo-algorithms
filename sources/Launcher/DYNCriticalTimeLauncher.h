@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -51,11 +51,9 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
    * launch the calculation of one scenario
    * @param scenario scenario to launch
    * @param criticalTimeCalculation critical time calculation
-   * @param criticalTimeResult result of a scenario of a critical time calculation
    * @return result of the scenario
    */
-  void launchScenario(const boost::shared_ptr<Scenario>& scenario, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
-    CriticalTimeResult& criticalTimeResult);
+  CriticalTimeResult launchScenario(const boost::shared_ptr<Scenario>& scenario, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation);
 
   /**
    * @brief Launch the simulation with the new value calculted in the critical time algorithm
@@ -73,7 +71,7 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
    * @param value value to round off
    * @param accuracy give the number of decimal (ex: accuracy = 0.001)
    */
-  double Round(double value, double accuracy);
+  double round(double value, double accuracy);
 
   /**
    * @brief get the status of the Calculation according to the number of simulation done and the ones failed
@@ -81,6 +79,10 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
    * @param nbSimulationsFailed number of simulation Failed
    */
   status_t getFinalStatus(double nbSimulationsDone, double nbSimulationsFailed);
+
+  void exportResult(const CriticalTimeResult& result) const;
+
+  CriticalTimeResult importResult(const std::string& id) const;
 
  protected:
   std::vector<CriticalTimeResult> results_;  ///< results of all scenarios of the critical time calculation

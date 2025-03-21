@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -39,7 +39,7 @@ using multipleJobs::MultipleJobs;
 namespace DYNAlgorithms {
 
 double
-CriticalTimeLauncher::Round(double value, double accuracy) {
+CriticalTimeLauncher::round(double value, double accuracy) {
   const double multiplierRound = 1. / accuracy;
   if (std::abs(value * multiplierRound - std::floor(value * multiplierRound)-0.5) < 1e-9)
     return std::floor((value) * multiplierRound) / multiplierRound;
@@ -130,21 +130,20 @@ CriticalTimeLauncher::launch() {
   inputs_.readInputs(workingDirectory_, baseJobsFile);
 
   multiprocessing::forEach(0, events.size(), [this, &events, criticalTimeCalculation](unsigned int i){
-    launchScenario(events[i], criticalTimeCalculation, results_.at(i));
-    exportResult(results_.at(i).getResult());
+    CriticalTimeResult ret = launchScenario(events[i], criticalTimeCalculation);
+    exportResult(ret);
   });
 
   multiprocessing::Context::sync();
 
-  // // Update results for root proc
-  // if (context.isRootProc()) {
-  //   for (unsigned int i = 0; i < events.size(); i++) {
-  //     const auto& scenario = events.at(i);
-  //     SimulationResult ctResult = importResult(scenario->getId());
-  //     results_.at(i).setResult(ctResult);
-  //     cleanResult(scenario->getId());
-  //   }
-  // }
+  // Update results for root proc
+  if (context.isRootProc()) {
+    for (unsigned int i = 0; i < events.size(); i++) {
+      const auto& scenario = events.at(i);
+      results_.at(i) = importResult(scenario->getId());
+      cleanResult(scenario->getId());
+    }
+  }
 
   boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
   boost::posix_time::time_duration diff = t1 - t0;
@@ -153,9 +152,8 @@ CriticalTimeLauncher::launch() {
   TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
 }
 
-void
-CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
-CriticalTimeResult& criticalTimeResult) {
+CriticalTimeResult
+CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation) {
   if (multiprocessing::context().nbProcs() == 1)
     std::cout << " Launch scenario: " << scenario->getId() << " - dydFile: " << scenario->getDydFile() << std::endl;
   TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioLaunch, scenario->getId()) << DYN::Trace::endline;
@@ -163,7 +161,7 @@ CriticalTimeResult& criticalTimeResult) {
   status_t status;
   SimulationResult result;
   std::string workingDir  = createAbsolutePath(scenario->getId(), workingDirectory_);
-  criticalTimeResult.setId(scenario->getId());
+
   result.setScenarioId(scenario->getId());
 
   const mode_t mode = criticalTimeCalculation->getMode();
@@ -177,9 +175,7 @@ CriticalTimeResult& criticalTimeResult) {
   std::map<double, std::pair<bool, status_t>> tTestedValues;  // stores every tested tSup
 
   // While difference between lowest time of fail and Highest time of Success (tMin) is higher than the accuracy then continue loop
-  while (std::abs((Round(tLowestFailed, accuracy)-Round(tMin, accuracy))-accuracy) > 1e-9) {
-    std::cout << "Iteration " << nbSimulationsDone  << " | tMin: " << tMin  << " | tMax: " << tMax
-     << " | time used: " << tSup << std::endl;
+  while (std::abs(DYN::doubleNotEquals((round(tLowestFailed, accuracy)-round(tMin, accuracy)), accuracy))) {
     TraceInfo(logTag_) << DYNAlgorithmsLog(CriticalTimeValues, nbSimulationsDone, tMin, tMax, tSup) << DYN::Trace::endline;
 
     // Launch Simulation
@@ -195,15 +191,14 @@ CriticalTimeResult& criticalTimeResult) {
     // Set tSup, tMax et tMin
     gap = tMax - tMin;
     if (result.getSuccess()) {
-      std::cout<< "Simulation Succeeded" << std::endl;
-      if (nbSimulationsDone == 1) {
-        status = DYNAlgorithms::CT_ABOVE_MAX_BOUND;
-        break;
-      }
+      // std::cout<< "Simulation Succeeded" << std::endl;
       tMin = tMax;
       tMax = std::min(tLowestFailed, tMax + gap/2);
+      if (nbSimulationsDone == 1) {
+        break;
+      }
     } else {
-      std::cout<< "Simulation Failed" << std::endl;
+      // std::cout<< "Simulation Failed" << std::endl;
       nbSimulationsFailed++;
 
       if (mode == CriticalTimeCalculation::COMPLEX &&
@@ -217,19 +212,22 @@ CriticalTimeResult& criticalTimeResult) {
         tMax = tMax - gap/2;
       }
     }
-    tSup = Round(tMax, accuracy);
+    tSup = round(tMax, accuracy);
   }
 
   // Set final Critical time and status
-  tSup = Round(tMin, accuracy);
+  tSup = round(tMin, accuracy);
   status = getFinalStatus(nbSimulationsDone, nbSimulationsFailed);
 
   if (multiprocessing::context().nbProcs() == 1)
     std::cout << " scenario: " << scenario->getId() << " - final status: " << getStatusAsString(status) << "\n" << std::endl;
 
+  CriticalTimeResult criticalTimeResult;
+  criticalTimeResult.setId(scenario->getId());
   criticalTimeResult.setCriticalTime(tSup);
   criticalTimeResult.setResult(result);
   criticalTimeResult.setStatus(status);
+  return criticalTimeResult;
 }
 
 status_t
@@ -243,6 +241,85 @@ CriticalTimeLauncher::getFinalStatus(double nbSimulationsDone, double nbSimulati
   } else {
     return DYNAlgorithms::RESULT_FOUND;
   }
+}
+
+void
+CriticalTimeLauncher::exportResult(const CriticalTimeResult& result) const {
+  DYNAlgorithms::RobustnessAnalysisLauncher::exportResult(result.getResult());
+
+  namespace fs = boost::filesystem;
+  fs::path filepath(createAbsolutePath(result.getId(), workingDirectory_));
+  filepath.append("result.save.txt");
+
+  std::ofstream file(filepath.generic_string(), std::ios::binary | std::ios::app);
+  file.precision(precisionResultFile_);
+
+  file << "criticalTime:" << result.getCriticicalTime() << std::endl;
+  file << "calculationStatus:" << static_cast<unsigned int>(result.getStatus()) << std::endl;
+  file << "lastMessageError:" << result.getResult().getSimulationMessageError() << std::endl;
+}
+
+CriticalTimeResult
+CriticalTimeLauncher::importResult(const std::string& id) const {
+  SimulationResult ret = DYNAlgorithms::RobustnessAnalysisLauncher::importResult(id);
+
+  CriticalTimeResult result;
+  result.setResult(ret);
+  result.setId(id);
+  auto filepath = computeResultFile(id);
+  const char delimiter = ':';
+
+  // Private type to modify the locale for ifstream
+  // by default all white spaces are considered for '>>' operator
+  class Delimiter : public std::ctype<char> {
+   public:
+     Delimiter(): std::ctype<char>(getTable()) {}
+     static mask const* getTable() {
+       static mask rc[table_size];
+       rc['\n'] = std::ctype_base::space;
+       return &rc[0];
+     }
+  };
+  std::ifstream file(filepath.generic_string());
+  if (file.fail()) {
+    return result;
+  }
+  file.precision(precisionResultFile_);
+  file.imbue(std::locale(file.getloc(), new Delimiter));
+
+  // critical time
+  std::string tmpStr;
+  double criticalTime;
+  while (file >> tmpStr) {
+    if (tmpStr.find("criticalTime:") == 0) {
+      tmpStr = tmpStr.substr(tmpStr.find(delimiter) + 1);
+      std::stringstream ss(tmpStr);
+      ss >> criticalTime;
+      result.setCriticalTime(criticalTime);
+      break;
+    }
+  }
+
+  // Calculation Status
+  unsigned int calculationStatus;
+  std::stringstream ss;
+  file >> tmpStr;
+  assert(tmpStr.find("calculationStatus:") == 0);
+  tmpStr = tmpStr.substr(tmpStr.find(delimiter)+1);
+  ss.clear();
+  ss.str(tmpStr);
+  ss >> calculationStatus;
+  result.setStatus(static_cast<status_t>(calculationStatus));
+
+  // Message Error
+  std::string lastMessageError;
+  file >> tmpStr;
+  assert(tmpStr.find("lastMessageError:") == 0);
+  lastMessageError = tmpStr.substr(tmpStr.find(delimiter) + 1);
+  lastMessageError.erase(0, lastMessageError.find_first_not_of(" "));
+  result.getResult().setSimulationMessageError(lastMessageError);
+
+  return result;
 }
 
 }  // namespace DYNAlgorithms

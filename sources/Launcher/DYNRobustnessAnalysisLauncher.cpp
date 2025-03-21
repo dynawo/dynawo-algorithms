@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -104,25 +104,32 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
   } else {
     workingDirectory_ = directory_;
   }
+
   if ( !is_directory(workingDirectory_) )
     throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDirectory_);
+
   if (doInitLog && multiprocessing::context().isRootProc())
     initLog();
+
   // build the name of the outputFile
   outputFileFullPath_ = createAbsolutePath(outputFile_, workingDirectory_);
+
   // If we already have received a definition for multipleJobs we have finished
   if (multipleJobs_) {
     return;
   }
+
   // Build a definition of multipleJobs from input file
   std::string inputFileFullPath;
   if (!isAbsolutePath(inputFile_))
     inputFileFullPath = createAbsolutePath(inputFile_, workingDirectory_);
   else
     inputFileFullPath = inputFile_;
+
   if (!exists(inputFileFullPath)) {
     throw DYNAlgorithmsError(FileDoesNotExist, inputFileFullPath);
   }
+
   std::string fileName = "";
   if (extensionEquals(inputFileFullPath, ".zip")) {
     fileName = unzipAndGetMultipleJobsFileName(inputFileFullPath);
@@ -131,6 +138,7 @@ RobustnessAnalysisLauncher::init(const bool doInitLog) {
   } else {
     throw DYNAlgorithmsError(InputFileFormatNotSupported, inputFileFullPath);
   }
+
   if (!exists(fileName))
     throw DYNAlgorithmsError(FileDoesNotExist, fileName);
   multipleJobs_ = readInputData(fileName);

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -125,14 +125,13 @@ XmlExporter::exportCriticalTimeResultsToStream(const vector<CriticalTimeResult>&
   formatter->startElement("aggregatedResults", attrs);
   for (unsigned int i=0, iEnd = results.size(); i < iEnd; i++) {
     attrs.clear();
-    CriticalTimeResult result = results.at(i);
-    attrs.add("id", result.getId());
-    attrs.add("status", getStatusAsString(result.getStatus()));
-    if (result.getStatus() == DYNAlgorithms::RESULT_FOUND) {
-      attrs.add("criticalTime", result.getCriticicalTime());
+    attrs.add("id", results[i].getId());
+    attrs.add("status", getStatusAsString(results[i].getStatus()));
+    if (results[i].getStatus() == DYNAlgorithms::RESULT_FOUND) {
+      attrs.add("criticalTime", results[i].getCriticicalTime());
     } else {
-      if (result.getResult().getSimulationMessageError() != "")
-        attrs.add("lastMessageError", result.getResult().getSimulationMessageError());
+      if (results[i].getResult().getSimulationMessageError() != "")
+        attrs.add("lastMessageError", results[i].getResult().getSimulationMessageError());
     }
     formatter->startElement("scenarioResults", attrs);
     formatter->endElement();  // scenarioResults

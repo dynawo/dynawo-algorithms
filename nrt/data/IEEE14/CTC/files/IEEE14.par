@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2021, RTE (http://www.rte-france.com)
+    Copyright (c) 2025, RTE (http://www.rte-france.com)
     See AUTHORS.txt
     All rights reserved.
     This Source Code Form is subject to the terms of the Mozilla Public
@@ -295,6 +295,6 @@
     <par type="DOUBLE" name="fault_RPu" value="0"/>
     <par type="DOUBLE" name="fault_XPu" value="0.0001"/>
     <par type="DOUBLE" name="fault_tBegin" value="1"/>
-    <par type="DOUBLE" name="fault_tEnd" value="1.7"/>
+    <par type="DOUBLE" name="fault_tEnd" value="1.620"/>
   </set>
 </parametersSet>
