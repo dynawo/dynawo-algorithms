@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -392,17 +392,17 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       std::replace(e_str.begin(), e_str.end(), '\n', ' ');
       result.setSimulationMessageError(e_str);
 
-      if (e.type() == DYN::Error::SIMULATION || e.type() == DYN::Error::SOLVER_ALGO
-          || e.type() == DYN::Error::SUNDIALS_ERROR || e.type() == DYN::Error::NUMERICAL_ERROR) {
-        if (e.type() == DYN::Error::SIMULATION)
-          result.setStatus(CRITERIA_NON_RESPECTED_STATUS);
-        else
-          result.setStatus(DIVERGENCE_STATUS);
-
+      if (e.type() == DYN::Error::SIMULATION) {
+        result.setStatus(CRITERIA_NON_RESPECTED_STATUS);
         std::vector<std::pair<double, std::string> > failingCriteria;
         simulation->getFailingCriteria(failingCriteria);
         result.setFailingCriteria(failingCriteria);
-
+      } else if (e.type() == DYN::Error::SOLVER_ALGO || e.type() == DYN::Error::SUNDIALS_ERROR
+          || e.type() == DYN::Error::NUMERICAL_ERROR) {
+        result.setStatus(DIVERGENCE_STATUS);
+        std::vector<std::pair<double, std::string> > failingCriteria;
+        simulation->getFailingCriteria(failingCriteria);
+        result.setFailingCriteria(failingCriteria);
       } else {
         result.setStatus(EXECUTION_PROBLEM_STATUS);
       }

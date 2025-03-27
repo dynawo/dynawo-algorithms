@@ -73,7 +73,7 @@ class CriticalTimeCalculation{
 
   /**
    * @brief set the id parameter from the Dyd file.
-   * @param parSetId id parameter we will use
+   * @param dydId id parameter we will use
    */
   void setDydId(const std::string& dydId);
 
@@ -121,7 +121,7 @@ class CriticalTimeCalculation{
 
   /**
    * @brief set the mode used for the simulation
-   * @param minValue mode used for the simulation
+   * @param mode mode used for the simulation
    */
   void setMode(mode_t mode);
 
@@ -132,22 +132,28 @@ class CriticalTimeCalculation{
   mode_t getMode() const;
 
   /**
-   * @brief Check if MinValue is inferior of MaxValue. Throw an error otherwise.
+   * @brief Check if the gap between min and max is at least two times the accuracy. Throw an error otherwise
    */
-  void checkMinValueInferiorMaxValue();
+  void checkGapBetweenMinValueAndMaxValue() const;
 
   /**
-   * @brief Check if the dydId_ is present the dydFile
+   * @brief Check if the dydId_ is present the dydFile. Throw an error otherwise
    * @param workingDir working directory
    */
-  void checkDydIdInDydFiles(std::string workingDir);
+  void checkDydIdInDydFiles(std::string workingDir) const;
+
+  /**
+   * @brief Check min and max Value's coherence and presence of dydID in dydFile
+   * @param workingDir working directory
+   */
+  void sanityCheck(std::string workingDir) const;
 
  private:
-  boost::shared_ptr<Scenarios> scenarios_;  ///< description of the scenarios to apply after the load increase
+  boost::shared_ptr<Scenarios> scenarios_;  ///< description of the scenarios to apply
   double accuracy_;  ///< accuracy of the algorithm
   std::string jobsFile_;  ///< jobs file used for the simulation
   std::string dydId_;  ///< dyd id in the dyd file
-  std::string parName_;  ///< Name of end parameter used for the simulation
+  std::string parName_;  ///< name of the double that handles the fault end in the par file
   double minValue_;  ///< minimum value for the critical time
   double maxValue_;  ///< maximum value for the critical time
   mode_t mode_;   ///< mode for the calculation

@@ -90,7 +90,6 @@ target_link_libraries(dynawo_algorithms_Common
   Dynawo::dynawo_Common
   Dynawo::dynawo_ModelerCommon
   $<$<STREQUAL:${USE_MPI},YES>:MPI::MPI_CXX>
-  Boost::log
   )
 
 install(TARGETS dynawo_algorithms_Common

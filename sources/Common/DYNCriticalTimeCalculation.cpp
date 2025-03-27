@@ -45,7 +45,7 @@ CriticalTimeCalculation::getScenarios() const {
 
 void
 CriticalTimeCalculation::setAccuracy(double accuracy) {
-  if (accuracy < 0 || accuracy > 1 || DYN::doubleIsZero(accuracy))
+  if (accuracy < 0 || DYN::doubleIsZero(accuracy))
     throw DYNAlgorithmsError(IncoherentAccuracyCriticalTime, accuracy);
   accuracy_ = accuracy;
 }
@@ -106,36 +106,40 @@ CriticalTimeCalculation::getMode() const {
 }
 
 void
-CriticalTimeCalculation::checkMinValueInferiorMaxValue() {
-  if (minValue_ > maxValue_)
+CriticalTimeCalculation::checkGapBetweenMinValueAndMaxValue() const {
+  if (minValue_ > maxValue_ - 2 * accuracy_)
     throw DYNAlgorithmsError(IncoherentMinAndMaxValue, minValue_, maxValue_);
 }
 
 void
-CriticalTimeCalculation::checkDydIdInDydFiles(std::string workingDir) {
+CriticalTimeCalculation::checkDydIdInDydFiles(std::string workingDir) const {
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios_->getScenarios();
 
   std::for_each(events.begin(), events.end(), [this, workingDir](const boost::shared_ptr<Scenario>& scenario) {
     std::string dydFile = scenario->getDydFile();
-    std::vector <std::string> dydFiles;
+    std::vector<std::string> dydFiles;
     dydFiles.push_back(createAbsolutePath(dydFile, workingDir));
     boost::shared_ptr<DYN::DynamicData> dyd(new DYN::DynamicData());
     dyd->setRootDirectory(workingDir);
     dyd->initFromDydFiles(dydFiles);
 
-    bool missingDyd = true;
+    bool missingDydId = true;
     std::map<std::string, std::shared_ptr<DYN::ModelDescription>> blackboxes = dyd->getBlackBoxModelDescriptions();
     for (auto it = blackboxes.begin(); it != blackboxes.end(); ++it) {
-      std::shared_ptr<DYN::ModelDescription> blackBoxModelDescription = it->second;
-      std::shared_ptr<dynamicdata::BlackBoxModel> blackBoxModel = std::dynamic_pointer_cast<dynamicdata::BlackBoxModel>(blackBoxModelDescription->getModel());
       if (it->first == dydId_) {
-        missingDyd = false;
+        missingDydId = false;
         break;
       }
-    if (missingDyd)
-      throw DYNAlgorithmsError(DydIdNotInDydFile, dydId_, dydFile);
     }
+    if (missingDydId)
+      throw DYNAlgorithmsError(DydIdNotInDydFile, dydId_, dydFile);
   });
+}
+
+void
+CriticalTimeCalculation::sanityCheck(std::string workingDir) const {
+  checkGapBetweenMinValueAndMaxValue();
+  checkDydIdInDydFiles(workingDir);
 }
 
 }  // namespace DYNAlgorithms

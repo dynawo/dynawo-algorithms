@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -201,8 +201,8 @@ class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElemen
   void create(attributes_type const& attributes);
 
  private:
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;
-  ScenariosHandler scenariosHandler_;  ///< handler used to read scenarios element  ///< current critical time calculation element
+  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;  ///< current critical time calculation element
+  ScenariosHandler scenariosHandler_;  ///< handler used to read scenarios element
 };
 
 /**

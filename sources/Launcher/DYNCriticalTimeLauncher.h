@@ -42,8 +42,7 @@ class CriticalTimeResult;
 class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
  public:
   /**
-   * @brief Search critical time with a specific default in the simulation. We follow
-   * dichotomy's algorithm to find it.
+   * @brief launch the calculation of critical time for all scenarios
    */
   void launch();
 
@@ -57,13 +56,13 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
 
   /**
    * @brief Launch the simulation with the new value calculted in the critical time algorithm
-   * @param nbSimulationsDone number of simulation done
+   * @param workingDir working directory
    * @param criticalTimeCalculation critical time calculation
    * @param dydFile dyd file
    * @param result result of a simulation
    * @param tSup time to test in the simulation
    */
-  void setParametersAndLaunchSimulation(std::string workingDir, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
+  void setParametersAndLaunchSimulation(std::string& workingDir, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
     const std::string dydFile, SimulationResult& result, double& tSup);
 
   /**
@@ -74,14 +73,39 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
   double round(double value, double accuracy);
 
   /**
+   * @brief return true if a > b
+   *
+   *
+   * @param a first double
+   * @param b second double
+   * @return return true if a > b
+   */
+  static inline bool doubleGreater(const double& a, const double& b) {
+    if (std::isinf(a) || std::isinf(b)) return false;
+    if (std::isnan(a) || std::isnan(b)) return false;
+    return a > b + DYN::getCurrentPrecision() / 5;  // Ajout d'une marge d'erreur
+}
+
+  /**
    * @brief get the status of the Calculation according to the number of simulation done and the ones failed
    * @param nbSimulationsDone number of simulation Done
    * @param nbSimulationsFailed number of simulation Failed
    */
-  status_t getFinalStatus(double nbSimulationsDone, double nbSimulationsFailed);
+  status_t getFinalStatus(int nbSimulationsDone, int nbSimulationsFailed) const;
 
+  /**
+   * @brief Export a save result file
+   *
+   * @param result the Critical time result to export
+   */
   void exportResult(const CriticalTimeResult& result) const;
 
+  /**
+   * @brief Import simulation result from a save file
+   *
+   * @param id the scenario id
+   * @return CriticalTimeResult from this scenario
+   */
   CriticalTimeResult importResult(const std::string& id) const;
 
  protected:

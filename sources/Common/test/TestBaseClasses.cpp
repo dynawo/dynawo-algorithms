@@ -142,9 +142,9 @@ TEST(TestBaseClasses, testCriticalTimeCalculation) {
   ASSERT_EQ(ct.getScenarios()->getScenarios()[2]->getId(), "MyId3");
   ASSERT_EQ(ct.getScenarios()->getScenarios()[2]->getDydFile(), "MyDydFile3");
 
-  ASSERT_THROW_DYNAWO(ct.setAccuracy(2), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
+  ASSERT_THROW_DYNAWO(ct.setAccuracy(-1), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
   ct.setMinValue(3);
-  ASSERT_THROW_DYNAWO(ct.checkMinValueInferiorMaxValue(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentMinAndMaxValue);
+  ASSERT_THROW_DYNAWO(ct.checkGapBetweenMinValueAndMaxValue(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentMinAndMaxValue);
 }
 
 TEST(TestBaseClasses, testSimulationResult) {

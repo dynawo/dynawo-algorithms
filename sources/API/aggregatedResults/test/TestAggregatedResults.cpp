@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -112,19 +112,19 @@ TEST(TestAggregatedResults, TestAggregatedResultsCriticalTimeResults) {
   std::string message = "MyMessage";
   DYNAlgorithms::CriticalTimeResult criticalTimeResult1;
   criticalTimeResult1.setId("MyFirstScenario");
-  criticalTimeResult1.setStatus(DYNAlgorithms::RESULT_FOUND);
+  criticalTimeResult1.setStatus(DYNAlgorithms::RESULT_FOUND_STATUS);
   criticalTimeResult1.setCriticalTime(1);
   criticalTimeResult1.getResult().setSimulationMessageError(message);
 
   DYNAlgorithms::CriticalTimeResult criticalTimeResult2;
   criticalTimeResult2.setId("MySecondScenario");
-  criticalTimeResult2.setStatus(DYNAlgorithms::CT_BELOW_MIN_BOUND);
+  criticalTimeResult2.setStatus(DYNAlgorithms::CT_BELOW_MIN_BOUND_STATUS);
   criticalTimeResult2.setCriticalTime(1);
   criticalTimeResult2.getResult().setSimulationMessageError(message);
 
   DYNAlgorithms::CriticalTimeResult criticalTimeResult3;
   criticalTimeResult3.setId("MyThirdScenario");
-  criticalTimeResult3.setStatus(DYNAlgorithms::CT_ABOVE_MAX_BOUND);
+  criticalTimeResult3.setStatus(DYNAlgorithms::CT_ABOVE_MAX_BOUND_STATUS);
   criticalTimeResult3.setCriticalTime(1);
 
   std::vector<DYNAlgorithms::CriticalTimeResult> results;
@@ -136,8 +136,14 @@ TEST(TestAggregatedResults, TestAggregatedResultsCriticalTimeResults) {
   XmlExporter exporter;
   exporter.exportCriticalTimeResultsToFile(results, "res/criticalTimeResults.xml");
   std::stringstream ssDiff;
-  executeCommand("diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml", ssDiff);
+  #ifdef _WIN32
+    std::string cmd = "fc res\\criticalTimeResultsRef.xml res\\criticalTimeResults.xml >NUL || fc res\\criticalTimeResultsRef.xml res\\criticalTimeResults.xml";
+  #else
+    std::string cmd = "diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml";
+  #endif
+  executeCommand(cmd, ssDiff);
   std::cout << ssDiff.str() << std::endl;
-  ASSERT_EQ(ssDiff.str(), "Executing command : diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml\n");
-}
+  std::stringstream ssCmd;
+  ssCmd << "Executing command : " << cmd << std::endl;
+  ASSERT_EQ(ssDiff.str(), ssCmd.str());}
 }  // namespace aggregatedResults

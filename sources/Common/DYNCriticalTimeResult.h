@@ -30,7 +30,7 @@ class CriticalTimeResult {
    /**
    * @brief constructor
    */
-  CriticalTimeResult();
+  CriticalTimeResult() = default;
 
   /**
    * @brief default destructor
@@ -41,14 +41,14 @@ class CriticalTimeResult {
    * @brief copy constructor
    * @param result : result to copy
    */
-  CriticalTimeResult(const CriticalTimeResult& result);
+  CriticalTimeResult(const CriticalTimeResult& result)= default;
 
   /**
    * @brief copy operator
    * @param result result to copy
    * @return new instance of criticalTimeResult
    */
-  CriticalTimeResult& operator=(const CriticalTimeResult& result);
+  CriticalTimeResult& operator=(const CriticalTimeResult& result) = default;
 
   /**
    * @brief move constructor
@@ -103,12 +103,12 @@ class CriticalTimeResult {
   void setResult(SimulationResult& result);
 
   /**
-   * @brief Get Simulation Result
+   * @brief Get Last Simulation Result
    */
   const SimulationResult& getResult() const;
 
   /**
-   * @brief Get Simulation Result
+   * @brief Get Last Simulation Result
    */
   SimulationResult& getResult();
 

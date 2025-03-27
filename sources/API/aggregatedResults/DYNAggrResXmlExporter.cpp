@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -127,7 +127,7 @@ XmlExporter::exportCriticalTimeResultsToStream(const vector<CriticalTimeResult>&
     attrs.clear();
     attrs.add("id", results[i].getId());
     attrs.add("status", getStatusAsString(results[i].getStatus()));
-    if (results[i].getStatus() == DYNAlgorithms::RESULT_FOUND) {
+    if (results[i].getStatus() == DYNAlgorithms::RESULT_FOUND_STATUS) {
       attrs.add("criticalTime", results[i].getCriticicalTime());
     } else {
       if (results[i].getResult().getSimulationMessageError() != "")

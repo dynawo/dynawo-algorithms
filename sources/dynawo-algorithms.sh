@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
+# Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
 # See AUTHORS.txt
 # All rights reserved.
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -222,33 +222,6 @@ algo_CTC() {
 
   return ${RETURN_CODE}
 }
-
-# algo_CTC() {
-#   setEnv
-
-#   # launch critical time calculation
-#   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CTC $@
-#   RETURN_CODE=$?
-  
-#   while (($#)); do
-#   case $1 in
-#     --input)
-#       if [ ! -z "$2" ]; then
-#   	    if [ -f "$2" ]; then
-#           filter_timeline `dirname $2`
-#         fi
-#       fi
-#       break
-#       ;;
-#     *)
-#       shift
-#       break
-#       ;;
-#     esac
-#   done
-  
-#   return ${RETURN_CODE}
-# }
 
 if [ $# -eq 0 ]; then
   echo "$usage"

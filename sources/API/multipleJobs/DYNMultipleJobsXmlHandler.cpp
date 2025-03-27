@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2025, RTE (http://www.rte-france.com)
+// Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
 // See AUTHORS.txt
 // All rights reserved.
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -134,21 +134,11 @@ scenariosHandler_(parser::ElementName(multipleJobs_ns, "scenarios")) {
 void
 CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
   criticalTimeCalculation_ = boost::shared_ptr<CriticalTimeCalculation>(new CriticalTimeCalculation());
-  if (attributes.has("accuracy"))
-    criticalTimeCalculation_->setAccuracy(attributes["accuracy"]);
-
-  if (attributes.has("dydId"))
-    criticalTimeCalculation_->setDydId(attributes["dydId"]);
-
-  if (attributes.has("parName"))
-    criticalTimeCalculation_->setParName(attributes["parName"]);
-
-  if (attributes.has("minValue"))
-    criticalTimeCalculation_->setMinValue(attributes["minValue"]);
-
-  if (attributes.has("maxValue"))
-    criticalTimeCalculation_->setMaxValue(attributes["maxValue"]);
-
+  criticalTimeCalculation_->setAccuracy(attributes["accuracy"]);
+  criticalTimeCalculation_->setDydId(attributes["dydId"]);
+  criticalTimeCalculation_->setParName(attributes["parName"]);
+  criticalTimeCalculation_->setMinValue(attributes["minValue"]);
+  criticalTimeCalculation_->setMaxValue(attributes["maxValue"]);
   if (attributes.has("mode") && attributes["mode"].as_string() == "COMPLEX")
     criticalTimeCalculation_->setMode(CriticalTimeCalculation::COMPLEX);
   else

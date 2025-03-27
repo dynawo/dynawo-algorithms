@@ -41,7 +41,7 @@ namespace DYNAlgorithms {
 double
 CriticalTimeLauncher::round(double value, double accuracy) {
   const double multiplierRound = 1. / accuracy;
-  if (std::abs(value * multiplierRound - std::floor(value * multiplierRound)-0.5) < 1e-9)
+  if (DYN::doubleEquals(std::abs(value * multiplierRound - std::floor(value * multiplierRound)), 0.5))
     return std::floor((value) * multiplierRound) / multiplierRound;
   else
     return std::round((value) * multiplierRound) / multiplierRound;
@@ -57,12 +57,11 @@ CriticalTimeLauncher::createOutputs(std::map<std::string, std::string>& mapData,
   } else {
     exporter.exportCriticalTimeResultsToFile(results_, outputFileFullPath_);
   }
-
-  for (unsigned int i=0; i < results_.size(); i++) {
+  for (const auto& result : results_) {
     if (zipIt) {
-      storeOutputs(results_[i].getResult(), mapData);
+      storeOutputs(result.getResult(), mapData);
     } else {
-      writeOutputs(results_[i].getResult());
+      writeOutputs(result.getResult());
     }
   }
 }
@@ -72,7 +71,7 @@ static DYN::TraceStream TraceInfo(const std::string& tag = "") {
 }
 
 void
-CriticalTimeLauncher::setParametersAndLaunchSimulation(std::string workingDir, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
+CriticalTimeLauncher::setParametersAndLaunchSimulation(std::string& workingDir, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
    const std::string dydFile, SimulationResult& result, double& tSup) {
   std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   addDydFileToJob(job, dydFile);
@@ -95,9 +94,11 @@ CriticalTimeLauncher::setParametersAndLaunchSimulation(std::string workingDir, b
 void
 CriticalTimeLauncher::launch() {
   boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
+  results_.clear();
   boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation = multipleJobs_->getCriticalTimeCalculation();
   if (!criticalTimeCalculation)
     throw DYNAlgorithmsError(CriticalTimeCalculationTaskNotFound);
+  criticalTimeCalculation->sanityCheck(workingDirectory_);
 
   const boost::shared_ptr<Scenarios>& scenarios = criticalTimeCalculation->getScenarios();
   const std::string& baseJobsFile = scenarios->getJobsFile();
@@ -106,14 +107,7 @@ CriticalTimeLauncher::launch() {
   }
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
 
-  // Check Inputs
-  criticalTimeCalculation->checkMinValueInferiorMaxValue();
-  criticalTimeCalculation->checkDydIdInDydFiles(workingDirectory_);
-
-  results_.clear();
-  results_.resize(events.size());
   auto& context = multiprocessing::context();
-
   if (context.isRootProc()) {
     // only required for root proc
     results_.resize(events.size());
@@ -145,11 +139,13 @@ CriticalTimeLauncher::launch() {
     }
   }
 
-  boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-  boost::posix_time::time_duration diff = t1 - t0;
-  TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
-  TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Critical Time Calculation", diff.total_milliseconds()/1000) << DYN::Trace::endline;
-  TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
+  if (multiprocessing::context().nbProcs() == 1) {
+    boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+    boost::posix_time::time_duration diff = t1 - t0;
+    TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Critical Time Calculation", diff.total_milliseconds()/1000) << DYN::Trace::endline;
+    TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
+  }
 }
 
 CriticalTimeResult
@@ -164,82 +160,77 @@ CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario
 
   result.setScenarioId(scenario->getId());
 
-  const mode_t mode = criticalTimeCalculation->getMode();
+  const CriticalTimeCalculation::mode_t mode = criticalTimeCalculation->getMode();
   const double accuracy = criticalTimeCalculation->getAccuracy();
-  double tMin = criticalTimeCalculation->getMinValue();  // Bound min of the time and also max time where all times lower lead to a succeeded simulation
   double tMax = criticalTimeCalculation->getMaxValue();  // Bound max of the time
-  double tSup = tMax;  // time used in simulation
+  double tEnd = tMax;  // fault time end used in simulation
   double tLowestFailed = tMax;  // min time where all times higher lead to a failed simulation
+  double tHighestSuccess = criticalTimeCalculation->getMinValue();  // max time where all times lower lead to a succeeded simulation
   double gap;
   int nbSimulationsDone = 0, nbSimulationsFailed = 0;
-  std::map<double, std::pair<bool, status_t>> tTestedValues;  // stores every tested tSup
+  std::unordered_map<double, std::pair<bool, status_t>> tTestedValues;  // stores every tested tEnd
 
-  // While difference between lowest time of fail and Highest time of Success (tMin) is higher than the accuracy then continue loop
-  while (std::abs(DYN::doubleNotEquals((round(tLowestFailed, accuracy)-round(tMin, accuracy)), accuracy))) {
-    TraceInfo(logTag_) << DYNAlgorithmsLog(CriticalTimeValues, nbSimulationsDone, tMin, tMax, tSup) << DYN::Trace::endline;
+  // While difference between lowest time of fail and highest time of Success is higher than the accuracy then continue loop
+  while (doubleGreater(round(tLowestFailed, accuracy)-round(tHighestSuccess, accuracy), accuracy)) {
+    TraceInfo(logTag_) << DYNAlgorithmsLog(CriticalTimeValues, nbSimulationsDone, tHighestSuccess, tMax, tEnd) << DYN::Trace::endline;
 
     // Launch Simulation
-    if (tTestedValues.find(tSup) == tTestedValues.end()) {
-      setParametersAndLaunchSimulation(workingDir, criticalTimeCalculation, scenario->getDydFile(), result, tSup);
+    if (tTestedValues.find(tEnd) == tTestedValues.end()) {
+      setParametersAndLaunchSimulation(workingDir, criticalTimeCalculation, scenario->getDydFile(), result, tEnd);
     } else {  // if tested values already detected, no need to launch the simulation
-      result.setSuccess(tTestedValues[tSup].first);
-      result.setStatus(tTestedValues[tSup].second);
+      result.setSuccess(tTestedValues[tEnd].first);
+      result.setStatus(tTestedValues[tEnd].second);
     }
-    nbSimulationsDone++;
-    tTestedValues[tSup] = {result.getSuccess(), result.getStatus()};
+    ++nbSimulationsDone;
+    tTestedValues[tEnd] = {result.getSuccess(), result.getStatus()};
 
-    // Set tSup, tMax et tMin
-    gap = tMax - tMin;
+    // Set tEnd, tMax et tHighestSuccess
+    gap = tMax - tHighestSuccess;
     if (result.getSuccess()) {
-      // std::cout<< "Simulation Succeeded" << std::endl;
-      tMin = tMax;
+      tHighestSuccess = tMax;
       tMax = std::min(tLowestFailed, tMax + gap/2);
-      if (nbSimulationsDone == 1) {
-        break;
-      }
+      if (nbSimulationsDone == 1) {break;}
     } else {
-      // std::cout<< "Simulation Failed" << std::endl;
-      nbSimulationsFailed++;
+      ++nbSimulationsFailed;
 
       if (mode == CriticalTimeCalculation::COMPLEX &&
         (result.getStatus() == CRITERIA_NON_RESPECTED_STATUS || result.getStatus() == DIVERGENCE_STATUS)) {
         // In case of solver issue, tMax become the previous lowest time with an issue minus the accuracy
-        if (tMax == tLowestFailed - accuracy) {tLowestFailed = tMax;}
+        if (DYN::doubleEquals(tMax, tLowestFailed - accuracy)) {tLowestFailed = tMax;}
         tMax = tLowestFailed - accuracy;
-        if (tMin > tMax) {std::swap(tMin, tMax);}  // By lowering tMax this way, tMin might become greater than tMax
+        if (tHighestSuccess > tMax) {break;}  // By lowering tMax this way, tHighestSuccess might become greater than tMax
       } else {
         tLowestFailed = tMax;
         tMax = tMax - gap/2;
       }
     }
-    tSup = round(tMax, accuracy);
+    tEnd = round(tMax, accuracy);
   }
 
-  // Set final Critical time and status
-  tSup = round(tMin, accuracy);
+  // Set result
   status = getFinalStatus(nbSimulationsDone, nbSimulationsFailed);
+  CriticalTimeResult criticalTimeResult;
+  criticalTimeResult.setId(scenario->getId());
+  criticalTimeResult.setCriticalTime(round(tHighestSuccess, accuracy));
+  criticalTimeResult.setResult(result);
+  criticalTimeResult.setStatus(status);
 
   if (multiprocessing::context().nbProcs() == 1)
     std::cout << " scenario: " << scenario->getId() << " - final status: " << getStatusAsString(status) << "\n" << std::endl;
 
-  CriticalTimeResult criticalTimeResult;
-  criticalTimeResult.setId(scenario->getId());
-  criticalTimeResult.setCriticalTime(tSup);
-  criticalTimeResult.setResult(result);
-  criticalTimeResult.setStatus(status);
   return criticalTimeResult;
 }
 
 status_t
-CriticalTimeLauncher::getFinalStatus(double nbSimulationsDone, double nbSimulationsFailed) {
+CriticalTimeLauncher::getFinalStatus(int nbSimulationsDone, int nbSimulationsFailed) const {
   if (nbSimulationsDone == nbSimulationsFailed) {
     // Check if all simulations failed (if yes, min range might be the problem)
-    return DYNAlgorithms::CT_BELOW_MIN_BOUND;
+    return DYNAlgorithms::CT_BELOW_MIN_BOUND_STATUS;
   } else if (nbSimulationsDone == 1) {
     // If the first one succeed, max range might be the problem
-    return DYNAlgorithms::CT_ABOVE_MAX_BOUND;
+    return DYNAlgorithms::CT_ABOVE_MAX_BOUND_STATUS;
   } else {
-    return DYNAlgorithms::RESULT_FOUND;
+    return DYNAlgorithms::RESULT_FOUND_STATUS;
   }
 }
 
