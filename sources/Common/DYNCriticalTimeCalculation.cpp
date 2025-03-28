@@ -137,7 +137,7 @@ CriticalTimeCalculation::checkDydIdInDydFiles(std::string workingDir) const {
 }
 
 void
-CriticalTimeCalculation::sanityCheck(std::string workingDir) const {
+CriticalTimeCalculation::sanityChecks(std::string workingDir) const {
   checkGapBetweenMinValueAndMaxValue();
   checkDydIdInDydFiles(workingDir);
 }

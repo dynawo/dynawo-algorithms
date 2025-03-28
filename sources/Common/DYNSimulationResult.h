@@ -98,13 +98,14 @@ class SimulationResult {
 
   /**
    * @brief set the message error of the last failed simulation
-   * @param message the message error
+   * @param simulationMessageError the message error
   */
   void setSimulationMessageError(const std::string& simulationMessageError);
 
   /**
    * @brief get the message error of the last failed simulation
-  */
+   * @return the message error of the last failed simulation
+   */
   const std::string& getSimulationMessageError() const;
 
   /**

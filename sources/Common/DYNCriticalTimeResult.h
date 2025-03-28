@@ -71,6 +71,7 @@ class CriticalTimeResult {
 
   /**
    * @brief Get Scenario Id
+   * @return Scenario Id
    */
   const std::string& getId() const;
 
@@ -82,6 +83,7 @@ class CriticalTimeResult {
 
   /**
    * @brief Get Scenario Status
+   * @return Scenario Status
    */  
   const DYNAlgorithms::status_t& getStatus() const;
 
@@ -92,7 +94,8 @@ class CriticalTimeResult {
   void setCriticalTime(const double& criticalTime);
 
   /**
-   * @brief Critical Time Value for the scenario
+   * @brief Get Critical Time Value for the scenario
+   * @return Critical Time Value for the scenario
    */
   const double& getCriticicalTime() const;
 
@@ -104,19 +107,21 @@ class CriticalTimeResult {
 
   /**
    * @brief Get Last Simulation Result
+   * @return Last Simulation Result
    */
   const SimulationResult& getResult() const;
 
   /**
    * @brief Get Last Simulation Result
+   * @return Last Simulation Result
    */
   SimulationResult& getResult();
 
  private:
-  std::string id_;
-  double criticalTime_;
-  DYNAlgorithms::status_t status_;
-  SimulationResult result_;
+  std::string id_;  ///< Scenario Id
+  double criticalTime_;  ///< Critical Time Value
+  DYNAlgorithms::status_t status_;  ///< Scenario Status
+  SimulationResult result_;  ///< Last Simulation Result
 };
 
 }  // namespace DYNAlgorithms

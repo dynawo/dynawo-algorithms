@@ -154,7 +154,7 @@ CriticalTimeCalculationHandler::~CriticalTimeCalculationHandler() {
 }
 
 boost::shared_ptr<CriticalTimeCalculation>
-CriticalTimeCalculationHandler::get() const {
+CriticalTimeCalculationHandler::get() {
   return criticalTimeCalculation_;
 }
 

@@ -16,24 +16,6 @@
 
 namespace DYNAlgorithms {
 
-// CriticalTimeResult::CriticalTimeResult() {}
-
-// CriticalTimeResult::CriticalTimeResult(const CriticalTimeResult& result):
-//   id_(result.id_),
-//   criticalTime_(result.criticalTime_),
-//   status_(result.status_),
-//   result_(result.result_) {}
-
-// CriticalTimeResult&
-// CriticalTimeResult::operator=(const CriticalTimeResult& result) {
-//   if (this == &result) return *this;
-//   id_ = result.id_;
-//   criticalTime_ = result.criticalTime_;
-//   status_ = result.status_;
-//   result_ = result.result_;
-//   return *this;
-// }
-
 void
 CriticalTimeResult::setId(const std::string& id) {
   id_ = id;

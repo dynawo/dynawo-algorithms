@@ -169,6 +169,10 @@ class MarginCalculationHandler : public xml::sax::parser::ComposableElementHandl
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> marginCalculation_;  ///< current margin calculation element
 };
 
+/**
+ * @class CriticalTimeCalculationHandler
+ * @brief Handler used to parse critical time calculation element
+ */
 class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElementHandler {
  public:
   /**
@@ -191,7 +195,7 @@ class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElemen
    * @brief return the critical time calculation read in xml file
    * @return critical time calculation object build thanks to infos read in xml file
    */
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> get() const;
+  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> get();
 
  protected:
   /**

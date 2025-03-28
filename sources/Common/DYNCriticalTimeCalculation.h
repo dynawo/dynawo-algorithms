@@ -146,7 +146,7 @@ class CriticalTimeCalculation{
    * @brief Check min and max Value's coherence and presence of dydID in dydFile
    * @param workingDir working directory
    */
-  void sanityCheck(std::string workingDir) const;
+  void sanityChecks(std::string workingDir) const;
 
  private:
   boost::shared_ptr<Scenarios> scenarios_;  ///< description of the scenarios to apply

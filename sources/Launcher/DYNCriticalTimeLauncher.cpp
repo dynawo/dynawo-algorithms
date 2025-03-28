@@ -71,7 +71,7 @@ static DYN::TraceStream TraceInfo(const std::string& tag = "") {
 }
 
 void
-CriticalTimeLauncher::setParametersAndLaunchSimulation(std::string& workingDir, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
+CriticalTimeLauncher::setParametersAndLaunchSimulation(const std::string& workingDir, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
    const std::string dydFile, SimulationResult& result, double& tSup) {
   std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   addDydFileToJob(job, dydFile);
@@ -98,7 +98,7 @@ CriticalTimeLauncher::launch() {
   boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation = multipleJobs_->getCriticalTimeCalculation();
   if (!criticalTimeCalculation)
     throw DYNAlgorithmsError(CriticalTimeCalculationTaskNotFound);
-  criticalTimeCalculation->sanityCheck(workingDirectory_);
+  criticalTimeCalculation->sanityChecks(workingDirectory_);
 
   const boost::shared_ptr<Scenarios>& scenarios = criticalTimeCalculation->getScenarios();
   const std::string& baseJobsFile = scenarios->getJobsFile();
@@ -139,13 +139,11 @@ CriticalTimeLauncher::launch() {
     }
   }
 
-  if (multiprocessing::context().nbProcs() == 1) {
-    boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-    boost::posix_time::time_duration diff = t1 - t0;
-    TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
-    TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Critical Time Calculation", diff.total_milliseconds()/1000) << DYN::Trace::endline;
-    TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
-  }
+  boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+  boost::posix_time::time_duration diff = t1 - t0;
+  TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
+  TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Critical Time Calculation", diff.total_milliseconds()/1000) << DYN::Trace::endline;
+  TraceInfo(logTag_) << "============================================================ " << DYN::Trace::endline;
 }
 
 CriticalTimeResult
@@ -172,8 +170,6 @@ CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario
 
   // While difference between lowest time of fail and highest time of Success is higher than the accuracy then continue loop
   while (doubleGreater(round(tLowestFailed, accuracy)-round(tHighestSuccess, accuracy), accuracy)) {
-    TraceInfo(logTag_) << DYNAlgorithmsLog(CriticalTimeValues, nbSimulationsDone, tHighestSuccess, tMax, tEnd) << DYN::Trace::endline;
-
     // Launch Simulation
     if (tTestedValues.find(tEnd) == tTestedValues.end()) {
       setParametersAndLaunchSimulation(workingDir, criticalTimeCalculation, scenario->getDydFile(), result, tEnd);
@@ -184,6 +180,12 @@ CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario
     ++nbSimulationsDone;
     tTestedValues[tEnd] = {result.getSuccess(), result.getStatus()};
 
+    if (multiprocessing::context().nbProcs() == 1)
+      std::cout << "iteration " << nbSimulationsDone << " ¦ tMin: " << tHighestSuccess << " ¦ tMax: " << tMax <<
+       " ¦ time used: " << tEnd << " ¦ status: " << getStatusAsString(result.getStatus()) << std::endl;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(CriticalTimeValues, nbSimulationsDone, tHighestSuccess, tMax, tEnd,
+       getStatusAsString(result.getStatus())) << DYN::Trace::endline;
+
     // Set tEnd, tMax et tHighestSuccess
     gap = tMax - tHighestSuccess;
     if (result.getSuccess()) {
@@ -193,8 +195,7 @@ CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario
     } else {
       ++nbSimulationsFailed;
 
-      if (mode == CriticalTimeCalculation::COMPLEX &&
-        (result.getStatus() == CRITERIA_NON_RESPECTED_STATUS || result.getStatus() == DIVERGENCE_STATUS)) {
+      if (mode == CriticalTimeCalculation::COMPLEX && result.getStatus() == DIVERGENCE_STATUS) {
         // In case of solver issue, tMax become the previous lowest time with an issue minus the accuracy
         if (DYN::doubleEquals(tMax, tLowestFailed - accuracy)) {tLowestFailed = tMax;}
         tMax = tLowestFailed - accuracy;
