@@ -34,7 +34,7 @@ TEST(TestMultipleJobs, TestMultipleJobsClass) {
   MultipleJobs mj;
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> mc(new DYNAlgorithms::MarginCalculation());
   boost::shared_ptr<DYNAlgorithms::Scenarios> scenarios(new DYNAlgorithms::Scenarios());
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
   mj.setScenarios(scenarios);
   mj.setMarginCalculation(mc);
   mj.setCriticalTimeCalculation(ct);
@@ -47,7 +47,7 @@ TEST(TestMultipleJobs, TestMultipleJobsFactory) {
   boost::shared_ptr<MultipleJobs> mj = MultipleJobsFactory::newInstance();
   boost::shared_ptr<DYNAlgorithms::MarginCalculation> mc(new DYNAlgorithms::MarginCalculation());
   boost::shared_ptr<DYNAlgorithms::Scenarios> scenarios(new DYNAlgorithms::Scenarios());
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
   mj->setScenarios(scenarios);
   mj->setMarginCalculation(mc);
   mj->setCriticalTimeCalculation(ct);
@@ -128,7 +128,7 @@ TEST(TestMultipleJobs, TestMultipleJobsXmlHanderCriticalTime) {
   assert(!mj->getScenarios());
   assert(!mj->getMarginCalculation());
   assert(mj->getCriticalTimeCalculation());
-  boost::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> ct(new DYNAlgorithms::CriticalTimeCalculation());
   ct = mj->getCriticalTimeCalculation();
   ASSERT_EQ(ct->getAccuracy(), 0.001);
   ASSERT_EQ(ct->getDydId(), "MyDydId");

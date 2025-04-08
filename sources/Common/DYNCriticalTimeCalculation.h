@@ -48,14 +48,14 @@ class CriticalTimeCalculation{
   CriticalTimeCalculation();
 
   /**
-   * @brief set the scenarios of the margin calculation
-   * @param scenarios scenarios to associate to the margin calculation
+   * @brief set the scenarios of the critical time calculation
+   * @param scenarios scenarios to associate to the critical time calculation
    */
   void setScenarios(const boost::shared_ptr<Scenarios>& scenarios);
 
   /**
-   * @brief get the scenarios associated to the margin calculation
-   * @return scenarios associated to the margin calculation
+   * @brief get the scenarios associated to the critical time calculation
+   * @return scenarios associated to the critical time calculation
    */
   boost::shared_ptr<Scenarios> getScenarios() const;
 

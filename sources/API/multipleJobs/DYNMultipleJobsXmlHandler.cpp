@@ -133,7 +133,7 @@ scenariosHandler_(parser::ElementName(multipleJobs_ns, "scenarios")) {
 
 void
 CriticalTimeCalculationHandler::create(attributes_type const& attributes) {
-  criticalTimeCalculation_ = boost::shared_ptr<CriticalTimeCalculation>(new CriticalTimeCalculation());
+  criticalTimeCalculation_ = std::shared_ptr<CriticalTimeCalculation>(new CriticalTimeCalculation());
   criticalTimeCalculation_->setAccuracy(attributes["accuracy"]);
   criticalTimeCalculation_->setDydId(attributes["dydId"]);
   criticalTimeCalculation_->setParName(attributes["parName"]);
@@ -153,7 +153,7 @@ CriticalTimeCalculationHandler::addScenarios() {
 CriticalTimeCalculationHandler::~CriticalTimeCalculationHandler() {
 }
 
-boost::shared_ptr<CriticalTimeCalculation>
+std::shared_ptr<CriticalTimeCalculation>
 CriticalTimeCalculationHandler::get() {
   return criticalTimeCalculation_;
 }

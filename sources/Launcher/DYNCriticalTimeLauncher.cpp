@@ -71,7 +71,7 @@ static DYN::TraceStream TraceInfo(const std::string& tag = "") {
 }
 
 void
-CriticalTimeLauncher::setParametersAndLaunchSimulation(const std::string& workingDir, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
+CriticalTimeLauncher::setParametersAndLaunchSimulation(const std::string& workingDir, std::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
    const std::string dydFile, SimulationResult& result, double& tSup) {
   std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
   addDydFileToJob(job, dydFile);
@@ -95,7 +95,7 @@ void
 CriticalTimeLauncher::launch() {
   boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
   results_.clear();
-  boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation = multipleJobs_->getCriticalTimeCalculation();
+  std::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation = multipleJobs_->getCriticalTimeCalculation();
   if (!criticalTimeCalculation)
     throw DYNAlgorithmsError(CriticalTimeCalculationTaskNotFound);
   criticalTimeCalculation->sanityChecks(workingDirectory_);
@@ -147,7 +147,7 @@ CriticalTimeLauncher::launch() {
 }
 
 CriticalTimeResult
-CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, boost::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation) {
+CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, std::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation) {
   if (multiprocessing::context().nbProcs() == 1)
     std::cout << " Launch scenario: " << scenario->getId() << " - dydFile: " << scenario->getDydFile() << std::endl;
   TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioLaunch, scenario->getId()) << DYN::Trace::endline;
@@ -169,7 +169,7 @@ CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario
   std::unordered_map<double, std::pair<bool, status_t>> tTestedValues;  // stores every tested tEnd
 
   // While difference between lowest time of fail and highest time of Success is higher than the accuracy then continue loop
-  while (doubleGreater(round(tLowestFailed, accuracy)-round(tHighestSuccess, accuracy), accuracy)) {
+  while (DYN::doubleGreater(round(tLowestFailed, accuracy)-round(tHighestSuccess, accuracy), accuracy)) {
     // Launch Simulation
     if (tTestedValues.find(tEnd) == tTestedValues.end()) {
       setParametersAndLaunchSimulation(workingDir, criticalTimeCalculation, scenario->getDydFile(), result, tEnd);
