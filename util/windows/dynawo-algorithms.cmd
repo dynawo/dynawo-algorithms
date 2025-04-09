@@ -502,9 +502,9 @@ if /i %~1==DISTRIB (
 if defined _distrib_zip (
   del "%_distrib_zip%" 2>NUL
   tar -a -c -f "%_distrib_zip%" dynawo-algorithms 2>NUL
-  if %ERRORLEVEL% neq 0 (
+  if not exist %_distrib_zip% (
     7z a "%_distrib_zip%" -r dynawo-algorithms 2>NUL
-    if %ERRORLEVEL% neq 0 (
+    if not exist %_distrib_zip% (
       echo error: neither tar.exe nor 7z.exe are available to create distribution archive ! 1>&2
     )
   )
