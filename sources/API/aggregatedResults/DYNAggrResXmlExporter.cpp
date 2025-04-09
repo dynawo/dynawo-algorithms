@@ -33,6 +33,7 @@ using xml::sax::formatter::FormatterPtr;
 
 using DYNAlgorithms::SimulationResult;
 using DYNAlgorithms::LoadIncreaseResult;
+using DYNAlgorithms::CriticalTimeResult;
 
 namespace aggregatedResults {
 void
@@ -99,6 +100,43 @@ XmlExporter::exportLoadIncreaseResultsToStream(const vector<LoadIncreaseResult>&
     }
     formatter->endElement();  // loadIncreaseResults
   }
+  formatter->endElement();  // aggregatedResults
+  formatter->endDocument();
+}
+
+void
+XmlExporter::exportCriticalTimeResultsToFile(const vector<CriticalTimeResult>& results, const std::string& filePath) const {
+  ofstream file;
+  file.open(filePath.c_str(), std::ios::binary);
+  if (!file.is_open()) {
+    throw DYNError(DYN::Error::API, KeyError_t::FileGenerationFailed, filePath.c_str());
+  }
+
+  exportCriticalTimeResultsToStream(results, file);
+  file.close();
+}
+
+void
+XmlExporter::exportCriticalTimeResultsToStream(const vector<CriticalTimeResult>& results, std::ostream& stream) const {
+  FormatterPtr formatter = Formatter::createFormatter(stream, "http://www.rte-france.com/dynawo");
+
+  formatter->startDocument();
+  AttributeList attrs;
+  formatter->startElement("aggregatedResults", attrs);
+  for (unsigned int i=0, iEnd = results.size(); i < iEnd; i++) {
+    attrs.clear();
+    attrs.add("id", results[i].getId());
+    attrs.add("status", getStatusAsString(results[i].getStatus()));
+    if (results[i].getStatus() == DYNAlgorithms::RESULT_FOUND_STATUS) {
+      attrs.add("criticalTime", results[i].getCriticicalTime());
+    } else {
+      if (results[i].getResult().getSimulationMessageError() != "")
+        attrs.add("lastMessageError", results[i].getResult().getSimulationMessageError());
+    }
+    formatter->startElement("scenarioResults", attrs);
+    formatter->endElement();  // scenarioResults
+  }
+
   formatter->endElement();  // aggregatedResults
   formatter->endDocument();
 }

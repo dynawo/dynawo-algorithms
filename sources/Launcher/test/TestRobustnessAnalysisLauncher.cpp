@@ -179,5 +179,4 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   launcher.launch();
 }
 
-
 }  // namespace DYNAlgorithms

@@ -72,6 +72,7 @@ SimulationResult::operator=(const SimulationResult& result) {
   constraintsFileExtension_ =  result.constraintsFileExtension_;
   lostEquipmentsFileExtension_ = result.lostEquipmentsFileExtension_;
   logPath_ = result.logPath_;
+  simulationMessageError_ = result.simulationMessageError_;
   return *this;
 }
 
@@ -94,6 +95,16 @@ SimulationResult::setSuccess(const bool success) {
 void
 SimulationResult::setStatus(status_t status) {
   status_ = status;
+}
+
+void
+SimulationResult::setSimulationMessageError(const std::string& simulationMessageError) {
+  simulationMessageError_ = simulationMessageError;
+}
+
+const std::string&
+SimulationResult::getSimulationMessageError() const {
+  return simulationMessageError_;
 }
 
 std::stringstream&

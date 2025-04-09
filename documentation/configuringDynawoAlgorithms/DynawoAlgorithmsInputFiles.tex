@@ -57,12 +57,13 @@ if the network remains stable when some events occur.\\
 
 \begin{center}
 \begin{figure}[H]
+\centering
 \begin{tikzpicture}[node distance = 2cm, auto]
     % Place nodes
     \node [cloud] (input) {input file};
     \node [block, below of=input] (init) {read input file};
     \node [decision, below of=init] (inputD) {is zip file?};
-    \node [block, left of=inputD, node distance=3cm] (unzip) {unzip in directory path};
+    \node [block, right of=inputD, node distance=3cm] (unzip) {unzip in directory path};
     \node [block, below of=inputD, node distance=3cm] (Simulate) {simulate all scenarios};
     \node [block, below of=Simulate, node distance=2.5cm] (res) {dump result file};
     \node [cloud, below of=res,left of=res, node distance=2cm] (output) {output file};
@@ -70,7 +71,7 @@ if the network remains stable when some events occur.\\
     % Draw edges
     \path [line] (input) -- (init);
     \path [line] (init) -- (inputD);
-    \path [line] (inputD) -| node [near start] {yes} (unzip);
+    \path [line] (inputD) -- node [near start] {yes} (unzip);
     \path [line] (inputD) -- node {no}(Simulate);
     \path [line] (unzip) |- (Simulate);
     \path [line] (Simulate) -- (res);
@@ -80,14 +81,14 @@ if the network remains stable when some events occur.\\
 \caption{Systematic analysis flow}
 \end{figure}
 \end{center}
-
+\newpage
 The input is a xml multiple jobs file.
 
 \lstinputlisting[language=XML, morekeywords={id},title=multiple jobs file example]{../resources/syntaxExample/SASyntaxExample.xml}
 
 In this example, the base situation is described in \textbf{IEEE14.jobs} file. The format used is the same as a \Dynawo simulation.
 
-Three scenarios will be applied to this base situation: `DisconnectLine', 'Fault` and DisconnectGroup'. 
+Three scenarios will be applied to this base situation: `DisconnectLine', `Fault' and `DisconnectGroup'. 
 Each event is described in an additional \textbf{dyd} file that will be added to the base situation. 
 The 'Base' scenario has no associated \textbf{dyd} file and will thus simulate the base situation.
 
@@ -95,7 +96,7 @@ Below is an example of a \textbf{dyd} file for an event:
 
 \lstinputlisting[language=XML, morekeywords={id},title=event dyd file example]{../resources/syntaxExample/event.dyd}
 
-This \textbf{dyd} is added to the one given in \textbf{IEEE14.jobs} and adds a disconnection event to the line '\_BUS\_\_\_\_1-BUS\_\_\_\_5-1'.\\
+This \textbf{dyd} is added to the one given in \textbf{IEEE14.jobs} and adds a disconnection event to the line `\_BUS\_\_\_\_1-BUS\_\_\_\_5-1'.\\
 
 The command line required to launch SA mode is the following:
 
@@ -133,6 +134,7 @@ If one of those simulation fails, a dichotomy is applied to find out the maximum
 
 \begin{center}
 \begin{figure}[H]
+\centering
 \begin{tikzpicture}[node distance = 2cm, auto]
     % Place nodes
     \node [cloud] (input) {input file};
@@ -183,7 +185,7 @@ The initial situation for the events is described in \textbf{IEEE14\_tFin.jobs}.
 \textbf{The starting time defined in this .jobs file should be the end time of the load variation jobs file.}
 This situation should not contain any load variation model. 
 
-Two scenarios will be applied: `DisconnectLine' and DisconnectGroup'. 
+Two scenarios will be applied: `DisconnectLine' and `DisconnectGroup'. 
 Each event is described in an additional \textbf{dyd} file that will be added to the base situation. 
 
 The margin computed will be the global one with an accuracy of 2\%, meaning that the maximum difference between the result obtained and the exact margin will be 2\%.
@@ -226,10 +228,97 @@ $> ./myEnvDynawoAlgorithms.sh MC --directory <PATH TO WORKING DIRECTORY> --input
 
 This command will simulate the load variation described in the input file at the level given in the \textit{variation} option.
 
+\subsubsection{CTC mode: critical time calculation}
+
+The calculation of critical time in a power system is a transient stability analysis used to determine the maximum time during which a fault can persist on the network without causing a loss of system stability after it has been cleared. The critical time is calculated by simulating a node fault and adjusting the breaker time by dichotomy. After each test, we check whether the system remains stable once the fault has been eliminated. If stability is maintained, the time is increased; if not, it is reduced. This method enables rapid convergence towards the maximum time before loss of synchronism.
+
+\begin{center}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance = 2cm, auto]
+    % Place nodes
+    \node [cloud] (input) {input file};
+    \node [block, below of=input] (init) {read input file};
+    \node [decision, below of=init] (inputD) {is zip file?};
+    \node [block, right of=inputD, node distance=3cm] (unzip) {unzip in directory path};
+    \node [block, below of=inputD, node distance=3cm] (getParam) {get CTC parameters};
+    \node [decision, below of=getParam, node distance=3cm] (accuracy) {max-min < accuracy?};
+    \node [block, below of=accuracy, node distance=3cm] (simulate) {launch simulation};
+    \node [decision, below of=simulate, node distance=3cm] (success) {is success?};   
+    \node [block, right of=accuracy, node distance=6cm] (res) {dump result file};
+    \node [cloud, below of=res,left of=res, node distance=2cm] (output) {output file};
+    \node [cloud, below of=res,right of=res, node distance=2cm] (logs) {logs};
+    % Draw edges
+    \path [line] (input) -- (init);
+    \path [line] (init) -- (inputD);
+    \path [line] (inputD) -- node [near start] {yes} (unzip);
+    \path [line] (inputD) -- node {no} (getParam);
+    \path [line] (unzip) |- (getParam);
+    \path [line] (getParam) -- (accuracy);
+    \path [line] (accuracy) -- node [near start] {yes} (res);
+    \path [line] (accuracy) -- node {no} (simulate);
+    \path [line] (simulate) -- (success);
+    \path [line] (success.west) |- node [above, left, xshift=-0.3cm, yshift=0.3cm] {yes} node [above, xshift=-1.2cm, yshift=1cm] {min=max; max+=$\frac{max-min}{2}$} (-3, -17) |- (accuracy.west);
+    \path [line] (success.south) |- node [above, left, xshift=-0.3cm, yshift=0.3cm] {no} node [above, xshift=-4.5cm, yshift=0.5cm] {max-=$\frac{max-min}{2}$} (-6, -18.5) |- (accuracy.west);
+    \path [line] (res) -- (output);
+    \path [line] (res) -- (logs);
+\end{tikzpicture}
+\caption{Crtitical time calculation flow in `SIMPLE' mode}
+\end{figure}
+\end{center}
+The input is a xml multiple jobs file.
+
+\lstinputlisting[language=XML, morekeywords={id},title=multiple jobs file example]{../resources/syntaxExample/CTCSyntaxExample.xml}
+
+In this example, the basic initial situation is described in the \textbf{IEEE14.jobs} file. The format used is the same as a \Dynawo simulation.
+
+Three scenarios will be applied: `NodeFault1', `NodeFault2' and `NodeFault3'. Each event is described in an additional \textbf{dyd} file, which will be added individually to the main \textbf{dyd} file described in the \textbf{jobs} file.
+Below is an example of a \textbf{dyd} file for an event:
+
+\lstinputlisting[language=XML, morekeywords={id},title=event dyd file example]{../resources/syntaxExample/CTCEvent.dyd}
+
+The critical time calculation requires certain parameters to perform its dichotomy.
+\begin{itemize}
+  \item $accuracy$: accuracy of the calculation;
+  \item $dydId$: ID of the element containing the fault in the \textbf{dyd} file;
+  \item $parName$: name of the double that handles the fault end in the \textbf{par} file;
+  \item $minValue$: min time limit for the dichotomy calculation;
+  \item $maxValue$: max time limit for the dichotomy calculation;
+  \item $mode$: [optional, default= `SIMPLE'] dichotomy calculation mode.
+\end{itemize}
+To run at least one simulation, $minValue$ can't be superior than $maxValue - 2 * accuracy$.
+The mode is optional and can be either `SIMPLE' or `COMPLEX'. `SIMPLE' mode performs a classic dichotomy. If solver problems (linearity issue) occur when running this mode, this can lead to errors in the calculation of the critical time. In this case, the user can restart the calculation by switching the mode to `COMPLEX'. When the algorithm encounters one of these problems with tmax, it returns to the last value tested that caused the simulation to diverge normally and removes the accuracy once. It then resumes the dichotomy but it may lengthen the calculation.
+
+This \textbf{dyd} is added to the one given in \textbf{IEEE14.jobs} and adds a node fault to `FAULT\_GEN\_1', which is then connected to `\_BUS\_\_\_\_1\_TN\_ACPIN'.\\
+
+The command line required to launch CTC mode is the following:
+
+\begin{lstlisting}[language=bash, breaklines=true, breakatwhitespace=false]
+$> ./myEnvDynawoAlgorithms.sh CTC --directory <PATH TO WORKING DIRECTORY> --input <NAME OF INPUT FILE> --output <NAME OF OUTPUT FILE> --nbThreads <NUMBER OF THREADS>
+\end{lstlisting}
+
+The default number of thread is 1. The input can be explicit files or zipped ones. For example:
+
+\begin{lstlisting}[language=bash, breaklines=true, breakatwhitespace=false]
+$> ./myEnvDynawoAlgorithms.sh CTC --directory nrt/data/IEEE14/CTC --input fic_MULTIPLE.xml --output results.xml --nbThreads 3
+\end{lstlisting}
+
+This command will launch the critical time calculation described in the file \textit{nrt/data/IEEE14/CTC/fic\_MULTIPLE.xml} in multi-threading 
+and provides as outputs a file named \textit{results.xml} containing the status of all scenarios that were executed, 
+in addition to the last logs and requested outputs of the very last simulation of each scenario, whether it passed or not.
+
+\begin{lstlisting}[language=bash, breaklines=true, breakatwhitespace=false]
+$> ./myEnvDynawoAlgorithms.sh CTC --directory nrt/data/IEEE14/CTC --input inputs.zip --output outputs.zip
+\end{lstlisting}
+
+This command will unzip the files contained in \textit{inputs.zip}, launch a CTC assuming the input file name is \textit{fic\_MULTIPLE.xml}
+and provides as outputs a zipped file named \textit{outputs.zip} containing the status of all scenario that were executed, 
+in addition to the last logs and requested outputs of the very last simulation of each scenario, whether it passed or not.\\
+
 \subsection[Dynawo-algorithms outputs]{\Dynawo-algorithms outputs}
 \label{Dynawo_algorithms_Outputs_AggrResults}
 
-\Dynawo-algorithms results are provided in an 'Aggregated Results' file. This file provides one entry for each simulation and provides the corresponding status.
+\Dynawo-algorithms results are provided in an `Aggregated Results' file. This file provides one entry for each simulation and provides the corresponding status.
 Possible status of a simulation are the following:
 \begin{itemize}
   \item \textbf{CONVERGENCE}: The simulation passed;
@@ -238,31 +327,31 @@ Possible status of a simulation are the following:
   \item \textbf{EXECUTION\_PROBLEM}: The simulation failed with another error;
 \end{itemize}
 
-An example of 'Aggregated Results' file is given below:
+An example of  `Aggregated Results' file is given below:
 
 \lstinputlisting[language=XML, morekeywords={id},title=aggregated results file example]{../resources/syntaxExample/SAResults.xml}
 
 In this example, three cases were simulated :
 \begin{itemize}
-  \item 'DisconnectLine' and 'DisconnectGroup' simulations were successful;
-  \item 'Fault' simulation failed with the 'protection' criterion.
+  \item `DisconnectLine' and `DisconnectGroup' simulations were successful;
+  \item `Fault' simulation failed with the `protection' criterion.
 \end{itemize}
 The global status of the result file is then the worst status of all simulations (CRITERIA\_NON\_RESPECTED in this case).
 
 \subsubsection{CS mode}
 
-the output files of the CS mode are the same as a \Dynawo simulation (outputs described in the \textbf{.jobs}), in addition to an aggregated 
+The output files of the CS mode are the same as a \Dynawo simulation (outputs described in the \textbf{.jobs}), in addition to an aggregated 
 results file with one scenario entry for each job in the input jobs file.
 
 
 \subsubsection{SA mode}
 
-the output files of the SA mode are the timelines, logs and constraint files for all simulations (if they were requested in the base \textbf{.jobs} file), in addition to an aggregated 
+The output files of the SA mode are the timelines, logs and constraint files for all simulations (if they were requested in the base \textbf{.jobs} file), in addition to an aggregated 
 results file with one result per scenario.
 
 \subsubsection{MC mode}
 
-the output files of the SA mode are the timelines, logs and constraint files for all simulations (if they were requested in the base \textbf{.jobs} files), in addition to an aggregated 
+The output files of the SA mode are the timelines, logs and constraint files for all simulations (if they were requested in the base \textbf{.jobs} files), in addition to an aggregated 
 results file with one result per load increase and one result per scenario for each variation that were simulated.
 
 \lstinputlisting[language=XML, morekeywords={id},title=MC results file example]{../resources/syntaxExample/MCResults.xml}
@@ -270,8 +359,25 @@ results file with one result per load increase and one result per scenario for e
 
 \subsubsection{Load variation mode}
 
-the output files of the Load variation mode are the same as a \Dynawo simulation (outputs described in the \textbf{.jobs}), in addition to an aggregated 
+The output files of the Load variation mode are the same as a \Dynawo simulation (outputs described in the \textbf{.jobs}), in addition to an aggregated 
 results file containing the status of the simulation.
+
+\subsubsection{CTC mode}
+
+Specific statuses for this algorithm are described below:
+\begin{itemize}
+  \item \textbf{RESULT\_FOUND}: The critical time calculation worked;
+  \item \textbf{CT\_BELOW\_MIN\_BOUND}: The critical time is surely below the min bound;
+  \item \textbf{CT\_ABOVE\_MAX\_BOUND}: The critical time is surely above the max bound.
+\end{itemize}
+
+The output files of the CTC mode are the same as a \Dynawo simulation (outputs described in the \textbf{.jobs}), in addition to an aggregated 
+results file with one result per scenario.
+
+An example of `Aggregated Results' file is given below:
+
+\lstinputlisting[language=XML, morekeywords={id},title=aggregated results file example]{../resources/syntaxExample/CTCResults.xml}
+
 
 \section[Dynawo input files modification]{\Dynawo-algorithms input files modification}
 

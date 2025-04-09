@@ -18,6 +18,7 @@
 #include <gtest_dynawo.h>
 
 #include "DYNSimulationResult.h"
+#include "DYNCriticalTimeResult.h"
 #include "DYNAggrResXmlExporter.h"
 
 namespace aggregatedResults {
@@ -106,4 +107,43 @@ TEST(TestAggregatedResults, TestAggregatedResultsLoadIncreaseResults) {
   ssCmd << "Executing command : " << cmd << std::endl;
   ASSERT_EQ(ssDiff.str(), ssCmd.str());
 }
+
+TEST(TestAggregatedResults, TestAggregatedResultsCriticalTimeResults) {
+  std::string message = "MyMessage";
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult1;
+  criticalTimeResult1.setId("MyFirstScenario");
+  criticalTimeResult1.setStatus(DYNAlgorithms::RESULT_FOUND_STATUS);
+  criticalTimeResult1.setCriticalTime(1);
+  criticalTimeResult1.getResult().setSimulationMessageError(message);
+
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult2;
+  criticalTimeResult2.setId("MySecondScenario");
+  criticalTimeResult2.setStatus(DYNAlgorithms::CT_BELOW_MIN_BOUND_STATUS);
+  criticalTimeResult2.setCriticalTime(1);
+  criticalTimeResult2.getResult().setSimulationMessageError(message);
+
+  DYNAlgorithms::CriticalTimeResult criticalTimeResult3;
+  criticalTimeResult3.setId("MyThirdScenario");
+  criticalTimeResult3.setStatus(DYNAlgorithms::CT_ABOVE_MAX_BOUND_STATUS);
+  criticalTimeResult3.setCriticalTime(1);
+
+  std::vector<DYNAlgorithms::CriticalTimeResult> results;
+  results.resize(3);
+  results.at(0) = criticalTimeResult1;
+  results.at(1) = criticalTimeResult2;
+  results.at(2) = criticalTimeResult3;
+
+  XmlExporter exporter;
+  exporter.exportCriticalTimeResultsToFile(results, "res/criticalTimeResults.xml");
+  std::stringstream ssDiff;
+  #ifdef _WIN32
+    std::string cmd = "fc res\\criticalTimeResultsRef.xml res\\criticalTimeResults.xml >NUL || fc res\\criticalTimeResultsRef.xml res\\criticalTimeResults.xml";
+  #else
+    std::string cmd = "diff res/criticalTimeResultsRef.xml res/criticalTimeResults.xml";
+  #endif
+  executeCommand(cmd, ssDiff);
+  std::cout << ssDiff.str() << std::endl;
+  std::stringstream ssCmd;
+  ssCmd << "Executing command : " << cmd << std::endl;
+  ASSERT_EQ(ssDiff.str(), ssCmd.str());}
 }  // namespace aggregatedResults
