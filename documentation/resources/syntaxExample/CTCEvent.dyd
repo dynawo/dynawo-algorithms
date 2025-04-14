@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dyn:dynamicModelsArchitecture xmlns:dyn="http://www.rte-france.com/dynawo">
+  <dyn:blackBoxModel id="FAULT_GEN_1" lib="NodeFault" parFile="IEEE14.par" parId="Fault"/>
+  <dyn:connect id1="FAULT_GEN_1" var1="fault_terminal" id2="NETWORK" var2="_BUS____1_TN_ACPIN"/>
+</dyn:dynamicModelsArchitecture>

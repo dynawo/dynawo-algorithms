@@ -175,6 +175,7 @@ if "%~1"=="" goto:HELP
 if /i %~1==CS goto:CS
 if /i %~1==SA goto:SA
 if /i %~1==MC goto:MC
+if /i %~1==CTC goto:CTC
 if /i %~1==NRT goto:NRT
 if /i %~1==VERSION goto:VERSION
 if /i %~1==BUILD goto:BUILD
@@ -206,7 +207,7 @@ if defined _devmode echo All commands are run in Release mode by default. Add DE
 if exist "%DYNAWO_ALGORITHMS_INSTALL_DIR%\bin\dynawoAlgorithms.exe" (
   echo.
   echo These are commands used by end-user:
-  echo   CS^|SA^|MC [^<simulation_options^>] Launch dynawoAlgorithms simulation ^(see simulation_options below^)
+  echo   CS^|SA^|MC^|CTC [^<simulation_options^>] Launch dynawoAlgorithms simulation ^(see simulation_options below^)
   echo   [SHOW] nrt                      Launch dynawoAlgorithms Non Regressions Tests ^(option SHOW uses DYNAWO_BROWSER to show results^)
   echo   version                         Print dynawoAlgorithms version
   echo.
@@ -244,6 +245,11 @@ goto:IS_MPI
 :: MC simulation
 :MC
 set _args=MC
+::goto:IS_MPI
+
+:: CTC simulation
+:CTC
+set _args=CTC
 ::goto:IS_MPI
 
 :: check MPI runtime
@@ -441,6 +447,7 @@ xcopy "%DYNAWO_ALGORITHMS_INSTALL_DIR%\dynawo-algorithms.cmd" "%DYNAWO_ALGORITHM
 xcopy "%DYNAWO_ALGORITHMS_HOME%\nrt\data\IEEE14\IEEE14_BlackBoxModels" "%DYNAWO_ALGORITHMS_DEPLOY_DIR%\examples\CS" /i
 xcopy "%DYNAWO_ALGORITHMS_HOME%\nrt\data\IEEE14\SA\files" "%DYNAWO_ALGORITHMS_DEPLOY_DIR%\examples\SA" /i
 xcopy "%DYNAWO_ALGORITHMS_HOME%\nrt\data\IEEE14\MC\files" "%DYNAWO_ALGORITHMS_DEPLOY_DIR%\examples\MC" /i
+xcopy "%DYNAWO_ALGORITHMS_HOME%\nrt\data\IEEE14\CTC\files" "%DYNAWO_ALGORITHMS_DEPLOY_DIR%\examples\CTC" /i
 exit /B %ERRORLEVEL%
 
 

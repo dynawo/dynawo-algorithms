@@ -28,6 +28,7 @@ namespace DYNAlgorithms {
 class Scenario;
 class Scenarios;
 class MarginCalculation;
+class CriticalTimeCalculation;
 class LoadIncrease;
 }
 
@@ -169,6 +170,46 @@ class MarginCalculationHandler : public xml::sax::parser::ComposableElementHandl
 };
 
 /**
+ * @class CriticalTimeCalculationHandler
+ * @brief Handler used to parse critical time calculation element
+ */
+class CriticalTimeCalculationHandler : public xml::sax::parser::ComposableElementHandler {
+ public:
+  /**
+   * @brief Constructor
+   * @param root_element complete name of the element read by the handler
+   */
+  explicit CriticalTimeCalculationHandler(const elementName_type& root_element);
+
+  /**
+   * @brief add a scenario
+   */
+  void addScenarios();
+
+  /**
+   * @brief default destructor
+   */
+  ~CriticalTimeCalculationHandler();
+
+  /**
+   * @brief return the critical time calculation read in xml file
+   * @return critical time calculation object build thanks to infos read in xml file
+   */
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> get();
+
+ protected:
+  /**
+   * @brief Called when the XML element opening tag is read
+   * @param attributes attributes of the element
+   */
+  void create(attributes_type const& attributes);
+
+ private:
+  std::shared_ptr<DYNAlgorithms::CriticalTimeCalculation> criticalTimeCalculation_;  ///< current critical time calculation element
+  ScenariosHandler scenariosHandler_;  ///< handler used to read scenarios element
+};
+
+/**
  * @class XmlHandler
  * @brief Parameters file handler class
  *
@@ -200,13 +241,18 @@ class XmlHandler : public xml::sax::parser::ComposableDocumentHandler {
    */
   void addMarginCalculation();
 
+  /**
+   * @brief add a critical time calculation element to the current MultipleJobs element
+   */
+  void addCriticalTimeCalculation();
+
  private:
   boost::shared_ptr<MultipleJobs> multipleJobsRead_;  ///< MultipleJobs instance
   ScenariosHandler scenariosHandler_;  ///< handler used to read scenarios element
+  CriticalTimeCalculationHandler criticalTimeCalculationHandler_;  ///< handler used to read critical time calculation element
   MarginCalculationHandler marginCalculationHandler_;  ///< handler used to read margin calculation element
 };
 
 }  // namespace multipleJobs
 
 #endif  // API_MULTIPLEJOBS_DYNMULTIPLEJOBSXMLHANDLER_H_
-

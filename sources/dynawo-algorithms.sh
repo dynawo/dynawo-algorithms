@@ -47,6 +47,7 @@ where [option] can be:
                                         CS ([args])  call Dynawo's launcher with given arguments setting LD_LIBRARY_PATH correctly
                                         SA ([args])  call a dynamic systematic analysis
                                         MC ([args])  call a margin calculation
+                                        CTC ([args]) call a critical time calculation
     --version                  show Dynawo version
     --help                     show this message"
 
@@ -190,6 +191,38 @@ algo_SA() {
   return ${RETURN_CODE}
 }
 
+algo_CTC() {
+  setDynawoEnv
+  setLibPath
+  export_preload
+
+  args=""
+  NBPROCS=1
+  while (($#)); do
+  case $1 in
+    --nbThreads|-np)
+      NBPROCS=$2
+      shift 2 # past argument and value
+      ;;
+    --nbThreads=*)
+      NBPROCS="${1#*=}"
+      shift # past value
+      ;;
+    *)
+      args="$args $1"
+      shift
+      ;;
+    esac
+  done
+
+  # launch margin calculation
+  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CTC $args
+  RETURN_CODE=$?
+  unset LD_PRELOAD
+
+  return ${RETURN_CODE}
+}
+
 if [ $# -eq 0 ]; then
   echo "$usage"
   exit 1
@@ -210,6 +243,11 @@ while (($#)); do
     SA)
       shift
       algo_SA $@ || error_exit "Dynawo execution failed"
+      break
+      ;;
+    CTC)
+      shift
+      algo_CTC $@ || error_exit "Dynawo execution failed"
       break
       ;;
     --version)
