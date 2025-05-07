@@ -41,27 +41,27 @@ class CriticalTimeResult {
    * @brief copy constructor
    * @param result : result to copy
    */
-  CriticalTimeResult(const CriticalTimeResult& result)= default;
+  CriticalTimeResult(const CriticalTimeResult&)= default;
 
   /**
    * @brief copy operator
    * @param result result to copy
    * @return new instance of criticalTimeResult
    */
-  CriticalTimeResult& operator=(const CriticalTimeResult& result) = default;
+  CriticalTimeResult& operator=(const CriticalTimeResult&) = default;
 
   /**
    * @brief move constructor
    * @param result : result to move
    */
-  CriticalTimeResult(CriticalTimeResult&& result) = default;
+  CriticalTimeResult(CriticalTimeResult&&) = default;
 
   /**
    * @brief move operator
    * @param result result to move
    * @return new instance of criticalTimeResult
    */
-  CriticalTimeResult& operator=(CriticalTimeResult&& result) = default;
+  CriticalTimeResult& operator=(CriticalTimeResult&&) = default;
 
   /**
    * @brief Set Scenario id
@@ -84,7 +84,7 @@ class CriticalTimeResult {
   /**
    * @brief Get Scenario Status
    * @return Scenario Status
-   */  
+   */
   const DYNAlgorithms::status_t& getStatus() const;
 
   /**
