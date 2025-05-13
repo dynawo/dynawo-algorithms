@@ -39,26 +39,22 @@ class CriticalTimeResult {
 
   /**
    * @brief copy constructor
-   * @param result : result to copy
    */
   CriticalTimeResult(const CriticalTimeResult&)= default;
 
   /**
    * @brief copy operator
-   * @param result result to copy
    * @return new instance of criticalTimeResult
    */
   CriticalTimeResult& operator=(const CriticalTimeResult&) = default;
 
   /**
    * @brief move constructor
-   * @param result : result to move
    */
   CriticalTimeResult(CriticalTimeResult&&) = default;
 
   /**
    * @brief move operator
-   * @param result result to move
    * @return new instance of criticalTimeResult
    */
   CriticalTimeResult& operator=(CriticalTimeResult&&) = default;
