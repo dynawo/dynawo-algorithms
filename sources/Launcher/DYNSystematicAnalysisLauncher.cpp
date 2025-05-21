@@ -70,37 +70,65 @@ SystematicAnalysisLauncher::launch() {
   }
   const std::string& baseJobsFile = scenarios->getJobsFile();
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
-
-  auto& context = multiprocessing::context();
-
-  if (context.isRootProc()) {
-    // only required for root proc
-    results_.resize(events.size());
-  }
-
-  multiprocessing::forEach(0, events.size(), [this, &events](unsigned int i){
-    std::string workingDir  = createAbsolutePath(events[i]->getId(), workingDirectory_);
-    if (!exists(workingDir))
-      create_directory(workingDir);
-    else if (!is_directory(workingDir))
-      throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
-  });
-
   inputs_.readInputs(workingDirectory_, baseJobsFile);
 
-  multiprocessing::forEach(0, events.size(), [this, &events](unsigned int i){
-      auto result = launchScenario(events[i]);
-      exportResult(result);
-  });
-
-  multiprocessing::Context::sync();
-
-  // Update results for root proc
+  static const int NO_SCENARIO_LEFT = -1;
+  auto& context = multiprocessing::context();
+  boost::posix_time::ptime chronoStart = boost::posix_time::microsec_clock::local_time();
   if (context.isRootProc()) {
+    int scenId = 0;
+    MPI_Status senderInfo;
+    while (scenId < events.size()) {
+        MPI_Recv(nullptr, 0, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &senderInfo);
+        MPI_Send(&scenId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
+        ++scenId;
+    }
+
+    // scenerii all distributed, syncing end of computation ...
+    std::set<int> workersLeft;
+    int nbThtreads;
+    MPI_Comm_size(MPI_COMM_WORLD, &nbThtreads);
+    for (int i=1; i < nbThtreads; ++i)
+      workersLeft.insert(i);
+
+    while (workersLeft.size() > 0) {
+      MPI_Recv(nullptr, 0, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &senderInfo);
+      MPI_Send(&NO_SCENARIO_LEFT, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
+      workersLeft.erase(senderInfo.MPI_SOURCE);
+    }
+
+    // synced, merging results
+    results_.resize(events.size());
     for (unsigned int i = 0; i < events.size(); i++) {
       const auto& scenario = events.at(i);
       results_.at(i) = importResult(scenario->getId());
       cleanResult(scenario->getId());
+    }
+    boost::posix_time::time_duration diffm = boost::posix_time::microsec_clock::local_time() - chronoStart;
+    std::cout << "global took " << diffm.total_milliseconds() << " ms" << std::endl;
+  } else {
+    int scenCounter = 0;
+    while (true) {
+      MPI_Send(nullptr, 0, MPI_INT, 0, 0, MPI_COMM_WORLD);
+      int scenId = 0;
+      MPI_Recv(&scenId, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      if (scenId == NO_SCENARIO_LEFT) {
+        boost::posix_time::time_duration diffm = boost::posix_time::microsec_clock::local_time() - chronoStart;
+        std::cout << "rank " << context.rank() << " simulated " << scenCounter << " scenarii in "<< diffm.total_milliseconds() << " ms" << std::endl;
+        return;
+      }
+      ++scenCounter;
+      std::string workingDir  = createAbsolutePath(events[scenId]->getId(), workingDirectory_);
+      if (!exists(workingDir))
+        create_directory(workingDir);
+      else if (!is_directory(workingDir))
+        throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
+      boost::posix_time::ptime computStart = boost::posix_time::microsec_clock::local_time();
+      auto result = launchScenario(events[scenId]);
+      boost::posix_time::ptime computEnd = boost::posix_time::microsec_clock::local_time();
+      boost::posix_time::time_duration deltaSimu = computEnd - computStart;
+      std::cout << "scenario " << scenId << " simulated by rank " << context.rank() << " in " << deltaSimu.total_milliseconds() << " ms" << std::endl;
+      exportResult(result);
     }
   }
   boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
