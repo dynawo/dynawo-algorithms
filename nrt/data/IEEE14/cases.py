@@ -28,6 +28,18 @@ job_file = os.path.join(os.path.dirname(__file__), "MC", "IEEE14_MC.zip")
 
 test_cases.append((case_name, case_description, "MC", job_file, -1, 10, True, standardReturnCodeType, standardReturnCode))
 
+case_name = "IEEE14_MC_input_subfolder"
+case_description = "IEEE14 - test of Margin Calculation with global margin above 50% and zip input with a subfolder"
+job_file = os.path.join(os.path.dirname(__file__), "MC_input_subfolder", "inputs.zip")
+
+test_cases.append((case_name, case_description, "MC", job_file, -1, 10, False, standardReturnCodeType, standardReturnCode))
+
+case_name = "IEEE14_MC_input_folder"
+case_description = "IEEE14 - test of Margin Calculation with global margin above 50% and zip input as a folder"
+job_file = os.path.join(os.path.dirname(__file__), "MC_input_folder", "inputs.zip")
+
+test_cases.append((case_name, case_description, "MC", job_file, -1, 10, False, standardReturnCodeType, standardReturnCode))
+
 case_name = "IEEE14_MC_file"
 case_description = "IEEE14 - test of Margin Calculation with global margin above 50% and file input"
 job_file = os.path.join(os.path.dirname(__file__), "MC_file", "fic_MULTIPLE.xml")
@@ -91,6 +103,18 @@ case_description = "IEEE14 - test of Systematic Analysis"
 job_file = os.path.join(os.path.dirname(__file__), "SA", "IEEE14_SA.zip")
 
 test_cases.append((case_name, case_description, "SA", job_file, -1, 5, True, standardReturnCodeType, standardReturnCode))
+
+case_name = "IEEE14_SA_input_subfolder"
+case_description = "IEEE14 - test of Systematic Analysis using zip input with a subfolder"
+job_file = os.path.join(os.path.dirname(__file__), "SA_input_subfolder", "inputs.zip")
+
+test_cases.append((case_name, case_description, "SA", job_file, -1, 10, False, standardReturnCodeType, standardReturnCode))
+
+case_name = "IEEE14_SA_input_folder"
+case_description = "IEEE14 - test of Systematic Analysis using zip input with as a folder"
+job_file = os.path.join(os.path.dirname(__file__), "SA_input_folder", "inputs.zip")
+
+test_cases.append((case_name, case_description, "SA", job_file, -1, 10, False, standardReturnCodeType, standardReturnCode))
 
 case_name = "IEEE14_SA convergence and local value failing criteria"
 case_description = "IEEE14 - test of Systematic Analysis (with convergence and local value failing criteria)"
