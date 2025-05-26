@@ -167,7 +167,8 @@ TEST(TestLauncher, TestRobustnessAnalysisLauncher) {
   ASSERT_THROW_DYNAWO(launcher.init(), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::InputFileFormatNotSupported);
 
   boost::shared_ptr<zip::ZipFile> archive = zip::ZipFileFactory::newInstance();
-  archive->addEntry("res/fic_MULTIPLE.xml");
+  boost::shared_ptr<zip::ZipEntry> entry(new zip::ZipEntry("res/fic_MULTIPLE.xml"));
+  archive->addEntry("fic_MULTIPLE.xml", entry->getData());
   zip::ZipOutputStream::write("res/MyInputFile.zip", archive);
   launcher.setInputFile("MyInputFile.zip");
   launcher.setDirectory("res");

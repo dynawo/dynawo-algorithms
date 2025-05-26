@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<aggregatedResults xmlns="http://www.rte-france.com/dynawo">
+  <loadIncreaseResults loadLevel="100" status="CRITERIA_NON_RESPECTED">
+    <criterionNonRespected id="total load power = 295.381MW &gt; 200MW (criteria id: Risque protection)" time="70.000000"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="50" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="50" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="75" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="CRITERIA_NON_RESPECTED">
+      <criterionNonRespected id="total load power = 272.81MW &gt; 200MW (criteria id: Risque QdE)" time="185.000000"/>
+    </scenarioResults>
+    <scenarioResults id="DisconnectGroup" status="CRITERIA_NON_RESPECTED">
+      <criterionNonRespected id="total load power = 276.374MW &gt; 200MW (criteria id: Risque QdE)" time="185.000000"/>
+    </scenarioResults>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="63" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="69" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="CRITERIA_NON_RESPECTED">
+      <criterionNonRespected id="total load power = 244.09MW &gt; 200MW (criteria id: Risque QdE)" time="181.400000"/>
+    </scenarioResults>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="66" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+  <loadIncreaseResults loadLevel="68" status="CONVERGENCE">
+    <scenarioResults id="DisconnectLine" status="CONVERGENCE"/>
+    <scenarioResults id="DisconnectGroup" status="CONVERGENCE"/>
+  </loadIncreaseResults>
+</aggregatedResults>
