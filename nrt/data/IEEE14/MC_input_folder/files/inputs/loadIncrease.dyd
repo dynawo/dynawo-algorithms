@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+    Copyright (c) 2015-2021, RTE (http://www.rte-france.com)
+    See AUTHORS.txt
+    All rights reserved.
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, you can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+    This file is part of Dynawo, an hybrid C++/Modelica open source suite
+    of simulation tools for power systems.
+-->
+<dyn:dynamicModelsArchitecture xmlns:dyn="http://www.rte-france.com/dynawo">
+  <dyn:blackBoxModel id="MODEL_LOAD_VARIATION_AREA" lib="DYNModelVariationArea" parFile="IEEE14.par" parId="9"/>
+  <dyn:connect id1="MODEL_LOAD_VARIATION_AREA" var1="DeltaPc_load_0" id2="NETWORK" var2="_LOAD___3_EC_DeltaPc"/>
+  <dyn:connect id1="MODEL_LOAD_VARIATION_AREA" var1="DeltaPc_load_1" id2="NETWORK" var2="_LOAD___6_EC_DeltaPc"/>
+  <dyn:connect id1="MODEL_LOAD_VARIATION_AREA" var1="DeltaPc_load_2" id2="NETWORK" var2="_LOAD___9_EC_DeltaPc"/>
+  <dyn:connect id1="MODEL_LOAD_VARIATION_AREA" var1="DeltaQc_load_0" id2="NETWORK" var2="_LOAD___3_EC_DeltaQc"/>
+  <dyn:connect id1="MODEL_LOAD_VARIATION_AREA" var1="DeltaQc_load_1" id2="NETWORK" var2="_LOAD___6_EC_DeltaQc"/>
+  <dyn:connect id1="MODEL_LOAD_VARIATION_AREA" var1="DeltaQc_load_2" id2="NETWORK" var2="_LOAD___9_EC_DeltaQc"/>
+</dyn:dynamicModelsArchitecture>
