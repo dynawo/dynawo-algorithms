@@ -224,47 +224,34 @@ std::string
 RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& inputFileFullPath) const {
   auto& context = multiprocessing::context();
   std::string inputFileXml = "";
-  if (context.isRootProc()) {
-    // Only the main proc should open the archive
-    // Unzip the input file in the working directory
-    boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
-    for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();
-        itE != archive->getEntries().end(); ++itE) {
-      std::string nom = itE->first;
-      std::string data(itE->second->getData());
-      std::string filePath = createAbsolutePath(nom, workingDirectory_).c_str();
-      if (nom[nom.length() - 1] == '/') {  // directory entry
-        if (!exists(filePath)) {
-          create_directory(filePath);
-        }
-      } else {  // file entry
-        if (!exists(parentDirectory(filePath))) {
-          create_directory(parentDirectory(filePath));
-        }
-        std::ofstream file;
-        file.open(filePath, std::ios::binary);
-        if (file.is_open()) {
-          file << data;
-          file.close();
-          if (file_name(filePath) == "fic_MULTIPLE.xml") {
-            inputFileXml = filePath;
-          }
-        }
+
+  // Only the main proc should open the archive
+  // Unzip the input file in the working directory
+  boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
+  for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();
+      itE != archive->getEntries().end(); ++itE) {
+    std::string nom = itE->first;
+    std::string data(itE->second->getData());
+    std::string filePath = createAbsolutePath(nom, workingDirectory_).c_str();
+    if (file_name(filePath) == "fic_MULTIPLE.xml") {
+      inputFileXml = filePath;
+    }
+
+    if (context.isRootProc()) {
+      if (!exists(parentDirectory(filePath))) {
+        create_directory(parentDirectory(filePath));
+      }
+      std::ofstream file;
+      file.open(filePath, std::ios::binary);
+      if (file.is_open()) {
+        file << data;
+        file.close();
       }
     }
   }
+
   multiprocessing::Context::sync();  // To ensure that all procs can access the file
-  if (!context.isRootProc()) {  // others procs need to run through the archive to look for the actual location of fic_MULTIPLE.xml
-    boost::shared_ptr<zip::ZipFile> archive = zip::ZipInputStream::read(inputFileFullPath);
-    for (std::map<std::string, boost::shared_ptr<zip::ZipEntry> >::const_iterator itE = archive->getEntries().begin();
-        itE != archive->getEntries().end(); ++itE) {
-      std::string nom = itE->first;
-      std::string filePath = createAbsolutePath(nom, workingDirectory_).c_str();
-      if (file_name(filePath) == "fic_MULTIPLE.xml") {
-        inputFileXml = filePath;
-      }
-    }
-  }
+
   // When input is given as a zip file we are assuming the multiple jobs definition is always in a file named fic_MULTIPLE.xml
   return inputFileXml;
 }
