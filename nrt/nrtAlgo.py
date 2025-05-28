@@ -58,9 +58,10 @@ class TestCaseAlgo:
         if self.zip_inputs :
             with contextlib.closing(ZipFile(self.jobs_file_, 'w')) as zipObj:
                 path_to_zip = os.path.join(os.path.dirname(self.jobs_file_), "files")
-                for file in os.listdir(path_to_zip):
-                    if ".dyd" in file or ".jobs" in file or ".par" in file or ".iidm" in file or ".crv" in file or "fic_MULTIPLE.xml" in file or ".crt" in file:
-                        zipObj.write(os.path.join(path_to_zip, file), file)
+                for root, dirs, files in os.walk(path_to_zip):
+                    for file in files:
+                        if ".dyd" in file or ".jobs" in file or ".par" in file or ".iidm" in file or ".crv" in file or "fic_MULTIPLE.xml" in file or ".crt" in file:
+                            zipObj.write(os.path.join(root,file), os.path.relpath(os.path.join(root, file), path_to_zip))
 
         env_dynawo = os.environ["DYNAWO_ENV_DYNAWO"]
 
