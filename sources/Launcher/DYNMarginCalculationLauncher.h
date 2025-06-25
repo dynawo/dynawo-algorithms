@@ -24,6 +24,7 @@
 #include <vector>
 #include <queue>
 #include <boost/shared_ptr.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include <DYNCommon.h>
 #include "DYNRobustnessAnalysisLauncher.h"
 #include "DYNLoadIncreaseResult.h"
@@ -33,6 +34,7 @@ namespace DYNAlgorithms {
 class LoadIncrease;
 class Scenario;
 class LoadIncreaseResult;
+class MarginCalculation;
 /**
  * @brief Margin Calculation launcher class
  *
@@ -54,98 +56,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   void createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const;
 
   /**
-   * @brief Description of a set of scenarios to run
-   */
-  struct task_t{
-    double minVariation_;  ///< minimal variation that passes
-    double maxVariation_;  ///< maximal variation that fails
-    std::vector<size_t> ids_;  ///< indexes of the scenarios to run
-
-    /**
-     * @brief constructor
-     *
-     * @param minVariation minimal variation that passes
-     * @param maxVariation maximal variation that fails
-     * @param ids indexes of the scenarios to run
-     *
-     */
-    task_t(double minVariation, double maxVariation, const std::vector<size_t>& ids) {
-      minVariation_ = minVariation;
-      maxVariation_ = maxVariation;
-      ids_ = ids;
-    }
-
-
-    /**
-     * @brief constructor
-     *
-     * @param minVariation minimal variation that passes
-     * @param maxVariation maximal variation that fails
-     *
-     */
-    task_t(double minVariation, double maxVariation) {
-      minVariation_ = minVariation;
-      maxVariation_ = maxVariation;
-    }
-  };
-
-  /**
-   * @brief Research of the maximum variation value for which all the scenarios pass
-   * try to find the maximum load increase between 0 and 100%. Only simulate events that crashes at 100% of load increase
-   * at each iteration, keep only the events that crashes with the latest load increase
-   * stops iteration when the interval of research is less than a parameter
-   *
-   * @param loadIncrease scenario to simulate the load increase
-   * @param baseJobsFile jobs file to use as basis for the events
-   * @param events list of scenarios to launch
-   * @param maximumVariationPassing maximum variation passing found so far
-   * @param tolerance maximum difference between the real value of the maximum variation and the value returned
-   * @param minVariation minimum variation for dichotomie
-   * @param maxVariation maximum variation for dichotomie
-   *
-   * @return maximum variation value for which all the scenarios pass
-   */
-  double computeGlobalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-      const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events,
-      std::vector<double >& maximumVariationPassing, double tolerance, double minVariation, double maxVariation);
-  /**
-   * @brief Research of the maximum variation value for all the scenarios
-   * try to find the maximum load increase between 0 and 100% for each scenario.
-   * stops iteration when the interval of research is less than a parameter
-   *
-   * @param loadIncrease scenario to simulate the load increase
-   * @param baseJobsFile jobs file to use as basis for the events
-   * @param events list of scenarios to launch
-   * @param tolerance maximum difference between the real value of the maximum variation and the value returned
-   * @param minVariation minimum variation for dichotomie
-   * @param maxVariation maximum variation for dichotomie
-   * @param results adter execution, contains the maximum variation value for the events
-   *
-   * @return maximum variation value for which the loadIncrease scenario pass
-   */
-  double computeLocalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-      const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events, double tolerance, double minVariation, double maxVariation,
-      std::vector<double >& results);
-
-  /**
-   * @brief Find if the variation load-increase was already done
-   * otherwise, launch as many load increase as possible in multi-threading, including the variation one
-   *
-   * @param loadIncrease scenario to simulate the load increase
-   * @param variation percentage of launch variation to perform
-   * @param minVariation minimum variation for dichotomie
-   * @param maxVariation maximum variation for dichotomie
-   * @param tolerance maximum difference between the real value of the maximum variation and the value returned
-   * @param result result of the load increase
-   *
-   */
-  void findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease, const double variation,
-                                const double minVariation,
-                                const double maxVariation,
-                                const double tolerance,
-                                LoadIncreaseResult& result);
-
-  /**
    * @brief launch the load increase scenario
    * Warning: must remain thread-safe!
    *
@@ -157,34 +67,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   void launchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease, const double variation, SimulationResult& result);
 
   /**
-   * @brief Find if the scenarios associated to this variation were already done
-   * otherwise, launch as many load scenarios as possible in multi-threading, including the variation one
-   *
-   * @param baseJobsFile base jobs file
-   * @param events complete list of scenarios
-   * @param toRun scenarios that needs to be run
-   * @param result result of the load increase
-   *
-   */
-  void findOrLaunchScenarios(const std::string& baseJobsFile,
-      const std::vector<boost::shared_ptr<Scenario> >& events,
-      std::queue< task_t >& toRun,
-      LoadIncreaseResult& result);
-
-
-  /**
-   * @brief Fill the vector with as many levels of variation you can run based on the number of available threads
-   *
-   * @param requestedTask the level of reference
-   * @param toRun scenarios that needs to be run
-   * @param events2Run will be filled with the scenario index and the level that can be run
-   *
-   */
-  void prepareEvents2Run(const task_t& requestedTask,
-      std::queue< task_t >& toRun,
-      std::vector<std::pair<size_t, double> >& events2Run);
-
-  /**
    * @brief launch the calculation of one scenario
    * Warning: must remain thread-safe!
    *
@@ -194,34 +76,10 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param result result of the simulation
    *
    */
-  void launchScenario(const MultiVariantInputs& context, const boost::shared_ptr<Scenario>& scenario,
-    const double variation, SimulationResult& result);
-
-  /**
-   * @brief fill the queue with the possible levels that could be run with the number of threads available
-   *
-   * @param minVariation minimal variation that passes
-   * @param maxVariation maximal variation that fails
-   * @param tolerance maximum difference between the real value of the maximum variation and the value returned
-   * @param eventIdxs events that should be run
-   * @param toRun queue that will be filled with the task to run after this method
-   *
-   */
-  void findAllLevelsBetween(const double minVariation, const double maxVariation, const double tolerance,
-      const std::vector<size_t>& eventIdxs, std::queue< task_t >& toRun);
-
-  /**
-   * @brief Create the working directory of a scenario
-   * @param scenarioId scenario id
-   * @param variation percentage of launch variation
-   */
-  void createScenarioWorkingDir(const std::string& scenarioId, double variation) const;
-
-  /**
-   * @brief Delete all temporary directories that were created to synchronize results
-   * @param events list of scenarios to launch
-   */
-  void cleanResultDirectories(const std::vector<boost::shared_ptr<Scenario> >& events) const;
+  void launchScenario(const MultiVariantInputs& context,
+                      const boost::shared_ptr<Scenario>& scenario,
+                      const double variation,
+                      SimulationResult& result);
 
   /**
    * @brief generates the IIDM file path for the corresponding variation
@@ -231,91 +89,255 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   std::string generateIDMFileNameForVariation(double variation) const;
 
   /**
-   * @brief read the initial jobs file to set the different normal start and stop times
-   * @param jobFileLoadIncrease job file for the loadIncrease
-   * @param jobFileScenario job file for the scenario
+   * @brief initializes global variables and arrays
    */
-  void readTimes(const std::string& jobFileLoadIncrease, const std::string& jobFileScenario);
+  void initGlobals();
 
   /**
-   * @brief Generate variations list to launch
-   *
-   * Use load increase status to generate it
-   *
-   * @param maxNumber max number of variations of the computed vector
-   * @param variation the base variation
-   * @param minVariation minimum variation for dichotomie
-   * @param maxVariation maximum variation for dichotomie
-   * @param tolerance the tolerance for variation
-   * @return the list of variations to launch in parallel
+   * @brief launch a computation, either locally or remotely depending on multiprocessing configuration
+   * @param varId the variation level at which to run it
+   * @param scenId the integer ID of the scenario to run, or -1 if load increase
+   * @param workerId the integer ID of the worker thread to delegate the computation to, if higher than 0
+   * @param complete will be set to true the computation could be run to its completion without interruption, false otherwise
+   * @param success only valid if complete is true, indicates whether the computation result satisfies all dynawo success criteria
    */
-  std::vector<double> generateVariationsToLaunch(unsigned int maxNumber, double variation, double minVariation, double maxVariation, double tolerance) const;
+  void launchTask(int varId, int scenId, int workerId = 0,  int * complete = nullptr, int * success = nullptr);
 
   /**
-   * @brief Synchronize successes between all process
-   *
-   * This function will gather all successes into the root process and broadcast it to all process after
-   * in order the algorithms for load increase / scenario attributions to have the result in all process
-   *
-   * @param successes the list of successes for current process
-   * @return The list of successes for all procs
+   * @brief wrap-up with synthetic log writing, and importing detailed results from output files in case of multithread
    */
-  std::vector<bool> synchronizeSuccesses(const std::vector<bool>& successes);
+  void importResults();
 
   /**
-   * @brief Computes the load increase id used in the simulation and set into the simulation result
-   *
-   * @param variation the variation of the scenario
-   * @return the scenario id to use
+   * @brief get the lowest known variation level at which the load increase is known to fail
+   * @returns said varId (i.e, variation level), or the search space upper bound if none is known to fail
    */
-  static std::string computeLoadIncreaseScenarioId(double variation);
+  int lowestLIFailureId() const;
+
+  /**
+   * @brief get the highest known variation level at which the load increase is known to succeed, below the lowest known at which it is known to fail
+   * @returns said varId (i.e, variation level), or the search space lower bound if none is known to succeed
+   */
+  int highestLISuccessId() const;
+
+  /**
+   * @brief get the lowest known variation level at which the given scenario is known to fail
+   * @param scenId the integer id of queried scenario
+   * @returns said varId (i.e, variation level), or the search space upper bound if none is known to fail
+   */
+  int lowestScenFailureId(int scenId) const;
+
+  /**
+   * @brief get the highest known variation level at which the given scenario is known to succeed, below the lowest known at which it is known to fail
+   * @param scenId the integer id of queried scenario
+   * @returns said varId (i.e, variation level), or the search space lower bound if none is known to succeed
+   */
+  int highestScenSuccessId(int scenId) const;
+
+  /**
+   * @brief checks whether a load increase computation that is of interest to the given scenario is already in progress
+   * @param scenId the integer id of queried scenario
+   * @returns true if there is, false if there is not
+   */
+  bool hasActiveThreadLI(int scenId) const;
+
+  /**
+   * @brief checks whether a scenario computation that is of interest to the given scenario is already in progress
+   * @param scenId the integer id of queried scenario
+   * @returns true if there is, false if there is not
+   */
+  bool hasActiveThreadScen(int scenId) const;
+
+  /**
+   * @brief checks whether there are still computations to be launched to finish the job requested by user
+   * @returns true if there is, false if there is not
+   */
+  bool workToDo() const;
+
+  /**
+   * @brief send a special message to a given idle worker thread ordering it to exit cleanly as it is not needed anymore
+   * @param workerId the integer id of the worker thread to terminate
+   * @param workersLeft set of remaining worker IDs, in which to remove given workerId
+   */
+  void terminateWorker(int workerId, std::set<int> & workersLeft) const;
+
+  /**
+   * @brief forcefully abort a computation in progress, either a load increase if scenId == 0, or a scenario otherwise. 
+   * It does so by sending a SIGINT to the relevant process, which is listened to by the main loop of dynawo
+   * @param varId the variation level of the computation to abord
+   * @param taskId the ID of the computation, 0 if a load incrase, scenId+1 otherwise
+   */
+  void abortSimulation(int varId, int taskId);
+
+  /**
+   * @brief select the task with highest priority among all possible ones
+   * @param varIdRet the variation level of the computation to run
+   * @param scenId the ID of the scenario to run, or -1 if the computation to run is a load increase
+   * @returns true if a valid task was found, false otherwise
+   */
+  bool getNextTask(int & varIdRet, int & scenId) const;
+
+  /**
+   * @brief subfonction of getNextTask, returns the computation with highest priority amond all computations
+   * of interest for a given scenario
+   * @param scenId as input, the scenario to explore, and as output, either the same value or -1, depending on
+   * if the computation to run is a scenario or a load increase
+   * @param varId the variation level of the computation to run
+   * @param priority the priority of the computation to run, a lower value meaning higher priority
+   */
+  void getNextTaskForScen(int & scenId, int & varId, int & priority) const;
+
+  /**
+   * @brief find an already computed and successful load increase whose varId is strictly between lower and upper bounds, 
+   * if it exists. If more than one does, select the one closest to the mean between bounds
+   * @param varIdMin lower bound, returned value has to be strictly higher than this
+   * @param varIdMax upper bound, returned value has to be strictly lower than this
+   * @returns a varId such as varIdMin < varId < varIdMax, or -1 if no such one exists for which a load increase result is
+   * ready to be used
+   */
+  int getLiOKBetween(int varIdMin, int varIdMax) const;
+
+  /**
+   * @brief compute the distance to already computed load increases both lower and higher. 
+   * A higher score means a more interesting candidate for uncertainty reduction purposes (principle of dichotomy)
+   * @param varId the starting point for which the distance is computed
+   * @returns the score for given varId : 0 if invalid, 1 if isolated value, 2 if no imediate value juste above or below, etc.
+   */
+  int gapScoreLI(int varId) const;
+
+  /**
+   * @brief same principle as gapScoreLI, but for scenarios instead of load increases
+   * @param varId the starting point for which the distance is computed
+   * @param scenId the ID of the scenario for which we are computing the gap
+   * @returns the score for given varId : 0 if invalid, 1 if isolated value, 2 if no imediate value juste above or below, etc.
+   */
+  int gapScoreScen(int varId, int scenId) const;
+
+   /**
+   * @brief update global overseeing matrix with a single computation result
+   * @param varId the variation level of the finished task
+   * @param scenId the integer ID of the finished task (either scenId or -1 for load increase)
+   * @param complete true if the computation has run its whole course without interruption, false otherwise
+   * @param success valid only if complete, whether the computation was a success or a failure in the sense of dynawo criteria
+   */
+  void updateResults(int varId, int scenId, bool complete, bool success);
+
+  /**
+   * @brief analyze on the global overseeing matrix which computations are not needed anymore due to
+   * recent results, and try to abort them
+   */
+  void abortObsoleteSimus();
+
+  /**
+   * @brief blocking serverside wait for a worker to declare itself idle, possibly sending feedback at the same time
+   * @param workerId the ID of the worker thread waking up the server and ready to take on a new task
+   */
+  void waitForWorker(int & workerId);
+
+  /**
+   * @brief immediately send an abort signal to all remaining worker threads, then send them a clean termination
+   * message on an individual basis as they declare themselves idle
+   * @param workersLeft
+   */
+  void cleanupWorkers(std::set<int> & workersLeft);
+
+  /**
+   * @brief build a - hopefully unique - id from 4 last bytes of hostname
+   * @returns a 32-bits ID specific to each machine
+   */
+  int getMachineId() const;
+
+  /**
+   * @brief quick accessor to a given scenario
+   * @param scenId the ID of the requested scenario
+   * @returns the scenario queried by its ID
+   */
+  inline boost::shared_ptr<Scenario> getScen(int scenId) const;
+
+  /**
+   * @brief shorthand for scenarios.size()
+   * @returns the number of scenarios, i.e, the first invalid scenId
+   */
+  inline int nbScens() const;
+
+  /**
+   * @brief shorthand for discreteVars_.size()
+   * @returns the number of variations, i.e, the first invalid varId
+   */
+  inline int nbVars() const;
+
+  /**
+   * @brief shorthand for discreteVars_.size()-1
+   * @returns the highest admissible varId, i.e the index for 100% variation
+   */
+  inline int varId100() const;
+
+  /**
+   * @brief whether the MC is in global or local margin mode
+   * @returns true if global margin mode, false if local margin mode
+   */
+  inline bool globMarginMode() const;
+
+  /**
+   * @brief whether a load increase has already been attempted at this variation level
+   * @param varId the variation level to check
+   * @returns true if it has been, false if not
+   */
+  inline bool liStarted(int varId) const;
+
+  /**
+   * @brief whether a load increase has already been completed at this variation level
+   * @param varId the variation level to check
+   * @returns true if it has been, false if not
+   */
+  inline bool liDone(int varId) const;
+
+  /**
+   * @brief whether a load increase has already been completed with success at this variation level
+   * @param varId the variation level to check
+   * @returns true if it has been, false if not
+   */
+  inline bool liOK(int varId) const;
+
+  /**
+   * @brief whether a given scenario has already been attempted at this variation level
+   * @param scenId the id of the scenario to check
+   * @param varId the variation level to check
+   * @returns true if it has been, false if not
+   */
+  inline bool scenStarted(int scenId, int varId) const;
+
+  /**
+   * @brief whether a given scenario has already been completed at this variation level
+   * @param scenId the id of the scenario to check
+   * @param varId the variation level to check
+   * @returns true if it has been, false if not
+   */
+  inline bool scenDone(int scenId, int varId) const;
+
+  /**
+   * @brief whether a given scenario has already been completed with success at this variation level
+   * @param scenId the id of the scenario to check
+   * @param varId the variation level to check
+   * @returns true if it has been, false if not
+   */
+  inline bool scenOK(int scenId, int varId) const;
 
  private:
-  /**
-   * @brief double comparison with tolerance
-   */
-  struct dynawoDoubleLess : std::binary_function<double, SimulationResult, bool> {
-    /**
-     * @brief double comparison with tolerance
-     * @param left first real to compare
-     * @param right second real to compare
-     * @return true if left < right
-     */
-    bool operator() (const double left, const double right) const {
-      return !DYN::doubleEquals(left, right) && left < right;
-    }
-  };
-
-  /**
-   * @brief Load increase status result
-   *
-   * This structure will be used in MPI communications
-   *
-   */
-  struct LoadIncreaseStatus {
-    /// @brief default Constructor
-    LoadIncreaseStatus(): success(false) {}
-    /**
-     * @brief Construct a new Load Increase Status
-     *
-     * @param success true if the simulation succeeds, false if not
-     */
-    explicit LoadIncreaseStatus(bool success) : success(success) {}
-
-    bool success;  ///< true if the simulation succeeds, false if not
-  };
-  /// @brief Scenario status, corresponding to all scenario status for a given load increase
-  using ScenarioStatus = std::vector<LoadIncreaseStatus>;
-  std::map<double, LoadIncreaseStatus, dynawoDoubleLess> loadIncreaseStatus_;  ///< Map of load increase status by variation
-  std::map<double, ScenarioStatus, dynawoDoubleLess> scenarioStatus_;  ///< Map of scenario status by variation
-
-
-  std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
+  boost::shared_ptr<MarginCalculation> mc_;  ///< the input data that was built priori to instanciation, specialized for MC for convenience
   std::map<std::string, MultiVariantInputs> inputsByIIDM_;  ///< For scenarios, the contexts to use, by IIDM file
   double tLoadIncrease_;  ///< maximum stop time for the load increase part
   double tScenario_;  ///< stop time for the scenario part
+  boost::posix_time::ptime t0_;  ///< time at which the program was launched, for computation time measurement and display
+  int globalMarginVarId_;  ///< varId of the global margin, that is, the maximum variation level at which all scenarios can be run successfully
+  std::vector<int> discreteVars_;  ///< variation levels, discretized depending on target accuracy ; varIds are indexes of this global fixed array
+  std::vector<int> marginScens_;  ///< the final margins of each scenario, in percentage
+  std::vector<LoadIncreaseResult> results_;  ///< global result matrix
+  std::vector<std::vector<int> > workStatus_;  ///< array memorizing which computations have already been launched
+  std::map<int, int> pids_;  ///< table mapping MPI workerIds to Linux pids (process ids)
+  std::vector<int> initialLIs_;  ///< varIds of the load increases to run during the initial round of computations
 };
-}  // namespace DYNAlgorithms
 
+}  // namespace DYNAlgorithms
 
 #endif  // LAUNCHER_DYNMARGINCALCULATIONLAUNCHER_H_
