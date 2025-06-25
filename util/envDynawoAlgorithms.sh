@@ -1024,6 +1024,9 @@ launch_SA() {
 launch_MC() {
   export_preload
   if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
+    if (($NBPROCS > 1)); then
+      NBPROCS=$((NBPROCS+1))  # n workers (what the user has in mind) + 1 quasi-transparent server
+    fi
     "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
   else
     $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
