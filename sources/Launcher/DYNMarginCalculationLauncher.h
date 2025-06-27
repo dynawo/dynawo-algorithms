@@ -34,6 +34,7 @@ namespace DYNAlgorithms {
 class LoadIncrease;
 class Scenario;
 class LoadIncreaseResult;
+class MarginCalculation;
 /**
  * @brief Margin Calculation launcher class
  *
@@ -75,49 +76,58 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param result result of the simulation
    *
    */
-  void launchScenario(const MultiVariantInputs& context, const boost::shared_ptr<Scenario>& scenario,
-    const double variation, SimulationResult& result);
+  void launchScenario(const MultiVariantInputs& context,
+                      const boost::shared_ptr<Scenario>& scenario,
+                      const double variation,
+                      SimulationResult& result);
 
   /**
    * @brief generates the IIDM file path for the corresponding variation
    * @param variation the variation of the scenario
    * @returns the corresponding IIDM file path
    */
-  std::string generateIDMFileNameForVariation(double variation) const;
+  std::string idmFileNameFromVariation(double variation) const;
 
-  /**
-   * @brief read the initial jobs file to set the different normal start and stop times
-   * @param jobFileLoadIncrease job file for the loadIncrease
-   * @param jobFileScenario job file for the scenario
-   */
-  void readTimes(const std::string& jobFileLoadIncrease, const std::string& jobFileScenario);
-
-  void initArrays(int accuracy, int nbScenarios);
-  int findMaxLoadIncrease(const boost::shared_ptr<LoadIncrease> & loadIncrease);
-  bool launchLoadIncreaseWrapper(const boost::shared_ptr<LoadIncrease> & loadIncrease, int varId);
-  bool launchScenarioWrapper(const boost::shared_ptr<LoadIncrease> & loadIncrease,
-                             const std::string& baseJobsFile,
-                             const boost::shared_ptr<Scenario> & scenario,
-                             int scenId,
-                             int varId);
-  void finish(const std::vector<boost::shared_ptr<Scenario> > & events,
-              boost::posix_time::ptime & t0,
-              int marginGlobal,
-              const std::vector<int> & marginsLocal);
-
-
+  void initGlobals();
+  void serverLoop();
+  void workerLoop();
+  int findMaxLoadIncrease();
+  bool launchLoadIncreaseWrapper(int varId);
+  bool launchScenarioWrapper(int scenId, int varId);
+  void finish(boost::posix_time::ptime & t0);
+  int getNextScenId(int & scenId) const;
   int getVarIdStart() const;
-  int getVarIdNext(int varIdMin, int varIdMax) const;
+  int getVarIdBetween(int varIdMin, int varIdMax) const;
   int getLowestLIFailureVarId() const;
-  inline bool liDone(int varId) const {return results_[varId].getResult().getVariation() >= 0;}
+  int getHighestLISuccessVarId() const;
+  int getGlobalMarginVarId() const;
+  bool checkLoadIncreaseStatus(int varId, bool & success, int & liVarIdToLaunch);
+  int getAnticipatedLoadIncreaseVarId() const;
+  void limitVarIdSup(int & varIdSup) const;
+  void updateScenMargin(int scenId, int scenMarginVarId);
+
+  inline const boost::shared_ptr<LoadIncrease> getLoadInc() const;
+  inline const std::vector<boost::shared_ptr<Scenario> > & getScens() const;
+  inline int nbScens() const;
+  inline int nbVars() const;
+  inline int varId100() const;
+  inline bool searchingGlobalMargin() const;
+  inline bool liStarted(int varId) const;
+  inline bool liDone(int varId) const;
+  inline bool liOK(int varId) const;
 
  private:
-  std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
+  boost::shared_ptr<MarginCalculation> mc_;
   std::map<std::string, MultiVariantInputs> inputsByIIDM_;  ///< For scenarios, the contexts to use, by IIDM file
   double tLoadIncrease_;  ///< maximum stop time for the load increase part
   double tScenario_;  ///< stop time for the scenario part
+  int globalMarginVarId_;
   std::vector<double> discreteVars_;
+  std::vector<int> marginScens_;
+  std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis
+  std::vector<boost::posix_time::ptime> startingTimes_;
 };
+
 }  // namespace DYNAlgorithms
 
 
