@@ -233,13 +233,13 @@ RobustnessAnalysisLauncher::unzipAndGetMultipleJobsFileName(const std::string& i
     std::string nom = itE->first;
     std::string data(itE->second->getData());
     std::string filePath = createAbsolutePath(nom, workingDirectory_).c_str();
-    if (file_name(filePath) == "fic_MULTIPLE.xml") {
+    if (fileNameFromPath(filePath) == "fic_MULTIPLE.xml") {
       inputFileXml = filePath;
     }
 
     if (context.isRootProc()) {
       if (!exists(parentDirectory(filePath))) {
-        create_directory(parentDirectory(filePath));
+        createDirectory(parentDirectory(filePath));
       }
       std::ofstream file;
       file.open(filePath, std::ios::binary);
