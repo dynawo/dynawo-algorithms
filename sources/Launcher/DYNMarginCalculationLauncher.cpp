@@ -76,8 +76,8 @@ static DYN::TraceStream TraceInfo(const std::string& tag = "") {
 }
 
 inline bool isSingleThread() {return multiprocessing::context().nbProcs() == 1;}
-inline bool isServerThread() {return !isSingleThread &&  multiprocessing::context().isRootProc();}
-inline bool isWorkerThread() {return !isSingleThread && !multiprocessing::context().isRootProc();}
+inline bool isServerThread() {return !isSingleThread() &&  multiprocessing::context().isRootProc();}
+inline bool isWorkerThread() {return !isSingleThread() && !multiprocessing::context().isRootProc();}
 
 inline const std::vector<boost::shared_ptr<Scenario> > & MarginCalculationLauncher::getScens()   const {return mc_->getScenarios()->getScenarios();}
 
@@ -97,11 +97,10 @@ MarginCalculationLauncher::launch() {
 
   // fringe case that might actually be used in prod, do a monothreaded dichotomy on load increases
   if (nbScens() == 0) {
-    if (isWorkerThread())
-      return;
-
-    globalMarginVarId_ = findMaxLoadIncrease();
-    finish(t0);
+    if (!isWorkerThread()) {
+      globalMarginVarId_ = findMaxLoadIncrease();
+      finish(t0);
+    }
     return;
   }
 
@@ -110,7 +109,8 @@ MarginCalculationLauncher::launch() {
   else
     workerLoop();
 
-  finish(t0);
+  if (!isWorkerThread())
+    finish(t0);
 }
 
 void
@@ -209,6 +209,9 @@ MarginCalculationLauncher::serverLoop() {
       MPI_Send(&scenId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
       if (scenId >= nbScens())
         workersLeft.erase(senderInfo.MPI_SOURCE);
+      else
+        std::cout << "attributing scen " << scenId << " to thread " << senderInfo.MPI_SOURCE << std::endl;
+
       ++scenId;
     } else if (msg[0] == REQ_GLOBAL_MARGIN) {
       msg[0] = globalMarginVarId_;
@@ -235,30 +238,45 @@ MarginCalculationLauncher::serverLoop() {
         if (liVarIdToLaunch >= 0) {
           msg[1] = liVarIdToLaunch;
           MPI_Send(msg, 2, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
+          if (liVarIdToLaunch != liVarIdToCheck) {
+            std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch]
+                      << "% while waiting for "  << discreteVars_[liVarIdToCheck] << "%" << std::endl;
+          } else {
+            std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch] << "%" << std::endl;
+          }
         } else {
           // if (delayedAnswers.find(liVarIdToCheck) == delayedAnswers.end())
           //   delayedAnswers[liVarIdToCheck] = std::vector<int>();
           delayedAnswers[liVarIdToCheck].push_back(senderInfo.MPI_SOURCE);
+          std::cout << "putting thread " << senderInfo.MPI_SOURCE << " on hold for LI " << discreteVars_[liVarIdToCheck] << "% result" << std::endl;
         }
       }
     } else if (msg[0] == FDB_LOAD_INC) {
       int varId = msg[1];
       int liSuccess = msg[2];
+      std::cout << "LI " << discreteVars_[varId] << "% by thread " << senderInfo.MPI_SOURCE
+                  << " " << (liSuccess ? "success" : "failure") << std::endl;
+
       SimulationResult & result = results_[varId].getResult();
       result.setVariation(discreteVars_[varId]);
       result.setSuccess(liSuccess);
       if (delayedAnswers.find(varId) != delayedAnswers.end()) {
         msg[0] = 1;
         msg[1] = liSuccess;
-        for (int threadId : delayedAnswers[varId])
+        for (int threadId : delayedAnswers[varId]) {
           MPI_Send(msg, 2, MPI_INT, threadId, 0, MPI_COMM_WORLD);
+          std::cout << "delayed answer for LI " << discreteVars_[varId] << "% to thread " << threadId << std::endl;
+        }
         delayedAnswers.erase(delayedAnswers.find(varId));
       }
     } else if (msg[0] == FDB_SCEN_SINGLE) {
-      SimulationResult & result = results_[msg[2]].getScenarioResult(msg[1]);
-      result.setScenarioId(getScens()[msg[1]]->getId());
-      result.setVariation(discreteVars_[msg[2]]);
-      result.setSuccess(msg[3] > 0);
+      int scenId = msg[1];
+      int varId = msg[2];
+      bool scenSuccess = msg[3] > 0;
+      results_[varId].getScenarioResult(scenId).setScenarioId(getScens()[scenId]->getId());  // mark it as run for result collection
+      std::cout << "Scen " << scenId << " at " << discreteVars_[varId] << "% by thread " << senderInfo.MPI_SOURCE
+                    << " " << (scenSuccess ? "success" : "failure") << std::endl;
+
     } else if (msg[0] == FDB_SCEN_MARGIN) {
       updateScenMargin(msg[1], msg[2]);
     } else {
@@ -400,7 +418,7 @@ MarginCalculationLauncher::getNextScenId(int & scenId) const {
   if (isWorkerThread()) {  // multithread : request ID to server (root process) instead, who centralizes incrementations
     int msg = REQ_SCEN_ID;
 #ifdef _MPI_
-    MPI_Send(&msg, 0, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
     MPI_Recv(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 #endif  // _MPI_
     scenId = msg;
@@ -423,18 +441,20 @@ MarginCalculationLauncher::getAnticipatedLoadIncreaseVarId() const {
   limitVarIdSup(varIdMem);
 
   int widestGap = 0;
+  int varIdWidest = varIdMem;
 
   for (int varId = varIdMem - 1; varId >= 0; --varId) {
     if (liStarted(varId)) {
       int gap = varIdMem - varId;
+      varIdMem = varId;
       if (gap > widestGap) {
-        varIdMem = varId;
+        varIdWidest = varId;
         widestGap = gap;
       }
     }
   }
 
-  return (widestGap > 1) ? varIdMem + widestGap/2 : -1;
+  return (widestGap > 1) ? varIdWidest + widestGap/2 : -1;
 }
 
 bool
@@ -501,6 +521,7 @@ MarginCalculationLauncher::launchLoadIncreaseWrapper(int varId) {
 #ifdef _MPI_
     int msg[3] = {FDB_LOAD_INC, varId, result.getSuccess() ? 1 : 0};
     MPI_Send(&msg, 3, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    exportResult(result);
 #endif  // _MPI_
   }
 
@@ -533,6 +554,7 @@ MarginCalculationLauncher::launchScenarioWrapper(int scenId, int varId) {
 #ifdef _MPI_
     int msg[4] = {FDB_SCEN_SINGLE, scenId, varId, resultScen.getSuccess() ? 1 : 0};
     MPI_Send(&msg, 4, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    exportResult(resultScen);
 #endif  // _MPI_
   }
 
@@ -555,18 +577,24 @@ MarginCalculationLauncher::finish(boost::posix_time::ptime & t0) {
   // purge unused results for readability of aggregatedResults.xml
   std::vector<LoadIncreaseResult> resultsTemp;
   resultsTemp.swap(results_);
-  for (LoadIncreaseResult & result : resultsTemp)
-    if (result.getResult().getVariation() >= 0) {
+  for (LoadIncreaseResult & result : resultsTemp) {
+    int variation = result.getResult().getVariation();
+    if (variation>= 0) {
+      if (isServerThread() && (nbScens() > 0))  // if nbScens = 0, the server thread has done the computations itself
+        result.setResult(importResult(loadIncreaseExportDir(variation)));
       for (int scenId = 0; scenId < nbScens(); ++scenId) {
         SimulationResult & resultScen = result.getScenarioResult(scenId);
         if (resultScen.getScenarioId() == "") {
           resultScen.setScenarioId(getScens()[scenId]->getId());
-          resultScen.setVariation(result.getResult().getVariation());
+          resultScen.setVariation(variation);
           resultScen.setStatus(RESULT_FOUND_STATUS);
+        } else if (isServerThread()) {
+          resultScen = importResult(SimulationResult::getUniqueScenarioId(getScens()[scenId]->getId(), variation));
         }
       }
       results_.push_back(result);
     }
+  }
 }
 
 void
@@ -769,6 +797,13 @@ MarginCalculationLauncher::createOutputs(std::map<std::string, std::string>& map
       writeOutputs(worstResult.second);
     }
   }
+}
+
+std::string
+MarginCalculationLauncher::loadIncreaseExportDir(double variation) const {
+  std::stringstream ss;
+  ss << LOAD_INCREASE << "-" << variation;
+  return ss.str();
 }
 
 std::string

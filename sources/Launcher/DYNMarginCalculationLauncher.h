@@ -87,6 +87,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @returns the corresponding IIDM file path
    */
   std::string idmFileNameFromVariation(double variation) const;
+  std::string loadIncreaseExportDir(double variation) const;
 
   void initGlobals();
   void serverLoop();
