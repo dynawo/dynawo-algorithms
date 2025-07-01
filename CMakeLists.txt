@@ -145,6 +145,7 @@ if(BUILD_TESTS OR BUILD_TESTS_COVERAGE)
       log
       log_setup
       iostreams
+      date_time
     )
 else()
   find_package(Boost "${Boost_RequiredVersion}" REQUIRED
@@ -155,6 +156,7 @@ else()
       system
       log
       log_setup
+      date_time
     )
 endif()
 
