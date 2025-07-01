@@ -85,14 +85,14 @@ class CriticalTimeLauncher : public RobustnessAnalysisLauncher {
    * @brief Export a save result file
    * @param result the Critical time result to export
    */
-  void exportResult(const CriticalTimeResult& result) const;
+  void exportCTCResult(const CriticalTimeResult& result) const;
 
   /**
    * @brief Import simulation result from a save file
    * @param id the scenario id
    * @return CriticalTimeResult from this scenario
    */
-  CriticalTimeResult importResult(const std::string& id) const;
+  CriticalTimeResult importCTCResult(const std::string& id) const;
 
  protected:
   std::vector<CriticalTimeResult> results_;  ///< results of all scenarios of the critical time calculation

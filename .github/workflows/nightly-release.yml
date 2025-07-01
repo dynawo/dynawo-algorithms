@@ -144,7 +144,7 @@ jobs:
   windows:
     if: always() && !cancelled() && !failure() && (github.event.action == 'nightly-windows' || (github.event_name == 'workflow_dispatch' && inputs.perform-windows) || !endsWith(github.event_name, '_dispatch'))
     name: Windows 2019 (Release, VS2019) (${{ matrix.use-mpi.text }})
-    runs-on: windows-2019
+    runs-on: windows-2022
     strategy:
       matrix:
         use-mpi:
@@ -198,7 +198,7 @@ jobs:
             set "MSMPI_LIB32=C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x86\"
             set "MSMPI_LIB64=C:\Program Files (x86)\Microsoft SDKs\MPI\Lib\x64\"
           )
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           call util\windows\dynawo-algorithms verbose build || exit /b 1
 
       - name: Dynawo-algorithms version
@@ -217,7 +217,7 @@ jobs:
         run: |
           pip install lxml psutil
           set PATH=%MSMPI_BIN%;%PATH%
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           call util\windows\dynawo-algorithms verbose nrt || exit /b 1
 
       - name: Create distribution
@@ -225,7 +225,7 @@ jobs:
         env:
           PATH: C:\Windows\system32;C:\Program Files\Git\cmd;C:\hostedtoolcache\windows\Python\3.9.13\x64;C:\ProgramData\Chocolatey\bin
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           call util\windows\dynawo-algorithms verbose distrib-headers distrib || exit /b 1
 
       - name: INFO. Files created in distrib folder

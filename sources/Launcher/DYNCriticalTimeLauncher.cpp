@@ -42,9 +42,9 @@ double
 CriticalTimeLauncher::round(double value, double accuracy) {
   const double multiplierRound = 1. / accuracy;
   if (DYN::doubleEquals(std::abs(value * multiplierRound - std::floor(value * multiplierRound)), 0.5))
-    return std::floor((value) * multiplierRound) / multiplierRound;
+    return std::floor(value * multiplierRound) / multiplierRound;
   else
-    return std::round((value) * multiplierRound) / multiplierRound;
+    return std::round(value * multiplierRound) / multiplierRound;
 }
 
 void
@@ -125,7 +125,7 @@ CriticalTimeLauncher::launch() {
 
   multiprocessing::forEach(0, events.size(), [this, &events, criticalTimeCalculation](unsigned int i){
     CriticalTimeResult ret = launchScenario(events[i], criticalTimeCalculation);
-    exportResult(ret);
+    exportCTCResult(ret);
   });
 
   multiprocessing::Context::sync();
@@ -134,7 +134,7 @@ CriticalTimeLauncher::launch() {
   if (context.isRootProc()) {
     for (unsigned int i = 0; i < events.size(); i++) {
       const auto& scenario = events.at(i);
-      results_.at(i) = importResult(scenario->getId());
+      results_.at(i) = importCTCResult(scenario->getId());
       cleanResult(scenario->getId());
     }
   }
@@ -165,7 +165,8 @@ CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario
   double tLowestFailed = tMax;  // min time where all times higher lead to a failed simulation
   double tHighestSuccess = criticalTimeCalculation->getMinValue();  // max time where all times lower lead to a succeeded simulation
   double gap;
-  int nbSimulationsDone = 0, nbSimulationsFailed = 0;
+  int nbSimulationsDone = 0;
+  int nbSimulationsFailed = 0;
   std::unordered_map<double, std::pair<bool, status_t>> tTestedValues;  // stores every tested tEnd
 
   // While difference between lowest time of fail and highest time of Success is higher than the accuracy then continue loop
@@ -236,7 +237,7 @@ CriticalTimeLauncher::getFinalStatus(int nbSimulationsDone, int nbSimulationsFai
 }
 
 void
-CriticalTimeLauncher::exportResult(const CriticalTimeResult& result) const {
+CriticalTimeLauncher::exportCTCResult(const CriticalTimeResult& result) const {
   DYNAlgorithms::RobustnessAnalysisLauncher::exportResult(result.getResult());
 
   namespace fs = boost::filesystem;
@@ -251,7 +252,7 @@ CriticalTimeLauncher::exportResult(const CriticalTimeResult& result) const {
 }
 
 CriticalTimeResult
-CriticalTimeLauncher::importResult(const std::string& id) const {
+CriticalTimeLauncher::importCTCResult(const std::string& id) const {
   SimulationResult ret = DYNAlgorithms::RobustnessAnalysisLauncher::importResult(id);
 
   CriticalTimeResult result;
