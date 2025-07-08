@@ -23,4 +23,9 @@ SimulationResult&
 LoadIncreaseResult::getScenarioResult(size_t idx) {
   return scenariosResults_.at(idx);
 }
+
+const SimulationResult &
+LoadIncreaseResult::getScenarioResult(size_t idx) const {
+  return scenariosResults_.at(idx);
+}
 }  // namespace DYNAlgorithms

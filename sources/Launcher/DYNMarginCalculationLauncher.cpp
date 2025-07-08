@@ -64,6 +64,7 @@ enum MsgId {
   REQ_LOAD_INC_HIGHEST_SUCCESS,
   REQ_LOAD_INC_DONE,
   REQ_LOAD_INC_STATUS,
+  REQ_LOAD_INC_IDLE,
   FDB_LOAD_INC,
   FDB_SCEN_SINGLE,
   FDB_SCEN_MARGIN,
@@ -188,10 +189,24 @@ MarginCalculationLauncher::workerLoop() {
     }
     updateScenMargin(scenId, varIdInf);
   }
+
+  // scenarios all attributed, idly anticipating loadIncreases while there are some remaining
+  while (true) {
+    int msg = REQ_LOAD_INC_IDLE;
+#ifdef _MPI_
+    MPI_Send(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Recv(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+#endif  // _MPI_
+    if (msg < 0)
+      return;
+    launchLoadIncreaseWrapper(msg);
+  }
 }
 
 void
 MarginCalculationLauncher::serverLoop() {
+  boost::posix_time::ptime serverStart = boost::posix_time::second_clock::local_time();
+
   std::set<int> workersLeft;
   for (int i=1; i < multiprocessing::context().nbProcs(); ++i)
     workersLeft.insert(i);
@@ -200,6 +215,7 @@ MarginCalculationLauncher::serverLoop() {
 
   int scenId = 0;
 
+
 #ifdef _MPI_
   while (workersLeft.size() > 0) {
     MPI_Status senderInfo;
@@ -207,11 +223,10 @@ MarginCalculationLauncher::serverLoop() {
     MPI_Recv(msg, 4, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &senderInfo);
     if (msg[0] == REQ_SCEN_ID) {
       MPI_Send(&scenId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-      if (scenId >= nbScens())
-        workersLeft.erase(senderInfo.MPI_SOURCE);
-      else
+      if (scenId < nbScens()) {
+        std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
         std::cout << "attributing scen " << scenId << " to thread " << senderInfo.MPI_SOURCE << std::endl;
-
+      }
       ++scenId;
     } else if (msg[0] == REQ_GLOBAL_MARGIN) {
       msg[0] = globalMarginVarId_;
@@ -239,21 +254,44 @@ MarginCalculationLauncher::serverLoop() {
           msg[1] = liVarIdToLaunch;
           MPI_Send(msg, 2, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
           if (liVarIdToLaunch != liVarIdToCheck) {
+            std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
             std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch]
                       << "% while waiting for "  << discreteVars_[liVarIdToCheck] << "%" << std::endl;
           } else {
+            std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
             std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch] << "%" << std::endl;
           }
         } else {
           // if (delayedAnswers.find(liVarIdToCheck) == delayedAnswers.end())
           //   delayedAnswers[liVarIdToCheck] = std::vector<int>();
           delayedAnswers[liVarIdToCheck].push_back(senderInfo.MPI_SOURCE);
+          std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
           std::cout << "putting thread " << senderInfo.MPI_SOURCE << " on hold for LI " << discreteVars_[liVarIdToCheck] << "% result" << std::endl;
         }
+      }
+    } else if (msg[0] == REQ_LOAD_INC_IDLE) {
+      bool allScensComputed = true;
+      for (int scenId = 0; scenId < nbScens(); ++scenId)
+        if (marginScens_[scenId] < 0)  // will FAIL if scen fails at varId 0 !!!!
+          allScensComputed = false;
+
+      int liVarId = -1;
+      if (!allScensComputed)
+        liVarId = getAnticipatedLoadIncreaseVarId();
+      MPI_Send(&liVarId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
+
+      if (liVarId < 0) {
+        workersLeft.erase(senderInfo.MPI_SOURCE);
+      } else {
+        startingTimes_[liVarId] = boost::posix_time::second_clock::local_time();
+        std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
+        std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarId]
+                  << "% while waiting for other threads to finish " << std::endl;
       }
     } else if (msg[0] == FDB_LOAD_INC) {
       int varId = msg[1];
       int liSuccess = msg[2];
+      std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
       std::cout << "LI " << discreteVars_[varId] << "% by thread " << senderInfo.MPI_SOURCE
                   << " " << (liSuccess ? "success" : "failure") << std::endl;
 
@@ -265,6 +303,7 @@ MarginCalculationLauncher::serverLoop() {
         msg[1] = liSuccess;
         for (int threadId : delayedAnswers[varId]) {
           MPI_Send(msg, 2, MPI_INT, threadId, 0, MPI_COMM_WORLD);
+          std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
           std::cout << "delayed answer for LI " << discreteVars_[varId] << "% to thread " << threadId << std::endl;
         }
         delayedAnswers.erase(delayedAnswers.find(varId));
@@ -273,7 +312,11 @@ MarginCalculationLauncher::serverLoop() {
       int scenId = msg[1];
       int varId = msg[2];
       bool scenSuccess = msg[3] > 0;
-      results_[varId].getScenarioResult(scenId).setScenarioId(getScens()[scenId]->getId());  // mark it as run for result collection
+      SimulationResult & result = results_[varId].getScenarioResult(scenId);
+      result.setScenarioId(getScens()[scenId]->getId());  // mark it as run for result collection
+      result.setVariation(discreteVars_[varId]);
+      result.setSuccess(scenSuccess);
+      std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
       std::cout << "Scen " << scenId << " at " << discreteVars_[varId] << "% by thread " << senderInfo.MPI_SOURCE
                     << " " << (scenSuccess ? "success" : "failure") << std::endl;
 
@@ -403,6 +446,25 @@ MarginCalculationLauncher::getHighestLISuccessVarId() const {
   return -1;
 }
 
+int
+MarginCalculationLauncher::getHighestAllScensSuccessVarId() const {
+  int allScensHSVarId = varId100();
+  for (int scenId = 0; scenId < nbScens(); ++scenId) {
+    int scenHSVarId = -1;
+    for (int varId = varId100(); varId >= 0; --varId) {
+      const SimulationResult & result = results_[varId].getScenarioResult(scenId);
+      if ((result.getScenarioId() != "") && result.getSuccess()) {
+        scenHSVarId = varId;
+        break;
+      }
+    }
+    if (scenHSVarId == -1)
+      return -1;
+    allScensHSVarId = std::min(allScensHSVarId, scenHSVarId);
+  }
+  return allScensHSVarId;
+}
+
 void
 MarginCalculationLauncher::limitVarIdSup(int & varIdSup) const {
   varIdSup = std::min(varIdSup, getLowestLIFailureVarId());
@@ -442,8 +504,9 @@ MarginCalculationLauncher::getAnticipatedLoadIncreaseVarId() const {
 
   int widestGap = 0;
   int varIdWidest = varIdMem;
+  int varIdFloor = std::max(0, getHighestAllScensSuccessVarId());
 
-  for (int varId = varIdMem - 1; varId >= 0; --varId) {
+  for (int varId = varIdMem - 1; varId >= varIdFloor; --varId) {
     if (liStarted(varId)) {
       int gap = varIdMem - varId;
       varIdMem = varId;
@@ -484,7 +547,7 @@ MarginCalculationLauncher::checkLoadIncreaseStatus(int varId, bool & liSuccess, 
 
   if (!liStarted(varId))
     liVarIdToLaunch = varId;
-  else if ((boost::posix_time::second_clock::local_time() - startingTimes_[varId]).total_milliseconds() < 1000)
+  else if ((boost::posix_time::second_clock::local_time() - startingTimes_[varId]).total_milliseconds() < 20000)
     liVarIdToLaunch = getAnticipatedLoadIncreaseVarId();
   else
     liVarIdToLaunch = -1;

@@ -101,6 +101,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   int getVarIdBetween(int varIdMin, int varIdMax) const;
   int getLowestLIFailureVarId() const;
   int getHighestLISuccessVarId() const;
+  int getHighestAllScensSuccessVarId() const;
   int getGlobalMarginVarId() const;
   bool checkLoadIncreaseStatus(int varId, bool & success, int & liVarIdToLaunch);
   int getAnticipatedLoadIncreaseVarId() const;

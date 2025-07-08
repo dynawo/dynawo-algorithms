@@ -65,6 +65,13 @@ class LoadIncreaseResult {
    */
   SimulationResult& getScenarioResult(size_t idx);
 
+    /**
+   * @brief result const getter
+   * @param idx id of the result
+   * @return result object with index idx associated to this load increase
+   */
+  const SimulationResult& getScenarioResult(size_t idx) const;
+
   /**
    * @brief getter for the scenarios results
    * @return scenarios results associated to this load increase
