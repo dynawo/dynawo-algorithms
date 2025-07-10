@@ -57,26 +57,13 @@ using DYN::Trace;
 
 static const char LOAD_INCREASE[] = "loadIncrease";
 
-enum MsgId {
-  REQ_SCEN_ID,
-  REQ_GLOBAL_MARGIN,
-  REQ_LOAD_INC_LOWEST_FAIL,
-  REQ_LOAD_INC_HIGHEST_SUCCESS,
-  REQ_LOAD_INC_START,
-  REQ_LOAD_INC_NEXT,
-  REQ_LOAD_INC_STATUS,
-  REQ_LOAD_INC_IDLE,
-  FDB_LOAD_INC,
-  FDB_SCEN_SINGLE,
-  FDB_SCEN_MARGIN,
-};
-
 namespace DYNAlgorithms {
 
 static DYN::TraceStream TraceInfo(const std::string& tag = "") {
   return multiprocessing::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
 }
 
+inline int mid(int val) {return (val+1)/2;}  // general biais towards upper roundings (mounting to load increase ceiling)
 inline bool isSingleThread() {return multiprocessing::context().nbProcs() == 1;}
 inline bool isServerThread() {return !isSingleThread() &&  multiprocessing::context().isRootProc();}
 inline bool isWorkerThread() {return !isSingleThread() && !multiprocessing::context().isRootProc();}
@@ -87,36 +74,75 @@ inline int MarginCalculationLauncher::nbScens() const                 {return mc
 inline int MarginCalculationLauncher::nbVars() const                  {return discreteVars_.size();}
 inline int MarginCalculationLauncher::varId100() const                {return discreteVars_.size()-1;}
 inline bool MarginCalculationLauncher::searchingGlobalMargin() const  {return mc_->getCalculationType() == MarginCalculation::GLOBAL_MARGIN;}
-inline bool MarginCalculationLauncher::liStarted(int varId) const     {return !startingTimes_[varId].is_not_a_date_time();}
+inline bool MarginCalculationLauncher::liStarted(int varId) const     {return !startingTimesLI_[varId].is_not_a_date_time();}
 inline bool MarginCalculationLauncher::liDone(int varId) const        {return results_[varId].getResult().getVariation() >= 0;}
-inline bool MarginCalculationLauncher::liOK(int varId) const          {return results_[varId].getResult().getSuccess();}
+inline bool MarginCalculationLauncher::liOK(int varId) const          {return liDone(varId) && results_[varId].getResult().getSuccess();}
+inline bool MarginCalculationLauncher::scenStarted(int scenId, int varId) const {return !startingTimesScens_[scenId][varId].is_not_a_date_time();;}
+inline bool MarginCalculationLauncher::scenClosed(int scenId) const {return marginScens_[scenId] >= 0;}
 inline bool MarginCalculationLauncher::scenDone(int scenId, int varId) const {return (results_[varId].getScenarioResult(scenId).getScenarioId() != "");}
+inline bool MarginCalculationLauncher::scenOK(int scenId, int varId) const {return scenDone(scenId, varId) &&
+                                                                                   results_[varId].getScenarioResult(scenId).getSuccess();}
 
-inline int mid(int val) {return (val+1)/2;}  // general biais towards upper roundings (mounting to load increase ceiling)
+int
+MarginCalculationLauncher::lowestLIFailureId() const {
+  for (int varId = 0; varId < nbVars(); ++varId)
+      if (liDone(varId) && !liOK(varId))
+        return varId;
 
-void
-MarginCalculationLauncher::launch() {
-  initGlobals();
+  return varId100()+1;
+}
 
-  // fringe case that might actually be used in prod, do a monothreaded dichotomy on load increases
-  if (nbScens() == 0) {
-    if (!isWorkerThread()) {
-      boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
-      globalMarginVarId_ = findMaxLoadIncrease();
-      finish(t0);
-    }
-    return;
-  }
+int
+MarginCalculationLauncher::highestLISuccessId() const {
+  for (int varId = varId100(); varId >= 0; --varId)
+      if (liOK(varId))
+        return varId;
 
-  if (isServerThread())
-    serverLoop();
-  else
-    workerLoop();
+  return -1;
+}
+
+int
+MarginCalculationLauncher::lowestScenFailureId(int scenId) const {
+  for (int varId = 0; varId < nbVars(); ++varId)
+      if (scenDone(scenId, varId) && !scenOK(scenId, varId))
+        return varId;
+
+  return varId100()+1;
+}
+
+int
+MarginCalculationLauncher::highestScenSuccessId(int scenId) const {
+  for (int varId = varId100(); varId >= 0; --varId)
+      if (scenDone(scenId, varId) && scenOK(scenId, varId))
+        return varId;
+
+  return -1;
+}
+
+bool
+MarginCalculationLauncher::scenBusy(int scenId) const {
+  for (int varId = 0; varId < nbVars(); ++varId)
+    if (scenStarted(scenId, varId) && !scenDone(scenId, varId))
+      return true;
+
+  return false;
+}
+
+bool
+MarginCalculationLauncher::allScensFinished() const {
+  for (int scenId = 0; scenId < nbScens(); ++scenId)
+    if (!scenClosed(scenId))
+      return false;
+
+  return true;
 }
 
 void
 MarginCalculationLauncher::initGlobals() {
   assert(multipleJobs_);
+
+  t0_ = boost::posix_time::second_clock::local_time();
+
   mc_ = multipleJobs_->getMarginCalculation();
   if (!mc_) {
     throw DYNAlgorithmsError(MarginCalculationTaskNotFound);
@@ -148,256 +174,200 @@ MarginCalculationLauncher::initGlobals() {
   globalMarginVarId_ = varId100();
   marginScens_ = std::vector<int>((size_t)nbScens(), -1);
 
-  startingTimes_.resize(nbVars(), boost::posix_time::ptime());
+  startingTimesLI_.resize(nbVars(), boost::posix_time::ptime());
+  startingTimesScens_.resize(nbScens(), std::vector<boost::posix_time::ptime>((size_t)nbVars(), boost::posix_time::ptime()));
 }
 
 void
-MarginCalculationLauncher::workerLoop() {
-  boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
-  int scenId = -1;
-  while (getNextScenId(scenId)) {
-    int varIdInf = 0;
-    int varIdSup = getVarIdStart();
+MarginCalculationLauncher::launch() {
+  initGlobals();
 
-    if (launchScenarioWrapper(scenId, varIdSup)) {
-      if (searchingGlobalMargin() || (varIdSup == varId100())) {
-        // max possible varID success : scenario finished
-        updateScenMargin(scenId, varIdSup);
-        continue;
-      } else {  // local margin computation and possible valid load increases above
-        varIdInf = varIdSup;
-        varIdSup == varId100();
-      }
+  // fringe case that might actually be used in prod, do a monothreaded dichotomy on load increases
+  if (nbScens() == 0) {
+    if (!isWorkerThread()) {
+      globalMarginVarId_ = findMaxLoadIncrease();
+      finish();
     }
-
-    if (isSingleThread() && !liOK(varId100()) && !liDone(0))
-      launchLoadIncreaseWrapper(0);  // check that the situation itself is not badly conditioned (happens)
-
-    limitVarIdSup(varIdSup);
-
-    while (varIdSup > varIdInf+1) {
-      int varIdNext = getVarIdBetween(varIdInf, varIdSup);
-      if (launchScenarioWrapper(scenId, varIdNext)) {
-        varIdInf = varIdNext;
-      } else {
-        varIdSup = varIdNext;
-        // heuristic optim : test zero only if 50% fails
-        if ((varIdInf == 0) && !scenDone(scenId, 0))
-          if (!launchScenarioWrapper(scenId, 0))
-            break;
-      }
-      limitVarIdSup(varIdSup);
-    }
-    updateScenMargin(scenId, varIdInf);
-  }
-
-  if (isSingleThread()) {
-    finish(t0);
     return;
   }
 
-  assert(isWorkerThread());
-
-  // scenarios all attributed, idly anticipating loadIncreases while there are some remaining
-  while (true) {
-    int msg = REQ_LOAD_INC_IDLE;
+  if (isWorkerThread()) {
 #ifdef _MPI_
-    MPI_Send(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Recv(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    int msg[3] = {-1, -1, -1};
+    MPI_Send(msg, 3, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    while (true) {
+      MPI_Recv(msg, 2, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      int varId = msg[0];
+      if (varId < 0)
+        return;
+      int scenId = msg[1];
+      msg[2] = (scenId >= 0) ? launchScenarioWrapper(scenId, varId) : launchLoadIncreaseWrapper(varId);
+      MPI_Send(msg, 3, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    }
 #endif  // _MPI_
-    if (msg < 0)
-      return;
-    launchLoadIncreaseWrapper(msg);
   }
-}
-
-void
-MarginCalculationLauncher::serverLoop() {
-  boost::posix_time::ptime serverStart = boost::posix_time::second_clock::local_time();
 
   std::set<int> workersLeft;
   for (int i=1; i < multiprocessing::context().nbProcs(); ++i)
     workersLeft.insert(i);
 
-  std::map<int, std::vector<int> > delayedAnswers;
-
-  int scenId = 0;
-
-
-#ifdef _MPI_
   while (workersLeft.size() > 0) {
-    MPI_Status senderInfo;
-    int msg[4];
-    MPI_Recv(msg, 4, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &senderInfo);
-    if (msg[0] == REQ_SCEN_ID) {
-      MPI_Send(&scenId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-      if (scenId < nbScens()) {
-        std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-        std::cout << "attributing scen " << scenId << " to thread " << senderInfo.MPI_SOURCE << std::endl;
-      }
-      ++scenId;
-    } else if (msg[0] == REQ_GLOBAL_MARGIN) {
-      msg[0] = globalMarginVarId_;
-      MPI_Send(msg, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-    } else if (msg[0] == REQ_LOAD_INC_LOWEST_FAIL) {
-      msg[0] = getLowestLIFailureVarId();
-      MPI_Send(msg, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-    } else if (msg[0] == REQ_LOAD_INC_HIGHEST_SUCCESS) {
-      msg[0] = getHighestLISuccessVarId();
-      MPI_Send(msg, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-    } else if (msg[0] == REQ_LOAD_INC_START) {
-      msg[0] = getVarIdStart();
-      MPI_Send(msg, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-    } else if (msg[0] == REQ_LOAD_INC_NEXT) {
-      msg[0] = getVarIdBetween(msg[1], msg[2]);
-      MPI_Send(msg, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-    } else if (msg[0] == REQ_LOAD_INC_STATUS) {
-      int liVarIdToCheck = msg[1];
-      bool liSuccess;
-      int liVarIdToLaunch;
-      bool resKnown = checkLoadIncreaseStatus(liVarIdToCheck, liSuccess, liVarIdToLaunch);
-      msg[0] = resKnown;
-      if (resKnown) {
-        msg[1] = liSuccess;
-        MPI_Send(msg, 2, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-      } else {
-        if (liVarIdToLaunch >= 0) {
-          msg[1] = liVarIdToLaunch;
-          MPI_Send(msg, 2, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-          if (liVarIdToLaunch != liVarIdToCheck) {
-            std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-            std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch]
-                      << "% while waiting for "  << discreteVars_[liVarIdToCheck] << "%" << std::endl;
-          } else {
-            std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-            std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch] << "%" << std::endl;
-          }
-        } else {
-          // if (delayedAnswers.find(liVarIdToCheck) == delayedAnswers.end())
-          //   delayedAnswers[liVarIdToCheck] = std::vector<int>();
-          delayedAnswers[liVarIdToCheck].push_back(senderInfo.MPI_SOURCE);
-          std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-          std::cout << "putting thread " << senderInfo.MPI_SOURCE << " on hold for LI " << discreteVars_[liVarIdToCheck] << "% result" << std::endl;
-        }
-      }
-    } else if (msg[0] == REQ_LOAD_INC_IDLE) {
-      int liVarId = allScensFinished() ? -1 : getAnticipatedLoadIncreaseVarId();
-      MPI_Send(&liVarId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-      if (liVarId < 0) {
-        workersLeft.erase(senderInfo.MPI_SOURCE);
-      } else {
-        startingTimes_[liVarId] = boost::posix_time::second_clock::local_time();
-        std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-        std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarId]
-                  << "% while waiting for other threads to finish " << std::endl;
-      }
-    } else if (msg[0] == FDB_LOAD_INC) {
-      int varId = msg[1];
-      int liSuccess = msg[2];
-      std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-      std::cout << "LI " << discreteVars_[varId] << "% by thread " << senderInfo.MPI_SOURCE
-                  << " " << (liSuccess ? "success" : "failure") << std::endl;
+    int workerId = -1;
+    if (isServerThread()) {
+  #ifdef _MPI_
+      MPI_Status senderInfo;
+      int msg[3];
+      MPI_Recv(msg, 3, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &senderInfo);
+      updateResults(msg[0], msg[1], msg[2] > 0);
+      workerId = senderInfo.MPI_SOURCE;
+  #endif  // _MPI_
+    }
 
-      SimulationResult & result = results_[varId].getResult();
-      result.setVariation(discreteVars_[varId]);
-      result.setSuccess(liSuccess);
-      if (delayedAnswers.find(varId) != delayedAnswers.end()) {
-        msg[0] = 1;
-        msg[1] = liSuccess;
-        for (int threadId : delayedAnswers[varId]) {
-          MPI_Send(msg, 2, MPI_INT, threadId, 0, MPI_COMM_WORLD);
-          std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-          std::cout << "delayed answer for LI " << discreteVars_[varId] << "% to thread " << threadId << std::endl;
-        }
-        delayedAnswers.erase(delayedAnswers.find(varId));
-      }
-    } else if (msg[0] == FDB_SCEN_SINGLE) {
-      int scenId = msg[1];
-      int varId = msg[2];
-      bool scenSuccess = msg[3] > 0;
-      SimulationResult & result = results_[varId].getScenarioResult(scenId);
-      result.setScenarioId(getScen(scenId)->getId());  // mark it as run for result collection
-      result.setVariation(discreteVars_[varId]);
-      result.setSuccess(scenSuccess);
-      if (!scenSuccess)
-        updateGlobalMargin(varId);
-      std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-      std::cout << "Scen " << scenId << " at " << discreteVars_[varId] << "% by thread " << senderInfo.MPI_SOURCE
-                    << " " << (scenSuccess ? "success" : "failure") << std::endl;
+    int varId, scenId;
+    if (getScenVarId(varId, scenId)) {
+      launchScenarioWrapper(scenId, varId, workerId);
+      continue;
+    }
 
-    } else if (msg[0] == FDB_SCEN_MARGIN) {
-      updateScenMargin(msg[1], msg[2]);
-      if (allScensFinished()) {
-        finish(serverStart);
-        std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-        std::cout << "server thread finished, results written" << std::endl;
-      }
+    varId = getAnticipatedLoadIncreaseVarId();
+    if (varId >= 0) {
+      launchLoadIncreaseWrapper(varId, workerId);
+      continue;
+    }
+
+    if (isServerThread()) {
+#ifdef _MPI_
+      int msg[2] = {-1, -1};
+      MPI_Send(msg, 2, MPI_INT, workerId, 0, MPI_COMM_WORLD);
+      workersLeft.erase(workerId);
+#endif  // _MPI_
     } else {
-      // ToDo : log error
+      workersLeft.clear();
     }
   }
-#endif  // _MPI_
+  finish();
 }
 
-int
-MarginCalculationLauncher::findMaxLoadIncrease() {
-  if (launchLoadIncreaseWrapper(varId100()))
-    return varId100();
-
-  if (!launchLoadIncreaseWrapper(0))
-    return 0;
-
-  int varIdInf = 0;  // lowest known that succeeds
-  int varIdSup = varId100();  // highest known that fails
-
-  while (varIdSup > varIdInf+1)
-    (launchLoadIncreaseWrapper(mid(varIdInf+varIdSup)) ? varIdInf : varIdSup) = mid(varIdInf+varIdSup);
-
-  return varIdInf;
-}
-
-int
-MarginCalculationLauncher::getVarIdStart() const {
-  if (isWorkerThread()) {
-    int msg = {REQ_LOAD_INC_START};
-  #ifdef _MPI_
-    MPI_Send(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Recv(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  #endif  // _MPI_
-    return msg;
-  }
+bool
+MarginCalculationLauncher::getScenVarId(int & varIdRet, int & scenId) const {
+  if (highestLISuccessId() < 0)
+    return false;
 
   if (searchingGlobalMargin()) {
-    if (liDone(globalMarginVarId_))
-      return globalMarginVarId_;
-    if ((globalMarginVarId_ < varId100()) && liDone(globalMarginVarId_+1))
-      return globalMarginVarId_+1;
+    // priority 1 : among the scenarios that we know fail at globalMargin+1, the one with the lower known success
+    if (globalMarginVarId_ < varId100()) {
+      int bestCandidate = -1;
+      int biggestGap = -1;
+      for (scenId = 0; scenId < nbScens(); ++scenId) {
+        if (scenClosed(scenId) || scenBusy(scenId) || (lowestScenFailureId(scenId) != (globalMarginVarId_+1)))
+          continue;
+        int gap = lowestScenFailureId(scenId)-highestScenSuccessId(scenId);
+        if (gap > biggestGap) {
+          bestCandidate = scenId;
+          biggestGap = gap;
+        }
+      }
+      if (bestCandidate >= 0) {
+        scenId = bestCandidate;
+        varIdRet = getLiOKBetween(highestScenSuccessId(scenId), lowestScenFailureId(scenId));
+        if (varIdRet >=0)
+          return true;
+      }
+    }
+
+    // priority 2 : virgin scenarios
+    for (scenId = 0; scenId < nbScens(); ++scenId)
+      if (scenBusy(scenId))
+        continue;
+      if ((highestScenSuccessId(scenId) == -1) && (lowestScenFailureId(scenId) == nbVars())) {
+        for (int varId = globalMarginVarId_; varId < nbVars(); ++varId)
+          if (liOK(varId)) {
+            varIdRet = varId;
+            return true;
+          }
+      }
+
+    // priority 3 : scenarios that fail above globalMargin+1 ?
+
+    return false;
   }
 
-  int highestLIOKVarId = getHighestLISuccessVarId();
-  if (highestLIOKVarId >= 0)
-    return highestLIOKVarId;
+  assert(!searchingGlobalMargin());
 
-  return std::max(getLowestLIFailureVarId()-1, 0);
+
+
+  for (scenId = 0; scenId < nbScens(); ++scenId) {
+    if (scenClosed(scenId) || scenBusy(scenId))
+      continue;
+    if ((highestScenSuccessId(scenId) == -1) && (lowestScenFailureId(scenId) == nbVars())) {  // virgin scenario
+      varIdRet = highestLISuccessId();
+      return true;
+    } else if ((highestScenSuccessId(scenId) >= 0) && (lowestScenFailureId(scenId) < nbVars())) {  // properly bounded dichotomy
+      varIdRet = getLiOKBetween(highestScenSuccessId(scenId), lowestScenFailureId(scenId));
+      if (varIdRet >= 0)
+        return true;
+    } else if (highestScenSuccessId(scenId) >= 0) {  // only successes
+      if (highestLISuccessId() > highestScenSuccessId(scenId)) {
+        varIdRet = highestLISuccessId();
+        return true;
+      }
+    } else {  // only failures
+      if (liOK(0) && !scenDone(scenId, 0)) {
+        varIdRet = 0;
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+void
+MarginCalculationLauncher::updateResults(int varId, int scenId, bool success) {
+  if (varId < 0)
+    return;
+
+  if (scenId < 0) {
+    std::cout << "at " << (boost::posix_time::second_clock::local_time() - t0_).total_milliseconds()/1000 << "s : ";
+    std::cout << "LI " << discreteVars_[varId] << "% " << (success ? "success" : "failure") << std::endl;
+
+    SimulationResult & result = results_[varId].getResult();
+    result.setVariation(discreteVars_[varId]);
+    result.setSuccess(success);
+  } else {
+    std::cout << "at " << (boost::posix_time::second_clock::local_time() - t0_).total_milliseconds()/1000 << "s : ";
+    std::cout << "scen " << scenId << " at " << discreteVars_[varId] << "% " << (success ? "success" : "failure") << std::endl;
+
+    SimulationResult & result = results_[varId].getScenarioResult(scenId);
+    result.setScenarioId(getScen(scenId)->getId());  // mark it as run for result collection
+    result.setVariation(discreteVars_[varId]);
+    result.setSuccess(success);
+  }
+
+  if (!success) {
+    globalMarginVarId_ = std::min(globalMarginVarId_, varId-1);
+    globalMarginVarId_ = std::max(globalMarginVarId_, 0);
+  }
+
+  for (int scenId = 0; scenId < nbScens(); ++scenId) {
+    int successId = highestScenSuccessId(scenId);
+    if ((successId == varId100()) ||
+        (searchingGlobalMargin() && (successId >= globalMarginVarId_)) ||
+        liDone(successId+1) && (!liOK(successId+1)) ||
+        scenDone(scenId, successId+1))
+
+      marginScens_[scenId] = discreteVars_[std::max(successId, 0)];
+  }
 }
 
 int
-MarginCalculationLauncher::getVarIdBetween(int varIdMin, int varIdMax) const {
-  if (isWorkerThread()) {
-    int msg[3] = {REQ_LOAD_INC_NEXT, varIdMin, varIdMax};
-  #ifdef _MPI_
-    MPI_Send(msg, 3, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Recv(msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  #endif  // _MPI_
-    return msg[0];
-  }
-
-  int varIdClosest  = mid(varIdMin+varIdMax);
+MarginCalculationLauncher::getLiOKBetween(int varIdMin, int varIdMax) const {
+  int varIdClosest = -1;
   int distMin = 1000;
 
   // find the already computed LI closest to the middle
   for (int varId = varIdMin+1; varId <= varIdMax-1; ++varId) {
-    if (liDone(varId)) {
+    if (liOK(varId)) {
       int dist = std::abs(varId-mid(varIdMin+varIdMax));
       if (dist < distMin) {
         varIdClosest = varId;
@@ -406,97 +376,13 @@ MarginCalculationLauncher::getVarIdBetween(int varIdMin, int varIdMax) const {
     }
   }
 
-  if (isSingleThread() || (distMin < 1000))
-    return varIdClosest;
-
-  assert(isServerThread());
-
-  // no already computed LI between boundaries : find the one that is hopefully closest to completion
-  int varIdOldest = -1;
-  for (int varId = varIdMin+1; varId <= varIdMax-1; ++varId)
-    if (liStarted(varId) && ((varIdOldest < 0) || (startingTimes_[varId] < startingTimes_[varIdOldest])))
-      varIdOldest = varId;
-
-  return (varIdOldest >= 0) ? varIdOldest : mid(varIdMin+varIdMax);
-}
-
-int
-MarginCalculationLauncher::getGlobalMarginVarId() const {
-  if (isWorkerThread()) {
-    int msg = REQ_GLOBAL_MARGIN;
-  #ifdef _MPI_
-    MPI_Send(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Recv(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  #endif  // _MPI_
-    return msg;
-  }
-
-  return globalMarginVarId_;
-}
-
-int
-MarginCalculationLauncher::getLowestLIFailureVarId() const {
-  if (isWorkerThread()) {
-    int msg = REQ_LOAD_INC_LOWEST_FAIL;
-  #ifdef _MPI_
-    MPI_Send(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Recv(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-  #endif  // _MPI_
-    return msg;
-  }
-
-  for (int varId = 0; varId < nbVars(); ++varId)
-      if (liDone(varId) && !liOK(varId))
-        return varId;
-
-  return varId100()+1;
-}
-
-int
-MarginCalculationLauncher::getHighestLISuccessVarId() const {
-  if (isWorkerThread()) {
-    int msg = REQ_LOAD_INC_HIGHEST_SUCCESS;
-#ifdef _MPI_
-    MPI_Send(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Recv(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-#endif  // _MPI_
-    return msg;
-  }
-
-  for (int varId = varId100(); varId >= 0; --varId)
-      if (liDone(varId) && liOK(varId))
-        return varId;
-
-  return -1;
-}
-
-void
-MarginCalculationLauncher::limitVarIdSup(int & varIdSup) const {
-  varIdSup = std::min(varIdSup, getLowestLIFailureVarId());
-
-  if (searchingGlobalMargin())
-    varIdSup = std::min(varIdSup, getGlobalMarginVarId()+1);
-}
-
-bool
-MarginCalculationLauncher::getNextScenId(int & scenId) const {
-  ++scenId;  // monothread : simply increment ID
-
-  if (isWorkerThread()) {  // multithread : request ID to server (root process) instead, who centralizes incrementations
-    int msg = REQ_SCEN_ID;
-#ifdef _MPI_
-    MPI_Send(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Recv(&msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-#endif  // _MPI_
-    scenId = msg;
-  }
-
-  return scenId < nbScens();
+  return varIdClosest;
 }
 
 int
 MarginCalculationLauncher::getAnticipatedLoadIncreaseVarId() const {
-  assert(isServerThread());
+  if (!liStarted(varId100()))
+    return varId100();
 
   if (!liStarted(0))
     return 0;
@@ -504,28 +390,18 @@ MarginCalculationLauncher::getAnticipatedLoadIncreaseVarId() const {
   std::vector<int> scenVotes((size_t)nbVars(), 0);
 
   for (int scenId = 0; scenId < nbScens(); ++scenId) {
-    if (marginScens_[scenId] >= 0)  // scenario finished, no vote
+    if (scenClosed(scenId))  // scenario finished, no vote
       continue;
 
-    int highestSuccess = -1, lowestFailure = nbVars();
-    for (int varId = 0; varId< nbVars(); ++varId) {
-      if (scenDone(scenId, varId)) {
-        if (results_[varId].getScenarioResult(scenId).getSuccess()) {
-          highestSuccess = varId;
-        } else {
-          lowestFailure = varId;
-          break;
-        }
-      }
-    }
-
-    for (int varId = highestSuccess+1; varId < lowestFailure; ++varId)  // one vote for each load increase level that interests this scenario
+    for (int varId = highestScenSuccessId(scenId)+1; varId < lowestScenFailureId(scenId); ++varId)
       if (!liStarted(varId))
         ++scenVotes[varId];
   }
 
   int varIdSup = varId100();
-  limitVarIdSup(varIdSup);
+  varIdSup = std::min(varIdSup, lowestLIFailureId());
+  if (searchingGlobalMargin())
+    varIdSup = std::min(varIdSup, globalMarginVarId_+1);
 
   int bestCandidate = -1;
   int maxVotes = 1;
@@ -547,128 +423,89 @@ MarginCalculationLauncher::getAnticipatedLoadIncreaseVarId() const {
   return bestCandidate;
 }
 
-bool
-MarginCalculationLauncher::checkLoadIncreaseStatus(int varId, bool & liSuccess, int & liVarIdToLaunch) {
-  if (liDone(varId)) {
-    liSuccess = liOK(varId);
-    return true;
-  }
+int
+MarginCalculationLauncher::findMaxLoadIncrease() {
+  if (launchLoadIncreaseWrapper(varId100()))
+    return varId100();
 
-  if (isSingleThread()) {
-    liVarIdToLaunch = varId;
+  if (!launchLoadIncreaseWrapper(0))
+    return 0;
+
+  int varIdInf = 0;  // lowest known that succeeds
+  int varIdSup = varId100();  // highest known that fails
+
+  while (varIdSup > varIdInf+1)
+    (launchLoadIncreaseWrapper(mid(varIdInf+varIdSup)) ? varIdInf : varIdSup) = mid(varIdInf+varIdSup);
+
+  return varIdInf;
+}
+
+bool
+MarginCalculationLauncher::launchLoadIncreaseWrapper(int varId, int workerId) {
+  startingTimesLI_[varId] = boost::posix_time::second_clock::local_time();
+
+  if (isServerThread()) {
+#ifdef _MPI_
+    int msg[2] = {varId, -1};
+    MPI_Send(msg, 2, MPI_INT, workerId, 0, MPI_COMM_WORLD);
     return false;
-  }
-
-  if (isWorkerThread()) {
-#ifdef _MPI_
-    int msg[2] = {REQ_LOAD_INC_STATUS, varId};
-    MPI_Send(msg, 2, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Recv(msg, 2, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    liSuccess = msg[1] > 0;
-    liVarIdToLaunch = msg[1];
-    return msg[0] > 0;
 #endif  // _MPI_
   }
 
-  assert(isServerThread());
+  std::cout << "at " << (boost::posix_time::second_clock::local_time() - t0_).total_milliseconds()/1000 << "s : ";
+  std::cout << "launching LI " << discreteVars_[varId] << "%" << std::endl;
 
-  if (!liStarted(varId))
-    liVarIdToLaunch = varId;
-  else if ((boost::posix_time::second_clock::local_time() - startingTimes_[varId]).total_milliseconds() < 5000)
-    liVarIdToLaunch = getAnticipatedLoadIncreaseVarId();
-  else
-    liVarIdToLaunch = -1;
-
-  if (liVarIdToLaunch >= 0)
-    startingTimes_[liVarIdToLaunch] = boost::posix_time::second_clock::local_time();
-  return false;
-}
-
-void
-MarginCalculationLauncher::updateScenMargin(int scenId, int scenMarginVarId) {
-  if (isWorkerThread()) {
-#ifdef _MPI_
-    int msg[3] = {FDB_SCEN_MARGIN, scenId, scenMarginVarId};
-    MPI_Send(msg, 3, MPI_INT, 0, 0, MPI_COMM_WORLD);
-#endif  // _MPI_
-    return;
-  }
-
-  marginScens_[scenId] = discreteVars_[scenMarginVarId];
-}
-
-void
-MarginCalculationLauncher::updateGlobalMargin(int varIdFail) {
-  globalMarginVarId_ = std::min(globalMarginVarId_, varIdFail-1);
-  globalMarginVarId_ = std::max(globalMarginVarId_, 0);
-}
-
-bool
-MarginCalculationLauncher::allScensFinished() const {
-  for (int scenId = 0; scenId < nbScens(); ++scenId)
-    if (marginScens_[scenId] < 0)
-      return false;
-
-  return true;
-}
-
-bool
-MarginCalculationLauncher::launchLoadIncreaseWrapper(int varId) {
-  TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, discreteVars_[varId]) << Trace::endline;
+  // TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, discreteVars_[varId]) << Trace::endline;
 
   const boost::shared_ptr<LoadIncrease> & loadIncrease = mc_->getLoadIncrease();
   inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
   SimulationResult & result = results_[varId].getResult();
   launchLoadIncrease(loadIncrease, discreteVars_[varId], result);
 
-  if (isWorkerThread()) {
-#ifdef _MPI_
-    int msg[3] = {FDB_LOAD_INC, varId, result.getSuccess() ? 1 : 0};
-    MPI_Send(&msg, 3, MPI_INT, 0, 0, MPI_COMM_WORLD);
+  if (isWorkerThread())
     exportResult(result);
-#endif  // _MPI_
-  }
+  else
+    updateResults(varId, -1, result.getSuccess());
 
-  TraceInfo(logTag_) << Trace::endline;
+  // TraceInfo(logTag_) << Trace::endline;
   return result.getSuccess();
 }
 
 bool
-MarginCalculationLauncher::launchScenarioWrapper(int scenId, int varId) {
-  bool liSuccess;
-  int liVarIdToLaunch;
-  while (!checkLoadIncreaseStatus(varId, liSuccess, liVarIdToLaunch))
-    launchLoadIncreaseWrapper(liVarIdToLaunch);
+MarginCalculationLauncher::launchScenarioWrapper(int scenId, int varId, int workerId) {
+  startingTimesScens_[scenId][varId] = boost::posix_time::second_clock::local_time();
 
-  if (!liSuccess)
+  if (isServerThread()) {
+#ifdef _MPI_
+    int msg[2] = {varId, scenId};
+    MPI_Send(msg, 2, MPI_INT, workerId, 0, MPI_COMM_WORLD);
     return false;
+#endif  // _MPI_
+  }
 
-  int variation = discreteVars_[varId];
+  std::cout << "at " << (boost::posix_time::second_clock::local_time() - t0_).total_milliseconds()/1000 << "s : ";
+  std::cout << "launching scen " << scenId << " at " << discreteVars_[varId] << "%" << std::endl;
 
-  std::string iidmFile = idmFileNameFromVariation(variation);
+  std::string iidmFile = idmFileNameFromVariation(discreteVars_[varId]);
   if (inputsByIIDM_.count(iidmFile) == 0)  // read inputs only if not already existing with enough variants defined
     inputsByIIDM_[iidmFile].readInputs(workingDirectory_, mc_->getScenarios()->getJobsFile(), iidmFile);
 
   SimulationResult & resultScen = results_[varId].getScenarioResult(scenId);
-  launchScenario(inputsByIIDM_[iidmFile], getScen(scenId), variation, resultScen);
+  launchScenario(inputsByIIDM_[iidmFile], getScen(scenId), discreteVars_[varId], resultScen);
   TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, resultScen.getUniqueScenarioId(), getStatusAsString(resultScen.getStatus()))
                      << Trace::endline << Trace::endline;
 
-  if (isWorkerThread()) {
-#ifdef _MPI_
-    int msg[4] = {FDB_SCEN_SINGLE, scenId, varId, resultScen.getSuccess() ? 1 : 0};
-    MPI_Send(&msg, 4, MPI_INT, 0, 0, MPI_COMM_WORLD);
+  if (isWorkerThread())
     exportResult(resultScen);
-#endif  // _MPI_
-  } else if (!resultScen.getSuccess()) {
-    updateGlobalMargin(varId);
-  }
+  else
+    updateResults(varId, scenId, resultScen.getSuccess());
+
 
   return resultScen.getSuccess();
 }
 
 void
-MarginCalculationLauncher::finish(boost::posix_time::ptime & t0) {
+MarginCalculationLauncher::finish() {
   TraceInfo(logTag_) << "============================================================ " << Trace::endline;
   TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, discreteVars_[globalMarginVarId_]) << Trace::endline;
   if (!searchingGlobalMargin()) {
@@ -676,7 +513,7 @@ MarginCalculationLauncher::finish(boost::posix_time::ptime & t0) {
       TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueScenario, getScen(scenId)->getId(), marginScens_[scenId]) << Trace::endline;
   }
   boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-  boost::posix_time::time_duration diff = t1 - t0;
+  boost::posix_time::time_duration diff = t1 - t0_;
   TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
   TraceInfo(logTag_) << "============================================================ " << Trace::endline;
 
@@ -919,4 +756,200 @@ MarginCalculationLauncher::idmFileNameFromVariation(double variation) const {
   return createAbsolutePath(iidmFile.str(), workingDirectory_);
 }
 
+
+
+
+
+
 }  // namespace DYNAlgorithms
+
+
+
+
+
+
+  // int varIdClosest  = mid(varIdMin+varIdMax);
+  // int distMin = 1000;
+
+  // // find the already computed LI closest to the middle
+  // for (int varId = varIdMin+1; varId <= varIdMax-1; ++varId) {
+  //   if (liDone(varId)) {
+  //     int dist = std::abs(varId-mid(varIdMin+varIdMax));
+  //     if (dist < distMin) {
+  //       varIdClosest = varId;
+  //       distMin = dist;
+  //     }
+  //   }
+  // }
+
+  // if (isSingleThread() || (distMin < 1000))
+  //   return varIdClosest;
+
+  // assert(isServerThread());
+
+  // // no already computed LI between boundaries : find the one that is hopefully closest to completion
+  // int varIdOldest = -1;
+  // for (int varId = varIdMin+1; varId <= varIdMax-1; ++varId)
+  //   if (liStarted(varId) && ((varIdOldest < 0) || (startingTimes_[varId] < startingTimes_[varIdOldest])))
+  //     varIdOldest = varId;
+
+  // return (varIdOldest >= 0) ? varIdOldest : mid(varIdMin+varIdMax);
+
+  //   int scenId = -1;
+//   while (getNextScenId(scenId)) {
+//     int varIdInf = 0;
+//     int varIdSup = getVarIdStart();
+
+//     if (launchScenarioWrapper(scenId, varIdSup)) {
+//       if (searchingGlobalMargin() || (varIdSup == varId100())) {
+//         // max possible varID success : scenario finished
+//         updateScenMargin(scenId, varIdSup);
+//         continue;
+//       } else {  // local margin computation and possible valid load increases above
+//         varIdInf = varIdSup;
+//         varIdSup == varId100();
+//       }
+//     }
+
+//     if (isSingleThread() && !liOK(varId100()) && !liDone(0))
+//       launchLoadIncreaseWrapper(0);  // check that the situation itself is not badly conditioned (happens)
+
+//     limitVarIdSup(varIdSup);
+
+//     while (varIdSup > varIdInf+1) {
+//       int varIdNext = getVarIdBetween(varIdInf, varIdSup);
+//       if (launchScenarioWrapper(scenId, varIdNext)) {
+//         varIdInf = varIdNext;
+//       } else {
+//         varIdSup = varIdNext;
+//         // heuristic optim : test zero only if 50% fails
+//         if ((varIdInf == 0) && !scenDone(scenId, 0))
+//           if (!launchScenarioWrapper(scenId, 0))
+//             break;
+//       }
+//       limitVarIdSup(varIdSup);
+//     }
+//     updateScenMargin(scenId, varIdInf);
+//   }
+
+//   if (isSingleThread()) {
+//     finish(t0);
+//     return;
+//   }
+
+
+
+//   boost::posix_time::ptime serverStart = boost::posix_time::second_clock::local_time();
+
+//   int scenId = 0;
+
+
+//   while (workersLeft.size() > 0) {
+//     MPI_Status senderInfo;
+//     int msg[4];
+//     MPI_Recv(msg, 4, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &senderInfo);
+//     if (msg[0] == REQ_SCEN_ID) {
+//       ++scenId;
+
+//           MPI_Send(msg, 2, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
+//           if (liVarIdToLaunch != liVarIdToCheck) {
+//             std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
+//             std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch]
+//                       << "% while waiting for "  << discreteVars_[liVarIdToCheck] << "%" << std::endl;
+//           } else {
+//             std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
+//             std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch] << "%" << std::endl;
+//           }
+//         } else {
+//           // if (delayedAnswers.find(liVarIdToCheck) == delayedAnswers.end())
+//           //   delayedAnswers[liVarIdToCheck] = std::vector<int>();
+//           delayedAnswers[liVarIdToCheck].push_back(senderInfo.MPI_SOURCE);
+//           std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
+//           std::cout << "putting thread " << senderInfo.MPI_SOURCE << " on hold for LI " << discreteVars_[liVarIdToCheck] << "% result" << std::endl;
+//         }
+//       }
+//     } else if (msg[0] == REQ_LOAD_INC_IDLE) {
+//       int liVarId = allScensFinished() ? -1 : getAnticipatedLoadIncreaseVarId();
+//       MPI_Send(&liVarId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
+//       if (liVarId < 0) {
+//         workersLeft.erase(senderInfo.MPI_SOURCE);
+//       } else {
+//         startingTimes_[liVarId] = boost::posix_time::second_clock::local_time();
+//         std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
+//         std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarId]
+//                   << "% while waiting for other threads to finish " << std::endl;
+//       }
+//     } else if (msg[0] == FDB_SCEN_SINGLE) {
+
+//     } else if (msg[0] == FDB_SCEN_MARGIN) {
+//       updateScenMargin(msg[1], msg[2]);
+//       if (allScensFinished()) {
+//         finish(serverStart);
+//         std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
+//         std::cout << "server thread finished, results written" << std::endl;
+//       }
+//     } else {
+//       // ToDo : log error
+//     }
+//   }
+// #endif  // _MPI_
+
+
+    // int highestScenSuccess = -1, lowestScenFailure = nbVars();
+    // for (int varId = 0; varId< nbVars(); ++varId) {
+    //   if (scenDone(scenId, varId)) {
+    //     if (results_[varId].getScenarioResult(scenId).getSuccess()) {
+    //       highestScenSuccess = varId;
+    //     } else {
+    //       lowestScenFailure = varId;
+    //       break;
+    //     }
+    //   }
+    // }
+
+
+//     int
+// MarginCalculationLauncher::getVarIdStart() const {
+//   if (searchingGlobalMargin()) {
+//     if (liDone(globalMarginVarId_))
+//       return globalMarginVarId_;
+//     if ((globalMarginVarId_ < varId100()) && liDone(globalMarginVarId_+1))
+//       return globalMarginVarId_+1;
+//   }
+
+//   int highestLIOKVarId = getHighestLISuccessVarId();
+//   if (highestLIOKVarId >= 0)
+//     return highestLIOKVarId;
+
+//   return std::max(getLowestLIFailureVarId()-1, 0);
+// }
+
+
+// bool
+// MarginCalculationLauncher::checkLoadIncreaseStatus(int varId, bool & liSuccess, int & liVarIdToLaunch) {
+//   if (liDone(varId)) {
+//     liSuccess = liOK(varId);
+//     return true;
+//   }
+
+//   if (isSingleThread()) {
+//     liVarIdToLaunch = varId;
+//     return false;
+//   }
+
+//   assert(isServerThread());
+
+//   if (!liStarted(varId))
+//     liVarIdToLaunch = varId;
+//   else if ((boost::posix_time::second_clock::local_time() - startingTimes_[varId]).total_milliseconds() < 5000)
+//     liVarIdToLaunch = getAnticipatedLoadIncreaseVarId();
+//   else
+//     liVarIdToLaunch = -1;
+
+//   if (liVarIdToLaunch >= 0)
+//     startingTimes_[liVarIdToLaunch] = boost::posix_time::second_clock::local_time();
+//   return false;
+// }
+
+
+

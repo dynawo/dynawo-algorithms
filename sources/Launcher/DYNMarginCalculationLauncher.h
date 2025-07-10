@@ -121,7 +121,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param varId the variation level of the load increase simulation
    * @returns the corresponding dir path
    */
-  bool launchLoadIncreaseWrapper(int varId);
+  bool launchLoadIncreaseWrapper(int varId, int workerId = -1);
 
   /**
    * @brief checks that the load increase works for that variation level, then run the scenario with outputs from load increase if it does
@@ -129,13 +129,12 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @param varId the variation level at which to run it
    * @returns the corresponding dir path
    */
-  bool launchScenarioWrapper(int scenId, int varId);
+  bool launchScenarioWrapper(int scenId, int varId, int workerId = -1);
 
   /**
    * @brief wrap-up with synthetic log and files outputting
-   * @param t0 posix time at which the computations started, for duration output
    */
-  void finish(boost::posix_time::ptime & t0);
+  void finish();
 
   /**
    * @brief choose the next scenario to compute for this thread, by incrementing it locally in monothreaded or asking the server to do it otherwise
@@ -143,12 +142,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @returns whether the new scenario ID is valid and to actually be computed
    */
   bool getNextScenId(int & scenId) const;
-
-  /**
-   * @brief choose a reasonable variation level at which to start a new scenario, whether locally or by asking the server
-   * @returns the variation level at which to run the first simulation of the scenario
-   */
-  int getVarIdStart() const;
 
   /**
    * @brief choose a reasonable variation level at which to try the next step of the dichotomy,
@@ -163,22 +156,23 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    * @brief get the lowest known variation level at which the load increase fails, remotely by asking the server if a worker thread
    * @returns said varId (i.e, variation level), or the search space upper bound if none is known to fail
    */
-  int getLowestLIFailureVarId() const;
+  int lowestLIFailureId() const;
 
   /**
    * @brief get the highest known variation level at which the load increase succeeds, remotely by asking the server if a worker thread
    * @returns said varId (i.e, variation level), or the search space lower bound if none is known to succeeds
    */
-  int getHighestLISuccessVarId() const;
+  int highestLISuccessId() const;
 
 
-  int getGlobalMarginVarId() const;
-  bool checkLoadIncreaseStatus(int varId, bool & success, int & liVarIdToLaunch);
-  int getAnticipatedLoadIncreaseVarId() const;
-  void limitVarIdSup(int & varIdSup) const;
-  void updateScenMargin(int scenId, int scenMarginVarId);
+  int lowestScenFailureId(int scenId) const;
+  int highestScenSuccessId(int scenId) const;
+  bool scenBusy(int scenId) const;
   bool allScensFinished() const;
-  void updateGlobalMargin(int varIdFail);
+  void updateResults(int varId, int scenId, bool success);
+  int getAnticipatedLoadIncreaseVarId() const;
+  bool getScenVarId(int & varIdRet, int & scenId) const;
+  int getLiOKBetween(int varIdMin, int varIdMax) const;
 
   inline boost::shared_ptr<Scenario> getScen(int scenId) const;
   inline int nbScens() const;
@@ -188,21 +182,25 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   inline bool liStarted(int varId) const;
   inline bool liDone(int varId) const;
   inline bool liOK(int varId) const;
+  inline bool scenStarted(int scenId, int varId) const;
+  inline bool scenClosed(int scenId) const;
   inline bool scenDone(int scenId, int varId) const;
+  inline bool scenOK(int scenId, int varId) const;
 
  private:
   boost::shared_ptr<MarginCalculation> mc_;
   std::map<std::string, MultiVariantInputs> inputsByIIDM_;  ///< For scenarios, the contexts to use, by IIDM file
   double tLoadIncrease_;  ///< maximum stop time for the load increase part
   double tScenario_;  ///< stop time for the scenario part
+  boost::posix_time::ptime t0_;
   int globalMarginVarId_;
   std::vector<int> discreteVars_;
   std::vector<int> marginScens_;  ///< the final margins of each scenario, in percentage
   std::vector<LoadIncreaseResult> results_;  ///< results of the systematic analysis, by variation level
-  std::vector<boost::posix_time::ptime> startingTimes_;  ///< times at which the server ordered a worker to run a load incease, by variation level
+  std::vector<boost::posix_time::ptime> startingTimesLI_;  ///< times at which the server ordered a worker to run a load incease, by variation level
+  std::vector<std::vector<boost::posix_time::ptime> > startingTimesScens_;  ///< times at which the server ordered a worker to run a scenario
 };
 
 }  // namespace DYNAlgorithms
-
 
 #endif  // LAUNCHER_DYNMARGINCALCULATIONLAUNCHER_H_
