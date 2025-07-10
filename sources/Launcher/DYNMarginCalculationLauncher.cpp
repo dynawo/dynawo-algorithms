@@ -90,6 +90,7 @@ inline bool MarginCalculationLauncher::searchingGlobalMargin() const  {return mc
 inline bool MarginCalculationLauncher::liStarted(int varId) const     {return !startingTimes_[varId].is_not_a_date_time();}
 inline bool MarginCalculationLauncher::liDone(int varId) const        {return results_[varId].getResult().getVariation() >= 0;}
 inline bool MarginCalculationLauncher::liOK(int varId) const          {return results_[varId].getResult().getSuccess();}
+inline bool MarginCalculationLauncher::scenDone(int scenId, int varId) const {return (results_[varId].getScenarioResult(scenId).getScenarioId() != "");}
 
 inline int mid(int val) {return (val+1)/2;}  // general biais towards upper roundings (mounting to load increase ceiling)
 
@@ -181,7 +182,7 @@ MarginCalculationLauncher::workerLoop() {
       } else {
         varIdSup = varIdNext;
         // heuristic optim : test zero only if 50% fails
-        if ((varIdInf == 0) && (results_[0].getScenarioResult(scenId).getScenarioId() == ""))
+        if ((varIdInf == 0) && !scenDone(scenId, 0))
           if (!launchScenarioWrapper(scenId, 0))
             break;
       }
@@ -469,25 +470,6 @@ MarginCalculationLauncher::getHighestLISuccessVarId() const {
   return -1;
 }
 
-int
-MarginCalculationLauncher::getHighestAllScensSuccessVarId() const {
-  int allScensHSVarId = varId100();
-  for (int scenId = 0; scenId < nbScens(); ++scenId) {
-    int scenHSVarId = -1;
-    for (int varId = varId100(); varId >= 0; --varId) {
-      const SimulationResult & result = results_[varId].getScenarioResult(scenId);
-      if ((result.getScenarioId() != "") && result.getSuccess()) {
-        scenHSVarId = varId;
-        break;
-      }
-    }
-    if (scenHSVarId == -1)
-      return -1;
-    allScensHSVarId = std::min(allScensHSVarId, scenHSVarId);
-  }
-  return allScensHSVarId;
-}
-
 void
 MarginCalculationLauncher::limitVarIdSup(int & varIdSup) const {
   varIdSup = std::min(varIdSup, getLowestLIFailureVarId());
@@ -496,7 +478,7 @@ MarginCalculationLauncher::limitVarIdSup(int & varIdSup) const {
     varIdSup = std::min(varIdSup, getGlobalMarginVarId()+1);
 }
 
-int
+bool
 MarginCalculationLauncher::getNextScenId(int & scenId) const {
   ++scenId;  // monothread : simply increment ID
 
@@ -519,25 +501,50 @@ MarginCalculationLauncher::getAnticipatedLoadIncreaseVarId() const {
   if (!liStarted(0))
     return 0;
 
-  int varIdMem = varId100();
-  limitVarIdSup(varIdMem);
+  std::vector<int> scenVotes((size_t)nbVars(), 0);
 
+  for (int scenId = 0; scenId < nbScens(); ++scenId) {
+    if (marginScens_[scenId] >= 0)  // scenario finished, no vote
+      continue;
+
+    int highestSuccess = -1, lowestFailure = nbVars();
+    for (int varId = 0; varId< nbVars(); ++varId) {
+      if (scenDone(scenId, varId)) {
+        if (results_[varId].getScenarioResult(scenId).getSuccess()) {
+          highestSuccess = varId;
+        } else {
+          lowestFailure = varId;
+          break;
+        }
+      }
+    }
+
+    for (int varId = highestSuccess+1; varId < lowestFailure; ++varId)  // one vote for each load increase level that interests this scenario
+      if (!liStarted(varId))
+        ++scenVotes[varId];
+  }
+
+  int varIdSup = varId100();
+  limitVarIdSup(varIdSup);
+
+  int bestCandidate = -1;
+  int maxVotes = 1;
   int widestGap = 0;
-  int varIdWidest = varIdMem;
-  int varIdFloor = std::max(0, getHighestAllScensSuccessVarId());
 
-  for (int varId = varIdMem - 1; varId >= varIdFloor; --varId) {
-    if (liStarted(varId)) {
-      int gap = varIdMem - varId;
-      varIdMem = varId;
-      if (gap > widestGap) {
-        varIdWidest = varId;
+  for (int varId = varIdSup - 1; varId > 0; --varId) {
+    if (scenVotes[varId] >= maxVotes) {
+      int gap = 1;
+      while (!liStarted(varId-gap) && !liStarted(varId+gap))
+        ++gap;
+      if ((scenVotes[varId] > maxVotes) || gap > widestGap) {
+        bestCandidate = varId;
+        maxVotes = scenVotes[varId];
         widestGap = gap;
       }
     }
   }
 
-  return (widestGap > 1) ? varIdWidest + mid(widestGap) : -1;  // preference for upper values (closing to load increase limits)
+  return bestCandidate;
 }
 
 bool

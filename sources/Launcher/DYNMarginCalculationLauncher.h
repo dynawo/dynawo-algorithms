@@ -106,7 +106,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   void serverLoop();
 
   /**
-   * @brief worker task : run the simulations as ordered by server, report results
+   * @brief worker task : run the simulations as ordered by server (or locally if monothreaded), report results
    */
   void workerLoop();
 
@@ -123,7 +123,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   bool launchLoadIncreaseWrapper(int varId);
 
-
   /**
    * @brief checks that the load increase works for that variation level, then run the scenario with outputs from load increase if it does
    * @param scenId the integer ID of the scenario to run
@@ -138,13 +137,41 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
    */
   void finish(boost::posix_time::ptime & t0);
 
+  /**
+   * @brief choose the next scenario to compute for this thread, by incrementing it locally in monothreaded or asking the server to do it otherwise
+   * @param scenId the integer ID of the current scenario, to be incremented locally or remotely
+   * @returns whether the new scenario ID is valid and to actually be computed
+   */
+  bool getNextScenId(int & scenId) const;
 
-  int getNextScenId(int & scenId) const;
+  /**
+   * @brief choose a reasonable variation level at which to start a new scenario, whether locally or by asking the server
+   * @returns the variation level at which to run the first simulation of the scenario
+   */
   int getVarIdStart() const;
+
+  /**
+   * @brief choose a reasonable variation level at which to try the next step of the dichotomy,
+   * preferably one for which the load increase as already been computed or should soon be
+   * @param varIdMin the lower bound of the valid range, not included in the search
+   * @param varIdMax the upper bound of the valid range, not included in the search
+   * @returns the variation level at which to run the next simulation of the scenario
+   */
   int getVarIdBetween(int varIdMin, int varIdMax) const;
+
+  /**
+   * @brief get the lowest known variation level at which the load increase fails, remotely by asking the server if a worker thread
+   * @returns said varId (i.e, variation level), or the search space upper bound if none is known to fail
+   */
   int getLowestLIFailureVarId() const;
+
+  /**
+   * @brief get the highest known variation level at which the load increase succeeds, remotely by asking the server if a worker thread
+   * @returns said varId (i.e, variation level), or the search space lower bound if none is known to succeeds
+   */
   int getHighestLISuccessVarId() const;
-  int getHighestAllScensSuccessVarId() const;
+
+
   int getGlobalMarginVarId() const;
   bool checkLoadIncreaseStatus(int varId, bool & success, int & liVarIdToLaunch);
   int getAnticipatedLoadIncreaseVarId() const;
@@ -161,6 +188,7 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   inline bool liStarted(int varId) const;
   inline bool liDone(int varId) const;
   inline bool liOK(int varId) const;
+  inline bool scenDone(int scenId, int varId) const;
 
  private:
   boost::shared_ptr<MarginCalculation> mc_;
