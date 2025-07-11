@@ -83,6 +83,8 @@ inline bool MarginCalculationLauncher::scenDone(int scenId, int varId) const {re
 inline bool MarginCalculationLauncher::scenOK(int scenId, int varId) const {return scenDone(scenId, varId) &&
                                                                                    results_[varId].getScenarioResult(scenId).getSuccess();}
 
+static const int PRIORITY_INVALID = 1000000;
+
 int
 MarginCalculationLauncher::lowestLIFailureId() const {
   for (int varId = 0; varId < nbVars(); ++varId)
@@ -119,23 +121,24 @@ MarginCalculationLauncher::highestScenSuccessId(int scenId) const {
   return -1;
 }
 
-bool
-MarginCalculationLauncher::scenBusy(int scenId) const {
+int
+MarginCalculationLauncher::scenNbThreads(int scenId) const {
+  int count = 0;
   for (int varId = 0; varId < nbVars(); ++varId)
     if (scenStarted(scenId, varId) && !scenDone(scenId, varId))
-      return true;
+      ++count;
 
-  return false;
+  return count;
 }
 
-bool
-MarginCalculationLauncher::allScensFinished() const {
-  for (int scenId = 0; scenId < nbScens(); ++scenId)
-    if (!scenClosed(scenId))
-      return false;
+// bool
+// MarginCalculationLauncher::allScensFinished() const {
+//   for (int scenId = 0; scenId < nbScens(); ++scenId)
+//     if (!scenClosed(scenId))
+//       return false;
 
-  return true;
-}
+//   return true;
+// }
 
 void
 MarginCalculationLauncher::initGlobals() {
@@ -224,14 +227,11 @@ MarginCalculationLauncher::launch() {
     }
 
     int varId, scenId;
-    if (getScenVarId(varId, scenId)) {
-      launchScenarioWrapper(scenId, varId, workerId);
-      continue;
-    }
-
-    varId = getAnticipatedLoadIncreaseVarId();
-    if (varId >= 0) {
-      launchLoadIncreaseWrapper(varId, workerId);
+    if (searchingGlobalMargin() ? getJobGlobal(varId, scenId) : getJobLocal(varId, scenId)) {
+      if (scenId >= 0)
+        launchScenarioWrapper(scenId, varId, workerId);
+      else
+        launchLoadIncreaseWrapper(varId, workerId);
       continue;
     }
 
@@ -249,7 +249,7 @@ MarginCalculationLauncher::launch() {
 }
 
 bool
-MarginCalculationLauncher::getScenVarId(int & varIdRet, int & scenId) const {
+MarginCalculationLauncher::getJobGlobal(int & varIdRet, int & scenId) const {
   if (highestLISuccessId() < 0)
     return false;
 
@@ -259,7 +259,7 @@ MarginCalculationLauncher::getScenVarId(int & varIdRet, int & scenId) const {
       int bestCandidate = -1;
       int biggestGap = -1;
       for (scenId = 0; scenId < nbScens(); ++scenId) {
-        if (scenClosed(scenId) || scenBusy(scenId) || (lowestScenFailureId(scenId) != (globalMarginVarId_+1)))
+        if (scenClosed(scenId) || (scenNbThreads(scenId) > 0) || (lowestScenFailureId(scenId) != (globalMarginVarId_+1)))
           continue;
         int gap = lowestScenFailureId(scenId)-highestScenSuccessId(scenId);
         if (gap > biggestGap) {
@@ -277,7 +277,7 @@ MarginCalculationLauncher::getScenVarId(int & varIdRet, int & scenId) const {
 
     // priority 2 : virgin scenarios
     for (scenId = 0; scenId < nbScens(); ++scenId)
-      if (scenBusy(scenId))
+      if (scenNbThreads(scenId) > 0)
         continue;
       if ((highestScenSuccessId(scenId) == -1) && (lowestScenFailureId(scenId) == nbVars())) {
         for (int varId = globalMarginVarId_; varId < nbVars(); ++varId)
@@ -292,34 +292,177 @@ MarginCalculationLauncher::getScenVarId(int & varIdRet, int & scenId) const {
     return false;
   }
 
-  assert(!searchingGlobalMargin());
+  return false;
+}
 
+bool
+MarginCalculationLauncher::getNextJob(int & varIdRet, int & scenIdRet) const {
+  if (!liStarted(varId100())) {
+    varIdRet = varId100();
+    scenIdRet = -1;
+    return true;
+  }
 
+  if (!liStarted(0)) {
+    varIdRet = 0;
+    scenIdRet = -1;
+    return true;
+  }
 
-  for (scenId = 0; scenId < nbScens(); ++scenId) {
-    if (scenClosed(scenId) || scenBusy(scenId))
-      continue;
+  // std::vector<int> scenVotes((size_t)nbVars(), 0);
+
+  // for (int scenId = 0; scenId < nbScens(); ++scenId) {
+  //   if (scenClosed(scenId))  // scenario finished, no vote
+  //     continue;
+
+  //   for (int varId = highestScenSuccessId(scenId)+1; varId < lowestScenFailureId(scenId); ++varId)
+  //     if (!liStarted(varId))
+  //       ++scenVotes[varId];
+  // }
+
+  // int varIdSup = varId100();
+  // varIdSup = std::min(varIdSup, lowestLIFailureId());
+  // if (searchingGlobalMargin())
+  //   varIdSup = std::min(varIdSup, globalMarginVarId_+1);
+
+  // int bestCandidate = 0;  // has 0 votes and 0 gap score, since liStarted(0) is true
+
+  // for (int varId = varIdSup - 1; varId > 0; --varId)
+  //   if ((scenVotes[varId] > scenVotes[bestCandidate]) ||
+  //      ((scenVotes[varId] == scenVotes[bestCandidate]) && (gapScore(varId) > gapScore(bestCandidate))))
+  //     bestCandidate = varId;
+
+  // if (scenVotes[bestCandidate] > 1) {
+  //   scenIdRet = -1;
+  //   varIdRet = bestCandidate;
+  //   return true;
+  // }
+
+  // priority 3+ : anticipation
+
+  int lowestPriority = PRIORITY_INVALID;
+
+  for (int scenId = 0; scenId < nbScens(); ++scenId)
+    if (!scenClosed(scenId)) {
+      int scenIdTask = scenId;
+      int priority, varIdTask;
+      getOpenScen(scenIdTask, varIdTask, priority);
+      if (priority < lowestPriority) {
+        varIdRet = varIdTask;
+        scenIdRet = scenIdTask;
+        lowestPriority = priority;
+      }
+    }
+
+  return lowestPriority < PRIORITY_INVALID;
+}
+
+void
+MarginCalculationLauncher::getOpenScenStatus(int & scenId, int & varId, int & priority) const {
+  int varIdSup = lowestScenFailureId(scenId);
+  int varIdInf = highestScenSuccessId(scenId);
+  varIdSup = std::min(varIdSup, highestLISuccessId());
+  if (searchingGlobalMargin())
+    varIdSup = std::min(varIdSup, globalMarginVarId_+1);
+
+  // LI with 100% chance to be used
+  if ((scenNbThreads(scenId) == 0) && (varIdSup > varIdInf+1)) {
     if ((highestScenSuccessId(scenId) == -1) && (lowestScenFailureId(scenId) == nbVars())) {  // virgin scenario
+      scenIdRet = scenId;
       varIdRet = highestLISuccessId();
-      return true;
+      if (highestLISuccessId() >= 0)
+        return true;
     } else if ((highestScenSuccessId(scenId) >= 0) && (lowestScenFailureId(scenId) < nbVars())) {  // properly bounded dichotomy
+      scenIdRet = scenId;
       varIdRet = getLiOKBetween(highestScenSuccessId(scenId), lowestScenFailureId(scenId));
       if (varIdRet >= 0)
         return true;
     } else if (highestScenSuccessId(scenId) >= 0) {  // only successes
       if (highestLISuccessId() > highestScenSuccessId(scenId)) {
+        scenIdRet = scenId;
         varIdRet = highestLISuccessId();
         return true;
       }
     } else {  // only failures
       if (liOK(0) && !scenDone(scenId, 0)) {
+        scenIdRet = scenId;
         varIdRet = 0;
         return true;
       }
     }
   }
 
-  return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    bool noWorkAtAll = true;
+    for (int varId = varIdInf+1; varId <= varIdSup-1; ++varId)
+      if (liStarted(varId))
+        noWorkAtAll = false;
+    if (noWorkAtAll) {
+      scenId = -1;
+      varId = mid(varIdInf+varIdSup);
+      priority = 2000 - gapScore(varId);
+      return;
+    }
+  }
+
+  priority = 3000;  // any available scen anticipation
+  for (varId = varIdSup-1; varId >= varIdInf+1; --varId)
+    if (liOK(varId) && !scenStarted(scenId, varId))
+      return;
+
+  int bestCandidate = -1;
+  for (varId = varIdSup-1; varId >= varIdInf+1; --varId)
+    if (gapScore(varId) > gapScore(bestCandidate))
+      bestCandidate = varId;
+
+  if (bestCandidate >= 0) {
+    scenId = -1;
+    varId = bestCandidate;
+    priority = 4000-gapScore(varId);  // widest LI anticipation
+    return;
+  }
+
+  priority = PRIORITY_INVALID;
+  return;
+}
+
+int
+MarginCalculationLauncher::gapScore(int varId) const {
+  if ((varId < 0) || liStarted(varId))
+    return 0;
+
+  int gapScore = 1;
+  int gap = 1;
+  bool limitReached = false;
+  while (!limitReached) {
+    if ((varId-gap < 0) || liStarted(varId-gap))
+      limitReached = true;
+    else
+      ++gapScore;
+
+    if ((varId+gap >= nbVars()) || liStarted(varId+gap))
+      limitReached = true;
+    else
+      ++gapScore;
+
+    ++gap;
+  }
+
+  return gapScore;
 }
 
 void
@@ -377,50 +520,6 @@ MarginCalculationLauncher::getLiOKBetween(int varIdMin, int varIdMax) const {
   }
 
   return varIdClosest;
-}
-
-int
-MarginCalculationLauncher::getAnticipatedLoadIncreaseVarId() const {
-  if (!liStarted(varId100()))
-    return varId100();
-
-  if (!liStarted(0))
-    return 0;
-
-  std::vector<int> scenVotes((size_t)nbVars(), 0);
-
-  for (int scenId = 0; scenId < nbScens(); ++scenId) {
-    if (scenClosed(scenId))  // scenario finished, no vote
-      continue;
-
-    for (int varId = highestScenSuccessId(scenId)+1; varId < lowestScenFailureId(scenId); ++varId)
-      if (!liStarted(varId))
-        ++scenVotes[varId];
-  }
-
-  int varIdSup = varId100();
-  varIdSup = std::min(varIdSup, lowestLIFailureId());
-  if (searchingGlobalMargin())
-    varIdSup = std::min(varIdSup, globalMarginVarId_+1);
-
-  int bestCandidate = -1;
-  int maxVotes = 1;
-  int widestGap = 0;
-
-  for (int varId = varIdSup - 1; varId > 0; --varId) {
-    if (scenVotes[varId] >= maxVotes) {
-      int gap = 1;
-      while (!liStarted(varId-gap) && !liStarted(varId+gap))
-        ++gap;
-      if ((scenVotes[varId] > maxVotes) || gap > widestGap) {
-        bestCandidate = varId;
-        maxVotes = scenVotes[varId];
-        widestGap = gap;
-      }
-    }
-  }
-
-  return bestCandidate;
 }
 
 int
@@ -756,200 +855,4 @@ MarginCalculationLauncher::idmFileNameFromVariation(double variation) const {
   return createAbsolutePath(iidmFile.str(), workingDirectory_);
 }
 
-
-
-
-
-
 }  // namespace DYNAlgorithms
-
-
-
-
-
-
-  // int varIdClosest  = mid(varIdMin+varIdMax);
-  // int distMin = 1000;
-
-  // // find the already computed LI closest to the middle
-  // for (int varId = varIdMin+1; varId <= varIdMax-1; ++varId) {
-  //   if (liDone(varId)) {
-  //     int dist = std::abs(varId-mid(varIdMin+varIdMax));
-  //     if (dist < distMin) {
-  //       varIdClosest = varId;
-  //       distMin = dist;
-  //     }
-  //   }
-  // }
-
-  // if (isSingleThread() || (distMin < 1000))
-  //   return varIdClosest;
-
-  // assert(isServerThread());
-
-  // // no already computed LI between boundaries : find the one that is hopefully closest to completion
-  // int varIdOldest = -1;
-  // for (int varId = varIdMin+1; varId <= varIdMax-1; ++varId)
-  //   if (liStarted(varId) && ((varIdOldest < 0) || (startingTimes_[varId] < startingTimes_[varIdOldest])))
-  //     varIdOldest = varId;
-
-  // return (varIdOldest >= 0) ? varIdOldest : mid(varIdMin+varIdMax);
-
-  //   int scenId = -1;
-//   while (getNextScenId(scenId)) {
-//     int varIdInf = 0;
-//     int varIdSup = getVarIdStart();
-
-//     if (launchScenarioWrapper(scenId, varIdSup)) {
-//       if (searchingGlobalMargin() || (varIdSup == varId100())) {
-//         // max possible varID success : scenario finished
-//         updateScenMargin(scenId, varIdSup);
-//         continue;
-//       } else {  // local margin computation and possible valid load increases above
-//         varIdInf = varIdSup;
-//         varIdSup == varId100();
-//       }
-//     }
-
-//     if (isSingleThread() && !liOK(varId100()) && !liDone(0))
-//       launchLoadIncreaseWrapper(0);  // check that the situation itself is not badly conditioned (happens)
-
-//     limitVarIdSup(varIdSup);
-
-//     while (varIdSup > varIdInf+1) {
-//       int varIdNext = getVarIdBetween(varIdInf, varIdSup);
-//       if (launchScenarioWrapper(scenId, varIdNext)) {
-//         varIdInf = varIdNext;
-//       } else {
-//         varIdSup = varIdNext;
-//         // heuristic optim : test zero only if 50% fails
-//         if ((varIdInf == 0) && !scenDone(scenId, 0))
-//           if (!launchScenarioWrapper(scenId, 0))
-//             break;
-//       }
-//       limitVarIdSup(varIdSup);
-//     }
-//     updateScenMargin(scenId, varIdInf);
-//   }
-
-//   if (isSingleThread()) {
-//     finish(t0);
-//     return;
-//   }
-
-
-
-//   boost::posix_time::ptime serverStart = boost::posix_time::second_clock::local_time();
-
-//   int scenId = 0;
-
-
-//   while (workersLeft.size() > 0) {
-//     MPI_Status senderInfo;
-//     int msg[4];
-//     MPI_Recv(msg, 4, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &senderInfo);
-//     if (msg[0] == REQ_SCEN_ID) {
-//       ++scenId;
-
-//           MPI_Send(msg, 2, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-//           if (liVarIdToLaunch != liVarIdToCheck) {
-//             std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-//             std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch]
-//                       << "% while waiting for "  << discreteVars_[liVarIdToCheck] << "%" << std::endl;
-//           } else {
-//             std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-//             std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarIdToLaunch] << "%" << std::endl;
-//           }
-//         } else {
-//           // if (delayedAnswers.find(liVarIdToCheck) == delayedAnswers.end())
-//           //   delayedAnswers[liVarIdToCheck] = std::vector<int>();
-//           delayedAnswers[liVarIdToCheck].push_back(senderInfo.MPI_SOURCE);
-//           std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-//           std::cout << "putting thread " << senderInfo.MPI_SOURCE << " on hold for LI " << discreteVars_[liVarIdToCheck] << "% result" << std::endl;
-//         }
-//       }
-//     } else if (msg[0] == REQ_LOAD_INC_IDLE) {
-//       int liVarId = allScensFinished() ? -1 : getAnticipatedLoadIncreaseVarId();
-//       MPI_Send(&liVarId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
-//       if (liVarId < 0) {
-//         workersLeft.erase(senderInfo.MPI_SOURCE);
-//       } else {
-//         startingTimes_[liVarId] = boost::posix_time::second_clock::local_time();
-//         std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-//         std::cout << "telling thread " << senderInfo.MPI_SOURCE << " to compute LI " << discreteVars_[liVarId]
-//                   << "% while waiting for other threads to finish " << std::endl;
-//       }
-//     } else if (msg[0] == FDB_SCEN_SINGLE) {
-
-//     } else if (msg[0] == FDB_SCEN_MARGIN) {
-//       updateScenMargin(msg[1], msg[2]);
-//       if (allScensFinished()) {
-//         finish(serverStart);
-//         std::cout << "at " << (boost::posix_time::second_clock::local_time() - serverStart).total_milliseconds()/1000 << "s : ";
-//         std::cout << "server thread finished, results written" << std::endl;
-//       }
-//     } else {
-//       // ToDo : log error
-//     }
-//   }
-// #endif  // _MPI_
-
-
-    // int highestScenSuccess = -1, lowestScenFailure = nbVars();
-    // for (int varId = 0; varId< nbVars(); ++varId) {
-    //   if (scenDone(scenId, varId)) {
-    //     if (results_[varId].getScenarioResult(scenId).getSuccess()) {
-    //       highestScenSuccess = varId;
-    //     } else {
-    //       lowestScenFailure = varId;
-    //       break;
-    //     }
-    //   }
-    // }
-
-
-//     int
-// MarginCalculationLauncher::getVarIdStart() const {
-//   if (searchingGlobalMargin()) {
-//     if (liDone(globalMarginVarId_))
-//       return globalMarginVarId_;
-//     if ((globalMarginVarId_ < varId100()) && liDone(globalMarginVarId_+1))
-//       return globalMarginVarId_+1;
-//   }
-
-//   int highestLIOKVarId = getHighestLISuccessVarId();
-//   if (highestLIOKVarId >= 0)
-//     return highestLIOKVarId;
-
-//   return std::max(getLowestLIFailureVarId()-1, 0);
-// }
-
-
-// bool
-// MarginCalculationLauncher::checkLoadIncreaseStatus(int varId, bool & liSuccess, int & liVarIdToLaunch) {
-//   if (liDone(varId)) {
-//     liSuccess = liOK(varId);
-//     return true;
-//   }
-
-//   if (isSingleThread()) {
-//     liVarIdToLaunch = varId;
-//     return false;
-//   }
-
-//   assert(isServerThread());
-
-//   if (!liStarted(varId))
-//     liVarIdToLaunch = varId;
-//   else if ((boost::posix_time::second_clock::local_time() - startingTimes_[varId]).total_milliseconds() < 5000)
-//     liVarIdToLaunch = getAnticipatedLoadIncreaseVarId();
-//   else
-//     liVarIdToLaunch = -1;
-
-//   if (liVarIdToLaunch >= 0)
-//     startingTimes_[liVarIdToLaunch] = boost::posix_time::second_clock::local_time();
-//   return false;
-// }
-
-
-

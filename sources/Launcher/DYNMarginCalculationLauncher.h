@@ -101,16 +101,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   void initGlobals();
 
   /**
-   * @brief server task : centralize results and decisions, attribute simulations to workers
-   */
-  void serverLoop();
-
-  /**
-   * @brief worker task : run the simulations as ordered by server (or locally if monothreaded), report results
-   */
-  void workerLoop();
-
-  /**
    * @brief find the maximal load increase variation level that passes by monothreaded dichotomic search
    * @returns the variation ID of to the maximum load increase level that passes simulation
    */
@@ -137,22 +127,6 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   void finish();
 
   /**
-   * @brief choose the next scenario to compute for this thread, by incrementing it locally in monothreaded or asking the server to do it otherwise
-   * @param scenId the integer ID of the current scenario, to be incremented locally or remotely
-   * @returns whether the new scenario ID is valid and to actually be computed
-   */
-  bool getNextScenId(int & scenId) const;
-
-  /**
-   * @brief choose a reasonable variation level at which to try the next step of the dichotomy,
-   * preferably one for which the load increase as already been computed or should soon be
-   * @param varIdMin the lower bound of the valid range, not included in the search
-   * @param varIdMax the upper bound of the valid range, not included in the search
-   * @returns the variation level at which to run the next simulation of the scenario
-   */
-  int getVarIdBetween(int varIdMin, int varIdMax) const;
-
-  /**
    * @brief get the lowest known variation level at which the load increase fails, remotely by asking the server if a worker thread
    * @returns said varId (i.e, variation level), or the search space upper bound if none is known to fail
    */
@@ -167,12 +141,14 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
 
   int lowestScenFailureId(int scenId) const;
   int highestScenSuccessId(int scenId) const;
-  bool scenBusy(int scenId) const;
-  bool allScensFinished() const;
-  void updateResults(int varId, int scenId, bool success);
-  int getAnticipatedLoadIncreaseVarId() const;
-  bool getScenVarId(int & varIdRet, int & scenId) const;
+  int scenNbThreads(int scenId) const;
+  // bool allScensFinished() const;
+  bool getJobGlobal(int & varIdRet, int & scenId) const;
+  bool getJobLocal(int & varIdRet, int & scenId) const;
+  void getOpenScenStatus(int & scenId, int & priority, int & varId) const;
   int getLiOKBetween(int varIdMin, int varIdMax) const;
+  int gapScore(int varId) const;
+  void updateResults(int varId, int scenId, bool success);
 
   inline boost::shared_ptr<Scenario> getScen(int scenId) const;
   inline int nbScens() const;
