@@ -143,11 +143,11 @@ class MarginCalculationLauncher : public RobustnessAnalysisLauncher {
   int highestScenSuccessId(int scenId) const;
   int scenNbThreads(int scenId) const;
   // bool allScensFinished() const;
-  bool getJobGlobal(int & varIdRet, int & scenId) const;
-  bool getJobLocal(int & varIdRet, int & scenId) const;
-  void getOpenScenStatus(int & scenId, int & priority, int & varId) const;
+  bool getNextTask(int & varIdRet, int & scenId) const;
+  void getNextTaskScen(int & scenId, int & varId, int & priority) const;
   int getLiOKBetween(int varIdMin, int varIdMax) const;
-  int gapScore(int varId) const;
+  int gapScoreLI(int varId) const;
+  int gapScoreScen(int varId, int scenId) const;
   void updateResults(int varId, int scenId, bool success);
 
   inline boost::shared_ptr<Scenario> getScen(int scenId) const;

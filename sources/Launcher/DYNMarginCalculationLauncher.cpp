@@ -227,118 +227,80 @@ MarginCalculationLauncher::launch() {
     }
 
     int varId, scenId;
-    if (searchingGlobalMargin() ? getJobGlobal(varId, scenId) : getJobLocal(varId, scenId)) {
+    if (getNextTask(varId, scenId)) {
       if (scenId >= 0)
         launchScenarioWrapper(scenId, varId, workerId);
       else
         launchLoadIncreaseWrapper(varId, workerId);
-      continue;
-    }
-
-    if (isServerThread()) {
-#ifdef _MPI_
-      int msg[2] = {-1, -1};
-      MPI_Send(msg, 2, MPI_INT, workerId, 0, MPI_COMM_WORLD);
-      workersLeft.erase(workerId);
-#endif  // _MPI_
     } else {
-      workersLeft.clear();
+      if (isServerThread()) {
+#ifdef _MPI_
+        int msg[2] = {-1, -1};
+        MPI_Send(msg, 2, MPI_INT, workerId, 0, MPI_COMM_WORLD);
+        workersLeft.erase(workerId);
+#endif  // _MPI_
+      } else {
+        workersLeft.clear();
+      }
     }
   }
   finish();
 }
 
+// bool
+// MarginCalculationLauncher::getJobGlobal(int & varIdRet, int & scenId) const {
+//   if (highestLISuccessId() < 0)
+//     return false;
+
+//   if (searchingGlobalMargin()) {
+//     // priority 1 : among the scenarios that we know fail at globalMargin+1, the one with the lower known success
+//     if (globalMarginVarId_ < varId100()) {
+//       int bestCandidate = -1;
+//       int biggestGap = -1;
+//       for (scenId = 0; scenId < nbScens(); ++scenId) {
+//         if (scenClosed(scenId) || (scenNbThreads(scenId) > 0) || (lowestScenFailureId(scenId) != (globalMarginVarId_+1)))
+//           continue;
+//         int gap = lowestScenFailureId(scenId)-highestScenSuccessId(scenId);
+//         if (gap > biggestGap) {
+//           bestCandidate = scenId;
+//           biggestGap = gap;
+//         }
+//       }
+//       if (bestCandidate >= 0) {
+//         scenId = bestCandidate;
+//         varIdRet = getLiOKBetween(highestScenSuccessId(scenId), lowestScenFailureId(scenId));
+//         if (varIdRet >=0)
+//           return true;
+//       }
+//     }
+
+//     // priority 2 : virgin scenarios
+//     for (scenId = 0; scenId < nbScens(); ++scenId)
+//       if (scenNbThreads(scenId) > 0)
+//         continue;
+//       if ((highestScenSuccessId(scenId) == -1) && (lowestScenFailureId(scenId) == nbVars())) {
+//         for (int varId = globalMarginVarId_; varId < nbVars(); ++varId)
+//           if (liOK(varId)) {
+//             varIdRet = varId;
+//             return true;
+//           }
+//       }
+
+//     // priority 3 : scenarios that fail above globalMargin+1 ?
+
+//     return false;
+//   }
+
+//   return false;
+// }
+
 bool
-MarginCalculationLauncher::getJobGlobal(int & varIdRet, int & scenId) const {
-  if (highestLISuccessId() < 0)
-    return false;
-
-  if (searchingGlobalMargin()) {
-    // priority 1 : among the scenarios that we know fail at globalMargin+1, the one with the lower known success
-    if (globalMarginVarId_ < varId100()) {
-      int bestCandidate = -1;
-      int biggestGap = -1;
-      for (scenId = 0; scenId < nbScens(); ++scenId) {
-        if (scenClosed(scenId) || (scenNbThreads(scenId) > 0) || (lowestScenFailureId(scenId) != (globalMarginVarId_+1)))
-          continue;
-        int gap = lowestScenFailureId(scenId)-highestScenSuccessId(scenId);
-        if (gap > biggestGap) {
-          bestCandidate = scenId;
-          biggestGap = gap;
-        }
-      }
-      if (bestCandidate >= 0) {
-        scenId = bestCandidate;
-        varIdRet = getLiOKBetween(highestScenSuccessId(scenId), lowestScenFailureId(scenId));
-        if (varIdRet >=0)
-          return true;
-      }
-    }
-
-    // priority 2 : virgin scenarios
-    for (scenId = 0; scenId < nbScens(); ++scenId)
-      if (scenNbThreads(scenId) > 0)
-        continue;
-      if ((highestScenSuccessId(scenId) == -1) && (lowestScenFailureId(scenId) == nbVars())) {
-        for (int varId = globalMarginVarId_; varId < nbVars(); ++varId)
-          if (liOK(varId)) {
-            varIdRet = varId;
-            return true;
-          }
-      }
-
-    // priority 3 : scenarios that fail above globalMargin+1 ?
-
-    return false;
-  }
-
-  return false;
-}
-
-bool
-MarginCalculationLauncher::getNextJob(int & varIdRet, int & scenIdRet) const {
+MarginCalculationLauncher::getNextTask(int & varIdRet, int & scenIdRet) const {
   if (!liStarted(varId100())) {
     varIdRet = varId100();
     scenIdRet = -1;
     return true;
   }
-
-  if (!liStarted(0)) {
-    varIdRet = 0;
-    scenIdRet = -1;
-    return true;
-  }
-
-  // std::vector<int> scenVotes((size_t)nbVars(), 0);
-
-  // for (int scenId = 0; scenId < nbScens(); ++scenId) {
-  //   if (scenClosed(scenId))  // scenario finished, no vote
-  //     continue;
-
-  //   for (int varId = highestScenSuccessId(scenId)+1; varId < lowestScenFailureId(scenId); ++varId)
-  //     if (!liStarted(varId))
-  //       ++scenVotes[varId];
-  // }
-
-  // int varIdSup = varId100();
-  // varIdSup = std::min(varIdSup, lowestLIFailureId());
-  // if (searchingGlobalMargin())
-  //   varIdSup = std::min(varIdSup, globalMarginVarId_+1);
-
-  // int bestCandidate = 0;  // has 0 votes and 0 gap score, since liStarted(0) is true
-
-  // for (int varId = varIdSup - 1; varId > 0; --varId)
-  //   if ((scenVotes[varId] > scenVotes[bestCandidate]) ||
-  //      ((scenVotes[varId] == scenVotes[bestCandidate]) && (gapScore(varId) > gapScore(bestCandidate))))
-  //     bestCandidate = varId;
-
-  // if (scenVotes[bestCandidate] > 1) {
-  //   scenIdRet = -1;
-  //   varIdRet = bestCandidate;
-  //   return true;
-  // }
-
-  // priority 3+ : anticipation
 
   int lowestPriority = PRIORITY_INVALID;
 
@@ -346,7 +308,7 @@ MarginCalculationLauncher::getNextJob(int & varIdRet, int & scenIdRet) const {
     if (!scenClosed(scenId)) {
       int scenIdTask = scenId;
       int priority, varIdTask;
-      getOpenScen(scenIdTask, varIdTask, priority);
+      getNextTaskScen(scenIdTask, varIdTask, priority);
       if (priority < lowestPriority) {
         varIdRet = varIdTask;
         scenIdRet = scenIdTask;
@@ -354,85 +316,93 @@ MarginCalculationLauncher::getNextJob(int & varIdRet, int & scenIdRet) const {
       }
     }
 
-  return lowestPriority < PRIORITY_INVALID;
+  if (lowestPriority < PRIORITY_INVALID)
+    return true;
+
+  if (!liDone(varId100())) {
+    scenIdRet = -1;
+
+    if (!liStarted(0)) {
+      varIdRet = 0;
+      return true;
+    }
+
+    varIdRet = 0;
+    for (int varId = varId100() -1 ; varId > 0; --varId)
+      if (gapScoreLI(varId) > gapScoreLI(varIdRet))
+        varIdRet = varId;
+    return true;
+  }
+
+  return false;
 }
 
 void
-MarginCalculationLauncher::getOpenScenStatus(int & scenId, int & varId, int & priority) const {
+MarginCalculationLauncher::getNextTaskScen(int & scenId, int & varIdRet, int & priority) const {
   int varIdSup = lowestScenFailureId(scenId);
-  int varIdInf = highestScenSuccessId(scenId);
-  varIdSup = std::min(varIdSup, highestLISuccessId());
+  varIdSup = std::min(varIdSup, highestLISuccessId()+1);
   if (searchingGlobalMargin())
     varIdSup = std::min(varIdSup, globalMarginVarId_+1);
 
-  // LI with 100% chance to be used
+  int varIdInf = highestScenSuccessId(scenId);
+
   if ((scenNbThreads(scenId) == 0) && (varIdSup > varIdInf+1)) {
+    // scen available and idle
+    priority = 1000-(varIdSup-varIdInf);
     if ((highestScenSuccessId(scenId) == -1) && (lowestScenFailureId(scenId) == nbVars())) {  // virgin scenario
-      scenIdRet = scenId;
       varIdRet = highestLISuccessId();
-      if (highestLISuccessId() >= 0)
-        return true;
+      return;
     } else if ((highestScenSuccessId(scenId) >= 0) && (lowestScenFailureId(scenId) < nbVars())) {  // properly bounded dichotomy
-      scenIdRet = scenId;
       varIdRet = getLiOKBetween(highestScenSuccessId(scenId), lowestScenFailureId(scenId));
       if (varIdRet >= 0)
-        return true;
+        return;
     } else if (highestScenSuccessId(scenId) >= 0) {  // only successes
       if (highestLISuccessId() > highestScenSuccessId(scenId)) {
-        scenIdRet = scenId;
         varIdRet = highestLISuccessId();
-        return true;
+        return;
       }
     } else {  // only failures
       if (liOK(0) && !scenDone(scenId, 0)) {
-        scenIdRet = scenId;
         varIdRet = 0;
-        return true;
+        return;
       }
     }
-  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // LI with 100% chance to be used
     bool noWorkAtAll = true;
     for (int varId = varIdInf+1; varId <= varIdSup-1; ++varId)
       if (liStarted(varId))
         noWorkAtAll = false;
     if (noWorkAtAll) {
       scenId = -1;
-      varId = mid(varIdInf+varIdSup);
-      priority = 2000 - gapScore(varId);
+      varIdRet = mid(varIdInf+varIdSup);
+      priority = 2000 - gapScoreLI(varIdRet);
       return;
     }
   }
 
-  priority = 3000;  // any available scen anticipation
-  for (varId = varIdSup-1; varId >= varIdInf+1; --varId)
-    if (liOK(varId) && !scenStarted(scenId, varId))
-      return;
+  // widest available scen anticipation
+  int bestScore = 0;
+  for (int varId = varIdSup-1; varId >= varIdInf+1; --varId)
+    if (gapScoreScen(varId, scenId) > bestScore) {
+      varIdRet = varId;
+      bestScore = gapScoreScen(varId, scenId);
+    }
+  if (bestScore > 0) {
+    priority = 3000-bestScore;
+    return;
+  }
 
+  // widest LI anticipation
   int bestCandidate = -1;
-  for (varId = varIdSup-1; varId >= varIdInf+1; --varId)
-    if (gapScore(varId) > gapScore(bestCandidate))
+  for (int varId = varIdSup-1; varId >= varIdInf+1; --varId)
+    if (gapScoreLI(varId) > gapScoreLI(bestCandidate))
       bestCandidate = varId;
 
   if (bestCandidate >= 0) {
     scenId = -1;
-    varId = bestCandidate;
-    priority = 4000-gapScore(varId);  // widest LI anticipation
+    varIdRet = bestCandidate;
+    priority = 4000-gapScoreLI(varIdRet);
     return;
   }
 
@@ -441,7 +411,7 @@ MarginCalculationLauncher::getOpenScenStatus(int & scenId, int & varId, int & pr
 }
 
 int
-MarginCalculationLauncher::gapScore(int varId) const {
+MarginCalculationLauncher::gapScoreLI(int varId) const {
   if ((varId < 0) || liStarted(varId))
     return 0;
 
@@ -455,6 +425,34 @@ MarginCalculationLauncher::gapScore(int varId) const {
       ++gapScore;
 
     if ((varId+gap >= nbVars()) || liStarted(varId+gap))
+      limitReached = true;
+    else
+      ++gapScore;
+
+    ++gap;
+  }
+
+  return gapScore;
+}
+
+int
+MarginCalculationLauncher::gapScoreScen(int varId, int scenId) const {
+  if (scenStarted(scenId, varId))
+    return 0;
+
+  if (!liDone(varId))
+    return 0;
+
+  int gapScore = 1;
+  int gap = 1;
+  bool limitReached = false;
+  while (!limitReached) {
+    if ((varId-gap < 0) || scenStarted(scenId, varId-gap))
+      limitReached = true;
+    else
+      ++gapScore;
+
+    if ((varId+gap >= nbVars()) || scenStarted(scenId, varId+gap))
       limitReached = true;
     else
       ++gapScore;
