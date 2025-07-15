@@ -244,7 +244,7 @@ goto:IS_MPI
 :: MC simulation
 :MC
 set _args=MC
-::goto:IS_MPI
+goto:IS_MPI
 
 :: check MPI runtime
 :IS_MPI
