@@ -245,7 +245,7 @@ goto:IS_MPI
 :: MC simulation
 :MC
 set _args=MC
-::goto:IS_MPI
+goto:IS_MPI
 
 :: CTC simulation
 :CTC
