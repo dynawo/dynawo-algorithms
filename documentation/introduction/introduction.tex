@@ -28,7 +28,7 @@ It can be used with any tool of the \Dynawo toolsuite (DynaFlow, DynaWaltz, Dyna
 It provides the following possibilities:
 \begin{itemize}
   \item \textbf{Unitary simulations}: simulations of one or several power systems described in a \textbf{.jobs} file 
-  (see \href{https://github.com/dynawo/dynawo-algorithms/releases/download/v1.6.0/DynawoAlgorithmsDocumentation.pdf}{\underline{\Dynawo documentation}});
+  (see \href{https://github.com/dynawo/dynawo-algorithms/releases/download/v1.7.0/DynawoAlgorithmsDocumentation.pdf}{\underline{\Dynawo documentation}});
   \item \textbf{Systematic analysis}: simulations of a same base power system subject to different events to assess the global stability;
   \item \textbf{Margin calculation}: simulations of a same base power system with a load variation and subject to different events to compute 
   the maximum load increase in a specific region before the voltage collapses;
@@ -39,6 +39,23 @@ It provides the following possibilities:
 The source code is hosted into a \href{https://github.com/dynawo/dynawo-algorithms} {\underline{GitHub repository}}. \\
 
 \section{Changes from previous versions}
+\underline{3rd party:}
+\begin{itemize}
+\item now using powsybl-iidm4cpp v1.5.1-rc2
+\end{itemize}
+
+\underline{Systematic Analysis:}
+\begin{itemize}
+\item now collecting output IIDM from the scenarios in a folder at the top if dump is enabled in the input jobs
+\end{itemize}
+
+\underline{Margin calculation:}
+\begin{itemize}
+\item maximum passing and minimum failing load increase levels outputs files are added to the results folder
+\end{itemize}
+
+\subsection{Changes from v1.7.0}
+No modification.
 
 \subsection{Changes from v1.6.0}
 No modification.
