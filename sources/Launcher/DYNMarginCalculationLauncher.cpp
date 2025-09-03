@@ -562,6 +562,11 @@ void
 MarginCalculationLauncher::launchTask(int varId, int scenId, int workerId, int * complete, int * success) {
   workStatus_[varId][scenId+1] = workerId;
 
+  if (scenId >= 0)
+    TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioLaunch, scenId, discreteVars_[varId]) << Trace::endline;
+  else
+    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseLaunch, discreteVars_[varId]) << Trace::endline;
+
   if (isServerThread()) {
 #ifdef _MPI_
     int msg[2] = {varId, scenId};
@@ -574,16 +579,12 @@ MarginCalculationLauncher::launchTask(int varId, int scenId, int workerId, int *
   SimulationResult & result = (scenId >= 0) ? results_[varId].getScenarioResult(scenId) :  results_[varId].getResult();
 
   if (scenId >= 0) {
-    TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioLaunch, scenId, discreteVars_[varId]) << Trace::endline;
-
     std::string iidmFile = generateIDMFileNameForVariation(discreteVars_[varId]);
     if (inputsByIIDM_.count(iidmFile) == 0)  // read inputs only if not already existing with enough variants defined
       inputsByIIDM_[iidmFile].readInputs(workingDirectory_, mc_->getScenarios()->getJobsFile(), iidmFile);
 
     launchScenario(inputsByIIDM_[iidmFile], getScen(scenId), discreteVars_[varId], result);
   } else {
-    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseLaunch, discreteVars_[varId]) << Trace::endline;
-
     const boost::shared_ptr<LoadIncrease> & loadIncrease = mc_->getLoadIncrease();
     inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
 
@@ -595,9 +596,6 @@ MarginCalculationLauncher::launchTask(int varId, int scenId, int workerId, int *
 
   if (DYN::SignalHandler::gotExitSignal())
     return;
-
-  TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, result.getUniqueScenarioId(), getStatusAsString(result.getStatus()))
-                     << Trace::endline << Trace::endline;
 
   if (isWorkerThread())
     exportResult(result);
