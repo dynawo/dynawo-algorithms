@@ -50,10 +50,6 @@
 #include "DYNAggrResXmlExporter.h"
 #include "DYNMultiProcessingContext.h"
 
-#if defined(_WIN32) || defined(_WIN64)
-#define WINDOWS
-#endif
-
 using DYN::Trace;
 
 static const char LOAD_INCREASE[] = "loadIncrease";
@@ -160,9 +156,9 @@ MarginCalculationLauncher::launch() {
   if (isWorkerThread()) {
 #ifdef _MPI_
     int msg[4] = {getMachineId(), -1, -1, -1};
-#ifndef WINDOWS
+#ifndef _MSC_VER
     msg[1] = getpid();  // server needs to know worker PID to send interruption signals
-#endif  // WINDOWS
+#endif
 
     MPI_Send(msg, 4, MPI_INT, SERVER_ID, MSG_STANDARD, MPI_COMM_WORLD);  // worker declaration msg
     while (true) {
@@ -252,7 +248,6 @@ MarginCalculationLauncher::getNextTask(int & varIdRet, int & scenIdRet) const {
     int scenIdTask = scenId;
     int priority, varIdTask;
     getNextTaskForScen(scenIdTask, varIdTask, priority);
-    // std::cout << "scen " << scenIdTask << " prio " << priority << std::endl;
     if (priority < lowestPriority) {
       varIdRet = varIdTask;
       scenIdRet = scenIdTask;
@@ -344,9 +339,12 @@ MarginCalculationLauncher::getNextTaskForScen(int & scenId, int & varIdRet, int 
 void
 MarginCalculationLauncher::updateResults(int varId, int scenId, bool complete, bool success) {
   workStatus_[varId][scenId+1] = complete ? SIMU_FINISHED : SIMU_NOT_STARTED;
-  std::cout << "at " << (boost::posix_time::second_clock::local_time() - t0_).total_milliseconds()/1000 << "s : ";
-  (scenId >= 0) ? (std::cout << "scen " << scenId) : (std::cout << "LI");
-  std::cout << " at "  << discreteVars_[varId] << "% "<< (complete ? (success ? "success" : "failure") : "aborted") << std::endl;
+
+  const char * successStr = (complete ? (success ? "success" : "failure") : "aborted");
+  if (scenId >= 0)
+    TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioFeedback, scenId, discreteVars_[varId], successStr) << Trace::endline;
+  else
+    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseFeedback, discreteVars_[varId], successStr) << Trace::endline;
 
   if (!complete)
     return;
@@ -575,9 +573,8 @@ MarginCalculationLauncher::launchTask(int varId, int scenId, int workerId, int *
   DYN::SignalHandler::setExitSignal(false);  // not reset by dynawo ...
   SimulationResult & result = (scenId >= 0) ? results_[varId].getScenarioResult(scenId) :  results_[varId].getResult();
 
-  std::cout << "at " << (boost::posix_time::second_clock::local_time() - t0_).total_milliseconds()/1000 << "s : ";
   if (scenId >= 0) {
-    std::cout << "launching scen " << scenId << " at " << discreteVars_[varId] << "%" << std::endl;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioLaunch, scenId, discreteVars_[varId]) << Trace::endline;
 
     std::string iidmFile = generateIDMFileNameForVariation(discreteVars_[varId]);
     if (inputsByIIDM_.count(iidmFile) == 0)  // read inputs only if not already existing with enough variants defined
@@ -585,7 +582,7 @@ MarginCalculationLauncher::launchTask(int varId, int scenId, int workerId, int *
 
     launchScenario(inputsByIIDM_[iidmFile], getScen(scenId), discreteVars_[varId], result);
   } else {
-    std::cout << "launching LI " << discreteVars_[varId] << "%" << std::endl;
+    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseLaunch, discreteVars_[varId]) << Trace::endline;
 
     const boost::shared_ptr<LoadIncrease> & loadIncrease = mc_->getLoadIncrease();
     inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
@@ -619,12 +616,13 @@ MarginCalculationLauncher::abortSimulation(int varId, int taskId) {
     return;
   }
 
-#ifndef WINDOWS
+#ifndef _MSC_VER
   kill(pids_[workStatus_[varId][taskId]], SIGINT);
   workStatus_[varId][taskId] = SIMU_ABORTED;
-  std::cout << "at " << (boost::posix_time::second_clock::local_time() - t0_).total_milliseconds()/1000 << "s : aborting ";
-  (taskId > 0) ? (std::cout << "scen " << taskId-1) : (std::cout << "LI");
-  std::cout << " at " << discreteVars_[varId] << "%" << std::endl;
+  if (taskId > 0)
+    TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenarioAbort, taskId-1, discreteVars_[varId]) << Trace::endline;
+  else
+    TraceInfo(logTag_) <<  DYNAlgorithmsLog(LoadIncreaseAbort, discreteVars_[varId]) << Trace::endline;
 #endif
 }
 
@@ -659,7 +657,7 @@ MarginCalculationLauncher::cleanupWorkers(std::set<int> & workersLeft) {
 int
 MarginCalculationLauncher::getMachineId() const {
   char hostname[256] = "windows_host";
-#ifndef WINDOWS
+#ifndef _MSC_VER
   gethostname(hostname, 256);
 #endif
   hostname[255] = 0;
@@ -674,13 +672,6 @@ MarginCalculationLauncher::getMachineId() const {
 
 void
 MarginCalculationLauncher::importResults() {
-  std::cout << "at " << (boost::posix_time::second_clock::local_time() - t0_).total_milliseconds()/1000 << "s : ";
-  std::cout << "finished with global margin " << discreteVars_[globalMarginVarId_] << "%" << std::endl;
-  if (!globMarginMode()) {
-    for (int scenId = 0; scenId < nbScens(); ++scenId)
-      std::cout << "local margin " << getScen(scenId)->getId() << " : " << marginScens_[scenId] << "%" << std::endl;
-  }
-
   TraceInfo(logTag_) << "============================================================ " << Trace::endline;
   TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, discreteVars_[globalMarginVarId_]) << Trace::endline;
   if (!globMarginMode()) {

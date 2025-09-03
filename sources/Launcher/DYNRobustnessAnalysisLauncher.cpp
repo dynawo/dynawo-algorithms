@@ -394,8 +394,8 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       result.setSuccess(true);
       result.setStatus(CONVERGENCE_STATUS);
     } catch (const DYN::Error& e) {
-      // std::cerr << e.what() << std::endl;
-      // Trace::error() << e.what() << Trace::endline;
+      std::cerr << e.what() << std::endl;
+      Trace::error() << e.what() << Trace::endline;
       // Needed as otherwise terminate might crash due to badly formed model
       simulation->disableExportIIDM();
       simulation->terminate();
@@ -420,8 +420,8 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
         result.setStatus(EXECUTION_PROBLEM_STATUS);
       }
     } catch (const DYN::MessageError& m) {
-      // std::cerr << m.what() << std::endl;
-      // Trace::error() << m.what() << Trace::endline;
+      std::cerr << m.what() << std::endl;
+      Trace::error() << m.what() << Trace::endline;
 
       std::string m_str(m.what());
       std::replace(m_str.begin(), m_str.end(), '\n', ' ');
@@ -431,14 +431,14 @@ RobustnessAnalysisLauncher::simulate(const boost::shared_ptr<DYN::Simulation>& s
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
     } catch (const std::exception& e) {
-      // std::cerr << e.what() << std::endl;
-      // Trace::error() << e.what() << Trace::endline;
+      std::cerr << e.what() << std::endl;
+      Trace::error() << e.what() << Trace::endline;
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
     } catch (...) {
-      // std::cerr << "Run simulation unknown error" << std::endl;
-      // Trace::error() << "Run simulation unknown error" << Trace::endline;
+      std::cerr << "Run simulation unknown error" << std::endl;
+      Trace::error() << "Run simulation unknown error" << Trace::endline;
       simulation->terminate();
       result.setSuccess(false);
       result.setStatus(EXECUTION_PROBLEM_STATUS);
