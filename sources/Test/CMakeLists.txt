@@ -27,15 +27,22 @@ if (NOT GTEST_FOUND OR NOT GMOCK_FOUND)
 
   set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Build shared libraries")
   set(gtest_force_shared_crt ON CACHE INTERNAL "Force shared crt")
-  set(googletest_version   1.8.1)
-  set(googletest_name      googletest-release-${googletest_version}.tar.gz)
+
   if(DEFINED ENV{DYNAWO_ALGORITHMS_GOOGLETEST_DOWNLOAD_URL})
     set(googletest_prefix_url $ENV{DYNAWO_ALGORITHMS_GOOGLETEST_DOWNLOAD_URL})
   else()
     set(googletest_prefix_url https://github.com/google/googletest/archive)
   endif()
+
+  if(('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU') AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 11))
+    set(googletest_version   1.12.1) # last version that supports CXX11
+    set(googletest_md5       e82199374acdfda3f425331028eb4e2a)
+  else()
+    set(googletest_version   1.8.1)
+    set(googletest_md5       2E6FBEB6A91310A16EFE181886C59596)
+  endif()
   set(googletest_url       ${googletest_prefix_url}/release-${googletest_version}.tar.gz)
-  set(googletest_md5       2E6FBEB6A91310A16EFE181886C59596)
+
   FetchContent_Declare(
     googletest
 
