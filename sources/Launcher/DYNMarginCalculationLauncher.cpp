@@ -90,6 +90,8 @@ inline bool MarginCalculationLauncher::scenOK(int scenId, int varId) const {retu
 
 static const int PRIORITY_INVALID = 1000000;
 
+#define PRINT(x) std::cout << "at " << (boost::posix_time::second_clock::local_time()-t0_).total_milliseconds()/1000 << "s : " << x << std::endl
+
 void
 MarginCalculationLauncher::initGlobals() {
   assert(multipleJobs_);
@@ -341,10 +343,14 @@ MarginCalculationLauncher::updateResults(int varId, int scenId, bool complete, b
   workStatus_[varId][scenId+1] = complete ? SIMU_FINISHED : SIMU_NOT_STARTED;
 
   const char * successStr = (complete ? (success ? "success" : "failure") : "aborted");
-  if (scenId >= 0)
+
+  if (scenId >= 0) {
+    PRINT("scen " << scenId << " at " << discreteVars_[varId] << "% " << successStr);
     TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioFeedback, scenId, discreteVars_[varId], successStr) << Trace::endline;
-  else
+  } else {
+    PRINT("LI at " << discreteVars_[varId] << "% " << successStr);
     TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseFeedback, discreteVars_[varId], successStr) << Trace::endline;
+  }
 
   if (!complete)
     return;
@@ -579,12 +585,14 @@ MarginCalculationLauncher::launchTask(int varId, int scenId, int workerId, int *
   SimulationResult & result = (scenId >= 0) ? results_[varId].getScenarioResult(scenId) :  results_[varId].getResult();
 
   if (scenId >= 0) {
+    PRINT("launching scen " << scenId << " at " << discreteVars_[varId] << "% ");
     std::string iidmFile = generateIDMFileNameForVariation(discreteVars_[varId]);
     if (inputsByIIDM_.count(iidmFile) == 0)  // read inputs only if not already existing with enough variants defined
       inputsByIIDM_[iidmFile].readInputs(workingDirectory_, mc_->getScenarios()->getJobsFile(), iidmFile);
 
     launchScenario(inputsByIIDM_[iidmFile], getScen(scenId), discreteVars_[varId], result);
   } else {
+    PRINT("launching LI at " << discreteVars_[varId] << "% ");
     const boost::shared_ptr<LoadIncrease> & loadIncrease = mc_->getLoadIncrease();
     inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
 
@@ -609,18 +617,21 @@ MarginCalculationLauncher::launchTask(int varId, int scenId, int workerId, int *
 void
 MarginCalculationLauncher::abortSimulation(int varId, int taskId) {
   if (pids_[workStatus_[varId][taskId]] < 0) {
-    std::cout << "cannot abort task " << taskId << " at " << discreteVars_[varId] << "%";
-    std::cout << "as pid is invalid (remote host or windows ?)" << std::endl;
+    PRINT("cannot abort task " << taskId << " at " << discreteVars_[varId] << "% as pid is invalid (remote host or windows ?)");
     return;
   }
 
 #ifndef _MSC_VER
   kill(pids_[workStatus_[varId][taskId]], SIGINT);
   workStatus_[varId][taskId] = SIMU_ABORTED;
-  if (taskId > 0)
+
+  if (taskId > 0) {
+    PRINT("aborting scen " << taskId-1 << " at " << discreteVars_[varId] << "% ");
     TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenarioAbort, taskId-1, discreteVars_[varId]) << Trace::endline;
-  else
+  } else {
+    PRINT("aborting LI at " << discreteVars_[varId] << "% ");
     TraceInfo(logTag_) <<  DYNAlgorithmsLog(LoadIncreaseAbort, discreteVars_[varId]) << Trace::endline;
+  }
 #endif
 }
 
@@ -670,6 +681,12 @@ MarginCalculationLauncher::getMachineId() const {
 
 void
 MarginCalculationLauncher::importResults() {
+  PRINT("finished with global margin " << discreteVars_[globalMarginVarId_] << "%");
+  if (!globMarginMode()) {
+    for (int scenId = 0; scenId < nbScens(); ++scenId)
+      PRINT("local margin " << getScen(scenId)->getId() << " : " << marginScens_[scenId] << "%");
+  }
+
   TraceInfo(logTag_) << "============================================================ " << Trace::endline;
   TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, discreteVars_[globalMarginVarId_]) << Trace::endline;
   if (!globMarginMode()) {
