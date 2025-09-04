@@ -196,18 +196,21 @@ set_environnement() {
   # Force build type when building tests (or tests coverage)
   case $1 in
     build-tests-coverage)
+      export RDMAV_FORK_SAFE="1"
       export_var_env_force DYNAWO_BUILD_TYPE=Debug
       export_var_env_force DYNAWO_BUILD_TESTS=OFF
       export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE=ON
       export_var_env_force DYNAWO_USE_XSD_VALIDATION=true
       ;;
     build-tests)
+      export RDMAV_FORK_SAFE="1"
       export_var_env_force DYNAWO_BUILD_TYPE=Debug
       export_var_env_force DYNAWO_BUILD_TESTS=ON
       export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE=OFF
       export_var_env_force DYNAWO_USE_XSD_VALIDATION=true
       ;;
     unittest-gdb)
+      export RDMAV_FORK_SAFE="1"
       export_var_env_force DYNAWO_BUILD_TYPE=Debug
       export_var_env_force DYNAWO_BUILD_TESTS=ON
       export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE=OFF
