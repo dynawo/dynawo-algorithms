@@ -76,6 +76,14 @@ class LoadIncreaseResult {
    * @brief getter for the scenarios results
    * @return scenarios results associated to this load increase
    */
+  std::vector<SimulationResult>& getScenariosResults() {
+    return scenariosResults_;
+  }
+
+  /**
+   * @brief const getter for the scenarios results
+   * @return scenarios results associated to this load increase
+   */
   const std::vector<SimulationResult>& getScenariosResults() const {
     return scenariosResults_;
   }

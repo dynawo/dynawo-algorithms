@@ -712,18 +712,21 @@ MarginCalculationLauncher::importResults() {
       cleanResult(liPath);
     }
 
+    std::vector<SimulationResult> denseScenResults;
+
     for (int scenId = 0; scenId < nbScens(); ++scenId) {
       SimulationResult & resultScen = result.getScenarioResult(scenId);
-      if (resultScen.getScenarioId() == "") {
-        resultScen.setScenarioId(getScen(scenId)->getId());
-        resultScen.setVariation(variation);
-        resultScen.setStatus(RESULT_FOUND_STATUS);
-      } else if (isServerThread()) {
+      if (resultScen.getScenarioId() == "")
+        continue;
+      if (isServerThread()) {
         std::string scenPath = SimulationResult::getUniqueScenarioId(getScen(scenId)->getId(), variation);
         resultScen = importResult(scenPath);
         cleanResult(scenPath);
       }
+      denseScenResults.push_back(resultScen);
     }
+
+    denseScenResults.swap(result.getScenariosResults());
 
     results_.push_back(result);
   }
