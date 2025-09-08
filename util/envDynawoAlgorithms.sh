@@ -193,30 +193,6 @@ export_preload() {
 
 # Export variables needed for dynawo-algorithms
 set_environnement() {
-  # Force build type when building tests (or tests coverage)
-  case $1 in
-    build-tests-coverage)
-      export_var_env_force DYNAWO_BUILD_TYPE=Debug
-      export_var_env_force DYNAWO_BUILD_TESTS=OFF
-      export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE=ON
-      export_var_env_force DYNAWO_USE_XSD_VALIDATION=true
-      ;;
-    build-tests)
-      export_var_env_force DYNAWO_BUILD_TYPE=Debug
-      export_var_env_force DYNAWO_BUILD_TESTS=ON
-      export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE=OFF
-      export_var_env_force DYNAWO_USE_XSD_VALIDATION=true
-      ;;
-    unittest-gdb)
-      export_var_env_force DYNAWO_BUILD_TYPE=Debug
-      export_var_env_force DYNAWO_BUILD_TESTS=ON
-      export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE=OFF
-      export_var_env_force DYNAWO_USE_XSD_VALIDATION=true
-      ;;
-    *)
-      ;;
-  esac
-
   # Compiler, to have default with gcc
   export_var_env DYNAWO_COMPILER=GCC
 
@@ -316,6 +292,22 @@ set_environnement() {
   export_var_env DYNAWO_NB_PROCESSORS_USED=1
   if [ $DYNAWO_NB_PROCESSORS_USED -gt $TOTAL_CPU ]; then
     error_exit "PROCESSORS_USED ($DYNAWO_NB_PROCESSORS_USED) is higher than the number of cpu of the system ($TOTAL_CPU)"
+  fi
+
+  # Force build type when building tests (or tests coverage)
+  if [[ $1 == @(build-tests|build-tests-coverage|unittest-gdb) ]]; then
+      if [ ! -d "$DYNAWO_INSTALL_OPENMODELICA" ]; then
+        echo -e "\033[0;31mOpenModelica not found in referenced dynawo distrib. This will cause some unit tests to fail.\033[0m"
+      fi
+
+      export RDMAV_FORK_SAFE="1"
+      export_var_env_force DYNAWO_BUILD_TYPE=Debug
+      export_var_env_force DYNAWO_USE_XSD_VALIDATION=true
+      if [[ $1 == build-tests-coverage ]]; then
+        export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE=ON
+      else
+        export_var_env_force DYNAWO_BUILD_TESTS=ON
+      fi
   fi
 
   # Export library path, path and other standard environment variables
