@@ -72,15 +72,15 @@ static DYN::TraceStream TraceInfo(const std::string& tag = "") {
 
 void
 CriticalTimeLauncher::setParametersAndLaunchSimulation(const std::string& workingDir, std::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation,
-   const std::string dydFile, SimulationResult& result, double& tSup) {
+   const boost::shared_ptr<Scenario>& scenario, SimulationResult& result, double& tSup) {
   std::shared_ptr<job::JobEntry> job = inputs_.cloneJobEntry();
+  const std::string& dydFile = scenario->getDydFile();
   addDydFileToJob(job, dydFile);
-
   SimulationParameters params;
   boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
   if (simulation) {
     std::shared_ptr<DYN::ModelMulti> modelMulti = std::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());
-    const std::string& dydId = criticalTimeCalculation->getDydId();
+    const std::string& dydId = scenario->getDydId();
     const std::string& parName = criticalTimeCalculation->getParName();
     if (modelMulti->findSubModelByName(dydId) != NULL) {
       boost::shared_ptr<DYN::SubModel> subModel_ = modelMulti->findSubModelByName(dydId);
@@ -149,7 +149,7 @@ CriticalTimeLauncher::launch() {
 CriticalTimeResult
 CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario, std::shared_ptr<CriticalTimeCalculation> criticalTimeCalculation) {
   if (multiprocessing::context().nbProcs() == 1)
-    std::cout << " Launch scenario: " << scenario->getId() << " - dydFile: " << scenario->getDydFile() << std::endl;
+    std::cout << " Launch scenario: " << scenario->getId() << " - dydFile: " << scenario->getDydFile() << " - dydId: " << scenario->getDydId() << std::endl;
   TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioLaunch, scenario->getId()) << DYN::Trace::endline;
 
   status_t status;
@@ -173,7 +173,7 @@ CriticalTimeLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario
   while (DYN::doubleGreater(round(tLowestFailed, accuracy)-round(tHighestSuccess, accuracy), accuracy)) {
     // Launch Simulation
     if (tTestedValues.find(tEnd) == tTestedValues.end()) {
-      setParametersAndLaunchSimulation(workingDir, criticalTimeCalculation, scenario->getDydFile(), result, tEnd);
+      setParametersAndLaunchSimulation(workingDir, criticalTimeCalculation, scenario, result, tEnd);
     } else {  // if tested values already detected, no need to launch the simulation
       result.setSuccess(tTestedValues[tEnd].first);
       result.setStatus(tTestedValues[tEnd].second);
