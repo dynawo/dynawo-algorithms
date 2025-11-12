@@ -141,7 +141,9 @@ TEST(TestMultipleJobs, TestMultipleJobsXmlHanderCriticalTime) {
   ASSERT_EQ(ct->getScenarios()->getScenarios().size(), 2);
   ASSERT_EQ(ct->getScenarios()->getScenarios()[0]->getId(), "MyScenarioId1");
   ASSERT_EQ(ct->getScenarios()->getScenarios()[0]->getDydFile(), "MyDydFile1.dyd");
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[0]->getDydId(), "MyDydId");
   ASSERT_EQ(ct->getScenarios()->getScenarios()[1]->getId(), "MyScenarioId2");
   ASSERT_EQ(ct->getScenarios()->getScenarios()[1]->getDydFile(), "MyDydFile2.dyd");
+  ASSERT_EQ(ct->getScenarios()->getScenarios()[1]->getDydId(), "MyDydId2");
 }
 }  // namespace multipleJobs

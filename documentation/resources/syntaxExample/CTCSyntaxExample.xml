@@ -3,7 +3,7 @@
   <criticalTimeCalculation accuracy="0.001" dydId="FAULT_GEN_1" parName="fault_tEnd" minValue="2" maxValue="2.3" mode="SIMPLE">
     <scenarios jobsFile="IEEE14.jobs">
       <scenario id="NodeFault1" dydFile="IEEE14_NodeFault1.dyd"/>
-      <scenario id="NodeFault2" dydFile="IEEE14_NodeFault2.dyd"/>
+      <scenario id="NodeFault2" dydFile="IEEE14_NodeFault2.dyd" dydId="FAULT_GEN_2"/>
       <scenario id="NodeFault3" dydFile="IEEE14_NodeFault3.dyd"/>
     </scenarios>
   </criticalTimeCalculation>

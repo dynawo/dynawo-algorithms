@@ -3,7 +3,7 @@
   <criticalTimeCalculation accuracy="0.001" dydId="MyDydId" parName="MyParName" minValue="0.1" maxValue="1" mode="SIMPLE">
     <scenarios jobsFile="Myjobs.jobs">
       <scenario id="MyScenarioId1" dydFile="MyDydFile1.dyd"/>
-      <scenario id="MyScenarioId2" dydFile="MyDydFile2.dyd"/>
+      <scenario id="MyScenarioId2" dydFile="MyDydFile2.dyd" dydId="MyDydId2"/>
     </scenarios>
   </criticalTimeCalculation>
 </multipleJobs>

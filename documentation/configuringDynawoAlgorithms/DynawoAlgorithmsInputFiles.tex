@@ -286,6 +286,9 @@ The critical time calculation requires certain parameters to perform its dichoto
   \item $maxValue$: max time limit for the dichotomy calculation;
   \item $mode$: [optional, default= `SIMPLE'] dichotomy calculation mode.
 \end{itemize}
+
+An optional parameter can be added to each scenario : dydId. It will replace the dydId parameter specified in critical time calculation only for this scenario.
+
 To run at least one simulation, $minValue$ can't be superior than $maxValue - 2 * accuracy$.
 The mode is optional and can be either `SIMPLE' or `COMPLEX'. `SIMPLE' mode performs a classic dichotomy. If solver problems (linearity issue) occur when running this mode, this can lead to errors in the calculation of the critical time. In this case, the user can restart the calculation by switching the mode to `COMPLEX'. When the algorithm encounters one of these problems with tmax, it returns to the last value tested that caused the simulation to diverge normally and removes the accuracy once. It then resumes the dichotomy but it may lengthen the calculation.
 

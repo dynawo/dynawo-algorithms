@@ -29,12 +29,15 @@ TEST(TestBaseClasses, testScenario) {
   Scenario t;
   ASSERT_EQ(t.getId(), "");
   ASSERT_EQ(t.getDydFile(), "");
+  ASSERT_EQ(t.getDydId(), "");
   ASSERT_EQ(t.getCriteriaFile(), "");
   t.setId("MyId");
   t.setDydFile("MyDydFile");
+  t.setDydId("MyDydId");
   t.setCriteriaFile("MyCrtFile");
   ASSERT_EQ(t.getId(), "MyId");
   ASSERT_EQ(t.getDydFile(), "MyDydFile");
+  ASSERT_EQ(t.getDydId(), "MyDydId");
   ASSERT_EQ(t.getCriteriaFile(), "MyCrtFile");
 }
 
@@ -118,6 +121,7 @@ TEST(TestBaseClasses, testCriticalTimeCalculation) {
   boost::shared_ptr<Scenario> t2(new Scenario());
   t2->setId("MyId2");
   t2->setDydFile("MyDydFile2");
+  t2->setDydId("MyDydId2");
   boost::shared_ptr<Scenario> t3(new Scenario());
   t3->setId("MyId3");
   t3->setDydFile("MyDydFile3");
@@ -137,10 +141,13 @@ TEST(TestBaseClasses, testCriticalTimeCalculation) {
   ASSERT_EQ(ct.getScenarios()->getScenarios().size(), 3);
   ASSERT_EQ(ct.getScenarios()->getScenarios()[0]->getId(), "MyId1");
   ASSERT_EQ(ct.getScenarios()->getScenarios()[0]->getDydFile(), "MyDydFile1");
+  ASSERT_EQ(ct.getScenarios()->getScenarios()[0]->getDydId(), "MyDydId");
   ASSERT_EQ(ct.getScenarios()->getScenarios()[1]->getId(), "MyId2");
   ASSERT_EQ(ct.getScenarios()->getScenarios()[1]->getDydFile(), "MyDydFile2");
+  ASSERT_EQ(ct.getScenarios()->getScenarios()[1]->getDydId(), "MyDydId2");
   ASSERT_EQ(ct.getScenarios()->getScenarios()[2]->getId(), "MyId3");
   ASSERT_EQ(ct.getScenarios()->getScenarios()[2]->getDydFile(), "MyDydFile3");
+  ASSERT_EQ(ct.getScenarios()->getScenarios()[2]->getDydId(), "MyDydId");
 
   ASSERT_THROW_DYNAWO(ct.setAccuracy(-1), DYN::Error::GENERAL, DYNAlgorithms::KeyAlgorithmsError_t::IncoherentAccuracyCriticalTime);
   ct.setMinValue(3);
