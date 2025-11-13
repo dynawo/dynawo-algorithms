@@ -43,6 +43,12 @@ class Scenario {
   void setDydFile(const std::string& file);
 
   /**
+   * @brief set the dyd id to describe the scenario
+   * @param dydId dyd id to describe the scenario
+   */
+  void setDydId(const std::string& dydId);
+
+  /**
    * @brief set the criteria file to use for the scenario
    * @param file criteria file to use for the scenario
    */
@@ -60,6 +66,12 @@ class Scenario {
    */
   const std::string& getDydFile() const;
 
+    /**
+   * @brief get the dyd id of the scenario
+   * @return dyd ID of the scenario
+   */
+  const std::string& getDydId() const;
+
   /**
    * @brief get the criteria file of the scenario
    * @return criteria file of the scenario
@@ -69,6 +81,7 @@ class Scenario {
  private:
   std::string id_;  ///< id of the scenario
   std::string dydFile_;  ///< dyd file to use for the scenario
+  std::string dydId_;  ///< dyd id to use for the scenario
   std::string criteriaFile_;  ///< criteria file to use for the scenario
 };
 

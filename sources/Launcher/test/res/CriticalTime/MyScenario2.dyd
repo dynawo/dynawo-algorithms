@@ -12,6 +12,6 @@
     of simulation tools for power systems.
 -->
 <dyn:dynamicModelsArchitecture xmlns:dyn="http://www.rte-france.com/dynawo">
-  <dyn:blackBoxModel id="FAULT_GEN_1" lib="NodeFault" parFile="MyPar.par" parId="Fault"/>
-  <dyn:connect id1="FAULT_GEN_1" var1="fault_terminal" id2="NETWORK" var2="_BUS____2_TN_ACPIN"/>
+  <dyn:blackBoxModel id="FAULT_GEN_2" lib="NodeFault" parFile="MyPar.par" parId="Fault"/>
+  <dyn:connect id1="FAULT_GEN_2" var1="fault_terminal" id2="NETWORK" var2="_BUS____2_TN_ACPIN"/>
 </dyn:dynamicModelsArchitecture>

@@ -12,10 +12,10 @@
     of simulation tools for power systems.
 -->
 <multipleJobs xmlns="http://www.rte-france.com/dynawo">
-  <criticalTimeCalculation accuracy="0.001" dydId="FAULT_GEN_1" parName="fault_tEnd" minValue="2" maxValue="2.3" mode="SIMPLE">
+  <criticalTimeCalculation accuracy="0.001" dydId="FAULT_GEN" parName="fault_tEnd" minValue="2" maxValue="2.3" mode="SIMPLE">
     <scenarios jobsFile="MyJobs.jobs">
       <scenario id="MyScenario" dydFile="MyScenario.dyd"/>
-      <scenario id="MyScenario2" dydFile="MyScenario2.dyd"/>
+      <scenario id="MyScenario2" dydFile="MyScenario2.dyd" dydId="FAULT_GEN_2"/>
       <scenario id="MyScenario3" dydFile="MyScenario3.dyd"/>
     </scenarios>
   </criticalTimeCalculation>

@@ -35,6 +35,14 @@ mode_(SIMPLE) {
 
 void
 CriticalTimeCalculation::setScenarios(const boost::shared_ptr<Scenarios>& scenarios) {
+  const std::vector<boost::shared_ptr<Scenario> >& events  = scenarios->getScenarios();
+  for (const auto& scenario : events) {
+    //  Set dydId in scenario if not set
+    if (scenario->getDydId().empty()) {
+        scenario->setDydId(dydId_);
+    }
+  }
+
   scenarios_ = scenarios;
 }
 
@@ -126,7 +134,7 @@ CriticalTimeCalculation::checkDydIdInDydFiles(std::string workingDir) const {
     bool missingDydId = true;
     std::map<std::string, std::shared_ptr<DYN::ModelDescription>> blackboxes = dyd->getBlackBoxModelDescriptions();
     for (auto it = blackboxes.begin(); it != blackboxes.end(); ++it) {
-      if (it->first == dydId_) {
+      if (it->first == scenario->getDydId()) {
         missingDydId = false;
         break;
       }

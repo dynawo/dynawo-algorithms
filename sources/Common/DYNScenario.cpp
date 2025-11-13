@@ -42,6 +42,16 @@ Scenario::getDydFile() const {
 }
 
 void
+Scenario::setDydId(const std::string& dydId) {
+  dydId_ = dydId;
+}
+
+const std::string&
+Scenario::getDydId() const {
+  return dydId_;
+}
+
+void
 Scenario::setCriteriaFile(const std::string& file) {
   criteriaFile_ = file;
 }
