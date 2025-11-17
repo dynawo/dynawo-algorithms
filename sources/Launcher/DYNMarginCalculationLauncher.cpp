@@ -618,7 +618,7 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
 
   result.setScenarioId(scenario->getId());
   result.setVariation(variation);
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs, "");
 
   if (simulation) {
     simulation->setTimelineOutputFile("");
@@ -814,7 +814,7 @@ MarginCalculationLauncher::launchLoadIncrease(const boost::shared_ptr<LoadIncrea
 
   result.setScenarioId(LOAD_INCREASE);
   result.setVariation(variation);
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_, "");
 
   if (simulation) {
     std::shared_ptr<DYN::ModelMulti> modelMulti = std::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());

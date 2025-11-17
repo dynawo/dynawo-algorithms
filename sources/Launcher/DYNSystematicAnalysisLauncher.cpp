@@ -124,7 +124,11 @@ SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& sc
 
   SimulationResult result;
   result.setScenarioId(scenario->getId());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
+  std::string nodeFault = "";
+  if (scenario->getNodeFault().has_value()) {
+    nodeFault = scenario->getNodeFault().value();
+  }
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_, nodeFault);
 
   if (simulation) {
     simulation->setTimelineOutputFile("");
