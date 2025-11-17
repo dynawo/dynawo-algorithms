@@ -32,6 +32,7 @@
 #include "DYNComputeSimulationLauncher.h"
 #include "DYNCriticalTimeLauncher.h"
 #include "DYNMultiProcessingContext.h"
+#include "DYNTimer.h"
 
 using DYNAlgorithms::ComputeSimulationLauncher;
 using DYNAlgorithms::SystematicAnalysisLauncher;
@@ -151,6 +152,7 @@ int main(int argc, char** argv) {
 }
 
 void launchSimulation(const std::string& jobFile, const std::string& outputFile) {
+  DYN::Timer timer("Main::LaunchSimu");
   boost::shared_ptr<ComputeSimulationLauncher> simulationLauncher = boost::shared_ptr<ComputeSimulationLauncher>(new ComputeSimulationLauncher());
   simulationLauncher->setInputFile(jobFile);
   simulationLauncher->setOutputFile(outputFile);

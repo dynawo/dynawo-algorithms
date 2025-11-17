@@ -68,7 +68,7 @@ ComputeLoadVariationLauncher::launch() {
   scenarioId << "loadIncrease-" << variation_;
   SimulationResult result;
   result.setScenarioId(scenarioId.str());
-  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
+  boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_, "");
 
   if (simulation) {
     std::shared_ptr<DYN::ModelMulti> modelMulti = std::dynamic_pointer_cast<DYN::ModelMulti>(simulation->getModel());

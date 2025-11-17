@@ -56,7 +56,7 @@ ComputeSimulationLauncher::launch() {
     SimulationParameters params;
     initParametersWithJob(job, params);
     result.setScenarioId(job->getName());
-    boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_);
+    boost::shared_ptr<DYN::Simulation> simulation = createAndInitSimulation(workingDir, job, params, result, inputs_, "");
     if (simulation) {
       simulate(simulation, result);
     }

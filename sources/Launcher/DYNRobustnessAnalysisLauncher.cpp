@@ -63,6 +63,11 @@
 #include "MacrosMessage.h"
 #include "DYNMultiProcessingContext.h"
 
+#include <PARParametersSetCollection.h>
+#include <PARParametersSetCollectionFactory.h>
+#include <PARParametersSetFactory.h>
+#include <PARXmlExporter.h>
+#include "PARXmlImporter.h"
 
 using DYN::Trace;
 using multipleJobs::MultipleJobs;
@@ -280,7 +285,8 @@ RobustnessAnalysisLauncher::setCriteriaFileForJob(const std::shared_ptr<job::Job
 
 boost::shared_ptr<DYN::Simulation>
 RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDir,
-    const std::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const MultiVariantInputs& analysisContext) {
+    const std::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result, const MultiVariantInputs& analysisContext,
+    const std::string& nodeFault) {
   std::unique_ptr<DYN::SimulationContext> context = std::unique_ptr<DYN::SimulationContext>(new DYN::SimulationContext());
   context->setResourcesDirectory(getMandatoryEnvVar("DYNAWO_RESOURCES_DIR"));
   context->setLocale(getMandatoryEnvVar("DYNAWO_ALGORITHMS_LOCALE"));
@@ -317,6 +323,32 @@ RobustnessAnalysisLauncher::createAndInitSimulation(const std::string& workingDi
 
   if (params.stopTime_ > 0. || DYN::doubleIsZero(params.stopTime_))
     simulation->setStopTime(params.stopTime_);
+
+  if (nodeFault != "") {
+    std::string networkParFile = job->getModelerEntry()->getNetworkEntry()->getNetworkParFile();
+    std::string networkParSetId = job->getModelerEntry()->getNetworkEntry()->getNetworkParId();
+
+    std::string canonicalParFilePath = canonical(networkParFile, workingDirectory_);
+    parameters::XmlImporter parametersImporter;
+    std::shared_ptr<parameters::ParametersSetCollection> parametersSetCollection = parametersImporter.importFromFile(canonicalParFilePath);
+    auto networkParSet = parametersSetCollection->getParametersSet(networkParSetId);
+    if (!networkParSet->hasParameter(nodeFault + "_hasShortCircuitCapabilities")) {
+      std::unique_ptr<parameters::ParametersSetCollection> paramSetCollection = parameters::ParametersSetCollectionFactory::newCollection();
+      std::shared_ptr<parameters::ParametersSet> parametersSet = parameters::ParametersSetFactory::newParametersSet(networkParSetId);
+      for (auto& param : networkParSet->getParameters()) {
+        parametersSet->addParameter(param.second);
+      }
+      paramSetCollection->addParametersSet(parametersSet);
+      parametersSet->createParameter(nodeFault + "_hasShortCircuitCapabilities", true);
+
+      parameters::XmlExporter exporter;
+      std::string newParFilePath = absolute(nodeFault + "_" + networkParFile, workingDirectory_);
+      boost::filesystem::path newNetworkFileName(newParFilePath);
+      exporter.exportToFile(std::move(paramSetCollection), newNetworkFileName.generic_string());
+
+      job->getModelerEntry()->getNetworkEntry()->setNetworkParFile(newParFilePath);
+    }
+  }
 
   try {
     simulation->init();
