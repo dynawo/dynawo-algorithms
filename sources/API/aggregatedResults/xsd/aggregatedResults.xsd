@@ -21,7 +21,7 @@
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="loadIncreaseResults" type="dyn:LoadIncreaseResults"/>
         <xs:element name="scenarioResults" type="dyn:ScenarioResults"/>
-        <xs:element name="criticalTimeResults" type="dyn:CriticalTimeResults">
+        <xs:element name="criticalTimeResults" type="dyn:CriticalTimeResults"/>
       </xs:choice>
       <xs:attribute name="status" use="optional" type="dyn:Status"/>
     </xs:complexType>
