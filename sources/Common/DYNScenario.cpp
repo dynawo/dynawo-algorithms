@@ -61,4 +61,12 @@ Scenario::getCriteriaFile() const {
   return criteriaFile_;
 }
 
+void Scenario::setNodeFault(const std::string& nodeFault) {
+  nodeFault_ = nodeFault;
+}
+
+const boost::optional<std::string>& Scenario::getNodeFault() const {
+  return nodeFault_;
+}
+
 }  // namespace DYNAlgorithms
