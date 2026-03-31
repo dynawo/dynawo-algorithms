@@ -13,8 +13,8 @@ on:
         description: Create assets for Linux cxx11
         type: boolean
         default: true
-      perform-linux-centos7:
-        description: Create assets for Linux centos7
+      perform-linux-ol8:
+        description: Create assets for Linux OL8
         type: boolean
         default: true
       perform-windows:
@@ -81,9 +81,9 @@ jobs:
             const release = require('./dynawo/.github/release.js')
             await release({github, context, core, glob})
 
-  distribution-centos7:
-    if: github.event_name != 'workflow_dispatch' || inputs.perform-linux-centos7
-    name: Distribution Linux centos7
+  distribution-ol8:
+    if: github.event_name != 'workflow_dispatch' || inputs.perform-linux-ol8
+    name: Distribution Linux ol8
     runs-on: ubuntu-latest
     env:
       DYNAWO_RESULTS_SHOW: "false"
@@ -95,15 +95,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Fetch Dynawo
-        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/v$DYNAWO_VERSION/Dynawo_Linux_centos7_v$DYNAWO_VERSION.zip
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/v$DYNAWO_VERSION/Dynawo_Linux_ol8_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
-        run: unzip -qq "Dynawo_Linux_centos7_v${DYNAWO_VERSION}.zip"
+        run: unzip -qq "Dynawo_Linux_ol8_v${DYNAWO_VERSION}.zip"
 
       - name: Build
         uses: addnab/docker-run-action@v3
         with:
-          image: dynawo/dynawo-distribution-centos7:latest
+          image: dynawo/dynawo-distribution-ol8:latest
           options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_NB_PROCESSORS_USED
           shell: bash
           run: |
@@ -111,7 +111,7 @@ jobs:
             export DYNAWO_ALGORITHMS_HOME=$(pwd)
             util/envDynawoAlgorithms.sh build
             util/envDynawoAlgorithms.sh distrib-headers
-            for file in distributions/DynawoAlgorithms_headers_v*.zip ; do mv $file ${file//_headers_/_Linux_headers_centos7_} ; done
+            for file in distributions/DynawoAlgorithms_headers_v*.zip ; do mv $file ${file//_headers_/_Linux_headers_ol8_} ; done
 
       - name: Fetch release script
         uses: actions/checkout@v3
