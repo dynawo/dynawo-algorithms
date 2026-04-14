@@ -13,5 +13,5 @@
 -->
 <dyn:dynamicModelsArchitecture xmlns:dyn="http://www.rte-france.com/dynawo">
   <dyn:blackBoxModel id="DISCONNECT_LINE" lib="EventQuadripoleDisconnection" parFile="IEEE14_DisconnectLine.par" parId="1"/>
-  <dyn:connect id1="DISCONNECT_LINE" var1="event_state1_value" id2="NETWORK" var2="_BUS____1-BUS____5-1_AC_state_value"/>
+  <dyn:connect id1="DISCONNECT_LINE" var1="event_state1" id2="NETWORK" var2="_BUS____1-BUS____5-1_AC_state_value"/>
 </dyn:dynamicModelsArchitecture>
