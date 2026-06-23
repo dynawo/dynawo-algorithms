@@ -6,3 +6,4 @@ warning: documented symbol 'void DYNAlgorithms::multiprocessing::Context::gather
 warning: documented symbol `void DYNAlgorithms::multiprocessing::Context::gatherImpl' was not declared or defined.
 warning: documented symbol 'void DYNAlgorithms::multiprocessing::Context::broadcastImpl' was not declared or defined.
 warning: documented symbol `void DYNAlgorithms::multiprocessing::Context::broadcastImpl' was not declared or defined.
+warning: return type of member DYNAlgorithms::multiprocessing::Context::operator= is not documented
