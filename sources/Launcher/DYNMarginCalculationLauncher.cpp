@@ -18,12 +18,7 @@
  *
  */
 
-#include <iostream>
-#include <cmath>
-#include <ctime>
-#include <iomanip>
-
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include <signal.h>
 
 #include <libzip/ZipFile.h>
 #include <libzip/ZipFileFactory.h>
@@ -59,532 +54,681 @@ using DYN::Trace;
 
 static const char LOAD_INCREASE[] = "loadIncrease";
 
+// special values in MPI_Send/Recv
+static const int SERVER_ID = 0;
+static const int MSG_STANDARD = 0;
+
+// special values in workStatus
+static const int SIMU_NOT_STARTED = -1;
+static const int SIMU_FINISHED = -2;
+static const int SIMU_ABORTED = -3;
+
 namespace DYNAlgorithms {
 
 static DYN::TraceStream TraceInfo(const std::string& tag = "") {
   return multiprocessing::context().isRootProc() ? Trace::info(tag) : DYN::TraceStream();
 }
 
-void
-MarginCalculationLauncher::createScenarioWorkingDir(const std::string& scenarioId, double variation) const {
-  std::stringstream subDir;
-  subDir << "step-" << variation;
-  std::string workingDir = createAbsolutePath(scenarioId, createAbsolutePath(subDir.str(), workingDirectory_));
-  if (!exists(workingDir))
-    createDirectory(workingDir);
-  else if (!isDirectory(workingDir))
-    throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
-}
+inline int mid(int val) {return (val+1)/2;}  // general bias towards upper roundings (mounting to load increase ceiling)
+inline bool isSingleThread() {return multiprocessing::context().nbProcs() == 1;}
+inline bool isServerThread() {return !isSingleThread() &&  multiprocessing::context().isRootProc();}
+inline bool isWorkerThread() {return !isSingleThread() && !multiprocessing::context().isRootProc();}
 
+inline boost::shared_ptr<Scenario> MarginCalculationLauncher::getScen(int scenId) const {return mc_->getScenarios()->getScenarios()[scenId];}
+
+inline int MarginCalculationLauncher::nbScens() const                 {return mc_->getScenarios()->getScenarios().size();}
+inline int MarginCalculationLauncher::nbVars() const                  {return discreteVars_.size();}
+inline int MarginCalculationLauncher::varId100() const                {return discreteVars_.size()-1;}
+inline bool MarginCalculationLauncher::globMarginMode() const         {return mc_->getCalculationType() == MarginCalculation::GLOBAL_MARGIN;}
+inline bool MarginCalculationLauncher::liStarted(int varId) const     {return workStatus_[varId][0] != SIMU_NOT_STARTED;}
+inline bool MarginCalculationLauncher::liDone(int varId) const        {return workStatus_[varId][0] == SIMU_FINISHED;}
+inline bool MarginCalculationLauncher::liOK(int varId) const          {return liDone(varId) && results_[varId].getResult().getSuccess();}
+inline bool MarginCalculationLauncher::scenStarted(int scenId, int varId) const {return workStatus_[varId][scenId+1] != SIMU_NOT_STARTED;}
+inline bool MarginCalculationLauncher::scenDone(int scenId, int varId) const {return workStatus_[varId][scenId+1] == SIMU_FINISHED;}
+inline bool MarginCalculationLauncher::scenOK(int scenId, int varId) const {return scenDone(scenId, varId) &&
+                                                                                   results_[varId].getScenarioResult(scenId).getSuccess();}
+
+static const int PRIORITY_INVALID = 1000000;
+
+#define PRINT(x) std::cout << "at " << (boost::posix_time::second_clock::local_time()-t0_).total_milliseconds()/1000 << "s : " << x << std::endl
 
 void
-MarginCalculationLauncher::cleanResultDirectories(const std::vector<boost::shared_ptr<Scenario> >& events) const {
-  multiprocessing::Context::sync();
-  for (const auto& loadIncrease : loadIncreaseStatus_) {
-    cleanResult(computeLoadIncreaseScenarioId(loadIncrease.first));
+MarginCalculationLauncher::initGlobals() {
+  assert(multipleJobs_);
+
+  t0_ = boost::posix_time::second_clock::local_time();
+
+  mc_ = multipleJobs_->getMarginCalculation();
+  if (!mc_) {
+    throw DYNAlgorithmsError(MarginCalculationTaskNotFound);
   }
-  for (const auto& loadLevel : scenarioStatus_) {
-    for (const auto& scenario : events) {
-      cleanResult(SimulationResult::getUniqueScenarioId(scenario->getId(), loadLevel.first));
-    }
+  if (!mc_->getScenarios()) {
+    throw DYNAlgorithmsError(SystematicAnalysisTaskNotFound);
   }
-}
 
-void
-MarginCalculationLauncher::readTimes(const std::string& jobFileLoadIncrease, const std::string& jobFileScenario) {
-  // job
   job::XmlImporter importer;
-  std::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(jobFileLoadIncrease, workingDirectory_));
-  //  implicit : only one job per file
-  tLoadIncrease_ = jobsCollection->getJobs()[0]->getSimulationEntry()->getStopTime();
 
-  jobsCollection = importer.importFromFile(createAbsolutePath(jobFileScenario, workingDirectory_));
-  //  implicit : only one job per file
-  const auto& job = jobsCollection->getJobs()[0];
+  std::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(createAbsolutePath(mc_->getLoadIncrease()->getJobsFile(), workingDirectory_));
+  tLoadIncrease_ = jobsCollection->getJobs()[0]->getSimulationEntry()->getStopTime();  //  implicit : only one job per file
+
+  jobsCollection = importer.importFromFile(createAbsolutePath(mc_->getScenarios()->getJobsFile(), workingDirectory_));
+  const auto& job = jobsCollection->getJobs()[0];  //  implicit : only one job per file
   tScenario_ = job->getSimulationEntry()->getStopTime() - job->getSimulationEntry()->getStartTime();
+
+  discreteVars_.clear();
+  results_.clear();
+  int step = 0;
+  while (step < 100) {
+    discreteVars_.push_back(step);
+    results_.emplace_back(nbScens());
+    step += mc_->getAccuracy();
+  }
+  discreteVars_.push_back(100);
+  results_.emplace_back(nbScens());
+
+  globalMarginVarId_ = varId100();
+  marginScens_ = std::vector<int>((size_t)nbScens(), -1);
+
+  workStatus_.resize(nbVars(), std::vector<int>((size_t)(nbScens()+1), SIMU_NOT_STARTED));
+
+  int nbWorkers = std::max(multiprocessing::context().nbProcs()-1, 1u);
+  initialLIs_.resize(nbWorkers);
+  initialLIs_[0] = varId100();
+  if (nbWorkers > 1) {  // equirepartition of initial LIs
+    for (int i=0; i < nbWorkers-1; ++i)
+      initialLIs_[i+1] = (i*varId100())/(nbWorkers-1);
+  }
+}
+
+bool
+MarginCalculationLauncher::workToDo() const {
+  if (nbScens() == 0)
+    return (highestLISuccessId()+1) != lowestLIFailureId();
+
+  for (int scenId =0; scenId < nbScens(); ++scenId)
+    if (marginScens_[scenId] <0)
+      return true;
+  return false;
 }
 
 void
 MarginCalculationLauncher::launch() {
-  assert(multipleJobs_);
-  boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
-  results_.clear();
-  boost::shared_ptr<MarginCalculation> marginCalculation = multipleJobs_->getMarginCalculation();
-  if (!marginCalculation) {
-    throw DYNAlgorithmsError(MarginCalculationTaskNotFound);
-  }
-  const boost::shared_ptr<LoadIncrease>& loadIncrease = marginCalculation->getLoadIncrease();
-  const boost::shared_ptr<Scenarios>& scenarios = marginCalculation->getScenarios();
-  if (!scenarios) {
-    throw DYNAlgorithmsError(SystematicAnalysisTaskNotFound);
-  }
-  const std::string& baseJobsFile = scenarios->getJobsFile();
-  const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
+  initGlobals();
 
-  // Retrieve from jobs file tLoadIncrease and tScenario
-  readTimes(loadIncrease->getJobsFile(), baseJobsFile);
+  if (isWorkerThread()) {
+#ifdef _MPI_
+    int msg[4] = {getMachineId(), -1, -1, -1};
+#ifndef _MSC_VER
+    msg[1] = getpid();  // server needs to know worker PID to send interruption signals
+#endif
 
-  double maxVariation = 100.;
-  double minVariation = 0.;
-  double variation = maxVariation;
-  results_.emplace_back(events.size());
-  const size_t loadIncreaseVariation100Index = results_.size() - 1;
-  findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
-                           marginCalculation->getAccuracy(), results_.at(loadIncreaseVariation100Index));
-
-  if (!loadIncreaseStatus_.at(variation).success) {
-    variation = minVariation;
-    for (auto& status : loadIncreaseStatus_) {
-      if (status.second.success && status.first > variation)
-        variation = status.first;
+    MPI_Send(msg, 4, MPI_INT, SERVER_ID, MSG_STANDARD, MPI_COMM_WORLD);  // worker declaration msg
+    while (true) {
+      MPI_Recv(msg, 2, MPI_INT, SERVER_ID, MSG_STANDARD, MPI_COMM_WORLD, MPI_STATUS_IGNORE);  // server command msg
+      if (msg[0] < 0)  // invalid varId : termination msg
+        return;
+      launchTask(msg[0], msg[1], -1, &(msg[2]), &(msg[3]));
+      MPI_Send(msg, 4, MPI_INT, SERVER_ID, MSG_STANDARD, MPI_COMM_WORLD);  // worker feedback msg
     }
-    // No computation here. We only update the second element in results_ with the maximum successful load increase.
-    // However if no variation was ok at all, we launch a 0% load increase and put it in the results_ array instead.
-    results_.emplace_back(events.size());
-    const size_t maxLoadIncreaseVariationIndex = results_.size() - 1;
-    findOrLaunchLoadIncrease(loadIncrease, variation, minVariation, maxVariation,
-                             marginCalculation->getAccuracy(), results_.at(maxLoadIncreaseVariationIndex));
-    maxVariation = variation;
+#endif  // _MPI_
   }
 
-  std::queue< task_t > toRun;
-  std::vector<size_t> allEvents;
-  for (size_t i=0, iEnd = events.size(); i < iEnd ; i++)
-    allEvents.push_back(i);
-  toRun.emplace(task_t(maxVariation, maxVariation, allEvents));
+  std::set<int> workersLeft;
+  for (unsigned int i=1; i < multiprocessing::context().nbProcs(); ++i)
+    workersLeft.insert(static_cast<int>(i));
 
-  // step one : launch the loadIncrease and then all events with 100% of the load increase
-  // if there is no crash => no need to go further
-  // We start with 100% as it is the most common result of margin calculations on real large cases
-  std::vector<double > maximumVariationPassing(events.size(), 0.);
-  const size_t maxLoadIncreaseVariationIndex = results_.size() - 1;
-  if (results_.at(maxLoadIncreaseVariationIndex).getResult().getSuccess()) {
-    if (!DYN::doubleEquals(minVariation, maxVariation))
-      findAllLevelsBetween(minVariation, maxVariation, marginCalculation->getAccuracy(), allEvents, toRun);
-    findOrLaunchScenarios(baseJobsFile, events, toRun, results_.at(maxLoadIncreaseVariationIndex));
+  // server / single thread main loop
+  while (workToDo()) {
+    int workerId = SERVER_ID;
+    if (isServerThread())
+      waitForWorker(workerId);
 
-    // analyze results
-    unsigned int nbSuccess = 0;
-    size_t id = 0;
-    for (auto simulationResultIt = results_.at(maxLoadIncreaseVariationIndex).getScenariosResults().cbegin();
-          simulationResultIt != results_.at(maxLoadIncreaseVariationIndex).getScenariosResults().cend(); ++simulationResultIt, ++id) {
-      TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd, simulationResultIt->getUniqueScenarioId(),
-                                                  getStatusAsString(simulationResultIt->getStatus())) << Trace::endline;
-      if (simulationResultIt->getStatus() == CONVERGENCE_STATUS) {  // event OK
-        nbSuccess++;
-        maximumVariationPassing[id] = maxVariation;
-      }
-    }
-    if (nbSuccess == events.size() &&
-      ((100. - maxVariation) < marginCalculation->getAccuracy() ||
-      DYN::doubleEquals(100. - maxVariation, marginCalculation->getAccuracy()))) {  // all events succeed and maxVariation is within tolerance
-      TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-      TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, maxVariation) << Trace::endline;
-      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-      boost::posix_time::time_duration diff = t1 - t0;
-      TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
-      TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-      cleanResultDirectories(events);
-      return;
-    } else if (DYN::doubleEquals(maxVariation, minVariation) && nbSuccess != events.size()) {  // a scenario is not working at 0.
-      TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-      TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, maxVariation) << Trace::endline;
-      boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-      boost::posix_time::time_duration diff = t1 - t0;
-      TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
-      TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-      cleanResultDirectories(events);
-      return;
-    }
-  } else if (DYN::doubleEquals(maxVariation, minVariation)) {  // launch increase of 0. is not working
-    TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-    TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, maxVariation) << Trace::endline;
-    boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-    boost::posix_time::time_duration diff = t1 - t0;
-    TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
-    TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-    cleanResultDirectories(events);
-    return;
+    int varId, scenId;
+    getNextTask(varId, scenId) ? launchTask(varId, scenId, workerId) : terminateWorker(workerId, workersLeft);
   }
-  TraceInfo(logTag_) << Trace::endline;
 
-  // we force the dichotomie between 0 and 100 even if 100 is not working
-  maxVariation = 100.;
-  minVariation = 0.;
+  importResults();
 
-  if (marginCalculation->getCalculationType() == MarginCalculation::GLOBAL_MARGIN || events.size() == 1) {
-    double value = computeGlobalMargin(loadIncrease, baseJobsFile, events, maximumVariationPassing,
-                                       marginCalculation->getAccuracy(), minVariation, maxVariation);
-    if (value < marginCalculation->getAccuracy()) {
-      // step two : launch the loadIncrease and then all events with 0% of the load increase
-      // if one event crash => no need to go further
-      results_.emplace_back(events.size());
-      const size_t globalMarginMinLoadLevelIndex = results_.size() - 1;
-      findOrLaunchLoadIncrease(loadIncrease,
-                                minVariation,
-                                minVariation,
-                                minVariation,
-                                marginCalculation->getAccuracy(),
-                                results_.at(globalMarginMinLoadLevelIndex));
-      double variation0 = minVariation;
-      if (results_.at(globalMarginMinLoadLevelIndex).getResult().getSuccess()) {
-        toRun = std::queue< task_t >();
-        std::vector<size_t> eventsIds;
-        for (size_t i = 0; i < events.size() ; ++i) {
-          if (variation0 > maximumVariationPassing[i] || DYN::doubleEquals(variation0, maximumVariationPassing[i])) {
-            eventsIds.push_back(i);
-          } else {
-            TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, events[i]->getId()) << Trace::endline;
-            results_.at(globalMarginMinLoadLevelIndex).getScenarioResult(i).setScenarioId(events[i]->getId());
-            results_.at(globalMarginMinLoadLevelIndex).getScenarioResult(i).setVariation(minVariation);
-            results_.at(globalMarginMinLoadLevelIndex).getScenarioResult(i).setSuccess(true);
-            results_.at(globalMarginMinLoadLevelIndex).getScenarioResult(i).setStatus(CONVERGENCE_STATUS);
-          }
-        }
-        toRun.emplace(task_t(0., 0., eventsIds));
-        findOrLaunchScenarios(baseJobsFile, events, toRun, results_.at(globalMarginMinLoadLevelIndex));
-      } else {
-        TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-        TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, minVariation) << Trace::endline;
-        boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-        boost::posix_time::time_duration diff = t1 - t0;
-        TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
-        TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-        cleanResultDirectories(events);
-        return;  // unable to launch the initial simulation with 0% of load increase
-      }
-
-      // analyze results
-      for (const auto& result : results_.at(globalMarginMinLoadLevelIndex).getScenariosResults()) {
-        TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, result.getUniqueScenarioId(), getStatusAsString(result.getStatus())) << Trace::endline;
-        if (result.getStatus() != CONVERGENCE_STATUS) {  // one event crashes
-          cleanResultDirectories(events);
-          TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-          TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, 0.) << Trace::endline;
-          boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-          boost::posix_time::time_duration diff = t1 - t0;
-          TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
-          TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-          return;
-        }
-      }
-      TraceInfo(logTag_) << Trace::endline;
-    }
-    TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-    TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, value) << Trace::endline;
-    boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-    boost::posix_time::time_duration diff = t1 - t0;
-    TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
-    TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-  } else {
-    assert(marginCalculation->getCalculationType() == MarginCalculation::LOCAL_MARGIN);
-    std::vector<double> results(events.size(), 0.);
-    double value = computeLocalMargin(loadIncrease, baseJobsFile, events, marginCalculation->getAccuracy(), minVariation, maxVariation, results);
-    if (results_.at(maxLoadIncreaseVariationIndex).getResult().getSuccess()) {
-      value = maxVariation;
-    }
-    std::vector <size_t> eventsIds;
-    for (size_t i = 0; i < results.size(); ++i) {
-      if (results[i] < marginCalculation->getAccuracy()) {
-        eventsIds.push_back(i);
-      }
-    }
-    if (!eventsIds.empty()) {
-      results_.emplace_back(eventsIds.size());
-      const size_t localMarginMinLoadLevelIndex = results_.size() - 1;
-      findOrLaunchLoadIncrease(loadIncrease,
-                                minVariation,
-                                minVariation,
-                                minVariation,
-                                marginCalculation->getAccuracy(),
-                                results_.at(localMarginMinLoadLevelIndex));
-      if (results_.at(localMarginMinLoadLevelIndex).getResult().getSuccess()) {
-        toRun = std::queue<task_t>();
-        toRun.emplace(task_t(minVariation, minVariation, eventsIds));
-        LoadIncreaseResult liResultTmp(events.size());
-        findOrLaunchScenarios(baseJobsFile, events, toRun, liResultTmp);
-        for (size_t i = 0; i < eventsIds.size(); ++i) {
-          results_.at(localMarginMinLoadLevelIndex).getScenarioResult(i) = liResultTmp.getScenarioResult(eventsIds[i]);
-        }
-        // analyze results
-        for (const auto& result : results_.at(localMarginMinLoadLevelIndex).getScenariosResults()) {
-          TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenariosEnd, result.getUniqueScenarioId(), getStatusAsString(result.getStatus())) << Trace::endline;
-        }
-      }
-    }
-    TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-    TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueLoadIncrease, value) << Trace::endline;
-    for (size_t i = 0; i < results.size(); ++i) {
-      TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueScenario, events[i]->getId(), results[i]) << Trace::endline;
-    }
-    boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
-    boost::posix_time::time_duration diff = t1 - t0;
-    TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
-    TraceInfo(logTag_) << "============================================================ " << Trace::endline;
-  }
-  cleanResultDirectories(events);
-}
-
-double
-MarginCalculationLauncher::computeGlobalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-    const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events,
-    std::vector<double >& maximumVariationPassing, double tolerance, double minVariation, double maxVariation) {
-
-  while ( maxVariation - minVariation > tolerance ) {
-    double newVariation = round((minVariation + maxVariation)/2.);
-    results_.emplace_back(events.size());
-    const size_t loadIncreaseIndex = results_.size() - 1;
-    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, results_.at(loadIncreaseIndex));
-    // If at some point loadIncrease for 0. is launched and is not working no need to continue
-    std::map<double, LoadIncreaseStatus, dynawoDoubleLess>::const_iterator itZero = loadIncreaseStatus_.find(0.);
-    if (itZero != loadIncreaseStatus_.end() && !itZero->second.success)
-      return 0.;
-
-    if (results_.at(loadIncreaseIndex).getResult().getSuccess()) {
-      std::queue< task_t > toRun;
-      std::vector<size_t> eventsIds;
-      for (size_t i=0; i < events.size() ; ++i) {
-        if (newVariation > maximumVariationPassing[i]) {
-          eventsIds.push_back(i);
-        } else {
-          results_.at(loadIncreaseIndex).getScenarioResult(i).setScenarioId(events[i]->getId());
-          results_.at(loadIncreaseIndex).getScenarioResult(i).setVariation(newVariation);
-          results_.at(loadIncreaseIndex).getScenarioResult(i).setSuccess(true);
-          results_.at(loadIncreaseIndex).getScenarioResult(i).setStatus(CONVERGENCE_STATUS);
-        }
-      }
-      findAllLevelsBetween(minVariation, maxVariation, tolerance, eventsIds, toRun);
-      findOrLaunchScenarios(baseJobsFile, events, toRun, results_.at(loadIncreaseIndex));
-
-      // analyze results
-      unsigned int nbSuccess = 0;
-      size_t id = 0;
-      for (const auto& result : results_.at(loadIncreaseIndex).getScenariosResults()) {
-        if (newVariation < maximumVariationPassing[id] || DYN::doubleEquals(newVariation, maximumVariationPassing[id]))
-          TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioNotSimulated, result.getUniqueScenarioId()) << Trace::endline;
-        else
-          TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd,
-              result.getUniqueScenarioId(), getStatusAsString(result.getStatus())) << Trace::endline;
-        if (result.getStatus() == CONVERGENCE_STATUS || newVariation < maximumVariationPassing[id] ||
-          DYN::doubleEquals(newVariation, maximumVariationPassing[id])) {  // event OK
-          nbSuccess++;
-          if (newVariation > maximumVariationPassing[id])
-            maximumVariationPassing[id] = newVariation;
-        }
-        ++id;
-      }
-      if (nbSuccess == events.size() )  // all events succeed
-        minVariation = newVariation;
-      else
-        maxVariation = newVariation;  // at least, one crash
-    } else {
-      maxVariation = newVariation;  // load increase crashed
-    }
-    TraceInfo(logTag_) << Trace::endline;
-  }
-  return minVariation;
+  if (isServerThread())
+    cleanupWorkers(workersLeft);
 }
 
 void
-MarginCalculationLauncher::findAllLevelsBetween(const double minVariation, const double maxVariation, const double tolerance,
-    const std::vector<size_t>& eventIdxs, std::queue< task_t >& toRun) {
-  if (eventIdxs.empty()) {
-    toRun = std::queue< task_t >();
-    return;
-  }
-  auto& context = multiprocessing::context();
-  unsigned nbMaxToAdd = context.nbProcs()/eventIdxs.size();
-
-  if (nbMaxToAdd == 0) nbMaxToAdd = 1;
-  double newVariation = round((minVariation + maxVariation)/2.);
-  std::queue< std::pair<double, double> > minMaxStack;
-
-  toRun.emplace(task_t(minVariation, maxVariation, eventIdxs));
-  if (maxVariation - newVariation > tolerance)
-    minMaxStack.emplace(std::make_pair(newVariation, maxVariation));
-  while (toRun.size() < nbMaxToAdd && !minMaxStack.empty()) {
-    double min = minMaxStack.front().first;
-    double max = minMaxStack.front().second;
-    minMaxStack.pop();
-    double nextVar = round((min + max)/2.);
-    auto it = loadIncreaseStatus_.find(nextVar);
-    if (it == loadIncreaseStatus_.end() || !it->second.success) continue;
-    toRun.emplace(task_t(min, max, eventIdxs));
-    if (max - nextVar > tolerance)
-      minMaxStack.emplace(std::make_pair(nextVar, max));
-    if (nextVar - min > tolerance)
-      minMaxStack.emplace(std::make_pair(min, nextVar));
-  }
-}
-
-double
-MarginCalculationLauncher::computeLocalMargin(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-    const std::string& baseJobsFile, const std::vector<boost::shared_ptr<Scenario> >& events, const double tolerance, const double minVariation,
-    const double maxVariation, std::vector<double>& results) {
-  double maxLoadVarForLoadIncrease = 0.;
-  std::queue< task_t > toRun;
-  std::vector<size_t> all;
-  for (size_t i=0; i < events.size() ; ++i)
-    all.push_back(i);
-  toRun.emplace(task_t(0., 100., all));
-
-  while (!toRun.empty()) {
-    std::queue< task_t > toRunCopy(toRun);  // Needed as findOrLaunchScenarios modifies the queue
-    task_t task = toRun.front();
-    toRun.pop();
-    const std::vector<size_t>& eventsId = task.ids_;
-    double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
-    results_.emplace_back(eventsId.size());
-    const size_t loadIncreaseIndex = results_.size() - 1;
-    findOrLaunchLoadIncrease(loadIncrease, newVariation, minVariation, maxVariation, tolerance, results_.at(loadIncreaseIndex));
-    // If at some point loadIncrease for 0. is launched and is not working no need to continue
-    std::map<double, LoadIncreaseStatus, dynawoDoubleLess>::const_iterator itZero = loadIncreaseStatus_.find(0.);
-    if (itZero != loadIncreaseStatus_.end() && !itZero->second.success) {
-      for (auto& result : results)
-        result = 0.;
-      return 0.;
-    }
-
-    if (results_.at(loadIncreaseIndex).getResult().getSuccess()) {
-      if (maxLoadVarForLoadIncrease < newVariation)
-        maxLoadVarForLoadIncrease = newVariation;
-      LoadIncreaseResult liResultTmp(events.size());
-      findOrLaunchScenarios(baseJobsFile, events, toRunCopy, liResultTmp);
-
-      // analyze results
-      task_t below(task.minVariation_, newVariation);
-      task_t above(newVariation, task.maxVariation_);
-      for (size_t i = 0; i < eventsId.size(); ++i) {
-        results_.at(loadIncreaseIndex).getScenarioResult(i) = liResultTmp.getScenarioResult(eventsId[i]);
-        TraceInfo(logTag_) << DYNAlgorithmsLog(ScenariosEnd, results_.at(loadIncreaseIndex).getScenarioResult(i).getUniqueScenarioId(),
-                                      getStatusAsString(results_.at(loadIncreaseIndex).getScenarioResult(i).getStatus())) << Trace::endline;
-        if (results_.at(loadIncreaseIndex).getScenarioResult(i).getStatus() == CONVERGENCE_STATUS) {  // event OK
-          if (results[eventsId[i]] < newVariation)
-            results[eventsId[i]] = newVariation;
-          if ( task.maxVariation_ - newVariation > tolerance ) {
-            above.ids_.push_back(eventsId[i]);
-          }
-        } else {
-          if ( newVariation - task.minVariation_ > tolerance )
-            below.ids_.push_back(eventsId[i]);
-        }
-      }
-      if (!below.ids_.empty())
-        toRun.push(below);
-      if (!above.ids_.empty())
-        toRun.push(above);
-    } else if ( newVariation - task.minVariation_ > tolerance ) {
-      task_t below(task.minVariation_, newVariation);
-      for (const auto eventId : eventsId) {
-        below.ids_.push_back(eventId);
-      }
-      if (!below.ids_.empty())
-        toRun.push(below);
-    }
-    TraceInfo(logTag_) << Trace::endline;
-  }
-  return maxLoadVarForLoadIncrease;
-}
-
-void MarginCalculationLauncher::findOrLaunchScenarios(const std::string& baseJobsFile,
-    const std::vector<boost::shared_ptr<Scenario> >& events,
-    std::queue< task_t >& toRun,
-    LoadIncreaseResult& result) {
-  if (toRun.empty()) return;
-  task_t task = toRun.front();
-  toRun.pop();
-  const std::vector<size_t>& eventsId = task.ids_;
-  double newVariation = round((task.minVariation_ + task.maxVariation_)/2.);
-  if (multiprocessing::context().nbProcs() == 1) {
-    std::string iidmFile = generateIDMFileNameForVariation(newVariation);
-    if (inputsByIIDM_.count(iidmFile) == 0) {
-      // read inputs only if not already existing with enough variants defined
-      inputsByIIDM_[iidmFile].readInputs(workingDirectory_, baseJobsFile, iidmFile);
-    }
-    for (const auto eventId : eventsId)
-      launchScenario(inputsByIIDM_[iidmFile], events[eventId], newVariation, result.getScenarioResult(eventId));
-
-    return;
-  }
+MarginCalculationLauncher::waitForWorker(int & workerId) {
+  int msg[4];
 
 #ifdef _MPI_
-  auto found = scenarioStatus_.find(newVariation);
-  if (found != scenarioStatus_.end()) {
-    TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioResultsFound, newVariation) << Trace::endline;
-    for (const auto& eventId : eventsId) {
-      auto resultId = SimulationResult::getUniqueScenarioId(events.at(eventId)->getId(), newVariation);
-      result.getScenarioResult(eventId) = importResult(resultId);
+    MPI_Status senderInfo;
+    MPI_Recv(msg, 4, MPI_INT, MPI_ANY_SOURCE, MSG_STANDARD, MPI_COMM_WORLD, &senderInfo);
+    workerId = senderInfo.MPI_SOURCE;
+#endif  // _MPI_
+
+  if (pids_.find(workerId) != pids_.end())
+    updateResults(msg[0], msg[1], msg[2] > 0, msg[3] > 0);
+  else
+    pids_[workerId] = (getMachineId() == msg[0]) ? msg[1] : -1;
+}
+
+bool
+MarginCalculationLauncher::getNextTask(int & varIdRet, int & scenIdRet) const {
+  if (liDone(0) && !liOK(0))  // LI failure at 0% : finished
+    return false;
+
+  int hls = highestLISuccessId();
+  int llf = lowestLIFailureId();
+
+  if ((hls+1) != llf) {  // LI search mode
+    scenIdRet = -1;
+
+    static unsigned int count = 0;
+    if (count < initialLIs_.size()) {
+      varIdRet = initialLIs_[count++];
+      return true;
     }
+
+    if (!liStarted(0)) {
+      varIdRet = 0;
+      return true;
+    }
+
+    varIdRet = -1;
+    for (int varId = llf-1; varId >= hls+1; --varId)
+      if (gapScoreLI(varId) > gapScoreLI(varIdRet))
+        varIdRet = varId;
+
+    if (gapScoreLI(varIdRet) > 0)
+      return true;
+  }
+
+  if (hls < 0)
+    return false;
+
+  // at least one valid LI : search pulled by scenarios
+  int lowestPriority = PRIORITY_INVALID;
+
+  for (int scenId = 0; scenId < nbScens(); ++scenId) {
+    int scenIdTask = scenId;
+    int priority, varIdTask;
+    getNextTaskForScen(scenIdTask, varIdTask, priority);
+    if (priority < lowestPriority) {
+      varIdRet = varIdTask;
+      scenIdRet = scenIdTask;
+      lowestPriority = priority;
+    }
+  }
+
+  return (lowestPriority < PRIORITY_INVALID);
+}
+
+void
+MarginCalculationLauncher::getNextTaskForScen(int & scenId, int & varIdRet, int & priority) const {
+  priority = PRIORITY_INVALID;
+
+  int hls = highestLISuccessId();
+  int llf = lowestLIFailureId();
+  int hss = highestScenSuccessId(scenId);
+  int lsf = lowestScenFailureId(scenId);
+  int lf = std::min(llf, lsf);
+
+  if ((hss >= lf-1) || (globMarginMode() && (hss >= globalMarginVarId_)))
+    return;
+
+  // in global mode, priorize scens with low success and low failure, as they are more likely to determine global margin
+  // in local mode, priorize scens with low success and high failure, as there is more work to do on them left
+  priority = hss + (globMarginMode() ? lsf : -lf);
+
+  if (hasActiveThreadScen(scenId))
+    goto ANTICIPATION;
+
+  if (globMarginMode()) {
+    if (liOK(globalMarginVarId_) && !scenStarted(scenId, globalMarginVarId_)) {
+      varIdRet = globalMarginVarId_;
+      return;
+    }
+    if ((globalMarginVarId_ < varId100()) && liOK(globalMarginVarId_+1) && !scenStarted(scenId, globalMarginVarId_+1)) {
+      varIdRet = globalMarginVarId_+1;
+      return;
+    }
+  }
+
+  // lsf > hls is sadly possible due to badly conditioned problems
+  if (lsf <= hls) {  // at least one failure in pertinent range  : dichotomy
+    varIdRet = getLiOKBetween(hss, lsf);
+    if (varIdRet >= 0)
+      return;
+  } else {  // no failure yet : try as high as possible
+    if (!scenStarted(scenId, hls)) {
+      varIdRet = hls;
+      return;
+    }
+  }
+
+  if (!hasActiveThreadLI(scenId)) {
+    scenId = -1;
+    if (hss < 0)
+      varIdRet = (lsf <= mid(varId100())) ? 0 :  mid(lsf);
+    else
+      varIdRet = mid(hss+lf);
+    if (!liStarted(varIdRet))
+      return;
+  }
+
+  ANTICIPATION:
+  priority += 1000;
+
+  varIdRet = 0;
+  int bestScore = 0;
+  for (int varId = lf-1; varId >= hss+1; --varId) {
+    int score = std::max(gapScoreScen(varId, scenId), gapScoreLI(varId));
+    if (score > bestScore) {
+      bestScore = score;
+      varIdRet = varId;
+    }
+  }
+
+  // check whether selected task is a scen or a LI
+  if (!liOK(varIdRet))
+    scenId = -1;
+
+  // priorize anticipation that covers the most ground among all scenarios rather than all anticipations on widest scenario
+  if (!globMarginMode())
+    priority = 1000 - bestScore;
+
+  if (bestScore <= 0)
+    priority = PRIORITY_INVALID;
+}
+
+void
+MarginCalculationLauncher::updateResults(int varId, int scenId, bool complete, bool success) {
+  workStatus_[varId][scenId+1] = complete ? SIMU_FINISHED : SIMU_NOT_STARTED;
+
+  const char * successStr = (complete ? (success ? "success" : "failure") : "aborted");
+
+  if (scenId >= 0) {
+    PRINT("scen " << scenId << " at " << discreteVars_[varId] << "% " << successStr);
+    TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioFeedback, scenId, discreteVars_[varId], successStr) << Trace::endline;
+  } else {
+    PRINT("LI at " << discreteVars_[varId] << "% " << successStr);
+    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseFeedback, discreteVars_[varId], successStr) << Trace::endline;
+  }
+
+  if (!complete)
+    return;
+
+  if (scenId < 0) {
+    SimulationResult & result = results_[varId].getResult();
+    result.setVariation(discreteVars_[varId]);
+    result.setSuccess(success);
+  } else {
+    SimulationResult & result = results_[varId].getScenarioResult(scenId);
+    result.setScenarioId(getScen(scenId)->getId());  // mark it as run for result collection
+    result.setVariation(discreteVars_[varId]);
+    result.setSuccess(success);
+  }
+
+  if (!success) {
+    globalMarginVarId_ = std::min(globalMarginVarId_, varId-1);
+    globalMarginVarId_ = std::max(globalMarginVarId_, 0);
+  }
+
+  for (int scenIdOther = 0; scenIdOther < nbScens(); ++scenIdOther) {
+    int successId = highestScenSuccessId(scenIdOther);
+    if ((successId == varId100()) ||
+        (globMarginMode() && (successId >= globalMarginVarId_)) ||
+        (liDone(successId+1) && (!liOK(successId+1))) ||
+        scenDone(scenIdOther, successId+1))
+
+      marginScens_[scenIdOther] = discreteVars_[std::max(successId, 0)];
+  }
+
+  if (isServerThread())
+    abortObsoleteSimus();
+}
+
+void
+MarginCalculationLauncher::abortObsoleteSimus() {
+  for (int varId = 0; varId < nbVars(); ++varId)
+    if (workStatus_[varId][0] >= SERVER_ID) {
+      bool needed = false;
+      for (int scenId = 0; scenId < nbScens(); ++scenId) {
+        if (marginScens_[scenId] >= 0)
+          continue;
+        if (lowestScenFailureId(scenId) > varId100())
+          continue;
+        if (lowestScenFailureId(scenId) < varId)
+          continue;
+        if (highestScenSuccessId(scenId) > varId)
+          continue;
+        needed = true;
+        break;
+      }
+
+      // do not cancel initial LIs as they may serve and are supposedly near to completion
+      for (int protectedVarId : initialLIs_)
+        if (varId == protectedVarId)
+          needed = true;
+
+      if ((highestLISuccessId()+1) != lowestLIFailureId()) {
+        if (lowestLIFailureId() > varId100())
+          needed = true;  // do not cancel LIs while varId100() has not been tested
+        else if (varId > highestLISuccessId())
+          needed = true;  // do not cancel crucial LIs in LI search mode motivated by LI failure
+      }
+
+      if (varId > lowestLIFailureId())
+        needed = false;
+
+      if (!needed)
+        abortSimulation(varId, 0);
+    }
+
+  for (int varId = 0; varId < nbVars(); ++varId)
+    for (int scenId = 0; scenId < nbScens(); ++scenId)
+      if (workStatus_[varId][scenId+1] >= SERVER_ID) {
+        if ((marginScens_[scenId] >= 0) || (lowestScenFailureId(scenId) < varId) || (highestScenSuccessId(scenId) > varId)) {  // useless computation
+          abortSimulation(varId, scenId+1);
+        } else if ((lowestScenFailureId(scenId) > varId100()) && (highestLISuccessId() > varId) && (varId < globalMarginVarId_)) {
+          bool noHigherSimuRunning = true;
+          for (int varIdBetter = varId+1; varIdBetter < nbVars(); ++varIdBetter)
+            if (scenStarted(scenId, varIdBetter)) {
+              noHigherSimuRunning = false;
+              break;
+            }
+          if (noHigherSimuRunning)  // heuristic optim : most of the scenarios pass at the highest LI available
+            abortSimulation(varId, scenId+1);
+        }
+      }
+}
+
+int
+MarginCalculationLauncher::lowestLIFailureId() const {
+  for (int varId = 0; varId < nbVars(); ++varId)
+      if (liDone(varId) && !liOK(varId))
+        return varId;
+
+  return varId100()+1;
+}
+
+int
+MarginCalculationLauncher::highestLISuccessId() const {
+  for (int varId = lowestLIFailureId()-1; varId >= 0; --varId)
+      if (liOK(varId))
+        return varId;
+
+  return -1;
+}
+
+int
+MarginCalculationLauncher::lowestScenFailureId(int scenId) const {
+  for (int varId = 0; varId < nbVars(); ++varId)
+      if (scenDone(scenId, varId) && !scenOK(scenId, varId))
+        return varId;
+
+  return varId100()+1;
+}
+
+int
+MarginCalculationLauncher::highestScenSuccessId(int scenId) const {
+  for (int varId = lowestScenFailureId(scenId)-1; varId >= 0; --varId)
+      if (scenDone(scenId, varId) && scenOK(scenId, varId))
+        return varId;
+
+  return -1;
+}
+
+bool
+MarginCalculationLauncher::hasActiveThreadScen(int scenId) const {
+  for (int varId = highestScenSuccessId(scenId)+1; varId < lowestScenFailureId(scenId); ++varId)
+    if (scenStarted(scenId, varId))
+      return true;
+  return false;
+}
+
+bool
+MarginCalculationLauncher::hasActiveThreadLI(int scenId) const {
+  for (int varId = highestScenSuccessId(scenId)+1; varId < std::min(lowestScenFailureId(scenId), lowestLIFailureId()); ++varId)
+    if (liStarted(varId))
+      return true;
+  return false;
+}
+
+int
+MarginCalculationLauncher::getLiOKBetween(int varIdMin, int varIdMax) const {
+  int varIdClosest = -1;
+  int distMin = 1000;
+
+  // find the already computed LI closest to the middle
+  for (int varId = varIdMin+1; varId <= varIdMax-1; ++varId) {
+    if (liOK(varId)) {
+      int dist = std::abs(varId-mid(varIdMin+varIdMax));
+      if (dist < distMin) {
+        varIdClosest = varId;
+        distMin = dist;
+      }
+    }
+  }
+
+  return varIdClosest;
+}
+
+int
+MarginCalculationLauncher::gapScoreLI(int varId) const {
+  if ((varId < 0) || (varId > varId100()) || liStarted(varId))
+    return 0;
+
+  int gapScore = 1;
+  int gap = 1;
+  bool limitReached = false;
+  while (!limitReached) {
+    if ((varId-gap < 0) || liStarted(varId-gap))
+      limitReached = true;
+    else
+      ++gapScore;
+
+    if ((varId+gap >= nbVars()) || liStarted(varId+gap))
+      limitReached = true;
+    else
+      ++gapScore;
+
+    ++gap;
+  }
+
+  return gapScore;
+}
+
+int
+MarginCalculationLauncher::gapScoreScen(int varId, int scenId) const {
+  if (scenStarted(scenId, varId))
+    return 0;
+
+  if (!liOK(varId))
+    return 0;
+
+  int gapScore = 1;
+  int gap = 1;
+  bool limitReached = false;
+  while (!limitReached) {
+    if ((varId-gap < 0) || scenStarted(scenId, varId-gap))
+      limitReached = true;
+    else
+      ++gapScore;
+
+    if ((varId+gap >= nbVars()) || scenStarted(scenId, varId+gap))
+      limitReached = true;
+    else
+      ++gapScore;
+
+    ++gap;
+  }
+
+  return gapScore;
+}
+
+void
+MarginCalculationLauncher::launchTask(int varId, int scenId, int workerId, int * complete, int * success) {
+  workStatus_[varId][scenId+1] = workerId;
+
+  if (scenId >= 0)
+    TraceInfo(logTag_) << DYNAlgorithmsLog(ScenarioLaunch, scenId, discreteVars_[varId]) << Trace::endline;
+  else
+    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseLaunch, discreteVars_[varId]) << Trace::endline;
+
+  if (isServerThread()) {
+#ifdef _MPI_
+    int msg[2] = {varId, scenId};
+    MPI_Send(msg, 2, MPI_INT, workerId, MSG_STANDARD, MPI_COMM_WORLD);
+    return;
+#endif  // _MPI_
+  }
+
+  DYN::SignalHandler::setExitSignal(false);  // not reset by dynawo ...
+  SimulationResult & result = (scenId >= 0) ? results_[varId].getScenarioResult(scenId) :  results_[varId].getResult();
+
+  if (scenId >= 0) {
+    PRINT("launching scen " << scenId << " at " << discreteVars_[varId] << "% ");
+    std::string iidmFile = generateIDMFileNameForVariation(discreteVars_[varId]);
+    if (inputsByIIDM_.count(iidmFile) == 0)  // read inputs only if not already existing with enough variants defined
+      inputsByIIDM_[iidmFile].readInputs(workingDirectory_, mc_->getScenarios()->getJobsFile(), iidmFile);
+
+    launchScenario(inputsByIIDM_[iidmFile], getScen(scenId), discreteVars_[varId], result);
+  } else {
+    PRINT("launching LI at " << discreteVars_[varId] << "% ");
+    const boost::shared_ptr<LoadIncrease> & loadIncrease = mc_->getLoadIncrease();
+    inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
+
+    launchLoadIncrease(loadIncrease, discreteVars_[varId], result);
+  }
+
+  if (complete != nullptr)
+    *complete = DYN::SignalHandler::gotExitSignal() ? 0 : 1;
+
+  if (DYN::SignalHandler::gotExitSignal())
+    return;
+
+  if (isWorkerThread())
+    exportResult(result);
+  else
+    updateResults(varId, scenId, true, result.getSuccess());
+
+  if (success != nullptr)
+    *success = result.getSuccess() ? 1 : 0;
+}
+
+void
+MarginCalculationLauncher::abortSimulation(int varId, int taskId) {
+  if (pids_[workStatus_[varId][taskId]] < 0) {
+    PRINT("cannot abort task " << taskId << " at " << discreteVars_[varId] << "% as pid is invalid (remote host or windows ?)");
     return;
   }
 
-  std::vector<std::pair<size_t, double> > events2Run;
-  prepareEvents2Run(task, toRun, events2Run);
+#ifndef _MSC_VER
+  kill(pids_[workStatus_[varId][taskId]], SIGINT);
+  workStatus_[varId][taskId] = SIMU_ABORTED;
 
-  for (const auto& event2Run : events2Run) {
-    double variation = event2Run.second;
-    std::string iidmFile = generateIDMFileNameForVariation(variation);
-    if (inputsByIIDM_.count(iidmFile) == 0) {
-      inputsByIIDM_[iidmFile].readInputs(workingDirectory_, baseJobsFile, iidmFile);
-    }
-  }
-
-  std::vector<bool> successes;
-  multiprocessing::forEach(0, events2Run.size(), [this, &events2Run, &events, &successes](unsigned int i){
-    double variation = events2Run[i].second;
-    std::string iidmFile = generateIDMFileNameForVariation(variation);
-    size_t eventIdx = events2Run[i].first;
-    SimulationResult resultScenario;
-    createScenarioWorkingDir(events.at(eventIdx)->getId(), variation);
-    launchScenario(inputsByIIDM_.at(iidmFile), events.at(eventIdx), variation, resultScenario);
-    successes.push_back(resultScenario.getSuccess());
-    exportResult(resultScenario);
-  });
-  // Sync successes
-  std::vector<bool> allSuccesses = synchronizeSuccesses(successes);
-  for (unsigned int i = 0; i < events2Run.size(); i++) {
-    auto& event = events2Run.at(i);
-    scenarioStatus_[event.second].resize(events.size());
-    scenarioStatus_.at(event.second).at(event.first).success = allSuccesses.at(i);
-  }
-  assert(scenarioStatus_.count(newVariation) > 0);
-
-  for (const auto& eventId : eventsId) {
-    auto resultId = SimulationResult::getUniqueScenarioId(events.at(eventId)->getId(), newVariation);
-    result.getScenarioResult(eventId) = importResult(resultId);
-  }
-
-  for (const auto& event2Run : events2Run) {
-    double variation = event2Run.second;
-    std::string iidmFile = generateIDMFileNameForVariation(variation);
-    inputsByIIDM_.erase(iidmFile);  // remove iidm file used for scenario to save RAM
+  if (taskId > 0) {
+    PRINT("aborting scen " << taskId-1 << " at " << discreteVars_[varId] << "% ");
+    TraceInfo(logTag_) <<  DYNAlgorithmsLog(ScenarioAbort, taskId-1, discreteVars_[varId]) << Trace::endline;
+  } else {
+    PRINT("aborting LI at " << discreteVars_[varId] << "% ");
+    TraceInfo(logTag_) <<  DYNAlgorithmsLog(LoadIncreaseAbort, discreteVars_[varId]) << Trace::endline;
   }
 #endif
 }
 
 void
-MarginCalculationLauncher::prepareEvents2Run(const task_t& requestedTask,
-    std::queue< task_t >& toRun,
-    std::vector<std::pair<size_t, double> >& events2Run) {
-  const std::vector<size_t>& eventsId = requestedTask.ids_;
-  double newVariation = round((requestedTask.minVariation_ + requestedTask.maxVariation_)/2.);
-  auto it = loadIncreaseStatus_.find(newVariation);
-  if (it != loadIncreaseStatus_.end() && it->second.success) {
-    for (const auto eventId : eventsId) {
-      events2Run.emplace_back(std::make_pair(eventId, newVariation));
-    }
+MarginCalculationLauncher::terminateWorker(int workerId, std::set<int> & workersLeft) const {
+#ifdef _MPI_
+  int msg[2] = {-1, -1};
+  MPI_Send(msg, 2, MPI_INT, workerId, MSG_STANDARD, MPI_COMM_WORLD);
+  workersLeft.erase(workerId);
+#endif  // _MPI_
+}
+
+void
+MarginCalculationLauncher::cleanupWorkers(std::set<int> & workersLeft) {
+  // abort everything still running
+  for (int varId = 0; varId < nbVars(); ++varId)
+    for (int taskId = 0; taskId <= nbScens(); ++taskId)
+      if (workStatus_[varId][taskId] > SERVER_ID)
+        abortSimulation(varId, taskId);
+
+  // terminate cleanly each remaining worker when it reports to server
+  while (workersLeft.size() > 0) {
+#ifdef _MPI_
+    MPI_Status senderInfo;
+    int msg[4];
+    MPI_Recv(msg, 4, MPI_INT, MPI_ANY_SOURCE, MSG_STANDARD, MPI_COMM_WORLD, &senderInfo);
+    terminateWorker(senderInfo.MPI_SOURCE, workersLeft);
+#endif  // _MPI_
   }
-  while (events2Run.size() < multiprocessing::context().nbProcs() && !toRun.empty()) {
-    task_t newTask = toRun.front();
-    toRun.pop();
-    const std::vector<size_t>& newEventsId = newTask.ids_;
-    double variation = round((newTask.minVariation_ + newTask.maxVariation_)/2.);
-    it = loadIncreaseStatus_.find(variation);
-    if (it == loadIncreaseStatus_.end() || !it->second.success) continue;
-    if (scenarioStatus_.find(variation) != scenarioStatus_.end()) continue;
-    for (const auto newEventId : newEventsId) {
-      events2Run.emplace_back(std::make_pair(newEventId, variation));
+}
+
+int
+MarginCalculationLauncher::getMachineId() const {
+  char hostname[256] = "windows_host";
+#ifndef _MSC_VER
+  gethostname(hostname, 256);
+#endif
+  hostname[255] = 0;
+  int len = strlen(hostname);
+  int machineId = 0;
+  for (int i=1; i<= 4; ++i) {
+    machineId += hostname[len-i];
+    machineId = (machineId << 8);
+  }
+  return machineId;
+}
+
+void
+MarginCalculationLauncher::importResults() {
+  PRINT("finished with global margin " << discreteVars_[globalMarginVarId_] << "%");
+  if (!globMarginMode()) {
+    for (int scenId = 0; scenId < nbScens(); ++scenId)
+      PRINT("local margin " << getScen(scenId)->getId() << " : " << marginScens_[scenId] << "%");
+  }
+
+  TraceInfo(logTag_) << "============================================================ " << Trace::endline;
+  TraceInfo(logTag_) << DYNAlgorithmsLog(GlobalMarginValue, discreteVars_[globalMarginVarId_]) << Trace::endline;
+  if (!globMarginMode()) {
+    for (int scenId = 0; scenId < nbScens(); ++scenId)
+      TraceInfo(logTag_) << DYNAlgorithmsLog(LocalMarginValueScenario, getScen(scenId)->getId(), marginScens_[scenId]) << Trace::endline;
+  }
+  boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
+  boost::posix_time::time_duration diff = t1 - t0_;
+  TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Margin calculation", diff.total_milliseconds()/1000) << Trace::endline;
+  TraceInfo(logTag_) << "============================================================ " << Trace::endline;
+
+  // purge unused results for readability of aggregatedResults.xml
+  std::vector<LoadIncreaseResult> sparseResults;
+  sparseResults.swap(results_);
+  for (LoadIncreaseResult & result : sparseResults) {
+    int variation = result.getResult().getVariation();
+    if (variation < 0)
+      continue;
+
+    if (isServerThread()) {
+      std::string liPath = std::string(LOAD_INCREASE) + "-" + std::to_string(variation);
+      result.setResult(importResult(liPath));
+      cleanResult(liPath);
     }
+
+    std::vector<SimulationResult> denseScenResults;
+
+    for (int scenId = 0; scenId < nbScens(); ++scenId) {
+      SimulationResult & resultScen = result.getScenarioResult(scenId);
+      if (resultScen.getScenarioId() == "")
+        continue;
+      if (isServerThread()) {
+        std::string scenPath = SimulationResult::getUniqueScenarioId(getScen(scenId)->getId(), variation);
+        resultScen = importResult(scenPath);
+        cleanResult(scenPath);
+      }
+      denseScenResults.push_back(resultScen);
+    }
+
+    denseScenResults.swap(result.getScenariosResults());
+
+    results_.push_back(result);
   }
 }
 
@@ -652,142 +796,6 @@ MarginCalculationLauncher::launchScenario(const MultiVariantInputs& inputs, cons
 
   if (multiprocessing::context().nbProcs() == 1)
     std::cout << " Task :" << scenario->getId() << " status =" << getStatusAsString(result.getStatus()) << std::endl;
-}
-
-std::vector<double>
-MarginCalculationLauncher::generateVariationsToLaunch(unsigned int maxNumber, double variation,
-                                                      double minVariation, double maxVariation, double tolerance) const {
-  std::set<double, dynawoDoubleLess> variationsToLaunch;
-  variationsToLaunch.insert(variation);
-
-  // Hack to add 0. if the load increase is below 50. as we know we never did 0. in the first place
-  if (loadIncreaseStatus_.find(0.) == loadIncreaseStatus_.end() && variation < 50.)
-    variationsToLaunch.insert(0.);
-  if (variationsToLaunch.size() < maxNumber) {
-    std::queue< std::pair<double, double> > levels;
-    double closestVariationBelow = minVariation;
-    double closestVariationAbove = maxVariation;
-    for (const auto& status : loadIncreaseStatus_) {
-      if (closestVariationBelow < status.first && status.first < variation)
-        closestVariationBelow = status.first;
-      if (status.first < closestVariationAbove &&  variation < status.first)
-        closestVariationAbove = status.first;
-    }
-    levels.emplace(std::make_pair(closestVariationBelow, closestVariationAbove));
-    while (!levels.empty() && variationsToLaunch.size() < maxNumber) {
-      std::pair<double, double> currentLevel = levels.front();
-      levels.pop();
-      double nextVariation = round((currentLevel.first + currentLevel.second)/2.);
-      variationsToLaunch.insert(nextVariation);
-      if (currentLevel.second - nextVariation > tolerance)
-        levels.emplace(std::make_pair(nextVariation, currentLevel.second));
-      if (DYN::doubleNotEquals(nextVariation, 50.) && nextVariation - currentLevel.first > tolerance)
-        levels.emplace(std::make_pair(currentLevel.first, nextVariation));
-    }
-  }
-  std::vector<double> variationsToLaunchVector(variationsToLaunch.begin(), variationsToLaunch.end());
-  return variationsToLaunchVector;
-}
-
-#ifdef _MPI_
-std::vector<bool>
-MarginCalculationLauncher::synchronizeSuccesses(const std::vector<bool>& successes) {
-  auto& context = multiprocessing::context();
-  std::vector<std::vector<bool>> gatheredSuccesses;
-  context.gather(successes, gatheredSuccesses);
-  std::vector<bool> allSuccesses;
-  if (context.isRootProc()) {
-    auto size =
-      std::accumulate(gatheredSuccesses.begin(), gatheredSuccesses.end(), 0, [](size_t sum, const std::vector<bool>& data) { return sum + data.size(); });
-    allSuccesses.resize(size);
-    for (unsigned int i = 0; i < context.nbProcs(); i++) {
-      const auto& vect = gatheredSuccesses.at(i);
-      for (unsigned int j = 0; j < vect.size(); j++) {
-        // variations were attributed to procs following the formula: "index % nbprocs == rank" throught forEach function
-        allSuccesses.at(j * context.nbProcs() + i) = vect.at(j);
-      }
-    }
-  }
-  context.broadcast(allSuccesses);
-  return allSuccesses;
-}
-#endif
-
-std::string
-MarginCalculationLauncher::computeLoadIncreaseScenarioId(double variation) {
-  std::stringstream ss;
-  ss << LOAD_INCREASE << "-" << variation;
-  return ss.str();
-}
-
-void
-MarginCalculationLauncher::findOrLaunchLoadIncrease(const boost::shared_ptr<LoadIncrease>& loadIncrease,
-                                                    const double variation,
-                                                    const double minVariation,
-                                                    const double maxVariation,
-                                                    const double tolerance,
-                                                    LoadIncreaseResult& loadIncreaseResult) {
-#ifndef _MPI_
-  static_cast<void>(minVariation);
-  static_cast<void>(maxVariation);
-  static_cast<void>(tolerance);
-#endif
-
-  TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, variation) << Trace::endline;
-
-  auto found = loadIncreaseStatus_.find(variation);
-  if (found != loadIncreaseStatus_.end()) {
-    const SimulationResult importedLoadIncreaseResult1 = importResult(computeLoadIncreaseScenarioId(variation));
-    loadIncreaseResult.setResult(importedLoadIncreaseResult1);
-    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseResultsFound, variation) << Trace::endline;
-    return;
-  }
-
-  if (multiprocessing::context().nbProcs() == 1) {
-    inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
-    SimulationResult& loadIncreaseSimulationResult = loadIncreaseResult.getResult();
-    launchLoadIncrease(loadIncrease, variation, loadIncreaseSimulationResult);
-    loadIncreaseStatus_.insert(std::make_pair(variation, LoadIncreaseStatus(loadIncreaseSimulationResult.getSuccess())));
-
-    // Hack to add 0. if the load increase is below 50. as we know we never did 0. in the first place
-    if (variation < 50. && !loadIncreaseResult.getResult().getSuccess() && loadIncreaseStatus_.find(0.) == loadIncreaseStatus_.end()) {
-      TraceInfo(logTag_) << DYNAlgorithmsLog(VariationValue, 0.) << Trace::endline;
-      SimulationResult result0;
-      inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
-      launchLoadIncrease(loadIncrease, 0., result0);
-      loadIncreaseStatus_.insert(std::make_pair(0., LoadIncreaseStatus(result0.getSuccess())));
-    }
-    return;
-  }
-
-#ifdef _MPI_
-  // Algo to generate variations to launch
-  auto& context = multiprocessing::context();
-  std::vector<double> variationsToLaunch = generateVariationsToLaunch(context.nbProcs(), variation, minVariation, maxVariation, tolerance);
-
-  // Launch Simulations
-  inputs_.readInputs(workingDirectory_, loadIncrease->getJobsFile());
-  std::vector<bool> successes;
-  multiprocessing::forEach(0, variationsToLaunch.size(), [this, &loadIncrease, &variationsToLaunch, &successes](unsigned int i){
-    SimulationResult resultScenario;
-    createScenarioWorkingDir(loadIncrease->getId(), variationsToLaunch.at(i));
-    launchLoadIncrease(loadIncrease, variationsToLaunch.at(i), resultScenario);
-    successes.push_back(resultScenario.getSuccess());
-    exportResult(resultScenario);
-  });
-  // Sync successes
-  std::vector<bool> allSuccesses = synchronizeSuccesses(successes);
-  // Fill load increase status
-  for (unsigned int i = 0; i < variationsToLaunch.size(); i++) {
-    auto currVariation = variationsToLaunch.at(i);
-    loadIncreaseStatus_.insert(std::make_pair(currVariation, LoadIncreaseStatus(allSuccesses.at(i))));
-    const SimulationResult importedLoadIncreaseResult2 = importResult(computeLoadIncreaseScenarioId(currVariation));
-    TraceInfo(logTag_) << DYNAlgorithmsLog(LoadIncreaseEnd, currVariation, getStatusAsString(importedLoadIncreaseResult2.getStatus())) << Trace::endline;
-  }
-  assert(loadIncreaseStatus_.count(variation) > 0);
-  const SimulationResult importedLoadIncreaseResult3 = importResult(computeLoadIncreaseScenarioId(variation));
-  loadIncreaseResult.setResult(importedLoadIncreaseResult3);
-#endif
 }
 
 void
