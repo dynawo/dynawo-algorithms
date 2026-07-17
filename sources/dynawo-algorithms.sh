@@ -40,7 +40,7 @@ export_var_env() {
   export $name="$value"
 }
 
-usage="Usage: `basename $0` [option] -- program to launch Dynawo simulation
+usage="Usage: "$(basename $0)" [option] -- program to launch Dynawo simulation
 
 where [option] can be:
     simulationType             could be:
@@ -51,7 +51,7 @@ where [option] can be:
     --version                  show Dynawo version
     --help                     show this message"
 
-setDynawoEnv() {
+set_dynawo_env() {
   export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   export_var_env DYNAWO_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
   export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
@@ -78,17 +78,19 @@ setDynawoEnv() {
 
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
   
-  if [ -d "$DYNAWO_INSTALL_DIR/OpenModelica" ]; then
+  if [[ -d "$DYNAWO_INSTALL_DIR/OpenModelica" ]]; then
     export PATH=$DYNAWO_INSTALL_DIR/OpenModelica/bin:$PATH
     export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_INSTALL_DIR/OpenModelica
     export_var_env OPENMODELICAHOME=$DYNAWO_INSTALL_OPENMODELICA
   fi
+ return
 }
 
-setLibPath() {
+set_lib_path() {
   # set LD_LIBRARY_PATH
   export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
   MPIRUN_PATH="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/bin/mpirun"
+  return
 }
 
 export_preload() {
@@ -99,9 +101,9 @@ export_preload() {
   # fi
   lib=$lib".so"
   
-  if [ -d $DYNAWO_TCMALLOC_INSTALL_DIR/lib ]; then
+  if [[ -d $DYNAWO_TCMALLOC_INSTALL_DIR/lib ]]; then
     externalTcMallocLib=$(find $DYNAWO_TCMALLOC_INSTALL_DIR/lib -iname *$lib)
-    if [ -n "$externalTcMallocLib" ]; then
+    if [[ -n "$externalTcMallocLib" ]]; then
       echo "Use downloaded tcmalloc library $externalTcMallocLib"
       export LD_PRELOAD=$externalTcMallocLib
       return
@@ -109,7 +111,7 @@ export_preload() {
   fi
 
   nativeTcMallocLib=$(ldconfig -p | grep -e $lib$ | cut -d ' ' -f4)
-  if [ -n "$nativeTcMallocLib" ]; then
+  if [[ -n "$nativeTcMallocLib" ]]; then
     echo "Use native tcmalloc library $nativeTcMallocLib"
     export LD_PRELOAD=$nativeTcMallocLib
     return
@@ -117,8 +119,8 @@ export_preload() {
 }
 
 algo_CS() {
-  setDynawoEnv
-  setLibPath
+  set_dynawo_env
+  set_lib_path
 
   # launch dynawo-algorithms
   $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CS $@
@@ -128,8 +130,8 @@ algo_CS() {
 }
 
 algo_MC() {
-  setDynawoEnv
-  setLibPath
+  set_dynawo_env
+  set_lib_path
   export_preload
 
   args=""
@@ -160,8 +162,8 @@ algo_MC() {
 }
 
 algo_SA() {
-  setDynawoEnv
-  setLibPath
+  set_dynawo_env
+  set_lib_path
   export_preload
 
   NBPROCS=1
@@ -192,8 +194,8 @@ algo_SA() {
 }
 
 algo_CTC() {
-  setDynawoEnv
-  setLibPath
+  set_dynawo_env
+  set_lib_path
   export_preload
 
   args=""
@@ -223,7 +225,7 @@ algo_CTC() {
   return ${RETURN_CODE}
 }
 
-if [ $# -eq 0 ]; then
+if [[ $# -eq 0 ]]; then
   echo "$usage"
   exit 1
 fi
@@ -232,27 +234,27 @@ while (($#)); do
   case $1 in
     CS)
       shift
-      algo_CS $@ || error_exit "Dynawo execution failed"
+      algo_CS $@ || error_exit "Dynawo CS execution failed"
       break
       ;;
     MC)
       shift
-      algo_MC $@ || error_exit "Dynawo execution failed"
+      algo_MC $@ || error_exit "Dynawo MC execution failed"
       break
       ;;
     SA)
       shift
-      algo_SA $@ || error_exit "Dynawo execution failed"
+      algo_SA $@ || error_exit "Dynawo SA execution failed"
       break
       ;;
     CTC)
       shift
-      algo_CTC $@ || error_exit "Dynawo execution failed"
+      algo_CTC $@ || error_exit "Dynawo CTC execution failed"
       break
       ;;
     --version)
-      setDynawoEnv
-      setLibPath
+      set_dynawo_env
+      set_lib_path
       $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --version
       break
       ;;
