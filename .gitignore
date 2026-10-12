@@ -51,7 +51,9 @@ nrt/data/IEEE14/MC*/finalState
 nrt/data/IEEE14/MC*/result.zip
 nrt/data/IEEE14/MC*/*.dyd
 nrt/data/IEEE14/MC*/criteria*
+nrt/data/IEEE14/*/result.zip
 nrt/data/*/*/*/outputs*/
+!nrt/data/*/*/reference/outputs*/
 nrt/output
 *.pyc
 platforms/DBCreation/DBCreation.log

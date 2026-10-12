@@ -39,16 +39,16 @@ namespace DYNAlgorithms {
 void
 ComputeSimulationLauncher::launch() {
   boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
-  std::string outputFileFullPath = outputFile_;
   std::string workingDir = absolute(remove_file_name(inputFile_));
   workingDirectory_ = workingDir;
+  outputFileFullPath_ = createAbsolutePath(outputFile_, workingDirectory_);
+
   initLog();
-  if (outputFileFullPath.empty()) {
-    outputFileFullPath = createAbsolutePath("results.xml", workingDir);
+  if (outputFileFullPath_.empty()) {
+    outputFileFullPath_ = createAbsolutePath("results.xml", workingDir);
   }
   job::XmlImporter importer;
   boost::shared_ptr<job::JobsCollection> jobsCollection = importer.importFromFile(inputFile_);
-  workingDirectory_ = workingDir;
   for (job::job_iterator itJobEntry = jobsCollection->begin(); itJobEntry != jobsCollection->end(); ++itJobEntry) {
     boost::shared_ptr<job::JobEntry>& job = *itJobEntry;
     std::cout << DYNLog(LaunchingJob, (*itJobEntry)->getName()) << std::endl;
@@ -62,16 +62,27 @@ ComputeSimulationLauncher::launch() {
     }
     results_.push_back(result);
   }
-  aggregatedResults::XmlExporter exporter;
-  exporter.exportScenarioResultsToFile(results_, outputFileFullPath);
   boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
   boost::posix_time::time_duration diff = t1 - t0;
   Trace::info(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Simulation", diff.total_milliseconds()/1000) << Trace::endline;
 }
 
 void
-ComputeSimulationLauncher::createOutputs(std::map<std::string, std::string>& /*mapData*/, bool /*zipIt*/) const {
-  // Only simulation outputs are needed
+ComputeSimulationLauncher::createOutputs(std::map<std::string, std::string>& mapData, bool zipIt) const {
+  aggregatedResults::XmlExporter exporter;
+  if (zipIt) {
+    std::stringstream aggregatedResults;
+    exporter.exportScenarioResultsToStream(results_, aggregatedResults);
+    mapData["aggregatedResults.xml"] = aggregatedResults.str();
+  } else {
+    exporter.exportScenarioResultsToFile(results_, outputFileFullPath_);
+  }
+
+  for (const auto& result : results_) {
+    if (zipIt) {
+      storeOutputs(result, mapData);
+    }
+  }
 }
 
 }  // namespace DYNAlgorithms
