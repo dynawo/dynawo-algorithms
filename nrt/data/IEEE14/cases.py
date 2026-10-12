@@ -150,6 +150,15 @@ job_file = os.path.join(os.path.dirname(__file__), "IEEE14_BlackBoxModels", "IEE
 
 test_cases.append((case_name, case_description, "CS", job_file, -1, 5, False, standardReturnCodeType, standardReturnCode))
 
+
+case_name = "IEEE14_CS_zip_output"
+case_description = "IEEE14 - test of CS mode with zip output"
+job_file = os.path.join(os.path.dirname(__file__), "IEEE14_BlackBoxModels_zip_output", "IEEE14.jobs")
+zip_output = True
+
+test_cases.append((case_name, case_description, "CS", job_file, -1, 5, False, standardReturnCodeType, standardReturnCode, zip_output))
+
+
 #########################################
 #  IEEE14 - Critical Time Calculation   #
 #########################################
