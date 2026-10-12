@@ -1,0 +1,767 @@
+2026-10-15 17:49:10 | INFO |  ============================================================ 
+2026-10-15 17:49:10 | INFO | DYNAWO VERSION  :     1.7.1
+2026-10-15 17:49:10 | INFO | DYNAWO REVISION :  3923_add_quadripole_criteria_v17-bcb86c3fec7
+2026-10-15 17:49:10 | INFO |  ============================================================ 
+2026-10-15 17:49:10 | INFO | 
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | building model from input files
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | model was built successfully
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | 
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | starting local initialization
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | DEBUG | keep SubNetworks num : 0
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model GEN____1_SM
+2026-10-15 17:49:10 | DEBUG | local initialization of model GEN____1_SM ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model GEN____2_SM
+2026-10-15 17:49:10 | DEBUG | local initialization of model GEN____2_SM ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model GEN____3_SM
+2026-10-15 17:49:10 | DEBUG | local initialization of model GEN____3_SM ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model GEN____6_SM
+2026-10-15 17:49:10 | DEBUG | local initialization of model GEN____6_SM ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model GEN____8_SM
+2026-10-15 17:49:10 | DEBUG | local initialization of model GEN____8_SM ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD__10_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD__10_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD__11_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD__11_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD__12_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD__12_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD__13_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD__13_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD__14_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD__14_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD___2_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD___2_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD___3_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD___3_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD___4_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD___4_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD___5_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD___5_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD___6_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD___6_EC ended successfully
+2026-10-15 17:49:10 | DEBUG | ------------------------------
+2026-10-15 17:49:10 | DEBUG | starting local initialization of model _LOAD___9_EC
+2026-10-15 17:49:10 | DEBUG | local initialization of model _LOAD___9_EC ended successfully
+2026-10-15 17:49:10 | INFO | end of local initialization
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | 
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | starting global initialization
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | DEBUG | initialization of IDA solver : ok
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 0.00661374 and ||F(y_0)*Weight||_2 = 0.0115392
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[367]=-0.00661374 (model=Flow Connector index=60 equation:Flow connector : _LOAD__14_EC - NETWORK)
+2026-10-15 17:49:10 | DEBUG | F[355]=-0.00535088 (model=Flow Connector index=48 equation:Flow connector : GEN____6_SM - NETWORK - _LOAD___6_EC)
+2026-10-15 17:49:10 | DEBUG | F[365]=0.00486221 (model=Flow Connector index=58 equation:Flow connector : _LOAD__13_EC - NETWORK)
+2026-10-15 17:49:10 | DEBUG | F[373]=0.00374775 (model=Flow Connector index=66 equation:Flow connector : _LOAD___9_EC - NETWORK)
+2026-10-15 17:49:10 | DEBUG | F[352]=0.00237764 (model=Flow Connector index=45 equation:Flow connector : GEN____2_SM - NETWORK - _LOAD___2_EC)
+2026-10-15 17:49:10 | DEBUG | F[351]=-0.00192264 (model=Flow Connector index=44 equation:Flow connector : GEN____2_SM - NETWORK - _LOAD___2_EC)
+2026-10-15 17:49:10 | DEBUG | F[371]=0.00157775 (model=Flow Connector index=64 equation:Flow connector : _LOAD___5_EC - NETWORK)
+2026-10-15 17:49:10 | DEBUG | F[361]=0.00128415 (model=Flow Connector index=54 equation:Flow connector : _LOAD__11_EC - NETWORK)
+2026-10-15 17:49:10 | DEBUG | F[354]=-0.001193 (model=Flow Connector index=47 equation:Flow connector : GEN____3_SM - NETWORK - _LOAD___3_EC)
+2026-10-15 17:49:10 | DEBUG | F[366]=-0.0011529 (model=Flow Connector index=59 equation:Flow connector : _LOAD__13_EC - NETWORK)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 1 : ||F(y_1)*Weight||_Infinity = 8.96046e-08 and ||F(y_1)*Weight||_2 = 1.47867e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[282]=-8.96046e-08 (model=_LOAD__14_EC index=3 equation:$DAEres9 = if load.running.value then load.QPu - load.QRefPu * (1.0 + load.deltaQ) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.beta) else load.terminal.i.im)
+2026-10-15 17:49:10 | DEBUG | F[279]=7.51966e-08 (model=_LOAD__14_EC index=0 equation:$DAEres8 = load.terminal.V.im * load.terminal.i.re + (-load.terminal.V.re) * load.terminal.i.im - load.QPu)
+2026-10-15 17:49:10 | DEBUG | F[280]=7.26222e-08 (model=_LOAD__14_EC index=1 equation:$DAEres7 = load.terminal.V.im * load.terminal.i.im + load.terminal.V.re * load.terminal.i.re - load.PPu)
+2026-10-15 17:49:10 | DEBUG | F[281]=-5.35943e-08 (model=_LOAD__14_EC index=2 equation:$DAEres6 = if load.running.value then load.PPu - load.PRefPu * (1.0 + load.deltaP) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.alpha) else load.terminal.i.re)
+2026-10-15 17:49:10 | DEBUG | F[194]=-2.89001e-09 (model=GEN____6_SM index=34 equation:generator._cePu = if generator.running.value then generator.lambdaqPu * generator.idPu - generator.lambdadPu * generator.iqPu else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[278]=-2.45471e-09 (model=_LOAD__13_EC index=3 equation:$DAEres9 = if load.running.value then load.QPu - load.QRefPu * (1.0 + load.deltaQ) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.beta) else load.terminal.i.im)
+2026-10-15 17:49:10 | DEBUG | F[302]=-2.14043e-09 (model=_LOAD___6_EC index=3 equation:$DAEres9 = if load.running.value then load.QPu - load.QRefPu * (1.0 + load.deltaQ) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.beta) else load.terminal.i.im)
+2026-10-15 17:49:10 | DEBUG | F[275]=1.75022e-09 (model=_LOAD__13_EC index=0 equation:$DAEres8 = load.terminal.V.im * load.terminal.i.re + (-load.terminal.V.re) * load.terminal.i.im - load.QPu)
+2026-10-15 17:49:10 | DEBUG | F[299]=1.64017e-09 (model=_LOAD___6_EC index=0 equation:$DAEres8 = load.terminal.V.im * load.terminal.i.re + (-load.terminal.V.re) * load.terminal.i.im - load.QPu)
+2026-10-15 17:49:10 | DEBUG | F[276]=1.47227e-09 (model=_LOAD__13_EC index=1 equation:$DAEres7 = load.terminal.V.im * load.terminal.i.im + load.terminal.V.re * load.terminal.i.re - load.PPu)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO | end of global initialization
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | 
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | starting curve initialization
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____1_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____2_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____3_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____4_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____5_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____6_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____7_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____8_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS____9_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS___10_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS___11_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS___12_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS___13_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: NETWORK; curve: _BUS___14_TN_Upu_value found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____1_SM; output: generator_omegaPu found.( generator_omegaPu_value )
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____1_SM; curve: generator_PGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____1_SM; curve: generator_QGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____1_SM; output: generator_UStatorPu found.( generator_UStatorPu_value )
+2026-10-15 17:49:10 | WARN | curve not added: Id: GEN____1_SM , name: voltageRegulator_UcEfdPu
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____1_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____2_SM; output: generator_omegaPu found.( generator_omegaPu_value )
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____2_SM; curve: generator_PGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____2_SM; curve: generator_QGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____2_SM; output: generator_UStatorPu found.( generator_UStatorPu_value )
+2026-10-15 17:49:10 | WARN | curve not added: Id: GEN____2_SM , name: voltageRegulator_UcEfdPu
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____2_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____3_SM; output: generator_omegaPu found.( generator_omegaPu_value )
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____3_SM; curve: generator_PGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____3_SM; curve: generator_QGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____3_SM; output: generator_UStatorPu found.( generator_UStatorPu_value )
+2026-10-15 17:49:10 | WARN | curve not added: Id: GEN____3_SM , name: voltageRegulator_UcEfdPu
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____3_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____6_SM; output: generator_omegaPu found.( generator_omegaPu_value )
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____6_SM; curve: generator_PGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____6_SM; curve: generator_QGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____6_SM; output: generator_UStatorPu found.( generator_UStatorPu_value )
+2026-10-15 17:49:10 | WARN | curve not added: Id: GEN____6_SM , name: voltageRegulator_UcEfdPu
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____6_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____8_SM; output: generator_omegaPu found.( generator_omegaPu_value )
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____8_SM; curve: generator_PGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____8_SM; curve: generator_QGen found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____8_SM; output: generator_UStatorPu found.( generator_UStatorPu_value )
+2026-10-15 17:49:10 | WARN | curve not added: Id: GEN____8_SM , name: voltageRegulator_UcEfdPu
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: GEN____8_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: _LOAD___2_EC; curve: load_PPu found. (exact name)
+2026-10-15 17:49:10 | DEBUG | adding curve : Id: _LOAD___2_EC; curve: load_QPu found. (exact name)
+2026-10-15 17:49:10 | INFO | end of curve initialization, added 41 curves
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | 
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | starting simulation with solver IDASolver
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO | number of continuous variables : 439
+2026-10-15 17:49:10 | INFO | number of discrete variables : 247
+2026-10-15 17:49:10 | INFO | number of root functions : 254
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO |         time | iter num   order (k)      time step (h)
+2026-10-15 17:49:10 | INFO | -----------------------------------------------------------------------
+2026-10-15 17:49:10 | INFO |        0.000 |        0           0              0.100 
+2026-10-15 17:49:10 | INFO |        0.000 |        1           1              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[257]=-21.9919 (variable=GEN____6_SM_voltageRegulator_gain_y)
+2026-10-15 17:49:10 | DEBUG | YP[252]=-21.9919 (variable=GEN____6_SM_voltageRegulator_EfdPu)
+2026-10-15 17:49:10 | DEBUG | YP[225]=18.9485 (variable=GEN____6_SM_generator_iDPu)
+2026-10-15 17:49:10 | DEBUG | YP[229]=-10.0431 (variable=GEN____6_SM_generator_ifPu)
+2026-10-15 17:49:10 | DEBUG | YP[228]=-6.22214 (variable=GEN____6_SM_generator_idPu)
+2026-10-15 17:49:10 | DEBUG | YP[240]=5.39676 (variable=GEN____6_SM_generator_terminal_i_im)
+2026-10-15 17:49:10 | DEBUG | YP[45]=-5.30341 (variable=NETWORK__BUS____6_TN_ACPIN_i_im)
+2026-10-15 17:49:10 | DEBUG | YP[226]=4.83435 (variable=GEN____6_SM_generator_iQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[222]=3.06659 (variable=GEN____6_SM_generator_cePu)
+2026-10-15 17:49:10 | DEBUG | YP[230]=-2.91704 (variable=GEN____6_SM_generator_iqPu)
+2026-10-15 17:49:10 | INFO |        0.000 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.000 |        3           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.000 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.000 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.000 |        6           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.000 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.000 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.000 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.001 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.001 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.002 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.004 |       13           2              0.002 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.005 |       14           2              0.004 
+2026-10-15 17:49:10 | INFO |        0.005 |       14           2              0.004 
+2026-10-15 17:49:10 | INFO |        0.008 |       14           2              0.004 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | DEBUG | Algebraic mode change for model GEN____3_SM at t = 0.00915769
+2026-10-15 17:49:10 | INFO | Algebraic mode change at t = 0.00915769
+2026-10-15 17:49:10 | INFO |        0.009 |       15           2              0.008 
+2026-10-15 17:49:10 | INFO | calculation of the new starting point of the simulation.
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2e-07 and ||F(y_0)*Weight||_2 = 2e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[121]=-2e-07 (model=GEN____3_SM index=5 equation:governor._limiter._y = smooth(0, if governor.PmRawPu.y > governor.limiter.uMax then governor.limiter.uMax else if governor.PmRawPu.y < governor.limiter.uMin then governor.limiter.uMin else governor.PmRawPu.y))
+2026-10-15 17:49:10 | DEBUG | F[194]=1.2575e-11 (model=GEN____6_SM index=34 equation:generator._cePu = if generator.running.value then generator.lambdaqPu * generator.idPu - generator.lambdadPu * generator.iqPu else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[102]=4.8897e-12 (model=GEN____2_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[184]=3.05758e-12 (model=GEN____6_SM index=24 equation:$DAEres23 = if generator.running.value then generator.sin2Eta - (generator.lambdaAQPu / generator.lambdaAirGapPu) ^ 2.0 else generator.sin2Eta)
+2026-10-15 17:49:10 | DEBUG | F[302]=1.96874e-12 (model=_LOAD___6_EC index=3 equation:$DAEres9 = if load.running.value then load.QPu - load.QRefPu * (1.0 + load.deltaQ) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.beta) else load.terminal.i.im)
+2026-10-15 17:49:10 | DEBUG | F[189]=1.83241e-12 (model=GEN____6_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[183]=1.66089e-12 (model=GEN____6_SM index=23 equation:$DAEres22 = if generator.running.value then generator.lambdaAirGapPu - sqrt(generator.lambdaADPu ^ 2.0 + generator.lambdaAQPu ^ 2.0) else generator.lambdaAirGapPu)
+2026-10-15 17:49:10 | DEBUG | F[299]=-1.3871e-12 (model=_LOAD___6_EC index=0 equation:$DAEres8 = load.terminal.V.im * load.terminal.i.re + (-load.terminal.V.re) * load.terminal.i.im - load.QPu)
+2026-10-15 17:49:10 | DEBUG | F[278]=1.30249e-12 (model=_LOAD__13_EC index=3 equation:$DAEres9 = if load.running.value then load.QPu - load.QRefPu * (1.0 + load.deltaQ) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.beta) else load.terminal.i.im)
+2026-10-15 17:49:10 | DEBUG | F[101]=9.1599e-13 (model=GEN____2_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2.84058e-06 and ||F(y_0)*Weight||_2 = 3.60861e-06
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[195]=2.84058e-06 (model=GEN____6_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[169]=-2.10233e-06 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=-4.33316e-07 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[191]=-4.15123e-07 (model=GEN____6_SM index=31 equation:$DAEres28 = if generator.running.value then (-generator.RDPPu) * generator.iDPu - 0.003183098861837907 * der(generator.lambdaDPu) else der(generator.lambdaDPu))
+2026-10-15 17:49:10 | DEBUG | F[213]=2.78388e-07 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[37]=2.2327e-07 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[192]=-1.68669e-07 (model=GEN____6_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[239]=-9.02515e-08 (model=GEN____8_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[125]=-5.46734e-08 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[107]=5.21397e-08 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | INFO |        0.009 |        0           0              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[207]=-0.00188381 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[210]=0.0010132 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[208]=-0.00043412 (variable=GEN____6_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[258]=0.000362665 (variable=GEN____8_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[107]=-0.000268461 (variable=GEN____2_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[158]=0.000162401 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[105]=-0.000160679 (variable=GEN____2_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[261]=-0.000121099 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[54]=0.000101863 (variable=GEN____1_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[106]=-7.47804e-05 (variable=GEN____2_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.009 |        1           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.009 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.009 |        3           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.009 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.009 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.009 |        6           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.009 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.009 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.009 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.010 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.010 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.011 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.013 |       13           2              0.002 
+2026-10-15 17:49:10 | INFO |        0.017 |       14           2              0.004 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | DEBUG | Algebraic mode change for model GEN____8_SM at t = 0.0190198
+2026-10-15 17:49:10 | INFO | Algebraic mode change at t = 0.0190198
+2026-10-15 17:49:10 | INFO |        0.019 |       15           2              0.008 
+2026-10-15 17:49:10 | INFO | calculation of the new starting point of the simulation.
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2e-07 and ||F(y_0)*Weight||_2 = 2e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[209]=-2e-07 (model=GEN____8_SM index=5 equation:governor._limiter._y = smooth(0, if governor.PmRawPu.y > governor.limiter.uMax then governor.limiter.uMax else if governor.PmRawPu.y < governor.limiter.uMin then governor.limiter.uMin else governor.PmRawPu.y))
+2026-10-15 17:49:10 | DEBUG | F[194]=6.06518e-12 (model=GEN____6_SM index=34 equation:generator._cePu = if generator.running.value then generator.lambdaqPu * generator.idPu - generator.lambdadPu * generator.iqPu else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[102]=4.59394e-12 (model=GEN____2_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[146]=1.61099e-12 (model=GEN____3_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[184]=1.31811e-12 (model=GEN____6_SM index=24 equation:$DAEres23 = if generator.running.value then generator.sin2Eta - (generator.lambdaAQPu / generator.lambdaAirGapPu) ^ 2.0 else generator.sin2Eta)
+2026-10-15 17:49:10 | DEBUG | F[101]=9.14602e-13 (model=GEN____2_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[189]=-8.31234e-13 (model=GEN____6_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[302]=8.25812e-13 (model=_LOAD___6_EC index=3 equation:$DAEres9 = if load.running.value then load.QPu - load.QRefPu * (1.0 + load.deltaQ) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.beta) else load.terminal.i.im)
+2026-10-15 17:49:10 | DEBUG | F[183]=7.15872e-13 (model=GEN____6_SM index=23 equation:$DAEres22 = if generator.running.value then generator.lambdaAirGapPu - sqrt(generator.lambdaADPu ^ 2.0 + generator.lambdaAQPu ^ 2.0) else generator.lambdaAirGapPu)
+2026-10-15 17:49:10 | DEBUG | F[299]=-5.64285e-13 (model=_LOAD___6_EC index=0 equation:$DAEres8 = load.terminal.V.im * load.terminal.i.re + (-load.terminal.V.re) * load.terminal.i.im - load.QPu)
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 1.87862e-06 and ||F(y_0)*Weight||_2 = 2.43288e-06
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[195]=1.87862e-06 (model=GEN____6_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[169]=-1.42119e-06 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=-4.19947e-07 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[191]=-3.16858e-07 (model=GEN____6_SM index=31 equation:$DAEres28 = if generator.running.value then (-generator.RDPPu) * generator.iDPu - 0.003183098861837907 * der(generator.lambdaDPu) else der(generator.lambdaDPu))
+2026-10-15 17:49:10 | DEBUG | F[37]=2.16017e-07 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[125]=1.5818e-07 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[192]=-1.11747e-07 (model=GEN____6_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[213]=-7.56905e-08 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[107]=3.4802e-08 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[63]=-3.15504e-08 (model=GEN____1_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | INFO |        0.019 |        0           0              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[207]=-0.0012499 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[210]=0.00101193 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[258]=0.000315556 (variable=GEN____8_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[208]=-0.000276336 (variable=GEN____6_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[107]=-0.000228698 (variable=GEN____2_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[158]=0.000145838 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[105]=-0.000129834 (variable=GEN____2_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[261]=-0.000119129 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[54]=8.3593e-05 (variable=GEN____1_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[106]=-8.30041e-05 (variable=GEN____2_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.019 |        1           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.019 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.019 |        3           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.019 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.019 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.019 |        6           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.019 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.019 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.019 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.020 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.020 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.021 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.023 |       13           2              0.002 
+2026-10-15 17:49:10 | INFO |        0.027 |       14           2              0.004 
+2026-10-15 17:49:10 | INFO |        0.035 |       15           2              0.008 
+2026-10-15 17:49:10 | INFO |        0.052 |       16           2              0.016 
+2026-10-15 17:49:10 | INFO |        0.085 |       17           2              0.033 
+2026-10-15 17:49:10 | INFO |        0.150 |       18           2              0.066 
+2026-10-15 17:49:10 | DEBUG | Algebraic mode change for model GEN____8_SM at t = 0.272089
+2026-10-15 17:49:10 | INFO | Algebraic mode change at t = 0.272089
+2026-10-15 17:49:10 | INFO |        0.272 |       19           1              0.131 
+2026-10-15 17:49:10 | INFO | calculation of the new starting point of the simulation.
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2e-07 and ||F(y_0)*Weight||_2 = 2.00003e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[209]=2e-07 (model=GEN____8_SM index=5 equation:governor._limiter._y = smooth(0, if governor.PmRawPu.y > governor.limiter.uMax then governor.limiter.uMax else if governor.PmRawPu.y < governor.limiter.uMin then governor.limiter.uMin else governor.PmRawPu.y))
+2026-10-15 17:49:10 | DEBUG | F[58]=7.95678e-10 (model=GEN____1_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[102]=-5.67596e-10 (model=GEN____2_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[146]=4.3617e-10 (model=GEN____3_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[101]=-2.09986e-10 (model=GEN____2_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[194]=-1.54027e-10 (model=GEN____6_SM index=34 equation:generator._cePu = if generator.running.value then generator.lambdaqPu * generator.idPu - generator.lambdadPu * generator.iqPu else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[189]=1.07115e-10 (model=GEN____6_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[96]=-8.81726e-11 (model=GEN____2_SM index=24 equation:$DAEres23 = if generator.running.value then generator.sin2Eta - (generator.lambdaAQPu / generator.lambdaAirGapPu) ^ 2.0 else generator.sin2Eta)
+2026-10-15 17:49:10 | DEBUG | F[145]=-7.17023e-11 (model=GEN____3_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[95]=-4.62919e-11 (model=GEN____2_SM index=23 equation:$DAEres22 = if generator.running.value then generator.lambdaAirGapPu - sqrt(generator.lambdaADPu ^ 2.0 + generator.lambdaAQPu ^ 2.0) else generator.lambdaAirGapPu)
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 3.01811e-06 and ||F(y_0)*Weight||_2 = 3.05871e-06
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[213]=-3.01811e-06 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[239]=-4.9659e-07 (model=GEN____8_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[235]=8.49967e-09 (model=GEN____8_SM index=31 equation:$DAEres28 = if generator.running.value then (-generator.RDPPu) * generator.iDPu - 0.003183098861837907 * der(generator.lambdaDPu) else der(generator.lambdaDPu))
+2026-10-15 17:49:10 | DEBUG | F[247]=-3.54433e-09 (model=GEN____8_SM index=43 equation:$DAEres32 = if generator.running.value then generator.ufPu - (generator.RfPPu * generator.ifPu + 0.003183098861837907 * der(generator.lambdafPu)) else der(generator.lambdafPu))
+2026-10-15 17:49:10 | DEBUG | F[236]=1.71636e-09 (model=GEN____8_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[125]=3.1662e-14 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[169]=2.39787e-14 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=2.21591e-14 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[37]=-1.00674e-14 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[63]=-2.87178e-17 (model=GEN____1_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | INFO |        0.272 |        0           0              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[210]=0.000478674 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[207]=0.000325183 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[113]=-0.000253803 (variable=GEN____2_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[164]=0.000218731 (variable=GEN____3_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[215]=-0.000196718 (variable=GEN____6_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[261]=-8.62543e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[208]=6.70329e-05 (variable=GEN____6_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[62]=-5.24409e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[56]=-3.12785e-05 (variable=GEN____1_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[107]=3.06526e-05 (variable=GEN____2_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.272 |        1           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.272 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.272 |        3           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.272 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.272 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.272 |        6           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.272 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.272 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.272 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.273 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.273 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.274 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.276 |       13           2              0.002 
+2026-10-15 17:49:10 | INFO |        0.280 |       14           2              0.004 
+2026-10-15 17:49:10 | INFO |        0.288 |       15           2              0.008 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.305 |       16           2              0.016 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.331 |       17           2              0.033 
+2026-10-15 17:49:10 | INFO |        0.331 |       17           2              0.033 
+2026-10-15 17:49:10 | INFO |        0.338 |       17           2              0.033 
+2026-10-15 17:49:10 | INFO |        0.403 |       18           2              0.066 
+2026-10-15 17:49:10 | INFO |        0.534 |       19           2              0.131 
+2026-10-15 17:49:10 | INFO |        0.634 |       20           2              0.262 
+2026-10-15 17:49:10 | INFO |        0.634 |       20           2              0.262 
+2026-10-15 17:49:10 | DEBUG | Algebraic mode change for model GEN____6_SM at t = 0.705508
+2026-10-15 17:49:10 | INFO | Algebraic mode change at t = 0.705508
+2026-10-15 17:49:10 | INFO |        0.706 |       20           2              0.262 
+2026-10-15 17:49:10 | INFO | calculation of the new starting point of the simulation.
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2e-07 and ||F(y_0)*Weight||_2 = 2.00073e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[165]=-2e-07 (model=GEN____6_SM index=5 equation:governor._limiter._y = smooth(0, if governor.PmRawPu.y > governor.limiter.uMax then governor.limiter.uMax else if governor.PmRawPu.y < governor.limiter.uMin then governor.limiter.uMin else governor.PmRawPu.y))
+2026-10-15 17:49:10 | DEBUG | F[58]=5.17752e-09 (model=GEN____1_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[146]=9.51522e-10 (model=GEN____3_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[57]=-7.13169e-10 (model=GEN____1_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[234]=6.43088e-10 (model=GEN____8_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[189]=-3.85903e-10 (model=GEN____6_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[102]=3.42248e-10 (model=GEN____2_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[194]=2.25994e-10 (model=GEN____6_SM index=34 equation:generator._cePu = if generator.running.value then generator.lambdaqPu * generator.idPu - generator.lambdadPu * generator.iqPu else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[145]=-1.68913e-10 (model=GEN____3_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[190]=1.00909e-10 (model=GEN____6_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2.3547e-05 and ||F(y_0)*Weight||_2 = 2.49657e-05
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[169]=-2.3547e-05 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[195]=-8.29485e-06 (model=GEN____6_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[203]=-1.14219e-07 (model=GEN____6_SM index=43 equation:$DAEres32 = if generator.running.value then generator.ufPu - (generator.RfPPu * generator.ifPu + 0.003183098861837907 * der(generator.lambdafPu)) else der(generator.lambdafPu))
+2026-10-15 17:49:10 | DEBUG | F[191]=-7.78324e-08 (model=GEN____6_SM index=31 equation:$DAEres28 = if generator.running.value then (-generator.RDPPu) * generator.iDPu - 0.003183098861837907 * der(generator.lambdaDPu) else der(generator.lambdaDPu))
+2026-10-15 17:49:10 | DEBUG | F[192]=-3.45099e-08 (model=GEN____6_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[125]=2.25824e-14 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[213]=1.91409e-14 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=-1.0817e-14 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[37]=-4.04028e-16 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[107]=-8.33142e-18 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 1 : ||F(y_1)*Weight||_Infinity = 3.32312e-05 and ||F(y_1)*Weight||_2 = 5.33908e-05
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[37]=3.32312e-05 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[213]=3.03689e-05 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[125]=-2.60837e-05 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[107]=-1.00473e-05 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[151]=5.7613e-06 (model=GEN____3_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[81]=-2.6012e-06 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[239]=1.1789e-06 (model=GEN____8_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[63]=1.15628e-06 (model=GEN____1_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[104]=5.42124e-08 (model=GEN____2_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[105]=4.16988e-08 (model=GEN____2_SM index=33 equation:$DAEres30 = if generator.running.value then (-generator.RQ2PPu) * generator.iQ2Pu - 0.003183098861837907 * der(generator.lambdaQ2Pu) else der(generator.lambdaQ2Pu))
+2026-10-15 17:49:10 | INFO |        0.706 |        0           0              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[164]=8.65764e-05 (variable=GEN____3_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[210]=8.20711e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[62]=-7.60773e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[266]=-6.03006e-05 (variable=GEN____8_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[207]=4.75909e-05 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[261]=-4.39257e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[158]=-4.17959e-05 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[106]=4.0285e-05 (variable=GEN____2_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[107]=3.50005e-05 (variable=GEN____2_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[215]=3.42428e-05 (variable=GEN____6_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.706 |        1           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.706 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.706 |        3           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.706 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.706 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.706 |        6           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.706 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.706 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.706 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.706 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.707 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.708 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.710 |       13           2              0.002 
+2026-10-15 17:49:10 | INFO |        0.714 |       14           2              0.004 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.722 |       15           2              0.008 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.738 |       16           2              0.016 
+2026-10-15 17:49:10 | INFO |        0.771 |       17           2              0.033 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | DEBUG | Algebraic mode change for model GEN____3_SM at t = 0.796853
+2026-10-15 17:49:10 | INFO | Algebraic mode change at t = 0.796853
+2026-10-15 17:49:10 | INFO |        0.797 |       18           2              0.066 
+2026-10-15 17:49:10 | INFO | calculation of the new starting point of the simulation.
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2e-07 and ||F(y_0)*Weight||_2 = 2e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[121]=2e-07 (model=GEN____3_SM index=5 equation:governor._limiter._y = smooth(0, if governor.PmRawPu.y > governor.limiter.uMax then governor.limiter.uMax else if governor.PmRawPu.y < governor.limiter.uMin then governor.limiter.uMin else governor.PmRawPu.y))
+2026-10-15 17:49:10 | DEBUG | F[102]=3.43663e-10 (model=GEN____2_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[58]=-2.6901e-10 (model=GEN____1_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[233]=-1.96937e-11 (model=GEN____8_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[190]=1.90318e-11 (model=GEN____6_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[234]=-1.62439e-11 (model=GEN____8_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[101]=1.1926e-11 (model=GEN____2_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[189]=1.14395e-11 (model=GEN____6_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[57]=1.0802e-11 (model=GEN____1_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[66]=1.06679e-11 (model=GEN____1_SM index=38 equation:voltageRegulator._UsPu = if generator.running.value then (generator.uStatorPu.re ^ 2.0 + generator.uStatorPu.im ^ 2.0) ^ 0.5 else 0.0)
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 1.73528e-05 and ||F(y_0)*Weight||_2 = 2.55631e-05
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[169]=1.73528e-05 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[213]=-1.17013e-05 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[37]=-1.04286e-05 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=1.01269e-05 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[107]=1.40244e-06 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[63]=8.99277e-07 (model=GEN____1_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[195]=8.7883e-07 (model=GEN____6_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[239]=5.51248e-07 (model=GEN____8_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[151]=5.15656e-07 (model=GEN____3_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[125]=5.86417e-08 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 1 : ||F(y_1)*Weight||_Infinity = 2.31088e-05 and ||F(y_1)*Weight||_2 = 3.37568e-05
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[169]=-2.31088e-05 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[213]=1.50322e-05 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=-1.38498e-05 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[37]=1.34845e-05 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[107]=-1.63804e-06 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[63]=-1.39134e-06 (model=GEN____1_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[239]=-8.6986e-07 (model=GEN____8_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[195]=-7.13729e-07 (model=GEN____6_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[192]=-4.12624e-08 (model=GEN____6_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[203]=-1.39898e-08 (model=GEN____6_SM index=43 equation:$DAEres32 = if generator.running.value then generator.ufPu - (generator.RfPPu * generator.ifPu + 0.003183098861837907 * der(generator.lambdafPu)) else der(generator.lambdafPu))
+2026-10-15 17:49:10 | INFO |        0.797 |        0           0              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[210]=6.29383e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[62]=-5.98989e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[266]=-5.53955e-05 (variable=GEN____8_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[215]=4.60909e-05 (variable=GEN____6_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[158]=-4.46818e-05 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[157]=-4.33133e-05 (variable=GEN____3_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[106]=3.78616e-05 (variable=GEN____2_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[164]=3.77484e-05 (variable=GEN____3_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[261]=-3.5918e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[207]=3.53937e-05 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.797 |        1           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.797 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.797 |        3           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.797 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.797 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.797 |        6           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.797 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.797 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.797 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.797 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.798 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.799 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.801 |       13           2              0.002 
+2026-10-15 17:49:10 | INFO |        0.805 |       14           2              0.004 
+2026-10-15 17:49:10 | INFO |        0.813 |       15           2              0.008 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.826 |       16           2              0.016 
+2026-10-15 17:49:10 | INFO |        0.826 |       16           2              0.016 
+2026-10-15 17:49:10 | INFO |        0.830 |       16           2              0.016 
+2026-10-15 17:49:10 | INFO |        0.862 |       17           2              0.033 
+2026-10-15 17:49:10 | INFO |        0.928 |       18           2              0.066 
+2026-10-15 17:49:10 | DEBUG | Algebraic mode change for model GEN____6_SM at t = 0.962519
+2026-10-15 17:49:10 | INFO | Algebraic mode change at t = 0.962519
+2026-10-15 17:49:10 | INFO |        0.963 |       19           2              0.131 
+2026-10-15 17:49:10 | INFO | calculation of the new starting point of the simulation.
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2e-07 and ||F(y_0)*Weight||_2 = 2e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[165]=2e-07 (model=GEN____6_SM index=5 equation:governor._limiter._y = smooth(0, if governor.PmRawPu.y > governor.limiter.uMax then governor.limiter.uMax else if governor.PmRawPu.y < governor.limiter.uMin then governor.limiter.uMin else governor.PmRawPu.y))
+2026-10-15 17:49:10 | DEBUG | F[146]=6.13129e-11 (model=GEN____3_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[102]=5.96987e-11 (model=GEN____2_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[194]=-7.24238e-12 (model=GEN____6_SM index=34 equation:generator._cePu = if generator.running.value then generator.lambdaqPu * generator.idPu - generator.lambdadPu * generator.iqPu else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[189]=5.89404e-12 (model=GEN____6_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[190]=5.01864e-12 (model=GEN____6_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[145]=-4.46127e-12 (model=GEN____3_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[288]=2.9895e-12 (model=_LOAD___3_EC index=1 equation:$DAEres7 = load.terminal.V.im * load.terminal.i.im + load.terminal.V.re * load.terminal.i.re - load.PPu)
+2026-10-15 17:49:10 | DEBUG | F[101]=2.78316e-12 (model=GEN____2_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[289]=-2.28095e-12 (model=_LOAD___3_EC index=2 equation:$DAEres6 = if load.running.value then load.PPu - load.PRefPu * (1.0 + load.deltaP) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.alpha) else load.terminal.i.re)
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 4.66452e-06 and ||F(y_0)*Weight||_2 = 6.07757e-06
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[169]=-4.66452e-06 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[195]=3.89601e-06 (model=GEN____6_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[192]=-1.07602e-08 (model=GEN____6_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[203]=-7.81645e-09 (model=GEN____6_SM index=43 equation:$DAEres32 = if generator.running.value then generator.ufPu - (generator.RfPPu * generator.ifPu + 0.003183098861837907 * der(generator.lambdafPu)) else der(generator.lambdafPu))
+2026-10-15 17:49:10 | DEBUG | F[191]=-4.32717e-09 (model=GEN____6_SM index=31 equation:$DAEres28 = if generator.running.value then (-generator.RDPPu) * generator.iDPu - 0.003183098861837907 * der(generator.lambdaDPu) else der(generator.lambdaDPu))
+2026-10-15 17:49:10 | DEBUG | F[37]=-1.82052e-14 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[125]=1.04888e-14 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=9.00387e-15 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[213]=2.71085e-15 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[107]=1.71694e-18 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | INFO |        0.963 |        0           0              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[164]=-7.76569e-05 (variable=GEN____3_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[113]=7.42457e-05 (variable=GEN____2_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[210]=3.65695e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[215]=3.63862e-05 (variable=GEN____6_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[62]=3.30322e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[157]=-3.20693e-05 (variable=GEN____3_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[261]=-2.60944e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[258]=-2.28535e-05 (variable=GEN____8_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[208]=-2.11876e-05 (variable=GEN____6_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[158]=-2.0912e-05 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.963 |        1           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.963 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        0.963 |        3           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.963 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.963 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.963 |        6           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.963 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.963 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.963 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.963 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        0.964 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.965 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        0.967 |       13           2              0.002 
+2026-10-15 17:49:10 | INFO |        0.971 |       14           2              0.004 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        0.971 |       15           2              0.008 
+2026-10-15 17:49:10 | INFO |        0.971 |       15           2              0.008 
+2026-10-15 17:49:10 | INFO |        0.979 |       15           2              0.008 
+2026-10-15 17:49:10 | INFO |        0.995 |       16           2              0.016 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        1.017 |       17           2              0.033 
+2026-10-15 17:49:10 | INFO |        1.017 |       17           2              0.033 
+2026-10-15 17:49:10 | DEBUG | Algebraic mode change for model GEN____8_SM at t = 1.01996
+2026-10-15 17:49:10 | INFO | Algebraic mode change at t = 1.01996
+2026-10-15 17:49:10 | INFO |        1.020 |       17           2              0.033 
+2026-10-15 17:49:10 | INFO | calculation of the new starting point of the simulation.
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2e-07 and ||F(y_0)*Weight||_2 = 2e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[209]=-2e-07 (model=GEN____8_SM index=5 equation:governor._limiter._y = smooth(0, if governor.PmRawPu.y > governor.limiter.uMax then governor.limiter.uMax else if governor.PmRawPu.y < governor.limiter.uMin then governor.limiter.uMin else governor.PmRawPu.y))
+2026-10-15 17:49:10 | DEBUG | F[146]=5.25231e-11 (model=GEN____3_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[58]=2.99912e-11 (model=GEN____1_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[102]=-1.94233e-11 (model=GEN____2_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[57]=-7.30926e-12 (model=GEN____1_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[145]=-4.98091e-12 (model=GEN____3_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[101]=3.10318e-12 (model=GEN____2_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[288]=2.70128e-12 (model=_LOAD___3_EC index=1 equation:$DAEres7 = load.terminal.V.im * load.terminal.i.im + load.terminal.V.re * load.terminal.i.re - load.PPu)
+2026-10-15 17:49:10 | DEBUG | F[194]=2.17205e-12 (model=GEN____6_SM index=34 equation:generator._cePu = if generator.running.value then generator.lambdaqPu * generator.idPu - generator.lambdadPu * generator.iqPu else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[289]=-2.0538e-12 (model=_LOAD___3_EC index=2 equation:$DAEres6 = if load.running.value then load.PPu - load.PRefPu * (1.0 + load.deltaP) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.alpha) else load.terminal.i.re)
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 1.93828e-06 and ||F(y_0)*Weight||_2 = 3.0608e-06
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[81]=1.93828e-06 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[125]=-1.89959e-06 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[195]=-9.61966e-07 (model=GEN____6_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[63]=6.18589e-07 (model=GEN____1_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[37]=5.69469e-07 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[107]=-4.04611e-07 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[213]=-3.72444e-07 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[169]=1.91221e-07 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[151]=-1.56257e-07 (model=GEN____3_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[239]=-8.56573e-08 (model=GEN____8_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | INFO |        1.020 |        0           0              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[164]=-0.000118798 (variable=GEN____3_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[113]=8.31534e-05 (variable=GEN____2_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[62]=7.54439e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[266]=4.12432e-05 (variable=GEN____8_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[210]=3.00824e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[157]=-2.73148e-05 (variable=GEN____3_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[261]=-2.30256e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[258]=-2.04974e-05 (variable=GEN____8_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[207]=1.55788e-05 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-15 17:49:10 | DEBUG | YP[215]=1.51412e-05 (variable=GEN____6_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        1.020 |        1           1              0.000 
+2026-10-15 17:49:10 | INFO |        1.020 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        1.020 |        3           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        1.020 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.020 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.020 |        6           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        1.020 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.020 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.020 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.020 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.021 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        1.022 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        1.024 |       13           2              0.002 
+2026-10-15 17:49:10 | INFO |        1.028 |       14           2              0.004 
+2026-10-15 17:49:10 | INFO |        1.036 |       15           2              0.008 
+2026-10-15 17:49:10 | INFO |        1.053 |       16           2              0.016 
+2026-10-15 17:49:10 | INFO |        1.085 |       17           2              0.033 
+2026-10-15 17:49:10 | INFO |        1.151 |       18           2              0.066 
+2026-10-15 17:49:10 | INFO |        1.282 |       19           2              0.131 
+2026-10-15 17:49:10 | DEBUG | Algebraic mode change for model GEN____8_SM at t = 1.37826
+2026-10-15 17:49:10 | INFO | Algebraic mode change at t = 1.37826
+2026-10-15 17:49:10 | INFO |        1.378 |       20           1              0.262 
+2026-10-15 17:49:10 | INFO | calculation of the new starting point of the simulation.
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (algebraic): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 2e-07 and ||F(y_0)*Weight||_2 = 2.00116e-07
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[209]=2e-07 (model=GEN____8_SM index=5 equation:governor._limiter._y = smooth(0, if governor.PmRawPu.y > governor.limiter.uMax then governor.limiter.uMax else if governor.PmRawPu.y < governor.limiter.uMin then governor.limiter.uMin else governor.PmRawPu.y))
+2026-10-15 17:49:10 | DEBUG | F[146]=5.62023e-09 (model=GEN____3_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[58]=3.71065e-09 (model=GEN____1_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[57]=-6.60859e-10 (model=GEN____1_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[145]=-4.29558e-10 (model=GEN____3_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[101]=3.65308e-10 (model=GEN____2_SM index=29 equation:generator._terminal._i._re = if generator.running.value then 0.01 * (cos(generator.theta) * generator.iqPu + sin(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[288]=3.34581e-10 (model=_LOAD___3_EC index=1 equation:$DAEres7 = load.terminal.V.im * load.terminal.i.im + load.terminal.V.re * load.terminal.i.re - load.PPu)
+2026-10-15 17:49:10 | DEBUG | F[102]=3.22923e-10 (model=GEN____2_SM index=30 equation:generator._terminal._i._im = if generator.running.value then 0.01 * (sin(generator.theta) * generator.iqPu - cos(generator.theta) * generator.idPu) * generator.SNom else 0.0)
+2026-10-15 17:49:10 | DEBUG | F[289]=-2.5555e-10 (model=_LOAD___3_EC index=2 equation:$DAEres6 = if load.running.value then load.PPu - load.PRefPu * (1.0 + load.deltaP) * ((load.terminal.V.re ^ 2.0 + load.terminal.V.im ^ 2.0) / (load.u0Pu.re ^ 2.0 + load.u0Pu.im ^ 2.0)) ^ (0.5 * load.alpha) else load.terminal.i.re)
+2026-10-15 17:49:10 | DEBUG | F[154]=-2.07739e-10 (model=GEN____3_SM index=38 equation:voltageRegulator._UsPu = if generator.running.value then (generator.uStatorPu.re ^ 2.0 + generator.uStatorPu.im ^ 2.0) ^ 0.5 else 0.0)
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 0 : ||F(y_0)*Weight||_Infinity = 4.43112e-05 and ||F(y_0)*Weight||_2 = 4.43157e-05
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[213]=-4.43112e-05 (model=GEN____8_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[239]=-6.29965e-07 (model=GEN____8_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[247]=-1.02086e-08 (model=GEN____8_SM index=43 equation:$DAEres32 = if generator.running.value then generator.ufPu - (generator.RfPPu * generator.ifPu + 0.003183098861837907 * der(generator.lambdafPu)) else der(generator.lambdafPu))
+2026-10-15 17:49:10 | DEBUG | F[235]=-1.01528e-08 (model=GEN____8_SM index=31 equation:$DAEres28 = if generator.running.value then (-generator.RDPPu) * generator.iDPu - 0.003183098861837907 * der(generator.lambdaDPu) else der(generator.lambdaDPu))
+2026-10-15 17:49:10 | DEBUG | F[236]=-3.72454e-09 (model=GEN____8_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[37]=3.2395e-14 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=-1.4127e-14 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[169]=-1.01358e-14 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[125]=-7.22061e-15 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[63]=2.97359e-17 (model=GEN____1_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | algebraic restoration (derivatives): newton iteration 1 : ||F(y_1)*Weight||_Infinity = 5.8871e-05 and ||F(y_1)*Weight||_2 = 8.60697e-05
+2026-10-15 17:49:10 | DEBUG | largest errors (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | F[125]=5.8871e-05 (model=GEN____3_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[37]=-5.71851e-05 (model=GEN____1_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[169]=1.82108e-05 (model=GEN____6_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[81]=-1.63082e-05 (model=GEN____2_SM index=9 equation:$DAEres9 = if generator.running.value then der(generator.theta) - 314.1592653589793 * (generator.omegaPu.value - generator.omegaRefPu.value) else der(generator.theta))
+2026-10-15 17:49:10 | DEBUG | F[63]=-7.0595e-06 (model=GEN____1_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[151]=3.85592e-06 (model=GEN____3_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[195]=-2.52237e-06 (model=GEN____6_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[107]=1.84348e-06 (model=GEN____2_SM index=35 equation:$DAEres31 = if generator.running.value then 2.0 * generator.H * der(generator.omegaPu.value) - (generator.cmPu * generator.PNomTurb / generator.SNom + generator.DPu * (generator.omegaRefPu.value - generator.omegaPu.value) - generator.cePu) else der(generator.omegaPu.value))
+2026-10-15 17:49:10 | DEBUG | F[192]=5.74076e-08 (model=GEN____6_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | DEBUG | F[148]=-2.08762e-08 (model=GEN____3_SM index=32 equation:$DAEres29 = if generator.running.value then (-generator.RQ1PPu) * generator.iQ1Pu - 0.003183098861837907 * der(generator.lambdaQ1Pu) else der(generator.lambdaQ1Pu))
+2026-10-15 17:49:10 | INFO |        1.378 |        0           0              0.000 
+2026-10-15 17:49:10 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-15 17:49:10 | DEBUG | YP[62]=7.84569e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[164]=-6.9463e-05 (variable=GEN____3_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[266]=5.56368e-05 (variable=GEN____8_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[56]=-2.69518e-05 (variable=GEN____1_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[158]=2.23938e-05 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-15 17:49:10 | DEBUG | YP[55]=-2.17264e-05 (variable=GEN____1_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[157]=1.53131e-05 (variable=GEN____3_SM_generator_lambdaQ1Pu)
+2026-10-15 17:49:10 | DEBUG | YP[113]=1.4239e-05 (variable=GEN____2_SM_generator_theta)
+2026-10-15 17:49:10 | DEBUG | YP[210]=1.24434e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | YP[261]=-1.1085e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        1.378 |        1           1              0.000 
+2026-10-15 17:49:10 | INFO |        1.378 |        2           1              0.000 
+2026-10-15 17:49:10 | INFO |        1.378 |        3           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        1.378 |        4           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.378 |        5           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.378 |        6           2              0.000 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        1.378 |        7           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.378 |        8           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.379 |        9           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.379 |       10           2              0.000 
+2026-10-15 17:49:10 | INFO |        1.379 |       11           2              0.001 
+2026-10-15 17:49:10 | INFO |        1.380 |       12           2              0.001 
+2026-10-15 17:49:10 | INFO |        1.382 |       13           2              0.002 
+2026-10-15 17:49:10 | INFO |        1.386 |       14           2              0.004 
+2026-10-15 17:49:10 | INFO |        1.395 |       15           2              0.008 
+2026-10-15 17:49:10 | INFO |        1.411 |       16           2              0.016 
+2026-10-15 17:49:10 | INFO |        1.444 |       17           2              0.033 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        1.449 |       18           2              0.066 
+2026-10-15 17:49:10 | INFO |        1.449 |       18           2              0.066 
+2026-10-15 17:49:10 | INFO |        1.509 |       18           2              0.066 
+2026-10-15 17:49:10 | INFO |        1.640 |       19           2              0.131 
+2026-10-15 17:49:10 | INFO |        1.903 |       20           2              0.262 
+2026-10-15 17:49:10 | INFO |        1.931 |       21           2              0.524 
+2026-10-15 17:49:10 | INFO |        1.931 |       21           2              0.524 
+2026-10-15 17:49:10 | INFO |        2.427 |       21           2              0.524 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        2.444 |       22           1              1.049 
+2026-10-15 17:49:10 | INFO |        2.444 |       22           1              1.049 
+2026-10-15 17:49:10 | INFO |        3.475 |       22           1              1.049 
+2026-10-15 17:49:10 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-15 17:49:10 | INFO |        5.573 |       23           1              2.097 
+2026-10-15 17:49:10 | INFO |        9.767 |       24           1              4.194 
+2026-10-15 17:49:10 | INFO |       18.155 |       25           1              8.389 
+2026-10-15 17:49:10 | INFO |       28.155 |       26           1             10.000 
+2026-10-15 17:49:10 | INFO |       38.155 |       27           1             10.000 
+2026-10-15 17:49:10 | INFO |       48.155 |       28           1             10.000 
+2026-10-15 17:49:10 | INFO |       58.155 |       29           2             10.000 
+2026-10-15 17:49:10 | INFO |       68.155 |       30           1             10.000 
+2026-10-15 17:49:10 | INFO |       78.155 |       31           1             10.000 
+2026-10-15 17:49:10 | INFO |       88.155 |       32           1             10.000 
+2026-10-15 17:49:10 | INFO |       98.155 |       33           1             10.000 
+2026-10-15 17:49:10 | INFO |      100.000 |       34           1              1.845 
+2026-10-15 17:49:10 | INFO | 
+2026-10-15 17:49:10 | INFO | execution statistics :
+2026-10-15 17:49:10 | INFO | 
+2026-10-15 17:49:10 | INFO | number of time iterations                  = 177
+2026-10-15 17:49:10 | INFO | number of residual evaluations             = 224
+2026-10-15 17:49:10 | INFO | number of Jacobian evaluations             = 162
+2026-10-15 17:49:10 | INFO | number of nonlinear iterations             = 206
+2026-10-15 17:49:10 | INFO | number of error test failures              = 0
+2026-10-15 17:49:10 | INFO | number of nonlinear convergence failures   = 0
+2026-10-15 17:49:10 | INFO | number of root functions evaluations       = 1137
+2026-10-15 17:49:10 | INFO | number of discrete variables evaluations   = 46
+2026-10-15 17:49:10 | INFO | number of mode evaluations                 = 36
