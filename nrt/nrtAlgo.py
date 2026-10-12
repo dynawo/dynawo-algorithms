@@ -31,7 +31,7 @@ sys.path.append(nrtDiff_dir)
 import nrtDiff
 
 class TestCaseAlgo:
-    def __init__(self, case, case_name, case_description, job_type, jobs_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes):
+    def __init__(self, case, case_name, case_description, job_type, jobs_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes, zip_output = False):
         self.case_ = case
         self.jobs_file_ = jobs_file
         self.job_type = job_type
@@ -50,6 +50,7 @@ class TestCaseAlgo:
         self.diff_messages_ = None
         self.zip_inputs = zip_inputs
         self.variation = variation
+        self.zip_output_ = zip_output
 
     def launch(self, timeout):
         start_time = time.time()
@@ -77,6 +78,10 @@ class TestCaseAlgo:
                 command = [env_dynawo, self.job_type, "--input", os.path.basename(self.jobs_file_), "--directory", directory, "--output", os.path.basename(output_file), "--nbThreads", str(2)]
         else:
             command = [env_dynawo, self.job_type, "--input", self.jobs_file_]
+            if self.zip_output_:
+                output_file = os.path.join(os.path.dirname(self.jobs_file_), "result.zip")
+                command += ["--output", os.path.basename(output_file)]
+
 
         commandStr = " ".join(command) # for traces
         self.command_= commandStr
@@ -116,6 +121,10 @@ class TestCaseAlgo:
         if self.ok_ and ".zip" in self.jobs_file_ and (self.job_type in ["SA", "MC", "CTC"]):
             with contextlib.closing(ZipFile(output_file, 'r')) as zipObj:
                 zipObj.extractall(directory)
+
+        if self.ok_ and self.job_type == "CS" and self.zip_output_:
+            with contextlib.closing(ZipFile(output_file, 'r')) as zipObj:
+                zipObj.extractall(os.path.join(os.path.dirname(self.jobs_file_), "outputs", "zipResults"))
 
         end_time = time.time()
         self.time_ = end_time - start_time
@@ -243,7 +252,11 @@ def main():
                 import cases
                 sys.path.remove(case_path) # Remove from path because all files share the same name
 
-                for case_name, case_description, job_type, job_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes in cases.test_cases:
+                for case_name, case_description, job_type, job_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes, *optional_fields in cases.test_cases:
+                    if optional_fields:
+                        zip_output = optional_fields[0]
+                    else:
+                         zip_output = False
                     relative_job_dir = os.path.relpath (os.path.dirname (job_file), nrt.data_dir)
                     keep_job = True
 
@@ -262,7 +275,7 @@ def main():
                     if keep_job :
                         case = "case_" + str(numCase)
                         numCase += 1
-                        current_test = TestCaseAlgo(case, case_name, case_description, job_type, job_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes)
+                        current_test = TestCaseAlgo(case, case_name, case_description, job_type, job_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes, zip_output)
                         NRT.addTestCase(current_test)
 
                 del sys.modules['cases'] # Delete load module in order to load another module with the same name
