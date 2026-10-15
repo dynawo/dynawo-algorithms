@@ -252,11 +252,9 @@ def main():
                 import cases
                 sys.path.remove(case_path) # Remove from path because all files share the same name
 
-                for case_name, case_description, job_type, job_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes, *optional_fields in cases.test_cases:
-                    if optional_fields:
-                        zip_output = optional_fields[0]
-                    else:
-                         zip_output = False
+                for test_case in cases.test_cases:
+                    case_name, case_description, job_type, job_file, variation, estimated_computation_time, zip_inputs, return_code_type, expected_return_codes = test_case[:9]
+                    zip_output = test_case[9] if len(test_case) > 9 else False
                     relative_job_dir = os.path.relpath (os.path.dirname (job_file), nrt.data_dir)
                     keep_job = True
 
