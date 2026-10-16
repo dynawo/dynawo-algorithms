@@ -54,6 +54,7 @@ jobs:
           shell: bash
           run: |
             cd /dynawo-algorithms
+            git config --global --add safe.directory /dynawo-algorithms
             export DYNAWO_HOME=$(pwd)/dynawo
             export DYNAWO_ALGORITHMS_HOME=$(pwd)
             util/envDynawoAlgorithms.sh build
@@ -90,6 +91,7 @@ jobs:
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_BUILD_TYPE: Release
       DYNAWO_NB_PROCESSORS_USED: 2
+      DYNAWO_PYTHON_COMMAND: python3
 
     steps:
       - name: Checkout sources
@@ -105,10 +107,11 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: dynawo/dynawo-distribution-ol8:latest
-          options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_NB_PROCESSORS_USED
+          options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_NB_PROCESSORS_USED -e DYNAWO_PYTHON_COMMAND
           shell: bash
           run: |
             cd /dynawo-algorithms
+            git config --global --add safe.directory /dynawo-algorithms
             export DYNAWO_HOME=$(pwd)/dynawo
             export DYNAWO_ALGORITHMS_HOME=$(pwd)
             util/envDynawoAlgorithms.sh build
