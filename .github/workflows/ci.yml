@@ -12,12 +12,12 @@ env:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-    container: dynawo/dynawo-ci:latest
+    container: dynawo/dynawo-ci-ol8:latest
     env:
       DYNAWO_BUILD_TYPE: Debug
       DYNAWO_RESULTS_SHOW: "false"
-      DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_NB_PROCESSORS_USED: 2
+      DYNAWO_PYTHON_COMMAND: python3
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -33,9 +33,7 @@ jobs:
 
       - name: Build
         run: |
-          source /etc/profile.d/00-modulepath.sh
           source /etc/profile.d/modules.sh
-          source /usr/share/lmod/lmod/init/bash
           module load mpi/mpich-x86_64
           export DYNAWO_HOME=$(pwd)/dynawo
           export DYNAWO_ALGORITHMS_HOME=$(pwd)
@@ -43,12 +41,12 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
-    container: dynawo/dynawo-ci:latest
+    container: dynawo/dynawo-ci-ol8:latest
     env:
       DYNAWO_BUILD_TYPE: Debug
-      DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_NB_PROCESSORS_USED: 2
+      DYNAWO_PYTHON_COMMAND: python3
     steps:
       - name: Install Sonar wrapper
         working-directory: ${{ runner.workspace }}
@@ -84,9 +82,7 @@ jobs:
         env:
           CONTAINER_WORKSPACE: ${{ runner.workspace }}
         run: |
-          source /etc/profile.d/00-modulepath.sh
           source /etc/profile.d/modules.sh
-          source /usr/share/lmod/lmod/init/bash
           module load mpi/mpich-x86_64
           export DYNAWO_HOME=$(pwd)/dynawo
           export DYNAWO_ALGORITHMS_HOME=$(pwd)
