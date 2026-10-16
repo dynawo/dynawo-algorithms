@@ -9,10 +9,10 @@ env:
   DYNAWO_VERSION: 2.0.0
 
 jobs:
-  fedora:
-    name: Linux Fedora (${{ matrix.build-type }})
+  ol8:
+    name: Linux OL8 (${{ matrix.build-type }})
     runs-on: ubuntu-latest
-    container: dynawo/dynawo-ci-nightly-fedora:latest
+    container: dynawo/dynawo-distribution-ol8:latest
     strategy:
       matrix:
         build-type: [Release, Debug]
@@ -21,7 +21,7 @@ jobs:
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_BUILD_TYPE: ${{ matrix.build-type }}
       DYNAWO_NB_PROCESSORS_USED: 2
-      DYNAWO_FORCE_CXX11_ABI: "true"
+      DYNAWO_PYTHON_COMMAND: python3
 
     steps:
       - name: Checkout sources
@@ -46,6 +46,7 @@ jobs:
       - name: Tests
         if: ${{ matrix.build-type == 'Debug' }}
         run: |
+          dnf install -y oracle-epel-release-el8
           dnf install -y gtest-devel gmock-devel
           export DYNAWO_HOME=$(pwd)/dynawo
           export DYNAWO_ALGORITHMS_HOME=$(pwd)
