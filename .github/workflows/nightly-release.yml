@@ -15,6 +15,10 @@ on:
         description: Build Windows release
         type: boolean
         default: true
+      perform-documentation:
+        description: Build documentation
+        type: boolean
+        default: true
       perform-nrt:
         description: Run NRT on Windows
         type: boolean
@@ -63,9 +67,9 @@ jobs:
             const release = require('.github/release.js')
             await release({github, context, core, glob})
 
-  fedora:
+  ol8:
     if: always() && !cancelled() && !failure() && (github.event.action == 'nightly-linux' || (github.event_name == 'workflow_dispatch' && inputs.perform-linux) || !endsWith(github.event_name, '_dispatch'))
-    name: Linux Fedora (Release, GCC, cxx11) (${{ matrix.use-mpi.text }})
+    name: Linux OL8 (Release, GCC) (${{ matrix.use-mpi.text }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -76,9 +80,9 @@ jobs:
     env:
       DYNAWO_RESULTS_SHOW: "false"
       DYNAWO_BUILD_TYPE: Release
-      DYNAWO_FORCE_CXX11_ABI: "true"
       DYNAWO_USE_MPI: ${{ matrix.use-mpi.value }}
       DYNAWO_NB_PROCESSORS_USED: 2
+      DYNAWO_PYTHON_COMMAND: python3
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -89,18 +93,19 @@ jobs:
       - name: Unzip Dynawo
         run: unzip -qq "Dynawo_headers_v${DYNAWO_VERSION}.zip"
 
-      - name: Build, Build documentation, Prepare files for distribution
+      - name: Build, Prepare files for distribution
         uses: addnab/docker-run-action@v3
         with:
-          image: dynawo/dynawo-distribution-cxx11:latest
-          options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_FORCE_CXX11_ABI -e DYNAWO_NB_PROCESSORS_USED -e DYNAWO_USE_MPI
+          image: dynawo/dynawo-distribution-ol8:latest
+          options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_NB_PROCESSORS_USED -e DYNAWO_USE_MPI -e DYNAWO_PYTHON_COMMAND
           shell: bash
           run: |
+            dnf install -y zip
             cd /dynawo-algorithms
+            git config --global --add safe.directory /dynawo-algorithms
             export DYNAWO_HOME=$(pwd)/dynawo
             export DYNAWO_ALGORITHMS_HOME=$(pwd)
             util/envDynawoAlgorithms.sh build
-            util/envDynawoAlgorithms.sh build-doc
             util/envDynawoAlgorithms.sh distrib
             util/envDynawoAlgorithms.sh distrib-headers
 
@@ -125,7 +130,6 @@ jobs:
           prerelease: true
           files: |
             distributions/*.zip
-            documentation/dynawoAlgorithmsDocumentation/DynawoAlgorithmsDocumentation.pdf
         with:
           retries: 3
           script: |
@@ -140,6 +144,47 @@ jobs:
           github-token: ${{ secrets.DISPATCH_TOKEN }}
           script: |
             await github.rest.repos.createDispatchEvent({ owner: context.repo.owner, repo: "dynaflow-launcher", event_type: "nightly-linux" });
+
+  documentation:
+    if: always() && !cancelled() && !failure() && (github.event.action == 'nightly-linux' || (github.event_name == 'workflow_dispatch' && inputs.perform-documentation) || !endsWith(github.event_name, '_dispatch'))
+    name: Documentation
+    runs-on: ubuntu-latest
+    needs: nightly
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends texlive-latex-extra texlive-pictures texlive-science texlive-fonts-recommended lmodern
+
+      - name: Build documentation
+        run: |
+          cd documentation
+          bash dynawo_algorithms_documentation.sh
+
+      - name: Fetch release script
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/dynawo
+          sparse-checkout: .github/release.js
+          sparse-checkout-cone-mode: false
+          path: dynawo
+
+      - name: Upload assets for release
+        uses: actions/github-script@v7
+        env:
+          tag_name: ${{ env.DYNAWO_TAG }}
+          draft: false
+          prerelease: true
+          files: |
+            documentation/dynawoAlgorithmsDocumentation/DynawoAlgorithmsDocumentation.pdf
+        with:
+          retries: 3
+          script: |
+            const release = require('./dynawo/.github/release.js')
+            await release({github, context, core, glob})
 
   windows:
     if: always() && !cancelled() && !failure() && (github.event.action == 'nightly-windows' || (github.event_name == 'workflow_dispatch' && inputs.perform-windows) || !endsWith(github.event_name, '_dispatch'))
