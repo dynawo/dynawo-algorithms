@@ -1,0 +1,543 @@
+2026-10-12 22:35:08 | INFO |  ============================================================ 
+2026-10-12 22:35:08 | INFO | DYNAWO VERSION  :     2.0.0
+2026-10-12 22:35:08 | INFO | DYNAWO REVISION :    master-d170a775ffb
+2026-10-12 22:35:08 | INFO |  ============================================================ 
+2026-10-12 22:35:08 | INFO | 
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | building model from input files
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | model was built successfully
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | 
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | starting local initialization
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | DEBUG | keep SubNetworks num : 0
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model GEN____1_SM
+2026-10-12 22:35:08 | DEBUG | local initialization of model GEN____1_SM ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model GEN____2_SM
+2026-10-12 22:35:08 | DEBUG | local initialization of model GEN____2_SM ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model GEN____3_SM
+2026-10-12 22:35:08 | DEBUG | local initialization of model GEN____3_SM ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model GEN____6_SM
+2026-10-12 22:35:08 | DEBUG | local initialization of model GEN____6_SM ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model GEN____8_SM
+2026-10-12 22:35:08 | DEBUG | local initialization of model GEN____8_SM ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD__10_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD__10_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD__11_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD__11_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD__12_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD__12_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD__13_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD__13_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD__14_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD__14_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD___2_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD___2_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD___3_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD___3_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD___4_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD___4_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD___5_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD___5_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD___6_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD___6_EC ended successfully
+2026-10-12 22:35:08 | DEBUG | ------------------------------
+2026-10-12 22:35:08 | DEBUG | starting local initialization of model _LOAD___9_EC
+2026-10-12 22:35:08 | DEBUG | local initialization of model _LOAD___9_EC ended successfully
+2026-10-12 22:35:08 | INFO | end of local initialization
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | 
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | starting global initialization
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | DEBUG | initialization of IDA solver : ok
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | INFO | 
+2026-10-12 22:35:08 | INFO | execution statistics :
+2026-10-12 22:35:08 | INFO | 
+2026-10-12 22:35:08 | INFO | number of time iterations                                  = 0
+2026-10-12 22:35:08 | INFO | number of residual evaluations                             = 2
+2026-10-12 22:35:08 | INFO | number of Jacobian evaluations                             = 2
+2026-10-12 22:35:08 | INFO | number of nonlinear iterations                             = 0
+2026-10-12 22:35:08 | INFO | number of error test failures                              = 0
+2026-10-12 22:35:08 | INFO | number of nonlinear convergence failures                   = 0
+2026-10-12 22:35:08 | INFO | number of solver root functions evaluations                = 0
+2026-10-12 22:35:08 | INFO | number of internal root functions evaluations              = 3
+2026-10-12 22:35:08 | INFO | number of discrete variables evaluations                   = 3
+2026-10-12 22:35:08 | INFO | number of mode evaluations                                 = 2
+2026-10-12 22:35:08 | INFO | number of differential mode                                = 0
+2026-10-12 22:35:08 | INFO | number of algebraic mode                                   = 0
+2026-10-12 22:35:08 | INFO | number of algebraic J update mode                          = 0
+2026-10-12 22:35:08 | INFO | number of algebraic restoration residual evaluations       = 2
+2026-10-12 22:35:08 | INFO | number of algebraic restoration Jacobian evaluations       = 1
+2026-10-12 22:35:08 | INFO | number of algebraic prim restoration residual evaluations  = 2
+2026-10-12 22:35:08 | INFO | number of algebraic prim restoration Jacobian evaluations  = 1
+2026-10-12 22:35:08 | INFO | end of global initialization
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | 
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | starting curve initialization
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____1_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____2_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____3_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____4_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____5_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____6_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____7_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____8_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS____9_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS___10_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS___11_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS___12_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS___13_TN_Upu_value
+2026-10-12 22:35:08 | WARN | curve not added: Id: NETWORK , name: _BUS___14_TN_Upu_value
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____1_SM; curve: generator_omegaPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____1_SM; curve: generator_PGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____1_SM; curve: generator_QGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____1_SM; curve: generator_UStatorPu found. (exact name)
+2026-10-12 22:35:08 | WARN | curve not added: Id: GEN____1_SM , name: voltageRegulator_UcEfdPu
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____1_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____2_SM; curve: generator_omegaPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____2_SM; curve: generator_PGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____2_SM; curve: generator_QGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____2_SM; curve: generator_UStatorPu found. (exact name)
+2026-10-12 22:35:08 | WARN | curve not added: Id: GEN____2_SM , name: voltageRegulator_UcEfdPu
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____2_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____3_SM; curve: generator_omegaPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____3_SM; curve: generator_PGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____3_SM; curve: generator_QGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____3_SM; curve: generator_UStatorPu found. (exact name)
+2026-10-12 22:35:08 | WARN | curve not added: Id: GEN____3_SM , name: voltageRegulator_UcEfdPu
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____3_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____6_SM; curve: generator_omegaPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____6_SM; curve: generator_PGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____6_SM; curve: generator_QGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____6_SM; curve: generator_UStatorPu found. (exact name)
+2026-10-12 22:35:08 | WARN | curve not added: Id: GEN____6_SM , name: voltageRegulator_UcEfdPu
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____6_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____8_SM; curve: generator_omegaPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____8_SM; curve: generator_PGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____8_SM; curve: generator_QGen found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____8_SM; curve: generator_UStatorPu found. (exact name)
+2026-10-12 22:35:08 | WARN | curve not added: Id: GEN____8_SM , name: voltageRegulator_UcEfdPu
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: GEN____8_SM; curve: voltageRegulator_EfdPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: _LOAD___2_EC; curve: load_PPu found. (exact name)
+2026-10-12 22:35:08 | DEBUG | adding curve : Id: _LOAD___2_EC; curve: load_QPu found. (exact name)
+2026-10-12 22:35:08 | INFO | end of curve initialization, added 27 curves
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | 
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | starting simulation with solver IDASolver
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO | number of continuous variables : 439
+2026-10-12 22:35:08 | INFO | number of discrete variables : 242
+2026-10-12 22:35:08 | INFO | number of root functions : 264
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO |         time ¦ iter num   order (k)      time step (h)
+2026-10-12 22:35:08 | INFO | -----------------------------------------------------------------------
+2026-10-12 22:35:08 | INFO |        0.000 ¦        0           0              0.000 
+2026-10-12 22:35:08 | INFO |        0.000 ¦        1           1              0.000 
+2026-10-12 22:35:08 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:08 | DEBUG | YP[376]=0.0893474 (variable=_LOAD__14_EC_load_QPu)
+2026-10-12 22:35:08 | DEBUG | YP[375]=0.053134 (variable=_LOAD__14_EC_load_PPu)
+2026-10-12 22:35:08 | DEBUG | YP[257]=0.028025 (variable=GEN____6_SM_voltageRegulator_gain_y)
+2026-10-12 22:35:08 | DEBUG | YP[227]=0.028025 (variable=GEN____6_SM_generator_efdPu)
+2026-10-12 22:35:08 | DEBUG | YP[18]=0.0211036 (variable=NETWORK__BUS___14_TN_ACPIN_i_re)
+2026-10-12 22:35:08 | DEBUG | YP[378]=-0.0211036 (variable=_LOAD__14_EC_load_terminal_i_re)
+2026-10-12 22:35:08 | DEBUG | YP[232]=0.0150494 (variable=GEN____6_SM_generator_ifPu)
+2026-10-12 22:35:08 | DEBUG | YP[228]=-0.0149711 (variable=GEN____6_SM_generator_iDPu)
+2026-10-12 22:35:08 | DEBUG | YP[233]=0.00902051 (variable=GEN____6_SM_generator_iqPu)
+2026-10-12 22:35:08 | DEBUG | YP[142]=0.00790566 (variable=GEN____2_SM_generator_terminal_i_re)
+2026-10-12 22:35:08 | INFO |        0.000 ¦        2           1              0.000 
+2026-10-12 22:35:08 | INFO |        0.000 ¦        3           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.000 ¦        4           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.000 ¦        5           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.000 ¦        6           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.000 ¦        7           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.000 ¦        8           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.000 ¦        9           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.001 ¦       10           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.001 ¦       11           2              0.001 
+2026-10-12 22:35:08 | INFO |        0.002 ¦       12           2              0.001 
+2026-10-12 22:35:08 | INFO |        0.004 ¦       13           2              0.002 
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | INFO |        0.005 ¦       14           2              0.004 
+2026-10-12 22:35:08 | INFO |        0.005 ¦       14           2              0.004 
+2026-10-12 22:35:08 | INFO |        0.008 ¦       14           2              0.004 
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | DEBUG | Algebraic mode change for model GEN____3_SM at t = 0.00915769
+2026-10-12 22:35:08 | INFO | Algebraic mode change at t = 0.00915769
+2026-10-12 22:35:08 | INFO |        0.009 ¦       15           2              0.008 
+2026-10-12 22:35:08 | INFO | calculation of the new starting point of the simulation.
+2026-10-12 22:35:08 | INFO |        0.009 ¦        0           0              0.000 
+2026-10-12 22:35:08 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:08 | DEBUG | YP[207]=-0.00188381 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-12 22:35:08 | DEBUG | YP[210]=0.0010132 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-12 22:35:08 | DEBUG | YP[208]=-0.00043412 (variable=GEN____6_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:08 | DEBUG | YP[258]=0.000362665 (variable=GEN____8_SM_generator_lambdaDPu)
+2026-10-12 22:35:08 | DEBUG | YP[107]=-0.000268461 (variable=GEN____2_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:08 | DEBUG | YP[158]=0.000162401 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:08 | DEBUG | YP[105]=-0.000160679 (variable=GEN____2_SM_generator_lambdaDPu)
+2026-10-12 22:35:08 | DEBUG | YP[261]=-0.000121099 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-12 22:35:08 | DEBUG | YP[54]=0.000101863 (variable=GEN____1_SM_generator_lambdaDPu)
+2026-10-12 22:35:08 | DEBUG | YP[106]=-7.47804e-05 (variable=GEN____2_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | INFO |        0.009 ¦        1           1              0.000 
+2026-10-12 22:35:08 | INFO |        0.009 ¦        2           1              0.000 
+2026-10-12 22:35:08 | INFO |        0.009 ¦        3           2              0.000 
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | INFO |        0.009 ¦        4           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.009 ¦        5           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.009 ¦        6           2              0.000 
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | INFO |        0.009 ¦        7           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.009 ¦        8           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.009 ¦        9           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.010 ¦       10           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.010 ¦       11           2              0.001 
+2026-10-12 22:35:08 | INFO |        0.011 ¦       12           2              0.001 
+2026-10-12 22:35:08 | INFO |        0.013 ¦       13           2              0.002 
+2026-10-12 22:35:08 | INFO |        0.017 ¦       14           2              0.004 
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | DEBUG | Algebraic mode change for model GEN____8_SM at t = 0.0190198
+2026-10-12 22:35:08 | INFO | Algebraic mode change at t = 0.0190198
+2026-10-12 22:35:08 | INFO |        0.019 ¦       15           2              0.008 
+2026-10-12 22:35:08 | INFO | calculation of the new starting point of the simulation.
+2026-10-12 22:35:08 | INFO |        0.019 ¦        0           0              0.000 
+2026-10-12 22:35:08 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:08 | DEBUG | YP[207]=-0.0012499 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-12 22:35:08 | DEBUG | YP[210]=0.00101193 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-12 22:35:08 | DEBUG | YP[258]=0.000315556 (variable=GEN____8_SM_generator_lambdaDPu)
+2026-10-12 22:35:08 | DEBUG | YP[208]=-0.000276336 (variable=GEN____6_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:08 | DEBUG | YP[107]=-0.000228698 (variable=GEN____2_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:08 | DEBUG | YP[158]=0.000145838 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:08 | DEBUG | YP[105]=-0.000129834 (variable=GEN____2_SM_generator_lambdaDPu)
+2026-10-12 22:35:08 | DEBUG | YP[261]=-0.000119129 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-12 22:35:08 | DEBUG | YP[54]=8.3593e-05 (variable=GEN____1_SM_generator_lambdaDPu)
+2026-10-12 22:35:08 | DEBUG | YP[106]=-8.30041e-05 (variable=GEN____2_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | INFO |        0.019 ¦        1           1              0.000 
+2026-10-12 22:35:08 | INFO |        0.019 ¦        2           1              0.000 
+2026-10-12 22:35:08 | INFO |        0.019 ¦        3           2              0.000 
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | INFO |        0.019 ¦        4           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.019 ¦        5           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.019 ¦        6           2              0.000 
+2026-10-12 22:35:08 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:08 | INFO |        0.019 ¦        7           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.019 ¦        8           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.019 ¦        9           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.020 ¦       10           2              0.000 
+2026-10-12 22:35:08 | INFO |        0.020 ¦       11           2              0.001 
+2026-10-12 22:35:08 | INFO |        0.021 ¦       12           2              0.001 
+2026-10-12 22:35:08 | INFO |        0.023 ¦       13           2              0.002 
+2026-10-12 22:35:08 | INFO |        0.027 ¦       14           2              0.004 
+2026-10-12 22:35:08 | INFO |        0.035 ¦       15           2              0.008 
+2026-10-12 22:35:08 | INFO |        0.052 ¦       16           2              0.016 
+2026-10-12 22:35:08 | INFO |        0.085 ¦       17           2              0.033 
+2026-10-12 22:35:08 | INFO |        0.150 ¦       18           2              0.066 
+2026-10-12 22:35:09 | DEBUG | Algebraic mode change for model GEN____8_SM at t = 0.272089
+2026-10-12 22:35:09 | INFO | Algebraic mode change at t = 0.272089
+2026-10-12 22:35:09 | INFO |        0.272 ¦       19           1              0.131 
+2026-10-12 22:35:09 | INFO | calculation of the new starting point of the simulation.
+2026-10-12 22:35:09 | INFO |        0.272 ¦        0           0              0.000 
+2026-10-12 22:35:09 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:09 | DEBUG | YP[210]=0.000478674 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[207]=0.000325183 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-12 22:35:09 | DEBUG | YP[113]=-0.000253803 (variable=GEN____2_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[164]=0.000218731 (variable=GEN____3_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[215]=-0.000196718 (variable=GEN____6_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[261]=-8.62543e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[208]=6.70329e-05 (variable=GEN____6_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[62]=-5.24409e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[56]=-3.12785e-05 (variable=GEN____1_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:09 | DEBUG | YP[107]=3.06526e-05 (variable=GEN____2_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.272 ¦        1           1              0.000 
+2026-10-12 22:35:09 | INFO |        0.272 ¦        2           1              0.000 
+2026-10-12 22:35:09 | INFO |        0.272 ¦        3           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.272 ¦        4           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.272 ¦        5           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.272 ¦        6           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.272 ¦        7           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.272 ¦        8           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.272 ¦        9           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.273 ¦       10           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.273 ¦       11           2              0.001 
+2026-10-12 22:35:09 | INFO |        0.274 ¦       12           2              0.001 
+2026-10-12 22:35:09 | INFO |        0.276 ¦       13           2              0.002 
+2026-10-12 22:35:09 | INFO |        0.280 ¦       14           2              0.004 
+2026-10-12 22:35:09 | INFO |        0.288 ¦       15           2              0.008 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.305 ¦       16           2              0.016 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.331 ¦       17           2              0.033 
+2026-10-12 22:35:09 | INFO |        0.331 ¦       17           2              0.033 
+2026-10-12 22:35:09 | INFO |        0.338 ¦       17           2              0.033 
+2026-10-12 22:35:09 | INFO |        0.403 ¦       18           2              0.066 
+2026-10-12 22:35:09 | INFO |        0.534 ¦       19           2              0.131 
+2026-10-12 22:35:09 | INFO |        0.634 ¦       20           2              0.262 
+2026-10-12 22:35:09 | INFO |        0.634 ¦       20           2              0.262 
+2026-10-12 22:35:09 | DEBUG | Algebraic mode change for model GEN____6_SM at t = 0.705508
+2026-10-12 22:35:09 | INFO | Algebraic mode change at t = 0.705508
+2026-10-12 22:35:09 | INFO |        0.706 ¦       20           2              0.262 
+2026-10-12 22:35:09 | INFO | calculation of the new starting point of the simulation.
+2026-10-12 22:35:09 | INFO |        0.706 ¦        0           0              0.000 
+2026-10-12 22:35:09 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:09 | DEBUG | YP[164]=8.65764e-05 (variable=GEN____3_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[210]=8.20711e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[62]=-7.60773e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[266]=-6.03006e-05 (variable=GEN____8_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[207]=4.75909e-05 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-12 22:35:09 | DEBUG | YP[261]=-4.39257e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[158]=-4.17959e-05 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:09 | DEBUG | YP[106]=4.0285e-05 (variable=GEN____2_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[107]=3.50005e-05 (variable=GEN____2_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:09 | DEBUG | YP[215]=3.42428e-05 (variable=GEN____6_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.706 ¦        1           1              0.000 
+2026-10-12 22:35:09 | INFO |        0.706 ¦        2           1              0.000 
+2026-10-12 22:35:09 | INFO |        0.706 ¦        3           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.706 ¦        4           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.706 ¦        5           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.706 ¦        6           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.706 ¦        7           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.706 ¦        8           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.706 ¦        9           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.706 ¦       10           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.707 ¦       11           2              0.001 
+2026-10-12 22:35:09 | INFO |        0.708 ¦       12           2              0.001 
+2026-10-12 22:35:09 | INFO |        0.710 ¦       13           2              0.002 
+2026-10-12 22:35:09 | INFO |        0.714 ¦       14           2              0.004 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.722 ¦       15           2              0.008 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.738 ¦       16           2              0.016 
+2026-10-12 22:35:09 | INFO |        0.771 ¦       17           2              0.033 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | DEBUG | Algebraic mode change for model GEN____3_SM at t = 0.796853
+2026-10-12 22:35:09 | INFO | Algebraic mode change at t = 0.796853
+2026-10-12 22:35:09 | INFO |        0.797 ¦       18           2              0.066 
+2026-10-12 22:35:09 | INFO | calculation of the new starting point of the simulation.
+2026-10-12 22:35:09 | INFO |        0.797 ¦        0           0              0.000 
+2026-10-12 22:35:09 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:09 | DEBUG | YP[210]=6.29383e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[62]=-5.98989e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[266]=-5.53955e-05 (variable=GEN____8_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[215]=4.60909e-05 (variable=GEN____6_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[158]=-4.46818e-05 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:09 | DEBUG | YP[157]=-4.33133e-05 (variable=GEN____3_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[106]=3.78616e-05 (variable=GEN____2_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[164]=3.77484e-05 (variable=GEN____3_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[261]=-3.5918e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[207]=3.53937e-05 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.797 ¦        1           1              0.000 
+2026-10-12 22:35:09 | INFO |        0.797 ¦        2           1              0.000 
+2026-10-12 22:35:09 | INFO |        0.797 ¦        3           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.797 ¦        4           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.797 ¦        5           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.797 ¦        6           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.797 ¦        7           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.797 ¦        8           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.797 ¦        9           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.797 ¦       10           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.798 ¦       11           2              0.001 
+2026-10-12 22:35:09 | INFO |        0.799 ¦       12           2              0.001 
+2026-10-12 22:35:09 | INFO |        0.801 ¦       13           2              0.002 
+2026-10-12 22:35:09 | INFO |        0.805 ¦       14           2              0.004 
+2026-10-12 22:35:09 | INFO |        0.813 ¦       15           2              0.008 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.826 ¦       16           2              0.016 
+2026-10-12 22:35:09 | INFO |        0.826 ¦       16           2              0.016 
+2026-10-12 22:35:09 | INFO |        0.830 ¦       16           2              0.016 
+2026-10-12 22:35:09 | INFO |        0.862 ¦       17           2              0.033 
+2026-10-12 22:35:09 | INFO |        0.928 ¦       18           2              0.066 
+2026-10-12 22:35:09 | DEBUG | Algebraic mode change for model GEN____6_SM at t = 0.962519
+2026-10-12 22:35:09 | INFO | Algebraic mode change at t = 0.962519
+2026-10-12 22:35:09 | INFO |        0.963 ¦       19           2              0.131 
+2026-10-12 22:35:09 | INFO | calculation of the new starting point of the simulation.
+2026-10-12 22:35:09 | INFO |        0.963 ¦        0           0              0.000 
+2026-10-12 22:35:09 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:09 | DEBUG | YP[164]=-7.76569e-05 (variable=GEN____3_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[113]=7.42457e-05 (variable=GEN____2_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[210]=3.65695e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[215]=3.63862e-05 (variable=GEN____6_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[62]=3.30322e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[157]=-3.20693e-05 (variable=GEN____3_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[261]=-2.60944e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[258]=-2.28535e-05 (variable=GEN____8_SM_generator_lambdaDPu)
+2026-10-12 22:35:09 | DEBUG | YP[208]=-2.11876e-05 (variable=GEN____6_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[158]=-2.0912e-05 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.963 ¦        1           1              0.000 
+2026-10-12 22:35:09 | INFO |        0.963 ¦        2           1              0.000 
+2026-10-12 22:35:09 | INFO |        0.963 ¦        3           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.963 ¦        4           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.963 ¦        5           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.963 ¦        6           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.963 ¦        7           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.963 ¦        8           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.963 ¦        9           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.963 ¦       10           2              0.000 
+2026-10-12 22:35:09 | INFO |        0.964 ¦       11           2              0.001 
+2026-10-12 22:35:09 | INFO |        0.965 ¦       12           2              0.001 
+2026-10-12 22:35:09 | INFO |        0.967 ¦       13           2              0.002 
+2026-10-12 22:35:09 | INFO |        0.971 ¦       14           2              0.004 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        0.971 ¦       15           2              0.008 
+2026-10-12 22:35:09 | INFO |        0.971 ¦       15           2              0.008 
+2026-10-12 22:35:09 | INFO |        0.979 ¦       15           2              0.008 
+2026-10-12 22:35:09 | INFO |        0.995 ¦       16           2              0.016 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        1.017 ¦       17           2              0.033 
+2026-10-12 22:35:09 | INFO |        1.017 ¦       17           2              0.033 
+2026-10-12 22:35:09 | DEBUG | Algebraic mode change for model GEN____8_SM at t = 1.01996
+2026-10-12 22:35:09 | INFO | Algebraic mode change at t = 1.01996
+2026-10-12 22:35:09 | INFO |        1.020 ¦       17           2              0.033 
+2026-10-12 22:35:09 | INFO | calculation of the new starting point of the simulation.
+2026-10-12 22:35:09 | INFO |        1.020 ¦        0           0              0.000 
+2026-10-12 22:35:09 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:09 | DEBUG | YP[164]=-0.000118798 (variable=GEN____3_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[113]=8.31534e-05 (variable=GEN____2_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[62]=7.54439e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[266]=4.12432e-05 (variable=GEN____8_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[210]=3.00824e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[157]=-2.73148e-05 (variable=GEN____3_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[261]=-2.30256e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[258]=-2.04974e-05 (variable=GEN____8_SM_generator_lambdaDPu)
+2026-10-12 22:35:09 | DEBUG | YP[207]=1.55788e-05 (variable=GEN____6_SM_generator_lambdaDPu)
+2026-10-12 22:35:09 | DEBUG | YP[215]=1.51412e-05 (variable=GEN____6_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        1.020 ¦        1           1              0.000 
+2026-10-12 22:35:09 | INFO |        1.020 ¦        2           1              0.000 
+2026-10-12 22:35:09 | INFO |        1.020 ¦        3           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        1.020 ¦        4           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.020 ¦        5           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.020 ¦        6           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        1.020 ¦        7           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.020 ¦        8           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.020 ¦        9           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.020 ¦       10           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.021 ¦       11           2              0.001 
+2026-10-12 22:35:09 | INFO |        1.022 ¦       12           2              0.001 
+2026-10-12 22:35:09 | INFO |        1.024 ¦       13           2              0.002 
+2026-10-12 22:35:09 | INFO |        1.028 ¦       14           2              0.004 
+2026-10-12 22:35:09 | INFO |        1.036 ¦       15           2              0.008 
+2026-10-12 22:35:09 | INFO |        1.053 ¦       16           2              0.016 
+2026-10-12 22:35:09 | INFO |        1.085 ¦       17           2              0.033 
+2026-10-12 22:35:09 | INFO |        1.151 ¦       18           2              0.066 
+2026-10-12 22:35:09 | INFO |        1.282 ¦       19           2              0.131 
+2026-10-12 22:35:09 | DEBUG | Algebraic mode change for model GEN____8_SM at t = 1.37826
+2026-10-12 22:35:09 | INFO | Algebraic mode change at t = 1.37826
+2026-10-12 22:35:09 | INFO |        1.378 ¦       20           1              0.262 
+2026-10-12 22:35:09 | INFO | calculation of the new starting point of the simulation.
+2026-10-12 22:35:09 | INFO |        1.378 ¦        0           0              0.000 
+2026-10-12 22:35:09 | DEBUG | largest derivative values (truncated to the first 10) at the current iteration
+2026-10-12 22:35:09 | DEBUG | YP[62]=7.84569e-05 (variable=GEN____1_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[164]=-6.9463e-05 (variable=GEN____3_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[266]=5.56368e-05 (variable=GEN____8_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[56]=-2.69518e-05 (variable=GEN____1_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:09 | DEBUG | YP[158]=2.23938e-05 (variable=GEN____3_SM_generator_lambdaQ2Pu)
+2026-10-12 22:35:09 | DEBUG | YP[55]=-2.17264e-05 (variable=GEN____1_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[157]=1.53131e-05 (variable=GEN____3_SM_generator_lambdaQ1Pu)
+2026-10-12 22:35:09 | DEBUG | YP[113]=1.4239e-05 (variable=GEN____2_SM_generator_theta)
+2026-10-12 22:35:09 | DEBUG | YP[210]=1.24434e-05 (variable=GEN____6_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | YP[261]=-1.1085e-05 (variable=GEN____8_SM_generator_lambdafPu)
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        1.378 ¦        1           1              0.000 
+2026-10-12 22:35:09 | INFO |        1.378 ¦        2           1              0.000 
+2026-10-12 22:35:09 | INFO |        1.378 ¦        3           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        1.378 ¦        4           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.378 ¦        5           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.378 ¦        6           2              0.000 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        1.378 ¦        7           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.378 ¦        8           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.379 ¦        9           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.379 ¦       10           2              0.000 
+2026-10-12 22:35:09 | INFO |        1.379 ¦       11           2              0.001 
+2026-10-12 22:35:09 | INFO |        1.380 ¦       12           2              0.001 
+2026-10-12 22:35:09 | INFO |        1.382 ¦       13           2              0.002 
+2026-10-12 22:35:09 | INFO |        1.386 ¦       14           2              0.004 
+2026-10-12 22:35:09 | INFO |        1.395 ¦       15           2              0.008 
+2026-10-12 22:35:09 | INFO |        1.411 ¦       16           2              0.016 
+2026-10-12 22:35:09 | INFO |        1.444 ¦       17           2              0.033 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        1.449 ¦       18           2              0.066 
+2026-10-12 22:35:09 | INFO |        1.449 ¦       18           2              0.066 
+2026-10-12 22:35:09 | INFO |        1.509 ¦       18           2              0.066 
+2026-10-12 22:35:09 | INFO |        1.640 ¦       19           2              0.131 
+2026-10-12 22:35:09 | INFO |        1.903 ¦       20           2              0.262 
+2026-10-12 22:35:09 | INFO |        1.931 ¦       21           2              0.524 
+2026-10-12 22:35:09 | INFO |        1.931 ¦       21           2              0.524 
+2026-10-12 22:35:09 | INFO |        2.427 ¦       21           2              0.524 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        2.444 ¦       22           1              1.049 
+2026-10-12 22:35:09 | INFO |        2.444 ¦       22           1              1.049 
+2026-10-12 22:35:09 | INFO |        3.475 ¦       22           1              1.049 
+2026-10-12 22:35:09 | DEBUG | call of SolverReInit i.e. a new symbolic and numerical factorization will be performed
+2026-10-12 22:35:09 | INFO |        5.573 ¦       23           1              2.097 
+2026-10-12 22:35:09 | INFO |        9.767 ¦       24           1              4.194 
+2026-10-12 22:35:09 | INFO |       18.155 ¦       25           1              8.389 
+2026-10-12 22:35:09 | INFO |       28.155 ¦       26           1             10.000 
+2026-10-12 22:35:09 | INFO |       38.155 ¦       27           1             10.000 
+2026-10-12 22:35:09 | INFO |       48.155 ¦       28           1             10.000 
+2026-10-12 22:35:09 | INFO |       58.155 ¦       29           2             10.000 
+2026-10-12 22:35:09 | INFO |       68.155 ¦       30           1             10.000 
+2026-10-12 22:35:09 | INFO |       78.155 ¦       31           1             10.000 
+2026-10-12 22:35:09 | INFO |       88.155 ¦       32           1             10.000 
+2026-10-12 22:35:09 | INFO |       98.155 ¦       33           1             10.000 
+2026-10-12 22:35:09 | INFO |      100.000 ¦       34           1              1.845 
+2026-10-12 22:35:09 | INFO | 
+2026-10-12 22:35:09 | INFO | execution statistics :
+2026-10-12 22:35:09 | INFO | 
+2026-10-12 22:35:09 | INFO | number of time iterations                                  = 177
+2026-10-12 22:35:09 | INFO | number of residual evaluations                             = 190
+2026-10-12 22:35:09 | INFO | number of Jacobian evaluations                             = 151
+2026-10-12 22:35:09 | INFO | number of nonlinear iterations                             = 190
+2026-10-12 22:35:09 | INFO | number of error test failures                              = 0
+2026-10-12 22:35:09 | INFO | number of nonlinear convergence failures                   = 0
+2026-10-12 22:35:09 | INFO | number of solver root functions evaluations                = 1092
+2026-10-12 22:35:09 | INFO | number of internal root functions evaluations              = 43
+2026-10-12 22:35:09 | INFO | number of discrete variables evaluations                   = 43
+2026-10-12 22:35:09 | INFO | number of mode evaluations                                 = 34
+2026-10-12 22:35:09 | INFO | number of differential mode                                = 0
+2026-10-12 22:35:09 | INFO | number of algebraic mode                                   = 0
+2026-10-12 22:35:09 | INFO | number of algebraic J update mode                          = 0
+2026-10-12 22:35:09 | INFO | number of algebraic restoration residual evaluations       = 8
+2026-10-12 22:35:09 | INFO | number of algebraic restoration Jacobian evaluations       = 8
+2026-10-12 22:35:09 | INFO | number of algebraic prim restoration residual evaluations  = 11
+2026-10-12 22:35:09 | INFO | number of algebraic prim restoration Jacobian evaluations  = 3
