@@ -110,6 +110,7 @@ jobs:
           options: -v ${{ github.workspace }}:/dynawo-algorithms -e DYNAWO_RESULTS_SHOW -e DYNAWO_BUILD_TYPE -e DYNAWO_NB_PROCESSORS_USED -e DYNAWO_PYTHON_COMMAND
           shell: bash
           run: |
+            dnf install -y zip
             cd /dynawo-algorithms
             git config --global --add safe.directory /dynawo-algorithms
             export DYNAWO_HOME=$(pwd)/dynawo
