@@ -63,50 +63,88 @@ static DYN::TraceStream TraceInfo(const std::string& tag = "") {
 void
 SystematicAnalysisLauncher::launch() {
   boost::posix_time::ptime t0 = boost::posix_time::second_clock::local_time();
+
   boost::shared_ptr<Scenarios> scenarios = multipleJobs_->getScenarios();
   if (!scenarios) {
     throw DYNAlgorithmsError(SystematicAnalysisTaskNotFound);
   }
   const std::string& baseJobsFile = scenarios->getJobsFile();
   const std::vector<boost::shared_ptr<Scenario> >& events = scenarios->getScenarios();
-
-  auto& context = multiprocessing::context();
-
-  if (context.isRootProc()) {
-    // only required for root proc
-    results_.resize(events.size());
-  }
-
-  multiprocessing::forEach(0, events.size(), [this, &events](unsigned int i){
-    std::string workingDir  = createAbsolutePath(events[i]->getId(), workingDirectory_);
-    if (!exists(workingDir))
-      createDirectory(workingDir);
-    else if (!isDirectory(workingDir))
-      throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
-  });
-
   inputs_.readInputs(workingDirectory_, baseJobsFile);
 
-  multiprocessing::forEach(0, events.size(), [this, &events](unsigned int i){
-      auto result = launchScenario(events[i]);
-      exportResult(result);
-  });
+  bool isSingleThread = multiprocessing::context().nbProcs() == 1;
+  bool isServerThread = !isSingleThread &&  multiprocessing::context().isRootProc();
+  bool isWorkerThread = !isSingleThread && !multiprocessing::context().isRootProc();
 
-  multiprocessing::Context::sync();
-
-  // Update results for root proc
-  if (context.isRootProc()) {
-    for (unsigned int i = 0; i < events.size(); i++) {
-      const auto& scenario = events.at(i);
-      results_.at(i) = importResult(scenario->getId());
-      cleanResult(scenario->getId());
+  if (isSingleThread || isWorkerThread) {  // worker mode : actually run the simulations
+    int scenId = -1;
+    while (getNextScenId(scenId, events.size())) {
+      createWorkingDir(events[scenId]->getId());
+      exportResult(launchScenario(events[scenId]));
     }
+  } else {  // isServerThread
+    serverLoop(events.size());
   }
+
+  if (isSingleThread || isServerThread)
+    collectResults(events);
+
   boost::posix_time::ptime t1 = boost::posix_time::second_clock::local_time();
   boost::posix_time::time_duration diff = t1 - t0;
   TraceInfo(logTag_) << DYNAlgorithmsLog(AlgorithmsWallTime, "Systematic analysis", diff.total_milliseconds()/1000) << Trace::endline;
 }
 
+void
+SystematicAnalysisLauncher::createWorkingDir(const std::string & path) {
+  std::string workingDir  = createAbsolutePath(path, workingDirectory_);
+  if (!exists(workingDir))
+    createDirectory(workingDir);
+  else if (!isDirectory(workingDir))
+    throw DYNAlgorithmsError(DirectoryDoesNotExist, workingDir);
+}
+
+bool
+SystematicAnalysisLauncher::getNextScenId(int &scenId, int maxId) {
+  ++scenId;  // monothread : simply increment ID
+
+#ifdef _MPI_
+  if (multiprocessing::context().nbProcs() > 1) {  // multithread : request ID to server (root process) instead, who centralizes incrementations
+    MPI_Send(nullptr, 0, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Recv(&scenId, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  }
+#endif  // _MPI_
+
+  return scenId < maxId;
+}
+
+void
+SystematicAnalysisLauncher::serverLoop(int maxId) {
+#ifdef _MPI_
+  std::set<int> workersLeft;
+  for (int i=1; i < multiprocessing::context().nbProcs(); ++i)
+    workersLeft.insert(i);
+
+  int scenId = 0;
+  while (workersLeft.size() > 0) {
+    MPI_Status senderInfo;
+    MPI_Recv(nullptr, 0, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &senderInfo);
+    MPI_Send(&scenId, 1, MPI_INT, senderInfo.MPI_SOURCE, 0, MPI_COMM_WORLD);
+    if (scenId >= maxId)
+      workersLeft.erase(senderInfo.MPI_SOURCE);
+    ++scenId;
+  }
+#endif  // _MPI_
+}
+
+void
+SystematicAnalysisLauncher::collectResults(const std::vector<boost::shared_ptr<Scenario> >& events) {
+  results_.resize(events.size());
+  for (unsigned int i = 0; i < events.size(); i++) {
+    const auto& scenario = events.at(i);
+    results_.at(i) = importResult(scenario->getId());
+    cleanResult(scenario->getId());
+  }
+}
 SimulationResult
 SystematicAnalysisLauncher::launchScenario(const boost::shared_ptr<Scenario>& scenario) {
   if (multiprocessing::context().nbProcs() == 1)

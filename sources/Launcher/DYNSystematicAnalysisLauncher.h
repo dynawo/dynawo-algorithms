@@ -57,6 +57,33 @@ class SystematicAnalysisLauncher : public RobustnessAnalysisLauncher {
    */
   SimulationResult launchScenario(const boost::shared_ptr<Scenario>& scenario);
 
+  /**
+   * creates the appropriate working directory for a given scenario, if it does not already exist
+   * @param path pathname to create
+   */
+  void createWorkingDir(const std::string & path);
+
+  /**
+   * obtain the ID of the next scenario to simulate, either by incrementing it locally or requesting it remotely
+   * @param scenId current ID to update
+   * @param maxId first invalid ID on the scenario list 
+   * @return true if the updated ID is valid and to be processed, false otherwise
+   */
+  bool getNextScenId(int & scenId, int maxId);
+
+  /**
+   * imports all simulation results from (possibly network) disk
+   * @param events the list of scenarios whose simulations results are to be collected
+   */
+  void collectResults(const std::vector<boost::shared_ptr<Scenario> > & events);
+
+  /**
+   * distributes scenario IDs by answering requests and incrementing a local counter, returns when all workers
+   * have been dealt an invalid ID and thus terminated
+   * @param maxId first invalid ID on the scenario list 
+   */
+  void serverLoop(int maxId);
+
  private:
   std::vector<SimulationResult> results_;  ///< results of the systematic analysis
 };
