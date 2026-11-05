@@ -197,6 +197,8 @@ ScenarioHandler::create(attributes_type const& attributes) {
     scenario_->setDydId(attributes["dydId"]);
   if (attributes.has("criteriaFile"))
     scenario_->setCriteriaFile(attributes["criteriaFile"]);
+  if (attributes.has("nodeFault"))
+    scenario_->setNodeFault(attributes["nodeFault"]);
 }
 
 boost::shared_ptr<Scenario>

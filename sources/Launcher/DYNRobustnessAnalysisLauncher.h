@@ -139,7 +139,7 @@ class RobustnessAnalysisLauncher {
    */
   boost::shared_ptr<DYN::Simulation> createAndInitSimulation(const std::string& workingDir,
       const std::shared_ptr<job::JobEntry>& job, const SimulationParameters& params, SimulationResult& result,
-      const MultiVariantInputs& analysisContext);
+      const MultiVariantInputs& analysisContext, const std::string& nodeFault);
 
   /**
    * @brief add a dyd file to the job

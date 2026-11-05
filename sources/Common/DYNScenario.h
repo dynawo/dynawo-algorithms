@@ -22,6 +22,7 @@
 #define COMMON_DYNSCENARIO_H_
 
 #include <string>
+#include <boost/optional/optional.hpp>
 
 namespace DYNAlgorithms {
 /**
@@ -55,6 +56,12 @@ class Scenario {
   void setCriteriaFile(const std::string& file);
 
   /**
+  * @brief set the criteria file to use for the scenario
+  * @param nodeFault criteria file to use for the scenario
+  */
+  void setNodeFault(const std::string& nodeFault);
+
+  /**
    * @brief get the id of the scenario
    * @return id of the scenario
    */
@@ -78,11 +85,18 @@ class Scenario {
    */
   const std::string& getCriteriaFile() const;
 
+  /**
+  * @brief get the criteria file of the scenario
+  * @return criteria file of the scenario
+  */
+  const boost::optional<std::string>& getNodeFault() const;
+
  private:
   std::string id_;  ///< id of the scenario
   std::string dydFile_;  ///< dyd file to use for the scenario
   std::string dydId_;  ///< dyd id to use for the scenario
   std::string criteriaFile_;  ///< criteria file to use for the scenario
+  boost::optional<std::string> nodeFault_;  ///< criteria file to use for the scenario
 };
 
 }  // namespace DYNAlgorithms
