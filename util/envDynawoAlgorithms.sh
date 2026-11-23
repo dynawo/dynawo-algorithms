@@ -21,7 +21,7 @@ error() {
   echo "${1:-"Unknown Error"}" 1>&2
 }
 
-usage="Usage: `basename $0` [option] -- program to deal with dynawo-algorithms environnement
+usage="Usage: $(basename "$0") [option] -- program to deal with dynawo-algorithms environnement
 
 where [option] can be:
 
@@ -84,21 +84,21 @@ where [option] can be:
     version                       show dynawo-algorithms version
     help                          show this message"
 
-SCRIPT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && echo "$(pwd)"/"$(basename ${BASH_SOURCE[0]})")
+SCRIPT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && echo "$(pwd)"/"$(basename "${BASH_SOURCE[0]}")")
 TOTAL_CPU=$(grep -c ^processor /proc/cpuinfo)
 NBPROCS=1
 MPIRUN_PATH=$(which mpirun 2> /dev/null)
 
 export_var_env_force() {
-  local var=$@
+  local var="$*"
   local name=${var%%=*}
   local value=${var#*=}
 
-  if ! `expr $name : "DYNAWO_.*" > /dev/null`; then
+  if [[ $name != DYNAWO_* ]]; then
     error_exit "You must export variables with DYNAWO prefix for $name."
   fi
 
-  if eval "[ \$$name ]"; then
+  if [ -n "${!name}" ]; then
     unset $name
     export $name="$value"
     return
@@ -111,16 +111,16 @@ export_var_env_force() {
 }
 
 export_var_env() {
-  local var=$@
+  local var="$*"
   local name=${var%%=*}
   local value=${var#*=}
 
-  if ! `expr $name : "DYNAWO_.*" > /dev/null`; then
+  if [[ $name != DYNAWO_* ]]; then
     error_exit "You must export variables with DYNAWO prefix for $name."
   fi
 
-  if eval "[ \$$name ]"; then
-    eval "value=\${$name}"
+  if [ -n "${!name}" ]; then
+    value="${!name}"
     ##echo "Environment variable for $name already set : $value"
     return
   fi
@@ -132,17 +132,17 @@ export_var_env() {
 }
 
 export_var_env_default() {
-  local var=$@
+  local var="$*"
   local name=${var%%=*}
   local value=${var#*=}
 
-  if ! `expr $name : "DYNAWO_.*" > /dev/null`; then
+  if [[ $name != DYNAWO_* ]]; then
     error_exit "You must export variables with DYNAWO prefix for $name."
   fi
 
   if [  "$value" = UNDEFINED ]; then
-    if eval "[ \$$name ]"; then
-      eval "value=\${$name}"
+    if [ -n "${!name}" ]; then
+      value="${!name}"
       export_var_env ${name}_DEFAULT=false
     else
       export_var_env ${name}_DEFAULT=true
@@ -156,13 +156,13 @@ export_var_env_default() {
 
 export_git_branch() {
   current_dir=$PWD
-  pushd $DYNAWO_ALGORITHMS_HOME> /dev/null
+  pushd "$DYNAWO_ALGORITHMS_HOME" > /dev/null
   branch_name=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
   if [[ "${branch_name}" == "" ]]; then
     branch_ref=$(git rev-parse --short HEAD)
     branch_name="detached_"${branch_ref}
   fi
-  export_var_env_force DYNAWO_BRANCH_NAME=${branch_name}
+  export_var_env_force DYNAWO_BRANCH_NAME="${branch_name}"
   popd > /dev/null
 }
 
@@ -174,101 +174,113 @@ export_preload() {
   # fi
   lib=$lib".so"
 
-  if [ -d $DYNAWO_TCMALLOC_INSTALL_DIR/lib ]; then
-    externalTcMallocLib=$(find $DYNAWO_TCMALLOC_INSTALL_DIR/lib -iname *$lib)
+  if [ -d "$DYNAWO_TCMALLOC_INSTALL_DIR/lib" ]; then
+    externalTcMallocLib=$(find "$DYNAWO_TCMALLOC_INSTALL_DIR/lib" -iname "*$lib" | head -n 1)
     if [ -n "$externalTcMallocLib" ]; then
       echo "Use downloaded tcmalloc library $externalTcMallocLib"
-      export LD_PRELOAD=$externalTcMallocLib
+      preload_lib "$externalTcMallocLib"
       return
     fi
   fi
 
-  nativeTcMallocLib=$(ldconfig -p | grep -e $lib$ | cut -d ' ' -f4)
+  nativeTcMallocLib=$(ldconfig -p | grep -e "$lib\$" | cut -d ' ' -f4 | head -n 1)
   if [ -n "$nativeTcMallocLib" ]; then
     echo "Use native tcmalloc library $nativeTcMallocLib"
-    export LD_PRELOAD=$nativeTcMallocLib
+    preload_lib "$nativeTcMallocLib"
     return
+  fi
+}
+
+# LD_PRELOAD entries are separated by spaces or colons and cannot be escaped:
+# when the library path contains one of them, preload it by name and let the
+# dynamic loader find it through LD_LIBRARY_PATH.
+preload_lib() {
+  if [[ "$1" == *[[:space:]:]* ]]; then
+    ld_library_path_prepend "$(dirname "$1")"
+    export LD_PRELOAD="$(basename "$1")"
+  else
+    export LD_PRELOAD="$1"
   fi
 }
 
 # Export variables needed for dynawo-algorithms
 set_environnement() {
   # Compiler, to have default with gcc
-  export_var_env DYNAWO_COMPILER=GCC
+  export_var_env DYNAWO_COMPILER="GCC"
 
   # Set path to compilers
   set_compiler
 
   # Build_config
-  export_var_env DYNAWO_BUILD_TESTS=OFF
-  export_var_env DYNAWO_BUILD_TESTS_COVERAGE=OFF
-  export_var_env DYNAWO_BUILD_TYPE=UNDEFINED
+  export_var_env DYNAWO_BUILD_TESTS="OFF"
+  export_var_env DYNAWO_BUILD_TESTS_COVERAGE="OFF"
+  export_var_env DYNAWO_BUILD_TYPE="UNDEFINED"
   export_var_env DYNAWO_CMAKE_GENERATOR="Unix Makefiles"
 
-  export_var_env DYNAWO_COMPILER_VERSION=$($DYNAWO_C_COMPILER -dumpversion)
+  export_var_env DYNAWO_COMPILER_VERSION="$($DYNAWO_C_COMPILER -dumpversion)"
 
   # dynawo-algorithms
-  export_var_env DYNAWO_ALGORITHMS_HOME=UNDEFINED
+  export_var_env DYNAWO_ALGORITHMS_HOME="UNDEFINED"
   export_git_branch
-  export_var_env_force DYNAWO_ALGORITHMS_SRC_DIR=$DYNAWO_ALGORITHMS_HOME
-  export_var_env DYNAWO_ALGORITHMS_DEPLOY_DIR=$DYNAWO_ALGORITHMS_HOME/deploy/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/dynawo-algorithms
+  export_var_env_force DYNAWO_ALGORITHMS_SRC_DIR="$DYNAWO_ALGORITHMS_HOME"
+  export_var_env DYNAWO_ALGORITHMS_DEPLOY_DIR="$DYNAWO_ALGORITHMS_HOME/deploy/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/dynawo-algorithms"
 
-  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR=$DYNAWO_ALGORITHMS_HOME/build/3rdParty/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/shared/$DYNAWO_BUILD_TYPE$SUFFIX_CX11
-  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR=$DYNAWO_ALGORITHMS_HOME/install/3rdParty/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/shared/$DYNAWO_BUILD_TYPE$SUFFIX_CX11
-  export_var_env_force DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR=$DYNAWO_ALGORITHMS_HOME/3rdParty
+  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_BUILD_DIR="$DYNAWO_ALGORITHMS_HOME/build/3rdParty/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/shared/$DYNAWO_BUILD_TYPE$SUFFIX_CX11"
+  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR="$DYNAWO_ALGORITHMS_HOME/install/3rdParty/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/shared/$DYNAWO_BUILD_TYPE$SUFFIX_CX11"
+  export_var_env_force DYNAWO_ALGORITHMS_THIRD_PARTY_SRC_DIR="$DYNAWO_ALGORITHMS_HOME/3rdParty"
 
-  export_var_env DYNAWO_ALGORITHMS_BUILD_DIR=$DYNAWO_ALGORITHMS_HOME/build/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
-  export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR=$DYNAWO_ALGORITHMS_HOME/install/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms
-  export_var_env DYNAWO_FORCE_CXX11_ABI=false
+  export_var_env DYNAWO_ALGORITHMS_BUILD_DIR="$DYNAWO_ALGORITHMS_HOME/build/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms"
+  export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR="$DYNAWO_ALGORITHMS_HOME/install/$DYNAWO_COMPILER_NAME$DYNAWO_COMPILER_VERSION/$DYNAWO_BRANCH_NAME/$DYNAWO_BUILD_TYPE/dynawo-algorithms"
+  export_var_env DYNAWO_FORCE_CXX11_ABI="false"
 
-  export_var_env_force DYNAWO_TCMALLOC_INSTALL_DIR=$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/gperftools
+  export_var_env_force DYNAWO_TCMALLOC_INSTALL_DIR="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/gperftools"
 
   # External libs
-  export_var_env DYNAWO_HOME=UNDEFINED
-  export_var_env_force DYNAWO_LIBARCHIVE_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_BOOST_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_LIBZIP_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_LIBXML_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_LIBIIDM_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_LIBIIDM_INSTALL_DIR=$DYNAWO_LIBIIDM_HOME
-  export_var_env_force DYNAWO_XERCESC_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_ADEPT_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_SUNDIALS_HOME=$DYNAWO_HOME
-  export_var_env_force DYNAWO_SUITESPARSE_HOME=$DYNAWO_HOME
-  export_var_env DYNAWO_GTEST_HOME=$DYNAWO_HOME
-  export_var_env DYNAWO_GMOCK_HOME=$DYNAWO_HOME
+  export_var_env DYNAWO_HOME="UNDEFINED"
+  export_var_env_force DYNAWO_LIBARCHIVE_HOME="$DYNAWO_HOME"
+  export_var_env_force DYNAWO_BOOST_HOME="$DYNAWO_HOME"
+  export_var_env_force DYNAWO_LIBZIP_HOME="$DYNAWO_HOME"
+  export_var_env_force DYNAWO_LIBXML_HOME="$DYNAWO_HOME"
+  export_var_env_force DYNAWO_LIBIIDM_HOME="$DYNAWO_HOME"
+  export_var_env_force DYNAWO_LIBIIDM_INSTALL_DIR="$DYNAWO_LIBIIDM_HOME"
+  export_var_env_force DYNAWO_XERCESC_HOME="$DYNAWO_HOME"
+  export_var_env_force DYNAWO_ADEPT_HOME="$DYNAWO_HOME"
+  export_var_env_force DYNAWO_SUNDIALS_HOME="$DYNAWO_HOME"
+  export_var_env_force DYNAWO_SUITESPARSE_HOME="$DYNAWO_HOME"
+  export_var_env DYNAWO_GTEST_HOME="$DYNAWO_HOME"
+  export_var_env DYNAWO_GMOCK_HOME="$DYNAWO_HOME"
 
-  export_var_env_force DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
+  export_var_env_force DYNAWO_LIBIIDM_EXTENSIONS="$DYNAWO_LIBIIDM_INSTALL_DIR/lib"
 
   # For Modelica models compilation
-  export_var_env_force DYNAWO_ADEPT_INSTALL_DIR=$DYNAWO_ADEPT_HOME
-  export_var_env_force DYNAWO_SUITESPARSE_INSTALL_DIR=$DYNAWO_SUITESPARSE_HOME
-  export_var_env_force DYNAWO_SUNDIALS_INSTALL_DIR=$DYNAWO_SUNDIALS_HOME
-  export_var_env_force DYNAWO_XERCESC_INSTALL_DIR=$DYNAWO_XERCESC_HOME
+  export_var_env_force DYNAWO_ADEPT_INSTALL_DIR="$DYNAWO_ADEPT_HOME"
+  export_var_env_force DYNAWO_SUITESPARSE_INSTALL_DIR="$DYNAWO_SUITESPARSE_HOME"
+  export_var_env_force DYNAWO_SUNDIALS_INSTALL_DIR="$DYNAWO_SUNDIALS_HOME"
+  export_var_env_force DYNAWO_XERCESC_INSTALL_DIR="$DYNAWO_XERCESC_HOME"
 
-  export_var_env DYNAWO_DDB_DIR=$DYNAWO_HOME/ddb
-  export_var_env DYNAWO_RESOURCES_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR/share:$DYNAWO_ALGORITHMS_INSTALL_DIR/share/xsd:$DYNAWO_HOME/share:$DYNAWO_HOME/share/xsd
+  export_var_env DYNAWO_DDB_DIR="$DYNAWO_HOME/ddb"
+  export_var_env DYNAWO_RESOURCES_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR/share:$DYNAWO_ALGORITHMS_INSTALL_DIR/share/xsd:$DYNAWO_HOME/share:$DYNAWO_HOME/share/xsd"
 
   # Miscellaneous
-  export_var_env DYNAWO_USE_XSD_VALIDATION=false
-  export_var_env DYNAWO_XSD_DIR=$DYNAWO_HOME/share/xsd/
-  export_var_env DYNAWO_ALGORITHMS_XSD_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR/share/xsd
-  export_var_env DYNAWO_ALGORITHMS_LOCALE=en_GB # or fr_FR
-  export_var_env DYNAWO_BROWSER=firefox
-  export_var_env DYNAWO_PDFVIEWER=xdg-open
-  export_var_env DYNAWO_SCRIPTS_DIR=$DYNAWO_HOME/sbin/
-  export_var_env_force DYNAWO_ALGORITHMS_NRT_DIR=$DYNAWO_ALGORITHMS_HOME/nrt
-  export_var_env_force DYNAWO_NRT_DIR=$DYNAWO_ALGORITHMS_NRT_DIR
-  export_var_env_force DYNAWO_ALGORITHMS_ENV_DYNAWO_ALGORITHMS=$SCRIPT
-  export_var_env_force DYNAWO_ENV_DYNAWO=$SCRIPT
+  export_var_env DYNAWO_USE_XSD_VALIDATION="false"
+  export_var_env DYNAWO_XSD_DIR="$DYNAWO_HOME/share/xsd/"
+  export_var_env DYNAWO_ALGORITHMS_XSD_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR/share/xsd"
+  export_var_env DYNAWO_ALGORITHMS_LOCALE="en_GB" # or fr_FR
+  export_var_env DYNAWO_BROWSER="firefox"
+  export_var_env DYNAWO_PDFVIEWER="xdg-open"
+  export_var_env DYNAWO_SCRIPTS_DIR="$DYNAWO_HOME/sbin/"
+  export_var_env_force DYNAWO_ALGORITHMS_NRT_DIR="$DYNAWO_ALGORITHMS_HOME/nrt"
+  export_var_env_force DYNAWO_NRT_DIR="$DYNAWO_ALGORITHMS_NRT_DIR"
+  export_var_env_force DYNAWO_ALGORITHMS_ENV_DYNAWO_ALGORITHMS="$SCRIPT"
+  export_var_env_force DYNAWO_ENV_DYNAWO="$SCRIPT"
   export_var_env DYNAWO_PYTHON_COMMAND="python"
   if [ ! -x "$(command -v ${DYNAWO_PYTHON_COMMAND})" ]; then
     error_exit "Your python interpreter \"${DYNAWO_PYTHON_COMMAND}\" does not work. Use export DYNAWO_PYTHON_COMMAND=<Python Interpreter> in your myEnvDynawoAlgorithms.sh."
   fi
-  export_var_env_force DYNAWO_CURVES_TO_HTML_DIR=$DYNAWO_HOME/sbin/curvesToHtml
-  export_var_env_force DYNAWO_INSTALL_DIR=$DYNAWO_HOME
-  export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_HOME/OpenModelica
-  export_var_env DYNAWO_DICTIONARIES=dictionaries_mapping
+  export_var_env_force DYNAWO_CURVES_TO_HTML_DIR="$DYNAWO_HOME/sbin/curvesToHtml"
+  export_var_env_force DYNAWO_INSTALL_DIR="$DYNAWO_HOME"
+  export_var_env DYNAWO_INSTALL_OPENMODELICA="$DYNAWO_HOME/OpenModelica"
+  export_var_env DYNAWO_DICTIONARIES="dictionaries_mapping"
 
   export_var_env DYNAWO_CMAKE_BUILD_OPTION=""
   if [ -x "$(command -v cmake)" ]; then
@@ -283,13 +295,13 @@ set_environnement() {
   export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
 
   # MPI
-  export_var_env DYNAWO_USE_MPI=YES
+  export_var_env DYNAWO_USE_MPI="YES"
   if [ "${DYNAWO_USE_MPI}" == "YES" -a -z "$MPIRUN_PATH" ]; then
     MPIRUN_PATH="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/mpich/bin/mpirun"
   fi
 
   # Only used until now by nrt
-  export_var_env DYNAWO_NB_PROCESSORS_USED=1
+  export_var_env DYNAWO_NB_PROCESSORS_USED="1"
   if [ $DYNAWO_NB_PROCESSORS_USED -gt $TOTAL_CPU ]; then
     error_exit "PROCESSORS_USED ($DYNAWO_NB_PROCESSORS_USED) is higher than the number of cpu of the system ($TOTAL_CPU)"
   fi
@@ -301,12 +313,12 @@ set_environnement() {
       fi
 
       export RDMAV_FORK_SAFE="1"
-      export_var_env_force DYNAWO_BUILD_TYPE=Debug
-      export_var_env_force DYNAWO_USE_XSD_VALIDATION=true
+      export_var_env_force DYNAWO_BUILD_TYPE="Debug"
+      export_var_env_force DYNAWO_USE_XSD_VALIDATION="true"
       if [[ $1 == build-tests-coverage ]]; then
-        export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE=ON
+        export_var_env_force DYNAWO_BUILD_TESTS_COVERAGE="ON"
       else
-        export_var_env_force DYNAWO_BUILD_TESTS=ON
+        export_var_env_force DYNAWO_BUILD_TESTS="ON"
       fi
   fi
 
@@ -317,12 +329,12 @@ set_environnement() {
 }
 
 ld_library_path_remove() {
-  export LD_LIBRARY_PATH=`echo -n $LD_LIBRARY_PATH | awk -v RS=: -v ORS=: '$0 != "'$1'"' | sed 's/:$//'`;
+  export LD_LIBRARY_PATH="$(echo -n "$LD_LIBRARY_PATH" | awk -v RS=: -v ORS=: -v p="$1" '$0 != p' | sed 's/:$//')"
 }
 
 ld_library_path_prepend() {
   if [ ! -z "$LD_LIBRARY_PATH" ]; then
-    ld_library_path_remove $1
+    ld_library_path_remove "$1"
     export LD_LIBRARY_PATH="$1:$LD_LIBRARY_PATH"
   else
     export LD_LIBRARY_PATH="$1"
@@ -330,12 +342,12 @@ ld_library_path_prepend() {
 }
 
 python_path_remove() {
-  export PYTHONPATH=`echo -n $PYTHONPATH | awk -v RS=: -v ORS=: '$0 != "'$1'"' | sed 's/:$//'`;
+  export PYTHONPATH="$(echo -n "$PYTHONPATH" | awk -v RS=: -v ORS=: -v p="$1" '$0 != p' | sed 's/:$//')"
 }
 
 python_path_append() {
   if [ ! -z "$PYTHONPATH" ]; then
-    python_path_remove $1
+    python_path_remove "$1"
     export PYTHONPATH="$PYTHONPATH:$1"
   else
     export PYTHONPATH="$1"
@@ -343,12 +355,12 @@ python_path_append() {
 }
 
 path_remove() {
-  export PATH=`echo -n $PATH | awk -v RS=: -v ORS=: '$0 != "'$1'"' | sed 's/:$//'`;
+  export PATH="$(echo -n "$PATH" | awk -v RS=: -v ORS=: -v p="$1" '$0 != p' | sed 's/:$//')"
 }
 
 path_prepend() {
   if [ ! -z "$PATH" ]; then
-    path_remove $1
+    path_remove "$1"
     export PATH="$1:$PATH"
   else
     export PATH="$1"
@@ -356,17 +368,17 @@ path_prepend() {
 }
 
 set_standardEnvironmentVariables() {
-  ld_library_path_prepend $DYNAWO_HOME/lib
-  ld_library_path_prepend $DYNAWO_ALGORITHMS_INSTALL_DIR/lib
+  ld_library_path_prepend "$DYNAWO_HOME/lib"
+  ld_library_path_prepend "$DYNAWO_ALGORITHMS_INSTALL_DIR/lib"
 
-  path_prepend $DYNAWO_INSTALL_OPENMODELICA/bin
-  python_path_append $SCRIPTS_DIR
+  path_prepend "$DYNAWO_INSTALL_OPENMODELICA/bin"
+  python_path_append "$SCRIPTS_DIR"
 
   if [ "$DYNAWO_BUILD_TYPE" = "Debug" ]; then
     if [ -d "$DYNAWO_GTEST_HOME/lib64" ]; then
-      ld_library_path_prepend $DYNAWO_GTEST_HOME/lib64
+      ld_library_path_prepend "$DYNAWO_GTEST_HOME/lib64"
     elif [ -d "$DYNAWO_GTEST_HOME/lib" ]; then
-      ld_library_path_prepend $DYNAWO_GTEST_HOME/lib
+      ld_library_path_prepend "$DYNAWO_GTEST_HOME/lib"
     else
       error_exit "Not enable to find GoogleTest library directory for runtime."
     fi
@@ -374,39 +386,39 @@ set_standardEnvironmentVariables() {
 }
 
 reset_environment_variables() {
-  ld_library_path_remove $DYNAWO_HOME/lib
-  ld_library_path_remove $DYNAWO_ALGORITHMS_INSTALL_DIR/lib
-  path_remove $DYNAWO_INSTALL_OPENMODELICA/bin
-  python_path_remove $SCRIPTS_DIR
+  ld_library_path_remove "$DYNAWO_HOME/lib"
+  ld_library_path_remove "$DYNAWO_ALGORITHMS_INSTALL_DIR/lib"
+  path_remove "$DYNAWO_INSTALL_OPENMODELICA/bin"
+  python_path_remove "$SCRIPTS_DIR"
 }
 
 set_compiler() {
   if [ "$DYNAWO_COMPILER" = "GCC" ]; then
-    export_var_env_force DYNAWO_COMPILER_NAME=$(echo $DYNAWO_COMPILER | tr "[A-Z]" "[a-z]")
+    export_var_env_force DYNAWO_COMPILER_NAME="$(echo $DYNAWO_COMPILER | tr "[A-Z]" "[a-z]")"
   elif [ "$DYNAWO_COMPILER" = "CLANG" ]; then
-    export_var_env_force DYNAWO_COMPILER_NAME=$(echo $DYNAWO_COMPILER | tr "[A-Z]" "[a-z]")
+    export_var_env_force DYNAWO_COMPILER_NAME="$(echo $DYNAWO_COMPILER | tr "[A-Z]" "[a-z]")"
   else
     error_exit "DYNAWO_COMPILER environment variable needs to be GCC or CLANG."
   fi
-  export_var_env_force DYNAWO_C_COMPILER=$(which $DYNAWO_COMPILER_NAME)
-  export_var_env_force DYNAWO_CXX_COMPILER=$(which ${DYNAWO_COMPILER_NAME%cc}++) # Trick to remove cc from gcc and leave clang alone, because we want fo find g++ and clang++
+  export_var_env_force DYNAWO_C_COMPILER="$(which $DYNAWO_COMPILER_NAME)"
+  export_var_env_force DYNAWO_CXX_COMPILER="$(which ${DYNAWO_COMPILER_NAME%cc}++)" # Trick to remove cc from gcc and leave clang alone, because we want fo find g++ and clang++
 }
 
 set_commit_hook() {
   hook_file_msg='#!'"/bin/bash
-$DYNAWO_ALGORITHMS_HOME/util/hooks/commit_hook.sh"' $1'
+\"$DYNAWO_ALGORITHMS_HOME/util/hooks/commit_hook.sh\""' "$1"'
   if [ -f "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg" ]; then
-    current_file=$(cat $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg)
+    current_file=$(cat "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg")
     if [ "$hook_file_msg" != "$current_file" ]; then
-      echo "$hook_file_msg" > $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg
+      echo "$hook_file_msg" > "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg"
     fi
     if [ ! -x "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg" ]; then
-      chmod +x $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg
+      chmod +x "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg"
     fi
   else
     if [ -d ".git" ]; then
-      echo "$hook_file_msg" > $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg
-      chmod +x $DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg
+      echo "$hook_file_msg" > "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg"
+      chmod +x "$DYNAWO_ALGORITHMS_HOME/.git/hooks/commit-msg"
     fi
   fi
 
@@ -418,23 +430,23 @@ if [ \"\$branch\" = \"master\" ]; then
   exit 1
 fi"
   if [ -f "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit" ]; then
-    current_file=$(cat $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit)
+    current_file=$(cat "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit")
     if [ "$hook_file_master" != "$current_file" ]; then
-      echo "$hook_file_master" > $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit
+      echo "$hook_file_master" > "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit"
     fi
     if [ ! -x "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit" ]; then
-      chmod +x $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit
+      chmod +x "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit"
     fi
   else
     if [ -d "$DYNAWO_ALGORITHMS_HOME/.git" ]; then
-      echo "$hook_file_master" > $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit
-      chmod +x $DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit
+      echo "$hook_file_master" > "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit"
+      chmod +x "$DYNAWO_ALGORITHMS_HOME/.git/hooks/pre-commit"
     fi
   fi
 
   if [ -e "$DYNAWO_ALGORITHMS_HOME/.git" ]; then
-    if [ -z "$(git --git-dir $DYNAWO_ALGORITHMS_HOME/.git config --get core.commentchar 2> /dev/null)" ] || [ $(git --git-dir $DYNAWO_ALGORITHMS_HOME/.git config --get core.commentchar 2> /dev/null) = "#" ]; then
-      git --git-dir $DYNAWO_ALGORITHMS_HOME/.git config core.commentchar % || error_exit "You need to change git config commentchar from # to %."
+    if [ -z "$(git --git-dir "$DYNAWO_ALGORITHMS_HOME/.git" config --get core.commentchar 2> /dev/null)" ] || [ "$(git --git-dir "$DYNAWO_ALGORITHMS_HOME/.git" config --get core.commentchar 2> /dev/null)" = "#" ]; then
+      git --git-dir "$DYNAWO_ALGORITHMS_HOME/.git" config core.commentchar % || error_exit "You need to change git config commentchar from # to %."
     fi
   fi
 }
@@ -778,7 +790,7 @@ open_doxygen_doc() {
 }
 
 version() {
-  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --version
+  "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --version
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -979,8 +991,8 @@ verify_browser() {
 }
 
 nrt() {
-  export_var_env_force DYNAWO_NRT_DIFF_DIR=$DYNAWO_HOME/sbin/nrt/nrt_diff
-  $DYNAWO_PYTHON_COMMAND -u $DYNAWO_ALGORITHMS_NRT_DIR/nrtAlgo.py $@
+  export_var_env_force DYNAWO_NRT_DIFF_DIR="$DYNAWO_HOME/sbin/nrt/nrt_diff"
+  $DYNAWO_PYTHON_COMMAND -u "$DYNAWO_ALGORITHMS_NRT_DIR/nrtAlgo.py" "$@"
   FAILED_CASES_NUM=$?
 
   if [ ! -f "$DYNAWO_ALGORITHMS_NRT_DIR/output/$DYNAWO_BRANCH_NAME/report.html" ]; then
@@ -988,7 +1000,7 @@ nrt() {
   fi
   if [ "$DYNAWO_RESULTS_SHOW" = true ] ; then
     verify_browser
-    $DYNAWO_BROWSER $DYNAWO_ALGORITHMS_NRT_DIR/output/$DYNAWO_BRANCH_NAME/report.html &
+    $DYNAWO_BROWSER "$DYNAWO_ALGORITHMS_NRT_DIR/output/$DYNAWO_BRANCH_NAME/report.html" &
   fi
 
   if [ ${FAILED_CASES_NUM} -ne 0 ]; then
@@ -1000,11 +1012,11 @@ nrt() {
 }
 
 nrt_clean() {
-  $DYNAWO_PYTHON_COMMAND $DYNAWO_ALGORITHMS_HOME/util/nrtClean.py
+  $DYNAWO_PYTHON_COMMAND "$DYNAWO_ALGORITHMS_HOME/util/nrtClean.py"
 }
 
 launch_CS() {
-  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CS $@
+  "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType CS "$@"
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -1012,9 +1024,9 @@ launch_CS() {
 launch_SA() {
   export_preload
   if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
-    "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+    "$MPIRUN_PATH" -np $NBPROCS "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType SA "$@"
   else
-    $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+    "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType SA "$@"
   fi
   RETURN_CODE=$?
   unset LD_PRELOAD
@@ -1024,9 +1036,9 @@ launch_SA() {
 launch_MC() {
   export_preload
   if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
-    "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+    "$MPIRUN_PATH" -np $NBPROCS "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType MC "$@"
   else
-    $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+    "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType MC "$@"
   fi
   RETURN_CODE=$?
   unset LD_PRELOAD
@@ -1036,9 +1048,9 @@ launch_MC() {
 launch_CTC() {
   export_preload
   if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
-    "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+    "$MPIRUN_PATH" -np $NBPROCS "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType CTC "$@"
   else
-    $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+    "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType CTC "$@"
   fi
   RETURN_CODE=$?
   unset LD_PRELOAD
@@ -1046,7 +1058,7 @@ launch_CTC() {
 }
 
 launch_CS_gdb() {
-  gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CS $@
+  gdb -q --args "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType CS "$@"
   RETURN_CODE=$?
   return ${RETURN_CODE}
 }
@@ -1054,9 +1066,9 @@ launch_CS_gdb() {
 launch_SA_gdb() {
   export_preload
   if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
-    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType SA "$@"
   else
-    gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType SA $@
+    gdb -q --args "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType SA "$@"
   fi
   RETURN_CODE=$?
   unset LD_PRELOAD
@@ -1066,9 +1078,9 @@ launch_SA_gdb() {
 launch_MC_gdb() {
   export_preload
   if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
-    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType MC "$@"
   else
-    gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType MC $@
+    gdb -q --args "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType MC "$@"
   fi
   RETURN_CODE=$?
   unset LD_PRELOAD
@@ -1078,9 +1090,9 @@ launch_MC_gdb() {
 launch_CTC_gdb() {
   export_preload
   if [ "${DYNAWO_USE_MPI}" == "YES" ]; then
-    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+    "$MPIRUN_PATH" -np $NBPROCS xterm -e gdb -q --args "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType CTC "$@"
   else
-    gdb -q --args $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType CTC $@
+    gdb -q --args "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType CTC "$@"
   fi  
   RETURN_CODE=$?
   unset LD_PRELOAD
@@ -1090,14 +1102,14 @@ launch_CTC_gdb() {
 #################################
 ########### Main script #########
 if [ -n "$BASH_VERSION" ]; then
-  SCRIPT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && echo "$(pwd)"/"$(basename ${BASH_SOURCE[0]})")
+  SCRIPT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && echo "$(pwd)"/"$(basename "${BASH_SOURCE[0]}")")
 elif [ -n "$ZSH_VERSION" ]; then
-  SCRIPT=$(cd "$(dirname "$0")" && echo "$(pwd)"/"$(basename $0)")
+  SCRIPT=$(cd "$(dirname "$0")" && echo "$(pwd)"/"$(basename "$0")")
 fi
 
 ## force build_type for specific cases
 MODE=$1
-ARGS=""
+ARGS=()
 while (($#)); do
   key="$1"
   case $key in
@@ -1110,16 +1122,17 @@ while (($#)); do
     shift # past value
     ;;
   *)
-    ARGS="$ARGS $key"
+    ARGS+=("$key")
     shift # past argument
     ;;
   esac
 done
 
 ## set environnement variables
-set_environnement $MODE
+set_environnement "$MODE"
 
-ARGS=`echo ${ARGS} | cut -d' ' -f2-`
+# remove MODE from the arguments to forward
+ARGS=("${ARGS[@]:1}")
 ## launch command
 case $MODE in
   config)
@@ -1159,7 +1172,7 @@ case $MODE in
     ;;
 
   unittest-gdb)
-    unittest_gdb ${ARGS} || error_exit "Error during the run unittest in gdb"
+    unittest_gdb "${ARGS[@]}" || error_exit "Error during the run unittest in gdb"
     ;;
 
   clean-build-all)
@@ -1215,35 +1228,35 @@ case $MODE in
     ;;
 
   SA)
-    launch_SA ${ARGS} || error_exit "Systematic analysis failed"
+    launch_SA "${ARGS[@]}" || error_exit "Systematic analysis failed"
     ;;
 
   MC)
-    launch_MC ${ARGS} || error_exit "Margin calculation failed"
+    launch_MC "${ARGS[@]}" || error_exit "Margin calculation failed"
     ;;
   CS)
-    launch_CS ${ARGS} || error_exit "Dynawo simulation failed"
+    launch_CS "${ARGS[@]}" || error_exit "Dynawo simulation failed"
     ;;
   CTC)
-    launch_CTC ${ARGS} || error_exit "Critical time calculation failed"
+    launch_CTC "${ARGS[@]}" || error_exit "Critical time calculation failed"
     ;;
   SA-gdb)
-    launch_SA_gdb ${ARGS} || error_exit "Systematic analysis failed"
+    launch_SA_gdb "${ARGS[@]}" || error_exit "Systematic analysis failed"
     ;;
 
   MC-gdb)
-    launch_MC_gdb ${ARGS} || error_exit "Margin calculation failed"
+    launch_MC_gdb "${ARGS[@]}" || error_exit "Margin calculation failed"
     ;;
 
   CS-gdb)
-    launch_CS_gdb ${ARGS} || error_exit "Dynawo simulation failed"
+    launch_CS_gdb "${ARGS[@]}" || error_exit "Dynawo simulation failed"
     ;;
 
   CTC-gdb)
-    launch_CTC_gdb ${ARGS} || error_exit "Critical time calculation failed"
+    launch_CTC_gdb "${ARGS[@]}" || error_exit "Critical time calculation failed"
     ;;
   nrt)
-    nrt ${ARGS} || error_exit "Error during Dynawo's non regression tests execution"
+    nrt "${ARGS[@]}" || error_exit "Error during Dynawo's non regression tests execution"
     ;;
   
   nrt-clean)

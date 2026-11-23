@@ -29,18 +29,17 @@ error_exit() {
 }
 
 export_var_env() {
-  local var=$@
+  local var="$*"
   local name=${var%%=*}
   local value=${var#*=}
 
-  if eval "[ \$$name ]"; then
-    eval "value=\${$name}"
+  if [ -n "${!name}" ]; then
     return
   fi
   export $name="$value"
 }
 
-usage="Usage: "$(basename $0)" [option] -- program to launch Dynawo simulation
+usage="Usage: $(basename "$0") [option] -- program to launch Dynawo simulation
 
 where [option] can be:
     simulationType             could be:
@@ -53,42 +52,42 @@ where [option] can be:
 
 set_dynawo_env() {
   export_var_env DYNAWO_ALGORITHMS_INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  export_var_env DYNAWO_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
-  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
+  export_var_env DYNAWO_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
+  export_var_env DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
 
-  export_var_env DYNAWO_ADEPT_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
-  export_var_env DYNAWO_SUNDIALS_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
-  export_var_env DYNAWO_SUITESPARSE_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
-  export_var_env DYNAWO_NICSLU_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
-  export_var_env DYNAWO_LIBIIDM_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
-  export_var_env DYNAWO_TCMALLOC_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
-  export_var_env DYNAWO_XERCESC_INSTALL_DIR=$DYNAWO_ALGORITHMS_INSTALL_DIR
-  export_var_env DYNAWO_LIBXML_HOME=$DYNAWO_ALGORITHMS_INSTALL_DIR
+  export_var_env DYNAWO_ADEPT_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
+  export_var_env DYNAWO_SUNDIALS_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
+  export_var_env DYNAWO_SUITESPARSE_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
+  export_var_env DYNAWO_NICSLU_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
+  export_var_env DYNAWO_LIBIIDM_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
+  export_var_env DYNAWO_TCMALLOC_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
+  export_var_env DYNAWO_XERCESC_INSTALL_DIR="$DYNAWO_ALGORITHMS_INSTALL_DIR"
+  export_var_env DYNAWO_LIBXML_HOME="$DYNAWO_ALGORITHMS_INSTALL_DIR"
 
-  export_var_env DYNAWO_LIBIIDM_EXTENSIONS=$DYNAWO_LIBIIDM_INSTALL_DIR/lib
+  export_var_env DYNAWO_LIBIIDM_EXTENSIONS="$DYNAWO_LIBIIDM_INSTALL_DIR/lib"
 
-  export_var_env DYNAWO_ALGORITHMS_LOCALE=en_GB # or fr_FR
+  export_var_env DYNAWO_ALGORITHMS_LOCALE="en_GB" # or fr_FR
 
-  export_var_env DYNAWO_LOCALE=$DYNAWO_ALGORITHMS_LOCALE
-  export_var_env DYNAWO_USE_XSD_VALIDATION=false
-  export_var_env DYNAWO_DDB_DIR=$DYNAWO_INSTALL_DIR/ddb
-  export_var_env DYNAWO_RESOURCES_DIR=$DYNAWO_INSTALL_DIR/share:$DYNAWO_INSTALL_DIR/share/xsd
-  export_var_env DYNAWO_DICTIONARIES=dictionaries_mapping
+  export_var_env DYNAWO_LOCALE="$DYNAWO_ALGORITHMS_LOCALE"
+  export_var_env DYNAWO_USE_XSD_VALIDATION="false"
+  export_var_env DYNAWO_DDB_DIR="$DYNAWO_INSTALL_DIR/ddb"
+  export_var_env DYNAWO_RESOURCES_DIR="$DYNAWO_INSTALL_DIR/share:$DYNAWO_INSTALL_DIR/share/xsd"
+  export_var_env DYNAWO_DICTIONARIES="dictionaries_mapping"
   export_var_env DYNAWO_PYTHON_COMMAND="python"
 
-  export IIDM_XML_XSD_PATH=${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/
+  export IIDM_XML_XSD_PATH="${DYNAWO_LIBIIDM_INSTALL_DIR}/share/iidm/xsd/"
   
   if [[ -d "$DYNAWO_INSTALL_DIR/OpenModelica" ]]; then
-    export PATH=$DYNAWO_INSTALL_DIR/OpenModelica/bin:$PATH
-    export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_INSTALL_DIR/OpenModelica
-    export_var_env OPENMODELICAHOME=$DYNAWO_INSTALL_OPENMODELICA
+    export PATH="$DYNAWO_INSTALL_DIR/OpenModelica/bin:$PATH"
+    export_var_env DYNAWO_INSTALL_OPENMODELICA="$DYNAWO_INSTALL_DIR/OpenModelica"
+    export_var_env OPENMODELICAHOME="$DYNAWO_INSTALL_OPENMODELICA"
   fi
  return
 }
 
 set_lib_path() {
   # set LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH="$DYNAWO_ALGORITHMS_INSTALL_DIR/lib:$LD_LIBRARY_PATH"
   MPIRUN_PATH="$DYNAWO_ALGORITHMS_THIRD_PARTY_INSTALL_DIR/bin/mpirun"
   return
 }
@@ -101,20 +100,32 @@ export_preload() {
   # fi
   lib=$lib".so"
   
-  if [[ -d $DYNAWO_TCMALLOC_INSTALL_DIR/lib ]]; then
-    externalTcMallocLib=$(find $DYNAWO_TCMALLOC_INSTALL_DIR/lib -iname *$lib)
+  if [[ -d "$DYNAWO_TCMALLOC_INSTALL_DIR/lib" ]]; then
+    externalTcMallocLib=$(find "$DYNAWO_TCMALLOC_INSTALL_DIR/lib" -iname "*$lib" | head -n 1)
     if [[ -n "$externalTcMallocLib" ]]; then
       echo "Use downloaded tcmalloc library $externalTcMallocLib"
-      export LD_PRELOAD=$externalTcMallocLib
+      preload_lib "$externalTcMallocLib"
       return
     fi
   fi
 
-  nativeTcMallocLib=$(ldconfig -p | grep -e $lib$ | cut -d ' ' -f4)
+  nativeTcMallocLib=$(ldconfig -p | grep -e "$lib\$" | cut -d ' ' -f4 | head -n 1)
   if [[ -n "$nativeTcMallocLib" ]]; then
     echo "Use native tcmalloc library $nativeTcMallocLib"
-    export LD_PRELOAD=$nativeTcMallocLib
+    preload_lib "$nativeTcMallocLib"
     return
+  fi
+}
+
+# LD_PRELOAD entries are separated by spaces or colons and cannot be escaped:
+# when the library path contains one of them, preload it by name and let the
+# dynamic loader find it through LD_LIBRARY_PATH.
+preload_lib() {
+  if [[ "$1" == *[[:space:]:]* ]]; then
+    export LD_LIBRARY_PATH="$(dirname "$1"):$LD_LIBRARY_PATH"
+    export LD_PRELOAD="$(basename "$1")"
+  else
+    export LD_PRELOAD="$1"
   fi
 }
 
@@ -123,7 +134,7 @@ algo_CS() {
   set_lib_path
 
   # launch dynawo-algorithms
-  $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CS $@
+  "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType=CS "$@"
   RETURN_CODE=$?
 
   return ${RETURN_CODE}
@@ -134,7 +145,7 @@ algo_MC() {
   set_lib_path
   export_preload
 
-  args=""
+  args=()
   NBPROCS=1
   while (($#)); do
   case $1 in
@@ -147,14 +158,14 @@ algo_MC() {
       shift # past value
       ;;
     *)
-      args="$args $1"
+      args+=("$1")
       shift
       ;;
     esac
   done
 
   # launch margin calculation
-  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=MC $args
+  "$MPIRUN_PATH" -np $NBPROCS "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType=MC "${args[@]}"
   RETURN_CODE=$?
   unset LD_PRELOAD
 
@@ -167,7 +178,7 @@ algo_SA() {
   export_preload
 
   NBPROCS=1
-  args=""
+  args=()
   while (($#)); do
   case $1 in
     --nbThreads|-np)
@@ -179,14 +190,14 @@ algo_SA() {
       shift # past value
       ;;
     *)
-      args="$args $1"
+      args+=("$1")
       shift
       ;;
     esac
   done
 
   # launch dynamic systematic analysis
-  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=SA $args
+  "$MPIRUN_PATH" -np $NBPROCS "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType=SA "${args[@]}"
   RETURN_CODE=$?
   unset LD_PRELOAD
 
@@ -198,7 +209,7 @@ algo_CTC() {
   set_lib_path
   export_preload
 
-  args=""
+  args=()
   NBPROCS=1
   while (($#)); do
   case $1 in
@@ -211,14 +222,14 @@ algo_CTC() {
       shift # past value
       ;;
     *)
-      args="$args $1"
+      args+=("$1")
       shift
       ;;
     esac
   done
 
   # launch margin calculation
-  "$MPIRUN_PATH" -np $NBPROCS $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --simulationType=CTC $args
+  "$MPIRUN_PATH" -np $NBPROCS "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --simulationType=CTC "${args[@]}"
   RETURN_CODE=$?
   unset LD_PRELOAD
 
@@ -234,28 +245,28 @@ while (($#)); do
   case $1 in
     CS)
       shift
-      algo_CS $@ || error_exit "Dynawo CS execution failed"
+      algo_CS "$@" || error_exit "Dynawo CS execution failed"
       break
       ;;
     MC)
       shift
-      algo_MC $@ || error_exit "Dynawo MC execution failed"
+      algo_MC "$@" || error_exit "Dynawo MC execution failed"
       break
       ;;
     SA)
       shift
-      algo_SA $@ || error_exit "Dynawo SA execution failed"
+      algo_SA "$@" || error_exit "Dynawo SA execution failed"
       break
       ;;
     CTC)
       shift
-      algo_CTC $@ || error_exit "Dynawo CTC execution failed"
+      algo_CTC "$@" || error_exit "Dynawo CTC execution failed"
       break
       ;;
     --version)
       set_dynawo_env
       set_lib_path
-      $DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms --version
+      "$DYNAWO_ALGORITHMS_INSTALL_DIR/bin/dynawoAlgorithms" --version
       break
       ;;
     --help)
