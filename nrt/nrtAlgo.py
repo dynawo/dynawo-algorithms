@@ -21,6 +21,7 @@ from threading import Thread, Event
 import datetime
 from zipfile import ZipFile
 import contextlib
+import shlex
 import re
 
 nrt_dir = os.environ["DYNAWO_HOME"]
@@ -83,13 +84,13 @@ class TestCaseAlgo:
                 command += ["--output", os.path.basename(output_file)]
 
 
-        commandStr = " ".join(command) # for traces
+        commandStr = " ".join(shlex.quote(arg) for arg in command) # for traces
         self.command_= commandStr
         print (self.name_)
 
         errorTooLong = -150
         done = Event()
-        p = subprocess.Popen(commandStr, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if timeout > 0:
             def kill_on_timeout(done, timeout, p):
