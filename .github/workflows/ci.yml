@@ -8,6 +8,7 @@ defaults:
 
 env:
   DYNAWO_VERSION: 2.0.0
+  DYNAWO_RELEASE_TAG: nightly-2292_om_1.24.4
 
 jobs:
   build-linux:
@@ -23,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Fetch Dynawo
-        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_headers_v$DYNAWO_VERSION.zip
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/$DYNAWO_RELEASE_TAG/Dynawo_headers_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
         run: unzip -qq "Dynawo_headers_v${DYNAWO_VERSION}.zip"
@@ -73,7 +74,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Fetch Dynawo
-        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_omc_v$DYNAWO_VERSION.zip
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/$DYNAWO_RELEASE_TAG/Dynawo_omc_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
         run: unzip -qq "Dynawo_omc_v${DYNAWO_VERSION}.zip"
@@ -123,7 +124,7 @@ jobs:
 
       - name: Fetch Dynawo
         shell: bash
-        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/nightly/Dynawo_Windows_v$DYNAWO_VERSION.zip
+        run: curl -LOs https://github.com/${{ github.repository_owner }}/dynawo/releases/download/$DYNAWO_RELEASE_TAG/Dynawo_Windows_v$DYNAWO_VERSION.zip
 
       - name: Unzip Dynawo
         shell: cmd
