@@ -33,7 +33,13 @@ It provides the following possibilities:
 
 Dyna&omega;o-algorithms is an open-source project and as such, questions, discussions, feedbacks and more generally any form of contribution are very welcome and greatly appreciated!
 
-For further informations about contributing guidelines, please refers to the [contributing documentation](https://github.com/dynawo/.github/blob/master/CONTRIBUTING.md).
+For further information about contributing guidelines, please refer to the [contributing documentation](https://github.com/dynawo/.github/blob/master/CONTRIBUTING.md).
+
+## Supported platforms
+
+Dyna&omega;o-algorithms is tested on:
+- **Linux**: Oracle Linux 8, Debian and Ubuntu based distributions. Provided that you can install system packages, there should be no problem on any other Linux distribution;
+- **Windows**: Windows 10/11 with Visual Studio 2022.
 
 ## Dyna&omega;o algorithms Distribution
 
@@ -43,11 +49,11 @@ You can download a pre-built Dyna&omega;o-algorithms release to start testing it
 
 ### Linux Requirements for Distribution
 
-- Binary utilities: [curl](https://curl.haxx.se/) and unzip
+- Binary utilities: [curl](https://curl.se/) and unzip
 
 ``` bash
-$> apt install -y unzip curl
-$> dnf install -y unzip curl
+$> apt install -y unzip curl # Debian/Ubuntu
+$> dnf install -y unzip curl # Oracle Linux
 ```
 
 ### Windows Requirements for Distribution
@@ -89,13 +95,14 @@ Download the zip of the distribution and unzip it somewhere. Then open either `C
 
 ### Optional requirements
 
-You can install the following 3rd parties with system packages for Ubuntu 20.04:
+You can install the following 3rd parties with system packages:
 
 ``` bash
-$> apt install -y libgoogle-perftools-dev mpich
+$> apt install -y libgoogle-perftools-dev mpich # Debian/Ubuntu
+$> dnf install -y gperftools-devel mpich-devel # Oracle Linux 8 (gperftools-devel requires the EPEL repository)
 ```
 
-For other Linux distributions similar packages should exist. If not they will be downloaded and installed during the next steps.
+For other Linux distributions similar packages should exist. If not, they will be downloaded and built during the next steps.
 
 ### Configure
 
@@ -126,7 +133,7 @@ This command creates a deploy folder in ${DYNAWO_HOME}.
 The path to dynawo deploy is then the path to the subdirectory `dynawo` in the deploy folder. It is generally similar to:
 
 ``` bash
-PATH_TO_DYNAWO_DEPLOY=${DYNAWO_HOME}/deploy/gcc8/shared/dynawo/
+PATH_TO_DYNAWO_DEPLOY=${DYNAWO_HOME}/deploy/<COMPILER><COMPILER_VERSION>/shared/dynawo/ # for example deploy/gcc8/shared/dynawo/
 ```
 
 #### Environment creation
@@ -160,7 +167,7 @@ launch the following command:
 $> ./myEnvDynawoAlgorithms.sh build
 ```
 
-All commands described in the rest of this README are accessible throught this script. To access all options of the script myEnvDynawoAlgorithms.sh, type:
+All commands described in the rest of this README are accessible through this script. To access all options of the script myEnvDynawoAlgorithms.sh, type:
 
 ``` bash
 $> ./myEnvDynawoAlgorithms.sh help
@@ -310,19 +317,22 @@ A. Guironnet, M. Saugier, S. Petitrenaud, F. Xavier, and P. Panciatici, “Towar
 
 Dyna&omega;o-algorithms is licensed under the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, you can obtain one at http://mozilla.org/MPL/2.0. You can also see the [LICENSE](LICENSE.txt) file for more information.
 
-Dyna&omega;o-algorithms is using some external libraries to run simulations:
-* on Linux:
+## Third parties
+
+In addition to the third parties of [Dyna&omega;o](https://github.com/dynawo/dynawo#license), Dyna&omega;o-algorithms is using some external libraries to run simulations:
+* on Linux (downloaded and built during the build process if not found on the system):
   * [gperftools](https://github.com/gperftools/gperftools), a collection of a high-performance multi-threaded malloc implementations distributed under the BSD license. Dyna&omega;o-algorithms is currently using the version 2.6.1.
-  * [MPICH](https://www.mpich.org/), an implementation of the Message Passing Interface (MPI) standard distributed under a BSD-like license. Dyna&omega;o-algorithms currently using the version 3.4.2.
-* on Windows:
-  * [MSMPI](https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi?redirectedfrom=MSDN), a Microsoft implementation of the Message Passing Interface standard distributed under a MIT license. Dyna&omega;o-algorithms currently using the version 10.1.2.
+  * [MPICH](https://www.mpich.org/), an implementation of the Message Passing Interface (MPI) standard distributed under a BSD-like license. Dyna&omega;o-algorithms is currently using the version 3.4.2.
+* on Windows (to be installed before the build process):
+  * [MS-MPI](https://learn.microsoft.com/en-us/message-passing-interface/microsoft-mpi), a Microsoft implementation of the Message Passing Interface standard distributed under the MIT license. Dyna&omega;o-algorithms is currently using the version 10.1.2.
+
+In addition to these libraries needed for the simulation process, Dyna&omega;o-algorithms uses [cpplint](https://github.com/cpplint/cpplint), a tool used during the compilation process to ensure that the C++ files follow the Google's C++ style.
 
 ## Maintainers
 
 Dyna&omega;o-algorithms is currently maintained by the following people in RTE:
 
 * Gilles Aouizerate, [gilles.aouizerate@rte-france.com](mailto:gilles.aouizerate@rte-france.com)
-* Gautier Bureau, [gautier.bureau@rte-france.com](mailto:gautier.bureau@rte-france.com)
 * Marco Chiaramello, [marco.chiaramello@rte-france.com](mailto:marco.chiaramello@rte-france.com)
 * Julien De Sloovere, [julien.desloovere@rte-france.com](mailto:julien.desloovere@rte-france.com)
 * Joy El-Feghali, [joy.elfeghali@rte-france.com](mailto:joy.elfeghali@rte-france.com)
@@ -337,5 +347,5 @@ In case of questions or issues, you can also send an e-mail to [rte-dynawo@rte-f
 
 For more information about Dyna&omega;o and Dyna&omega;o-algorithms:
 
-* Consult [Dyna&omega;o website](http://dynawo.org)
+* Consult [Dyna&omega;o website](https://dynawo.github.io)
 * Contact us at [rte-dynawo@rte-france.com](mailto:rte-dynawo@rte-france.com)
